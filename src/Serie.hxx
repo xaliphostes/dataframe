@@ -30,6 +30,19 @@ inline void Serie::forEach(F &&cb) const
 }
 
 template <typename F>
+Array Serie::reduce(F &&reduceFn, const Array &acc)
+{
+    return std::accumulate(s_.begin(), s_.end(), acc, [reduceFn, acc] (Array previousResult, const Array& item) {
+        return reduceFn(previousResult, item) ;
+    }) ;
+
+    // auto cumul = acc;
+    // forEach([reduceFn, cumul](Array v, uint32_t i)
+    //         { cumul = reduceFn(cumul, v); });
+    // return cumul;
+}
+
+template <typename F>
 inline Serie Serie::map(F &&cb) const
 {
     auto tmp = cb(itemAt(0), 0);
@@ -47,17 +60,21 @@ inline Serie Serie::map(F &&cb) const
     return R;
 }
 
-inline const Array& Serie::array() const {
-    return s_ ;
+inline const Array &Serie::array() const
+{
+    return s_;
 }
 
-inline Array& Serie::array() {
-    return s_ ;
+inline Array &Serie::array()
+{
+    return s_;
 }
 
-inline std::ostream& operator<<(std::ostream& o, Array a) {
-    for (uint32_t i=0; i<a.size(); ++i) {
-        o << a[i] << " " ;
+inline std::ostream &operator<<(std::ostream &o, Array a)
+{
+    for (uint32_t i = 0; i < a.size(); ++i)
+    {
+        o << a[i] << " ";
     }
-    return o ;
+    return o;
 }

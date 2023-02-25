@@ -30,31 +30,19 @@ Serie::Serie(int itemSize, uint32_t count) : itemSize_(itemSize), count_(count)
 
 Serie::Serie(const Serie &s) : itemSize_(s.itemSize_), count_(s.count_)
 {
-    s_ = Array(count_ * itemSize_);
-    for (uint32_t i = 0; i < s.s_.size(); ++i)
-    {
-        s_[i] = s.s_[i];
-    }
+    s_ = Array(s.s_.cbegin(), s.s_.cend()) ;
 }
 
 Serie::Serie(int itemSize, const Array& values): itemSize_(itemSize) {
     count_ = values.size()/itemSize ;
-    s_ = Array(count_ * itemSize_) ;
-    for (uint32_t i = 0; i < values.size(); ++i)
-    {
-        s_[i] = values[i];
-    }
+    s_ = Array(values.cbegin(), values.cend()) ;
 }
 
 Serie& Serie::operator=(const Serie &s)
 {
     count_ = s.count_ ;
     itemSize_ = s.itemSize_ ;
-    s_ = Array(count_ * itemSize_) ;
-    for (uint32_t i = 0; i < s.s_.size(); ++i)
-    {
-        s_[i] = s.s_[i] ;
-    }
+    s_ = Array(s.s_.cbegin(), s.s_.cend()) ;
     return *this ;
 }
 

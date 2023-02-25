@@ -21,31 +21,40 @@
  *
  */
 #include <iostream>
+#include <cmath>
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
 
 int main()
 {
-    Dataframe dataframe ;
+    Dataframe dataframe;
 
-    Array array = {0,1,3,2,7,8,7,6, 9,7,4,3,2,8,5,5} ;
-    dataframe.add("positions", Serie(8, array)) ;
+    Array array = {0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5};
+    Serie positions = Serie(3, array);
+    dataframe.add("positions", positions);
 
-    dataframe.add("indices", dataframe["positions"].map([](const Array &t, uint32_t i) {
-        return Array({t[0] * t[0] , t[1] * t[1] + t[2] * t[2]}) ;
-    }) ) ;
+    Serie indices = positions.map([](const Array &t, uint32_t i)
+                                  { return Array({t[0] * t[0], t[1] * t[1] + t[2] * t[2]}); });
+    dataframe.add("indices", indices);
 
-    dataframe["positions"].dump() ;
-    dataframe["indices"].dump() ;
+    dataframe["positions"].dump();
+    dataframe["indices"].dump();
 
-    std::cerr << std::endl ;
+    std::cerr << std::endl;
 
-    dataframe["positions"].forEach( [](Array v, uint32_t i) {
-        std::cerr << "[" << i << "]: " << v << std::endl ;
-    }) ;
+    positions
+        .map([](const Array &t, uint32_t i)
+             {
+            double norm = std::sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]) ;
+            return Array({norm}) ; })
+        .forEach([](Array v, uint32_t i)
+                 { std::cerr << "[" << i << "]: " << v << std::endl; });
 
-    std::cerr << std::endl ;
-    std::cerr << dataframe["indices"].array() << std::endl ;
-
-    dataframe.dump() ;
+    // positions
+    //     .map([](const Array &t, uint32_t i) {
+    //         double norm = std::sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]) ;
+    //         return Array({norm}) ; })
+    //     .reduce([](Array acc, const Array& v) {
+    //         return v[0] + acc[0];
+    //     }, Array({0})) ;
 }

@@ -23,30 +23,35 @@
 #pragma once
 #include "types.h"
 #include <iostream>
+#include <numeric>
 
 class Serie
 {
 public:
-    Serie(int itemSize=0, uint32_t count = 0) ;
-    Serie(int itemSize, const Array& values);
-    Serie(const Serie &s) ;
-    Serie& operator=(const Serie &s) ;
+    Serie(int itemSize = 0, uint32_t count = 0);
+    Serie(int itemSize, const Array &values);
+    Serie(const Serie &s);
+    Serie &operator=(const Serie &s);
 
-    uint32_t size() const ;
-    uint32_t count() const ;
-    uint32_t itemSize() const ;
+    uint32_t size() const;
+    uint32_t count() const;
+    uint32_t itemSize() const;
 
-    void dump() const ;
-    Array itemAt(uint32_t i) const ;
-    const Array& array() const ;
-    Array& array() ;
-    template <typename F> void forEach(F &&cb) const ;
-    template <typename F> Serie map(F &&cb) const ;
+    void dump() const;
+    Array itemAt(uint32_t i) const;
+    const Array &array() const;
+    Array &array();
+    template <typename F>
+    void forEach(F &&cb) const;
+    template <typename F>
+    Serie map(F &&cb) const;
+    template <typename F>
+    Array reduce(F &&reduceFn, const Array &acc);
 
 private:
     Array s_;
     uint32_t count_{0};
     int itemSize_{1};
-} ;
+};
 
 #include "Serie.hxx"
