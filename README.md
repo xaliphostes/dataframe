@@ -1,6 +1,8 @@
 # dataframe
 
-Minimalist [Panda](https://pandas.pydata.org/)-like data structure in C++ which allows to create and manage series and dataframes
+Minimalist [Panda](https://pandas.pydata.org/)-like data structure in C++ which allows to create and manage series and dataframes.
+
+Not tested yet under Windows, but will have to add `export` for shared library.
 
 ## Example
 ```c++
