@@ -1,6 +1,6 @@
 # dataframe
 
-Simple [Panda](https://pandas.pydata.org/)-like data structure in C++ which allows to create and manage series and dataframes
+Minimalist [Panda](https://pandas.pydata.org/)-like data structure in C++ which allows to create and manage series and dataframes
 
 ## Example
 ```c++
