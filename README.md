@@ -1,18 +1,32 @@
 # dataframe
 
-Minimalist [Panda](https://pandas.pydata.org/)-like data structure in C++ which allows to create and manage series and dataframes. It also provides math functions to play with Series.
+Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
+
+Main functionalities are:
+- `Serie` of scalar items or n-dim items
+- Mathematical functions on `Serie`
+- Decomposition of a `Serie` into a new `Serie` (virtual Serie) using the `Manager` and some `Decomposer`s
+- Functional programming (no mutating, less bugs, very simple to use)
+- Very simple API
+- Can be extended for mathematical functions such as **eigenValues** or **eigenVectors** on a `Serie`
 
 Not tested yet under Windows, but will have to add `export` for shared library.
 
-## Example
+## Example 1
 ```c++
-Dataframe dataframe ;
+df::Serie a(2, Array({1,2,  3,4})) ;
+df::Serie b(2, Array({4,3,  2,1})) ;
 
-Array array = {0,1,3,2,7,8,7,6, 9,7,4,3,2,8,5,5} ;
-dataframe.add("positions", Serie(8, array)) ;
+Serie s = df::dot(a, b) ;
+```
 
-auto& positions = dataframe["positions"] ;
-positions.forEach( [](Array v, uint32_t i) {
-    std::cerr << "[" << i << "]: " << v << std::endl ;
-}) ;
+## Example 2
+```c++
+df::Serie a(2, Array({1,2,  3,4})) ;
+df::Serie b(2, Array({4,3,  2,1})) ;
+df::Serie c(2, Array({2,2,  1,1})) ;
+
+Array alpha{2, 3, 4} ;
+
+auto s = df::weigthedSum(df::Series({a, b, c}), alpha) ;
 ```
