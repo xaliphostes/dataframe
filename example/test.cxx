@@ -24,37 +24,103 @@
 #include <cmath>
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
+#include "../src/math.h"
+#include "../src/utils.h"
 
-int main()
+void test1()
 {
-    Dataframe dataframe;
+    std::cerr << "=====> test 1" << std::endl;
 
-    Array array = {0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5};
-    Serie positions = Serie(3, array);
-    dataframe.add("positions", positions);
-
-    Serie indices = positions.map([](const Array &t, uint32_t i)
-                                  { return Array({t[0] * t[0], t[1] * t[1] + t[2] * t[2]}); });
-    dataframe.add("indices", indices);
+    df::Dataframe dataframe;
+    dataframe.add("positions", df::Serie(3, Array({0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5}))); // vertices
+    dataframe.add("indices", df::Serie(3, Array({0, 1, 2, 2, 3, 4, 7, 8, 5})));                     // triangles
 
     dataframe["positions"].dump();
     dataframe["indices"].dump();
-
     std::cerr << std::endl;
 
-    positions
+    dataframe["positions"]
         .map([](const Array &t, uint32_t i)
              {
             double norm = std::sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]) ;
             return Array({norm}) ; })
-        .forEach([](Array v, uint32_t i)
-                 { std::cerr << "[" << i << "]: " << v << std::endl; });
+        .forEach([](const Array &v, uint32_t i)
+                 { std::cerr << "[" << i << "]: " << v[0] << std::endl; });
 
-    // positions
-    //     .map([](const Array &t, uint32_t i) {
-    //         double norm = std::sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]) ;
-    //         return Array({norm}) ; })
-    //     .reduce([](Array acc, const Array& v) {
-    //         return v[0] + acc[0];
-    //     }, Array({0})) ;
+    std::cerr << std::endl;
+}
+
+void test2()
+{
+    std::cerr << "=====> test 2" << std::endl;
+
+    df::Serie a(2, Array({1, 2, 3, 4}));
+    df::Serie b(2, Array({4, 3, 2, 1}));
+    df::Serie c(2, Array({2, 2, 1, 1}));
+
+    Array alpha{2, 3, 4};
+
+    try
+    {
+        df::info("weightedSum 1");
+        df::weigthedSum(df::Series({a, b, c}), alpha).dump();
+
+        df::info("add");
+        df::add(df::Series({a, b})).dump();
+
+        df::info("dot");
+        df::dot(a, b).dump();
+
+        df::info("negate");
+        df::negate(a).dump();
+
+        df::info("add(negate)");
+        df::add(df::Series({a,df::negate(a)})).dump();
+
+        df::info("weightedSum 2 throw");
+        df::weigthedSum(df::Series({a, b}), alpha).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    std::cerr << std::endl;
+}
+
+void test_except()
+{
+    std::cerr << "=====> test except" << std::endl;
+
+    df::Serie a(2, Array({1, 2, 3, 4}));
+    df::Serie b(2, Array({4, 3, 2, 1, 3, 3}));
+
+    try
+    {
+        df::add(df::Series({a, b})).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    // -------------------------
+
+    df::Serie c(3, Array({4, 3, 2, 1, 3, 3}));
+
+    try
+    {
+        df::add(df::Series({a, c})).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+}
+
+int main()
+{
+    test1();
+    test2();
+    test_except();
 }

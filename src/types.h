@@ -22,5 +22,20 @@
  */
 #pragma once
 #include <vector>
+#include <iostream>
 
 using Array = std::vector<double> ;
+
+inline Array createArray(uint32_t size, double initValue) {
+    Array a(size);
+    std::fill(a.begin(), a.end(), initValue);
+    return a;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const Array& a) {
+    for (auto v : a) {
+        std::cerr << v << " " ;
+    }
+    std::cerr << std::endl ;
+    return o ;
+}

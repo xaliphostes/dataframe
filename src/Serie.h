@@ -25,33 +25,48 @@
 #include <iostream>
 #include <numeric>
 
-class Serie
+namespace df
 {
-public:
-    Serie(int itemSize = 0, uint32_t count = 0);
-    Serie(int itemSize, const Array &values);
-    Serie(const Serie &s);
-    Serie &operator=(const Serie &s);
 
-    uint32_t size() const;
-    uint32_t count() const;
-    uint32_t itemSize() const;
+    class Serie
+    {
+    public:
+        Serie(int itemSize = 0, uint32_t count = 0);
+        Serie(int itemSize, const Array &values);
+        Serie(const Serie &s);
+        void reCount(uint32_t);
 
-    void dump() const;
-    Array itemAt(uint32_t i) const;
-    const Array &array() const;
-    Array &array();
-    template <typename F>
-    void forEach(F &&cb) const;
-    template <typename F>
-    Serie map(F &&cb) const;
-    template <typename F>
-    Array reduce(F &&reduceFn, const Array &acc);
+        Serie &operator=(const Serie &s);
 
-private:
-    Array s_;
-    uint32_t count_{0};
-    int itemSize_{1};
-};
+        uint32_t size() const;
+        uint32_t count() const;
+        uint32_t itemSize() const;
+
+        void dump() const;
+
+        Array value(uint32_t i) const;
+        void setValue(uint32_t i, const Array &v);
+
+        const Array &array() const;
+        Array &array();
+
+        template <typename F>
+        void forEach(F &&cb) const;
+
+        template <typename F>
+        Serie map(F &&cb) const;
+
+        template <typename F>
+        Array reduce(F &&reduceFn, const Array &acc);
+
+    private:
+        Array s_;
+        uint32_t count_{0};
+        int itemSize_{1};
+    };
+
+    using Series = std::vector<Serie> ;
+
+}
 
 #include "Serie.hxx"

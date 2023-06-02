@@ -20,61 +20,73 @@
  * SOFTWARE.
  *
  */
-template <typename F>
-inline void Serie::forEach(F &&cb) const
+
+namespace df
 {
-    for (uint32_t i = 0; i < count_; ++i)
+
+    template <typename F>
+    inline void Serie::forEach(F &&cb) const
     {
-        cb(itemAt(i), i);
-    }
-}
-
-template <typename F>
-Array Serie::reduce(F &&reduceFn, const Array &acc)
-{
-    return std::accumulate(s_.begin(), s_.end(), acc, [reduceFn, acc] (Array previousResult, const Array& item) {
-        return reduceFn(previousResult, item) ;
-    }) ;
-
-    // auto cumul = acc;
-    // forEach([reduceFn, cumul](Array v, uint32_t i)
-    //         { cumul = reduceFn(cumul, v); });
-    // return cumul;
-}
-
-template <typename F>
-inline Serie Serie::map(F &&cb) const
-{
-    auto tmp = cb(itemAt(0), 0);
-    auto itemSize = tmp.size();
-    auto R = Serie(itemSize, count_);
-    uint32_t id = 0;
-    for (uint32_t i = 0; i < count_; ++i)
-    {
-        auto r = cb(itemAt(i), i);
-        for (int j = 0; j < itemSize; ++j)
+        for (uint32_t i = 0; i < count_; ++i)
         {
-            R.s_[id++] = r[j];
+            cb(value(i), i);
         }
     }
-    return R;
-}
 
-inline const Array &Serie::array() const
-{
-    return s_;
-}
-
-inline Array &Serie::array()
-{
-    return s_;
-}
-
-inline std::ostream &operator<<(std::ostream &o, Array a)
-{
-    for (uint32_t i = 0; i < a.size(); ++i)
+    template <typename F>
+    Array Serie::reduce(F &&reduceFn, const Array &acc)
     {
-        o << a[i] << " ";
+        return std::accumulate(s_.begin(), s_.end(), acc, [reduceFn, acc](Array previousResult, const Array &item)
+                               { return reduceFn(previousResult, item); });
+
+        // auto cumul = acc;
+        // forEach([reduceFn, cumul](Array v, uint32_t i)
+        //         { cumul = reduceFn(cumul, v); });
+        // return cumul;
     }
-    return o;
+
+    template <typename F>
+    inline Serie Serie::map(F &&cb) const
+    {
+        uint32_t itemSize = 0;
+        Serie R ;
+        uint32_t id = 0;
+
+        for (uint32_t i = 0; i < count_; ++i)
+        {
+            auto r = cb(value(i), i);
+
+            if (itemSize == 0) {
+                // Here we go! We got the itemSize for teh new Serie :-)
+                itemSize = r.size();
+                R = Serie(itemSize, count_);
+            }
+
+            for (int j = 0; j < itemSize; ++j)
+            {
+                R.s_[id++] = r[j];
+            }
+        }
+        return R;
+    }
+
+    inline const Array &Serie::array() const
+    {
+        return s_;
+    }
+
+    inline Array &Serie::array()
+    {
+        return s_;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, Array a)
+    {
+        for (uint32_t i = 0; i < a.size(); ++i)
+        {
+            o << a[i] << " ";
+        }
+        return o;
+    }
+
 }

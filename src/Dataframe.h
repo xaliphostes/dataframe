@@ -36,12 +36,27 @@
  * d["positions"].dump() ;
  * ```
  */
-class Dataframe {
-public:
-    void add(const std::string& name, const Serie& serie) ;
-    void del(const std::string& name) ;
-    Serie& operator[](const std::string& name) ;
-    void dump() const ;
-private:
-    std::map<std::string, Serie> series_ ;
-} ;
+
+namespace df
+{
+
+    class Dataframe
+    {
+    public:
+        Dataframe(uint32_t count = 0);
+        void setCount(uint32_t count);
+
+        bool create(const std::string &name, uint32_t itemSize, uint32_t count = 0); // convenience
+        void add(const std::string &name, const Serie &serie);
+        void del(const std::string &name);
+
+        Serie &operator[](const std::string &name);
+
+        void dump() const;
+
+    private:
+        uint32_t count_{0};
+        std::map<std::string, Serie> series_;
+    };
+
+}

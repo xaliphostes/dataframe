@@ -23,54 +23,84 @@
 #include "Serie.h"
 #include <iostream>
 
-Serie::Serie(int itemSize, uint32_t count) : itemSize_(itemSize), count_(count)
+namespace df
 {
-    s_ = Array(count * itemSize);
-}
 
-Serie::Serie(const Serie &s) : itemSize_(s.itemSize_), count_(s.count_)
-{
-    s_ = Array(s.s_.cbegin(), s.s_.cend()) ;
-}
-
-Serie::Serie(int itemSize, const Array& values): itemSize_(itemSize) {
-    count_ = values.size()/itemSize ;
-    s_ = Array(values.cbegin(), values.cend()) ;
-}
-
-Serie& Serie::operator=(const Serie &s)
-{
-    count_ = s.count_ ;
-    itemSize_ = s.itemSize_ ;
-    s_ = Array(s.s_.cbegin(), s.s_.cend()) ;
-    return *this ;
-}
-
-uint32_t Serie::size() const { return count_ * itemSize_; }
-
-uint32_t Serie::count() const { return count_; }
-
-uint32_t Serie::itemSize() const { return itemSize_; }
-
-void Serie::dump() const
-{
-    std::cerr << std::endl;
-    forEach([](const Array &t, uint32_t i)
-            {
-      std::cerr << i << ": ";
-      for (auto tt : t) {
-        std::cerr << tt << " ";
-      }
-      std::cerr << std::endl; });
-}
-
-Array Serie::itemAt(uint32_t i) const
-{
-    auto start = i * itemSize_;
-    Array r(itemSize_);
-    for (uint j = 0; j < itemSize_; ++j)
+    Serie::Serie(int itemSize, uint32_t count) : itemSize_(itemSize), count_(count)
     {
-        r[j] = s_[start + j];
+        s_ = Array(count * itemSize);
     }
-    return r;
+
+    Serie::Serie(const Serie &s) : itemSize_(s.itemSize_), count_(s.count_)
+    {
+        s_ = Array(s.s_.cbegin(), s.s_.cend());
+    }
+
+    Serie::Serie(int itemSize, const Array &values) : itemSize_(itemSize)
+    {
+        count_ = values.size() / itemSize;
+        s_ = values;
+    }
+
+    void Serie::reCount(uint32_t c)
+    {
+        count_ = c;
+        s_ = Array(c * itemSize_);
+    }
+
+    Serie &Serie::operator=(const Serie &s)
+    {
+        count_ = s.count_;
+        itemSize_ = s.itemSize_;
+        s_ = Array(s.s_.cbegin(), s.s_.cend());
+        return *this;
+    }
+
+    uint32_t Serie::size() const { return count_ * itemSize_; }
+
+    uint32_t Serie::count() const { return count_; }
+
+    uint32_t Serie::itemSize() const { return itemSize_; }
+
+    void Serie::dump() const
+    {
+        forEach([](const Array &t, uint32_t i) {
+            std::cerr << i << ": ";
+            for (auto tt : t) {
+                std::cerr << tt << " ";
+            }
+            std::cerr << std::endl;
+        });
+        std::cerr << std::endl;
+    }
+
+    Array Serie::value(uint32_t i) const
+    {
+        auto start = i * itemSize_;
+        Array r(itemSize_);
+        for (uint j = 0; j < itemSize_; ++j)
+        {
+            r[j] = s_[start + j];
+        }
+        return r;
+    }
+
+    void Serie::setValue(uint32_t i, const Array &v)
+    {
+        if (i >= count_)
+        {
+            throw std::invalid_argument("index out of range (" + std::to_string(i) + ">=" + std::to_string(count_) + ")");
+        }
+
+        auto size = itemSize_;
+        if (v.size() != size)
+        {
+            throw std::invalid_argument("provided item size (" + std::to_string(v.size()) + ") is different from itemSize (" + std::to_string(itemSize_) + ")");
+        }
+        for (int j = 0; j < size; ++j)
+        {
+            s_[i * size + j] = v[j];
+        }
+    }
+
 }

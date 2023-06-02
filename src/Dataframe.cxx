@@ -23,26 +23,57 @@
 #include "Dataframe.h"
 #include <iostream>
 
-void Dataframe::add(const std::string& name, const Serie& serie) {
-    series_[name] = serie ;
-}
+namespace df
+{
 
-void Dataframe::del(const std::string& name) {
-    auto it = series_.find(name) ;
-    if (it != series_.end()) {
-        series_.erase (it) ;
+    Dataframe::Dataframe(uint32_t count) : count_(count)
+    {
     }
-}
 
-Serie& Dataframe::operator[](const std::string& name) {
-    return series_[name] ;
-}
+    void Dataframe::setCount(uint32_t count)
+    {
+        if (count_ != count && count > 0)
+        {
+            count_ = count;
+            if (series_.size())
+            {
+                for (auto it = series_.begin(); it != series_.end(); ++it)
+                {
 
-void Dataframe::dump() const {
-    for(auto it = series_.cbegin(); it != series_.cend(); ++it) {
-        std::cerr << "name: \"" << it->first 
-                  << "\", itemSize: " << it->second.itemSize() 
-                  << ", count: " << it->second.count()
-                  << std::endl ;
+                    it->second.reCount(count);
+                }
+            }
+        }
     }
+
+    void Dataframe::add(const std::string &name, const Serie &serie)
+    {
+        series_[name] = serie;
+    }
+
+    void Dataframe::del(const std::string &name)
+    {
+        auto it = series_.find(name);
+        if (it != series_.end())
+        {
+            series_.erase(it);
+        }
+    }
+
+    Serie &Dataframe::operator[](const std::string &name)
+    {
+        return series_[name];
+    }
+
+    void Dataframe::dump() const
+    {
+        for (auto it = series_.cbegin(); it != series_.cend(); ++it)
+        {
+            std::cerr << "name: \"" << it->first
+                      << "\", itemSize: " << it->second.itemSize()
+                      << ", count: " << it->second.count()
+                      << std::endl;
+        }
+    }
+
 }
