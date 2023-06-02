@@ -20,6 +20,7 @@
  * SOFTWARE.
  *
  */
+
 #pragma once
 #include "types.h"
 #include <iostream>
@@ -45,19 +46,19 @@ namespace df
         void dump() const;
 
         Array value(uint32_t i) const;
+
+        double scalar(uint32_t i) const;
         void setValue(uint32_t i, const Array &v);
 
         const Array &array() const;
         Array &array();
 
-        template <typename F>
-        void forEach(F &&cb) const;
+        template <typename F> void forEach(F &&cb) const;
+        template <typename F> void forEachScalar(F &&cb) const;
 
-        template <typename F>
-        Serie map(F &&cb) const;
+        template <typename F> Serie map(F &&cb) const;
 
-        template <typename F>
-        Array reduce(F &&reduceFn, const Array &acc);
+        template <typename F> Array reduce(F &&reduceFn, const Array &acc);
 
     private:
         Array s_;

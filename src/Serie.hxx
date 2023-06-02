@@ -21,6 +21,8 @@
  *
  */
 
+#include "inferring.h"
+
 namespace df
 {
 
@@ -34,10 +36,29 @@ namespace df
     }
 
     template <typename F>
+    inline void Serie::forEachScalar(F &&cb) const
+    {
+        if (itemSize_ != 1) {
+            throw std::invalid_argument("(forEachScalar) itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        }
+
+        for (uint32_t i = 0; i < count_; ++i)
+        {
+            cb(scalar(i), i);
+        }
+    }
+
+    template <typename F>
     Array Serie::reduce(F &&reduceFn, const Array &acc)
     {
-        return std::accumulate(s_.begin(), s_.end(), acc, [reduceFn, acc](Array previousResult, const Array &item)
-                               { return reduceFn(previousResult, item); });
+        return std::accumulate(
+            s_.begin(),
+            s_.end(),
+            acc,
+            [reduceFn, acc](Array previousResult, const Array &item)
+            {
+                return reduceFn(previousResult, item);
+            });
 
         // auto cumul = acc;
         // forEach([reduceFn, cumul](Array v, uint32_t i)
@@ -49,14 +70,15 @@ namespace df
     inline Serie Serie::map(F &&cb) const
     {
         uint32_t itemSize = 0;
-        Serie R ;
+        Serie R;
         uint32_t id = 0;
 
         for (uint32_t i = 0; i < count_; ++i)
         {
             auto r = cb(value(i), i);
 
-            if (itemSize == 0) {
+            if (itemSize == 0)
+            {
                 // Here we go! We got the itemSize for teh new Serie :-)
                 itemSize = r.size();
                 R = Serie(itemSize, count_);

@@ -20,11 +20,15 @@
  * SOFTWARE.
  *
  */
+
 #pragma once
 #include <vector>
 #include <iostream>
+#include <string>
 
 using Array = std::vector<double> ;
+using String = std::string ;
+using Strings = std::vector<String> ;
 
 inline Array createArray(uint32_t size, double initValue) {
     Array a(size);

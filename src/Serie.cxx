@@ -20,6 +20,7 @@
  * SOFTWARE.
  *
  */
+
 #include "Serie.h"
 #include <iostream>
 
@@ -64,13 +65,25 @@ namespace df
 
     void Serie::dump() const
     {
-        forEach([](const Array &t, uint32_t i) {
-            std::cerr << i << ": ";
-            for (auto tt : t) {
-                std::cerr << tt << " ";
-            }
-            std::cerr << std::endl;
-        });
+        if (itemSize_ == 1)
+        {
+            // forEach([](double t, uint32_t i)
+            // {
+            //     std::cerr << i << ": " << t << " " << std::endl;
+            // });
+        }
+        else
+        {
+            forEach([](const Array &t, uint32_t i)
+            {
+                std::cerr << i << ": ";
+                for (auto tt : t) {
+                    std::cerr << tt << " ";
+                }
+                std::cerr << std::endl;
+            });
+        }
+
         std::cerr << std::endl;
     }
 
@@ -83,6 +96,15 @@ namespace df
             r[j] = s_[start + j];
         }
         return r;
+    }
+
+    double Serie::scalar(uint32_t i) const
+    {
+        if (i > size())
+        {
+            throw std::invalid_argument("index out of bounds ("+std::to_string(i) + ">=" + std::to_string(size()));
+        }
+        return s_[i];
     }
 
     void Serie::setValue(uint32_t i, const Array &v)

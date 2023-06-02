@@ -20,26 +20,27 @@
  * SOFTWARE.
  *
  */
+
 #include <iostream>
 #include <cmath>
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
 #include "../src/math.h"
 #include "../src/utils.h"
+#include "../src/algos.h"
 
 void test1()
 {
     std::cerr << "=====> test 1" << std::endl;
 
-    df::Dataframe dataframe;
-    dataframe.add("positions", df::Serie(3, Array({0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5}))); // vertices
-    dataframe.add("indices", df::Serie(3, Array({0, 1, 2, 2, 3, 4, 7, 8, 5})));                     // triangles
+    auto positions = df::Serie(3, Array({0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5})); // vertices
+    auto indices = df::Serie(3, Array({0, 1, 2, 2, 3, 4, 7, 8, 5}));                     // triangles
 
-    dataframe["positions"].dump();
-    dataframe["indices"].dump();
+    positions.dump();
+    indices.dump();
     std::cerr << std::endl;
 
-    dataframe["positions"]
+    positions
         .map([](const Array &t, uint32_t i)
              {
             double norm = std::sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]) ;
@@ -57,28 +58,83 @@ void test2()
     df::Serie a(2, Array({1, 2, 3, 4}));
     df::Serie b(2, Array({4, 3, 2, 1}));
     df::Serie c(2, Array({2, 2, 1, 1}));
+    df::Serie d(3, Array({2, 2, 1, 1, 0, 0}));
+    df::Serie e(2, Array({2, 2, 1, 1, 0, 0}));
 
     Array alpha{2, 3, 4};
 
+    df::info("weightedSum 1");
+    df::weigthedSum(df::Series({a, b, c}), alpha).dump();
+
+    df::info("add");
+    df::add(df::Series({a, b})).dump();
+
+    df::info("dot");
+    df::dot(a, b).dump();
+
+    df::info("negate");
+    df::negate(a).dump();
+
+    df::info("add(negate)");
+    df::add(a, df::negate(a)).dump();
+
     try
     {
-        df::info("weightedSum 1");
-        df::weigthedSum(df::Series({a, b, c}), alpha).dump();
-
-        df::info("add");
-        df::add(df::Series({a, b})).dump();
-
-        df::info("dot");
-        df::dot(a, b).dump();
-
-        df::info("negate");
-        df::negate(a).dump();
-
-        df::info("add(negate)");
-        df::add(df::Series({a,df::negate(a)})).dump();
-
-        df::info("weightedSum 2 throw");
+        df::info("weightedSum 2 throw 1");
         df::weigthedSum(df::Series({a, b}), alpha).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    std::cerr << std::endl;
+
+    try
+    {
+        df::info("weightedSum 2 throw 2");
+        df::weigthedSum(df::Series({a, b, d}), alpha).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    std::cerr << std::endl;
+    
+    try
+    {
+        df::info("weightedSum 2 throw 3");
+        df::weigthedSum(df::Series({a, b, e}), alpha).dump();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    std::cerr << std::endl;
+}
+
+void test_scalar()
+{
+    std::cerr << "=====> test scalar" << std::endl;
+
+    df::Serie a(1, Array({1, 3, 2, 9}));
+    for (uint32_t i = 0; i < a.count(); ++i)
+    {
+        std::cerr << i << ": " << a.scalar(i) << std::endl;
+    }
+    std::cerr << std::endl;
+    a.forEachScalar([](double t, uint32_t i)
+                    { std::cerr << i << ": " << t << std::endl; });
+
+    // ----------------------------------------
+
+    df::Serie b(2, Array({1, 3, 2, 9}));
+    try
+    {
+        b.forEachScalar([](double t, uint32_t i)
+                        { std::cerr << i << ": " << t << std::endl; });
     }
     catch (std::invalid_argument &e)
     {
@@ -116,11 +172,38 @@ void test_except()
     {
         df::error(e.what());
     }
+
+    try {
+        df::Dataframe dataframe ;
+        dataframe.add("pos", df::Serie(3, Array({0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5})));
+        dataframe.add("idx", df::Serie(3, Array({0, 1, 2, 2, 3, 4, 7, 8, 5})));
+    } catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+    }
+
+    std::cerr << std::endl;
+}
+
+void testApply() {
+    std::cerr << "=====> test apply" << std::endl;
+
+    df::Serie a(2, Array({1, 2, 3, 4}));
+    auto s = df::apply(a, [](const Array& a, uint32_t i) {
+        Array r = a;
+        for (auto& v: r) {
+            v *= 10 ; // multiply by 10 each component of each item
+        }
+        return r;
+    });
+    s.dump();
 }
 
 int main()
 {
     test1();
     test2();
+    test_scalar();
     test_except();
+    testApply();
 }

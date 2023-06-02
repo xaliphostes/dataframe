@@ -20,6 +20,7 @@
  * SOFTWARE.
  *
  */
+
 #include "Dataframe.h"
 #include <iostream>
 
@@ -48,6 +49,13 @@ namespace df
 
     void Dataframe::add(const std::string &name, const Serie &serie)
     {
+        if (count_ == 0) {
+            count_ = serie.count();
+        }
+
+        if (count_ != serie.count()) {
+            throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count ("+std::to_string(serie.count())+") is different from the Dataframe count ("+std::to_string(count_)+")");
+        }
         series_[name] = serie;
     }
 

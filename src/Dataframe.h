@@ -20,6 +20,7 @@
  * SOFTWARE.
  *
  */
+
 #pragma once
 #include "Serie.h"
 #include <map>
