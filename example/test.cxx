@@ -33,8 +33,8 @@ void test1()
 {
     std::cerr << "=====> test 1" << std::endl;
 
-    auto positions = df::Serie(3, Array({0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5})); // vertices
-    auto indices = df::Serie(3, Array({0, 1, 2, 2, 3, 4, 7, 8, 5}));                     // triangles
+    auto positions = df::Serie(3, {0, 1, 3, 2, 7, 8, 7, 6, 9, 7, 4, 3, 2, 8, 5}); // vertices
+    auto indices = df::Serie(3, {0, 1, 2, 2, 3, 4, 7, 8, 5});                     // triangles
 
     positions.dump();
     indices.dump();

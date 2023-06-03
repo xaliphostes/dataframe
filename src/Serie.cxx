@@ -43,6 +43,12 @@ namespace df
         s_ = values;
     }
 
+    Serie::Serie(int itemSize, const std::initializer_list<double> &values) : itemSize_(itemSize)
+    {
+        count_ = values.size() / itemSize;
+        s_ = Array(values);
+    }
+
     void Serie::reCount(uint32_t c)
     {
         count_ = c;

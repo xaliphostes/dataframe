@@ -15,8 +15,8 @@ Not tested yet under Windows, but will have to add `export` for shared library.
 
 ## Example 1
 ```c++
-df::Serie a(2, Array({1,2,  3,4})) ;
-df::Serie b(2, Array({4,3,  2,1})) ;
+df::Serie a(2, {1,2,  3,4}) ; // first param is the dim of the Serie
+df::Serie b(2, {4,3,  2,1}) ;
 
 Serie s = df::dot(a, b) ;
 ```
@@ -29,9 +29,9 @@ Constraints:
 - All `Serie` must have the same `itemSize()`
 - Size of weights must be equal to the size of array of the provided `Serie`s
 ```c++
-df::Serie a(2, Array({1,2,  3,4})) ;
-df::Serie b(2, Array({4,3,  2,1})) ;
-df::Serie c(2, Array({2,2,  1,1})) ;
+df::Serie a(2, {1,2,  3,4}) ;
+df::Serie b(2, {4,3,  2,1}) ;
+df::Serie c(2, {2,2,  1,1}) ;
 
 auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
@@ -39,7 +39,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ## Example 3
 Possible extension (very simple to implement) ;-)
 ```c++
-df::Serie s(6, Array(....)) ; // symmetric 3x3 matrices
+df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
 auto vectors = df::eigenVectors(s) ; // and that's it!
 
 vectors.forEach([](const Array& v, uint32_t index) {

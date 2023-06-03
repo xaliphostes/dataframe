@@ -34,6 +34,7 @@ namespace df
     public:
         Serie(int itemSize = 0, uint32_t count = 0);
         Serie(int itemSize, const Array &values);
+        Serie(int itemSize, const std::initializer_list<double> &values);
         Serie(const Serie &s);
         void reCount(uint32_t);
 
