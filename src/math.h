@@ -28,11 +28,8 @@
 namespace df
 {
 
-    Serie add(const Series &series) {
-        // TODO CHECK:
-        // 1) All series have same count() and itemSize()
-
-
+    Serie add(const std::initializer_list<Serie> &list) {
+        Series series(list) ;
 
         const Serie& firstSerie = series[0];
         uint32_t itemSize = firstSerie.itemSize() ;
@@ -69,37 +66,9 @@ namespace df
         });
     }
 
-    Serie add(const Serie &a, const Serie& b) {
-        const Serie& firstSerie = a;
-        uint32_t itemSize = firstSerie.itemSize() ;
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) {
+        Series series(list);
 
-            
-            if (a.count() != b.count()) {
-                throw std::invalid_argument("(add) Series are incompatble. Serie a has count=" +
-                    std::to_string(firstSerie.count()) +
-                    " and the Serie b has count=" +
-                    std::to_string(b.count()));
-            }
-            if (a.itemSize() != b.itemSize()) {
-                throw std::invalid_argument("(add) Series are incompatble. Serie a has itemSize=" +
-                    std::to_string(firstSerie.itemSize()) +
-                    " and the Serie has itemSize " +
-                    std::to_string(b.itemSize()));
-            }
-
-        return a.map([b, itemSize](const Array& a, uint32_t i) { // ieme item
-            Array r = a;
-            for (uint32_t k=0; k<itemSize; ++k) {
-                r[k] += b.value(i)[k];
-            }
-            return r;
-        });
-    }
-
-    Serie weigthedSum(const Series &series, const Array &weights) {
-        // TODO CHECK:
-        // 1) alpha.size() == series.size()
-        // 2) All series have same count() and itemSize()
         if (series.size() != weights.size()) {
                 throw std::invalid_argument("(weightedSum) Number of series (" +
                     std::to_string(series.size()) +

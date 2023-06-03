@@ -64,10 +64,10 @@ void test2()
     Array alpha{2, 3, 4};
 
     df::info("weightedSum 1");
-    df::weigthedSum(df::Series({a, b, c}), alpha).dump();
+    df::weigthedSum({a, b, c}, alpha).dump();
 
-    df::info("add");
-    df::add(df::Series({a, b})).dump();
+    df::info("add initializer_list");
+    df::add({a,b,c}).dump();
 
     df::info("dot");
     df::dot(a, b).dump();
@@ -76,12 +76,12 @@ void test2()
     df::negate(a).dump();
 
     df::info("add(negate)");
-    df::add(a, df::negate(a)).dump();
+    df::add({a, df::negate(a)}).dump();
 
     try
     {
         df::info("weightedSum 2 throw 1");
-        df::weigthedSum(df::Series({a, b}), alpha).dump();
+        df::weigthedSum({a, b}, alpha).dump();
     }
     catch (std::invalid_argument &e)
     {
@@ -93,7 +93,7 @@ void test2()
     try
     {
         df::info("weightedSum 2 throw 2");
-        df::weigthedSum(df::Series({a, b, d}), alpha).dump();
+        df::weigthedSum({a, b, d}, alpha).dump();
     }
     catch (std::invalid_argument &e)
     {
@@ -105,7 +105,7 @@ void test2()
     try
     {
         df::info("weightedSum 2 throw 3");
-        df::weigthedSum(df::Series({a, b, e}), alpha).dump();
+        df::weigthedSum({a, b, e}, alpha).dump();
     }
     catch (std::invalid_argument &e)
     {
@@ -153,7 +153,7 @@ void test_except()
 
     try
     {
-        df::add(df::Series({a, b})).dump();
+        df::add({a, b}).dump();
     }
     catch (std::invalid_argument &e)
     {
@@ -166,7 +166,7 @@ void test_except()
 
     try
     {
-        df::add(df::Series({a, c})).dump();
+        df::add({a, c}).dump();
     }
     catch (std::invalid_argument &e)
     {

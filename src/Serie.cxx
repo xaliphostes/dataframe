@@ -65,24 +65,14 @@ namespace df
 
     void Serie::dump() const
     {
-        if (itemSize_ == 1)
+        forEach([](const Array &t, uint32_t i)
         {
-            // forEach([](double t, uint32_t i)
-            // {
-            //     std::cerr << i << ": " << t << " " << std::endl;
-            // });
-        }
-        else
-        {
-            forEach([](const Array &t, uint32_t i)
-            {
-                std::cerr << i << ": ";
-                for (auto tt : t) {
-                    std::cerr << tt << " ";
-                }
-                std::cerr << std::endl;
-            });
-        }
+            std::cerr << i << ": ";
+            for (auto tt : t) {
+                std::cerr << tt << " ";
+            }
+            std::cerr << std::endl;
+        });
 
         std::cerr << std::endl;
     }
