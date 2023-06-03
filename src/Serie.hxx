@@ -55,15 +55,18 @@ namespace df
             s_.begin(),
             s_.end(),
             acc,
-            [reduceFn, acc](Array previousResult, const Array &item)
+            [reduceFn, acc](const Array &previousResult, const Array &item)
             {
                 return reduceFn(previousResult, item);
             });
 
         // auto cumul = acc;
-        // forEach([reduceFn, cumul](Array v, uint32_t i)
-        //         { cumul = reduceFn(cumul, v); });
+        // forEach([reduceFn, cumul](Array v, uint32_t i) {
+        //     cumul = reduceFn(cumul, v);
+        // });
         // return cumul;
+
+        
     }
 
     template <typename F>
@@ -92,12 +95,12 @@ namespace df
         return R;
     }
 
-    inline const Array &Serie::array() const
+    inline const Array &Serie::asArray() const
     {
         return s_;
     }
 
-    inline Array &Serie::array()
+    inline Array &Serie::asArray()
     {
         return s_;
     }

@@ -15,10 +15,11 @@ Not tested yet under Windows, but will have to add `export` for shared library.
 
 ## Example 1
 ```c++
-df::Serie a(2, {1,2,  3,4}) ; // first param is the dim of the Serie
-df::Serie b(2, {4,3,  2,1}) ;
+df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the dim of the Serie: 3
+df::Serie b(3, {4,3,3,  2,1,0}) ;
 
-Serie s = df::dot(a, b) ;
+df::Serie dot = df::dot(a, b) ;
+dot.dump();
 ```
 
 ## Example 2

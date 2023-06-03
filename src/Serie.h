@@ -51,14 +51,12 @@ namespace df
         double scalar(uint32_t i) const;
         void setValue(uint32_t i, const Array &v);
 
-        const Array &array() const;
-        Array &array();
+        const Array &asArray() const;
+        Array &asArray();
 
         template <typename F> void forEach(F &&cb) const;
         template <typename F> void forEachScalar(F &&cb) const;
-
         template <typename F> Serie map(F &&cb) const;
-
         template <typename F> Array reduce(F &&reduceFn, const Array &acc);
 
     private:
