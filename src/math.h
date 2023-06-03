@@ -119,6 +119,10 @@ namespace df
         });
     }
 
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) {
+        return weigthedSum(list, Array(weights));
+    }
+
     Serie scale(const Serie& s, double scale) {
         uint32_t size = s.itemSize();
         return s.map([scale, size](const Array& a, uint32_t i) {

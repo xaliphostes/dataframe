@@ -66,6 +66,9 @@ void test2()
     df::info("weightedSum 1");
     df::weigthedSum({a, b, c}, alpha).dump();
 
+    df::info("weightedSum 1.1");
+    df::weigthedSum({a, b, c}, {2, 3, 4}).dump();
+
     df::info("add initializer_list");
     df::add({a,b,c}).dump();
 

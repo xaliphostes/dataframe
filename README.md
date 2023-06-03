@@ -27,15 +27,13 @@ Performs a weighted sum of Series ;-)
 Constraints:
 - All `Serie` must have the same `count()`
 - All `Serie` must have the same `itemSize()`
-- Size of `weights` must be equal to the size of array of the provided `Serie`s
+- Size of weights must be equal to the size of array of the provided `Serie`s
 ```c++
 df::Serie a(2, Array({1,2,  3,4})) ;
 df::Serie b(2, Array({4,3,  2,1})) ;
 df::Serie c(2, Array({2,2,  1,1})) ;
 
-Array weights{2, 3, 4} ;
-
-auto s = df::weigthedSum({a, b, c}, weights) ;
+auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
 
 ## Example 3
