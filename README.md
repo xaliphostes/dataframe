@@ -46,4 +46,5 @@ auto vectors = df::eigenVectors(s) ; // and that's it!
 vectors.forEach([](const Array& v, uint32_t index) {
     std::cout << "eigen vector at index " 
               << std::to_string(index)
-              << " is " << v  << std::endl ;
+              << " is: " << v  << std::endl ;
+});
