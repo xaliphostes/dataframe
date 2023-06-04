@@ -13,6 +13,11 @@ Main functionalities are:
 
 Not tested yet under Windows, but will have to add `export` for shared library.
 
+# Organization of this lib
+
+- Main files are `Dataframe` and `Serie`
+- Folder `math` provides some examples of what is possible to do with `Serie` (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe))
+
 ## Example 1
 ```c++
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the dim of the Serie: 3

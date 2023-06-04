@@ -1,6 +1,6 @@
 # TODO list
 1. Is there a way to get rid of the difference between Array and double ?
-In `Serie`, we have to methods to deal with this problem:
+In `Serie`, we have "two methods" to deal with this problem:
 ```c++
 class Serie {
 public:
@@ -12,6 +12,6 @@ public:
 ```
 If we know that the Serie is with `itemSize=1`, then we can use the second method. Otherwise, the first one have to be used.
 
-The file `inferring.h` might be helpful to deal with `double` / `Array` (or not).
+2. The file `inferring.h` might be helpful to deal with `double` / `Array` (or not).
 
-2. Finish the `Manager` / `Decomposer`
+3. Finish the `Manager` / `Decomposer` with some examples...
