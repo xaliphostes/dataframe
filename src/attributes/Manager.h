@@ -22,53 +22,37 @@
  */
 
 #pragma once
-#include "types.h"
-#include <iostream>
-#include <numeric>
+
+#include "../Dataframe.h"
+#include "../Serie.h"
+#include "../types.h"
+#include "Decomposer.h"
 
 namespace df
 {
 
-    class Serie
+    /**
+     * @brief Manager of decomposers
+     */
+    class Manager
     {
     public:
-        Serie(int itemSize = 0, uint32_t count = 0);
-        Serie(int itemSize, const Array &values);
-        Serie(int itemSize, const std::initializer_list<double> &values);
-        Serie(const Serie &s);
+        /**
+         * By default, no decomposer...
+         */
+        Manager(const Dataframe &dataframe, const Decomposers &decomposers = {});
 
-        bool isValid() const ;
-        void reCount(uint32_t);
+        void add(const Decomposer &decomposer);
+        void clear();
 
-        Serie &operator=(const Serie &s);
-        Serie clone() const ;
-
-        uint32_t size() const;
-        uint32_t count() const;
-        uint32_t itemSize() const;
-
-        void dump() const;
-
-        Array value(uint32_t i) const;
-        double scalar(uint32_t i) const;
-        void setValue(uint32_t i, const Array &v);
-
-        const Array &asArray() const;
-        Array &asArray();
-
-        template <typename F> void forEach(F &&cb) const;
-        template <typename F> void forEachScalar(F &&cb) const;
-        template <typename F> Serie map(F &&cb) const;
-        template <typename F> Array reduce(F &&reduceFn, const Array &acc);
+        Serie serie(uint32_t itemSize, const String &name) const;
+        Strings names(uint32_t itemSize) const;
+        bool contains(uint32_t itemSize, const String &name) const;
 
     private:
-        Array s_;
-        uint32_t count_{0};
-        int itemSize_{1};
+        const Dataframe &df_;
+        std::vector<Decomposer> ds_;
+        uint8_t dim_{3};
     };
 
-    using Series = std::vector<Serie> ;
-
 }
-
-#include "Serie.hxx"

@@ -1,4 +1,4 @@
-# dataframe
+# Dataframe
 
 Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
 
@@ -48,3 +48,10 @@ vectors.forEach([](const Array& v, uint32_t index) {
               << std::to_string(index)
               << " is: " << v  << std::endl ;
 });
+```
+
+## Licence
+MIT
+
+## Contact
+fmaerten@gmail.com

@@ -22,15 +22,12 @@
  */
 
 #pragma once
-#include "Serie.h"
+#include "../Serie.h"
 
 namespace df
 {
 
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
-    {
-        return serie.map(fn);
-    }
+    Serie scale(const Serie& s, double scale) ;
+    Serie scale(const Serie& s, const Array& scales) ;
 
 }

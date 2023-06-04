@@ -30,28 +30,21 @@
  * INFO: Not used yet...
  */
 
-// inspired from https://stackoverflow.com/a/7943765
-
 template <typename T>
 struct function_traits : public function_traits<decltype(&T::operator())>
 {
-    // For generic types, directly use the result of the signature of its
-    // 'operator()'
 };
 
 template <typename ClassType, typename ReturnType, typename... Args>
 struct function_traits<ReturnType (ClassType::*)(Args...) const>
 {
-    // arity is the number of arguments.
+    typedef ReturnType result_type;
+    
     enum
     {
         arity = sizeof...(Args)
     };
 
-    typedef ReturnType result_type;
-
-    // the i-th argument is equivalent to the i-th tuple element of a tuple
-    // composed of those arguments.
     template <uint32_t i>
     struct arg
     {

@@ -49,6 +49,10 @@ namespace df
         s_ = Array(values);
     }
 
+    bool Serie::isValid() const {
+        return itemSize_==0;
+    }
+
     void Serie::reCount(uint32_t c)
     {
         count_ = c;
@@ -61,6 +65,10 @@ namespace df
         itemSize_ = s.itemSize_;
         s_ = Array(s.s_.cbegin(), s.s_.cend());
         return *this;
+    }
+
+    Serie Serie::clone() const {
+        return Serie(itemSize_, s_);
     }
 
     uint32_t Serie::size() const { return count_ * itemSize_; }

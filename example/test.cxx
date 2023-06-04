@@ -25,7 +25,11 @@
 #include <cmath>
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
-#include "../src/math.h"
+#include "../src/math/add.h"
+#include "../src/math/dot.h"
+#include "../src/math/negate.h"
+#include "../src/math/scale.h"
+#include "../src/math/weightedSum.h"
 #include "../src/utils.h"
 #include "../src/algos.h"
 

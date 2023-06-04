@@ -22,15 +22,12 @@
  */
 
 #pragma once
-#include "Serie.h"
+#include "../Serie.h"
 
 namespace df
 {
 
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
-    {
-        return serie.map(fn);
-    }
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) ;
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) ;
 
 }

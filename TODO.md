@@ -11,3 +11,7 @@ public:
 };
 ```
 If we know that the Serie is with `itemSize=1`, then we can use the second method. Otherwise, the first one have to be used.
+
+The file `inferring.h` might be helpful to deal with `double` / `Array` (or not).
+
+2. Finish the `Manager` / `Decomposer`

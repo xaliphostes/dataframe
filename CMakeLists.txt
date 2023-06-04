@@ -41,6 +41,13 @@ endif()
 set(SRC_dataframe
     ./src/Dataframe.cxx
     ./src/Serie.cxx
+    ./src/attributes/Manager.cxx
+    ./src/attributes/Decomposer.cxx
+    ./src/math/add.cxx
+    ./src/math/dot.cxx
+    ./src/math/negate.cxx
+    ./src/math/scale.cxx
+    ./src/math/weightedSum.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})
