@@ -17,7 +17,7 @@ Not tested yet under Windows, but will have to add `export` for shared library.
 
 - Main files are `Dataframe` and `Serie`
 - Folder `math` provides some examples of what is possible to do with `Serie` (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe))
-- Folder `attributes` provides a way of decomposing any `Serie` into other `Serie`. For example, a `Serie` with `itemType=6` might represent symmetric matrices 3x3. Therefore, attributes can be :
+- Folder `attributes` provides a way of decomposing any `Serie` into other `Serie`. For example, a `Serie` with `itemType=6` might represent symmetric matrices 3x3. Therefore, attributes (i.e., possible decomposed `Serie`s) can be :
     - Components of the matrices
     - Eigen vectors
     - Eigen values
