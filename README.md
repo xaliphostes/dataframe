@@ -60,6 +60,23 @@ vectors.forEach([](const Array& v, uint32_t index) {
 });
 ```
 
+## Example 4: Attributes
+```c++
+df::Manager mng(dataframe, {
+    PositionDecomposer(),
+    ComponentDecomposer(),
+    EigenValuesDecomposer(),
+    EigenVectorsDecomposer()
+])
+
+// Gather possible scalar series names
+console.log( mng.names(1) )
+// Will display: Sxx, Sxy, Sxz, Syy, Syz, Szz, S1, S2, S
+
+Serie scalarS1 = mng.serie(1, 'S1') // eigen values for S1
+Serie vectorS1 = mng.serie(3, 'S1') // eigen vectors for S1
+```
+
 ## Licence
 MIT
 

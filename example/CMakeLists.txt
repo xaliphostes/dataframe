@@ -18,10 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(test)
+project(example)
 
-add_executable(${PROJECT_NAME} test.cxx)
-# set(EXECUTABLE_OUTPUT_PATH ./bin)
+add_executable(${PROJECT_NAME} main.cxx)
 set(EXECUTABLE_OUTPUT_PATH ${DIST_DIR})
 
 #file(COPY "s1.ts" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
