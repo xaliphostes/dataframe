@@ -21,16 +21,36 @@
  *
  */
 
-#pragma once
-#include "Serie.h"
+#include <iostream>
+#include "../src/Serie.h"
+#include "../src/Dataframe.h"
+#include "../src/utils.h"
+#include "../src/math/weightedSum.h"
+#include "../src/math/add.h"
+#include "../src/math/dot.h"
+#include "../src/math/negate.h"
+#include "assertions.h"
 
-namespace df
+int main()
 {
+    df::Serie a(2, {1, 2, 3, 4});
+    df::Serie b(2, {4, 3, 2, 1, 3, 3});
+    df::Serie c(3, {4, 3, 2, 1, 3, 3}); // different itemSize from previous
 
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
-    {
-        return serie.map(fn);
-    }
+    shouldThrowError([a, b]() {
+        df::add({a, b});
+    });
 
+    shouldThrowError([a, c]() {
+        df::add({a, c});
+    });
+
+    shouldThrowError([a, b]() {
+        // Not same count
+        df::Dataframe dataframe ;
+        dataframe.add("pos", a);
+        dataframe.add("idx", b);
+    });
+
+    return 0;
 }

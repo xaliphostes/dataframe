@@ -35,6 +35,20 @@ Not tested yet under Windows, but will have to add `export` for shared library.
     - Eigen values
     - ...
 
+# Compilation
+Create a `build` dirctory, **go inside** and type
+```sh
+cmake .. && make
+```
+
+# Running unit tests
+In the same directory, type
+```sh
+ctest
+```
+
+# API
+
 ## Example 1
 ```c++
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the dim of the Serie: 3

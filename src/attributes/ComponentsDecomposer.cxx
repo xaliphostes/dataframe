@@ -30,7 +30,7 @@ namespace df {
             return Strings();
         }
 
-        String names;
+        Strings names;
         // TODO...
 
         return names;

@@ -21,48 +21,30 @@
  *
  */
 
-#pragma once
+#include <iostream>
+#include "../src/Serie.h"
+#include "../src/Dataframe.h"
+#include "../src/utils.h"
+#include "../src/algos/apply.h"
+#include "../src/math/weightedSum.h"
+#include "../src/math/add.h"
+#include "../src/math/dot.h"
+#include "../src/math/negate.h"
+#include "assertions.h"
 
-#include "types.h"
-#include <tuple>
-
-/*
- * INFO: Not used yet...
- */
-
-template <typename T>
-struct function_traits : public function_traits<decltype(&T::operator())>
+int main()
 {
-};
+    df::Serie a(1, {1, 2, 3, 4});
 
-template <typename ClassType, typename ReturnType, typename... Args>
-struct function_traits<ReturnType (ClassType::*)(Args...) const>
-{
-    typedef ReturnType result_type;
-    enum
-    {
-        arity = sizeof...(Args)
-    };
+    auto s = df::apply(a, [](const Array& a, uint32_t i) {
+        Array r = a;
+        for (auto& v: r) {
+            v = std::sqrt(v) ;
+        }
+        return r;
+    });
 
-    template <uint32_t i>
-    struct arg
-    {
-        typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-    };
-};
+    assertArrayEqual(s, Array{1, std::sqrt(2), std::sqrt(3), 2});
 
-// ========================================================
-
-template <typename F>
-bool isReturnTypeADouble(F cb)
-{
-    using traits = function_traits<decltype(cb)>;
-    return std::is_same<double, typename traits::result_type>::value;
-}
-
-template <typename F>
-bool isReturnTypeAnArray(F cb)
-{
-    using traits = function_traits<decltype(cb)>;
-    return std::is_same<Array, typename traits::result_type>::value;
+    return 0;
 }

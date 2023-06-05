@@ -22,47 +22,15 @@
  */
 
 #pragma once
+#include "../Serie.h"
 
-#include "types.h"
-#include <tuple>
-
-/*
- * INFO: Not used yet...
- */
-
-template <typename T>
-struct function_traits : public function_traits<decltype(&T::operator())>
+namespace df
 {
-};
 
-template <typename ClassType, typename ReturnType, typename... Args>
-struct function_traits<ReturnType (ClassType::*)(Args...) const>
-{
-    typedef ReturnType result_type;
-    enum
+    template <typename F>
+    Serie apply(const Serie &serie, F &&fn)
     {
-        arity = sizeof...(Args)
-    };
+        return serie.map(fn);
+    }
 
-    template <uint32_t i>
-    struct arg
-    {
-        typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
-    };
-};
-
-// ========================================================
-
-template <typename F>
-bool isReturnTypeADouble(F cb)
-{
-    using traits = function_traits<decltype(cb)>;
-    return std::is_same<double, typename traits::result_type>::value;
-}
-
-template <typename F>
-bool isReturnTypeAnArray(F cb)
-{
-    using traits = function_traits<decltype(cb)>;
-    return std::is_same<Array, typename traits::result_type>::value;
 }

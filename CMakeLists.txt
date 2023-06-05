@@ -27,6 +27,24 @@ set(CMAKE_CXX_EXTENSIONS on)
 
 set(DIST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
+if(ENABLE_COVERAGE)
+  # set compiler flags
+  set(CMAKE_CXX_FLAGS "-O0 -coverage")
+
+  # find required tools
+  find_program(LCOV lcov REQUIRED)
+  find_program(GENHTML genhtml REQUIRED)
+
+  # add coverage target
+  add_custom_target(coverage
+    # gather data
+    COMMAND ${LCOV} --directory . --capture --output-file coverage.info
+    # generate report
+    # --ignore-errors inconsistent 
+    COMMAND ${GENHTML}--demangle-cpp -o coverage coverage.info
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
+
 IF (WIN32)
     add_definitions( -DATAFRAME_EXPORTS=TRUE )
 ENDIF()
@@ -58,24 +76,6 @@ set_target_properties(dataframe-shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DIS
 set_target_properties(dataframe-shared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIST_DIR})
 set_target_properties(dataframe-shared PROPERTIES PDB_OUTPUT_DIRECTORY ${DIST_DIR})
 
-add_subdirectory(example/)
-
-# testing binary
-add_executable(weigthedSum unitTest/weigthedSum.c++)
-target_link_libraries(weigthedSum PRIVATE dataframe-shared)
-
-add_executable(addDotNegate unitTest/addDotNegate.c++)
-target_link_libraries(addDotNegate PRIVATE dataframe-shared)
-
-# enable testing functionality
+# Testing...
 enable_testing()
-
-# define tests
-add_test(
-  NAME weigthedSum
-  COMMAND $<TARGET_FILE:weigthedSum>
-)
-add_test(
-  NAME addDotNegate
-  COMMAND $<TARGET_FILE:addDotNegate>
-)
+add_subdirectory(unitTest)

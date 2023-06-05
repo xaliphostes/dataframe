@@ -29,13 +29,7 @@
 #include "../src/math/add.h"
 #include "../src/math/dot.h"
 #include "../src/math/negate.h"
-
-void assertEqual(double a, double b) {
-    if (a != b) {
-        std::cout << "Value " << a << " is NOT EQUAL to value " << b << std::endl ;
-        exit(-1);
-    }
-}
+#include "assertions.h"
 
 int main()
 {
@@ -47,51 +41,26 @@ int main()
 
     Array weights{2, 3, 4};
     {
-        auto s = df::weigthedSum({a, b, c}, weights).asArray();
-        assertEqual(s[0], 22);
-        assertEqual(s[1], 21);
-        assertEqual(s[2], 16);
-        assertEqual(s[3], 15);
+        df::Serie s = df::weigthedSum({a, b, c}, weights);
+        assertArrayEqual(s, Array{22,21,16,15});
     }
 
     {
-        auto s = df::weigthedSum({a, b, c}, {2, 3, 4}).asArray();
-        assertEqual(s[0], 22);
-        assertEqual(s[1], 21);
-        assertEqual(s[2], 16);
-        assertEqual(s[3], 15);
+        auto s = df::weigthedSum({a, b, c}, {2, 3, 4});
+        assertArrayEqual(s, Array{22,21,16,15});
     }
-    
-    try
-    {
+
+    shouldThrowError([a, b, weights]() {
         auto s = df::weigthedSum({a, b}, weights);
-        exit(-1);
-    }
-    catch (std::invalid_argument &e)
-    {
-        // Ok throw an error
-        df::error(e.what());
-    }
+    });
 
-    try
-    {
+    shouldThrowError([a, b, d, weights]() {
         df::weigthedSum({a, b, d}, weights);
-        exit(-1);
-    }
-    catch (std::invalid_argument &e)
-    {
-        df::error(e.what());
-    }
+    });
 
-    try
-    {
+    shouldThrowError([a, b, e, weights]() {
         df::weigthedSum({a, b, e}, weights);
-        exit(-1);
-    }
-    catch (std::invalid_argument &e)
-    {
-        df::error(e.what());
-    }
+    });
 
     return 0;
 }

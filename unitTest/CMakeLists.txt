@@ -18,13 +18,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(example)
+project(unitTest)
 
-add_executable(${PROJECT_NAME} main.cxx)
-set(EXECUTABLE_OUTPUT_PATH ${DIST_DIR})
+add_executable(weigthedSum weigthedSum.c++)
+target_link_libraries(weigthedSum PRIVATE dataframe-shared)
 
-#file(COPY "s1.ts" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+add_executable(addDotNegate addDotNegate.c++)
+target_link_libraries(addDotNegate PRIVATE dataframe-shared)
 
-target_link_libraries(${PROJECT_NAME}
-    dataframe-shared
+add_executable(scalar scalar.c++)
+target_link_libraries(scalar PRIVATE dataframe-shared)
+
+add_executable(except except.c++)
+target_link_libraries(except PRIVATE dataframe-shared)
+
+add_executable(apply apply.c++)
+target_link_libraries(apply PRIVATE dataframe-shared)
+
+# define tests
+add_test(
+  NAME weigthedSum
+  COMMAND $<TARGET_FILE:weigthedSum>
+)
+add_test(
+  NAME addDotNegate
+  COMMAND $<TARGET_FILE:addDotNegate>
+)
+add_test(
+  NAME scalar
+  COMMAND $<TARGET_FILE:scalar>
+)
+add_test(
+  NAME except
+  COMMAND $<TARGET_FILE:except>
+)
+add_test(
+  NAME apply
+  COMMAND $<TARGET_FILE:apply>
 )

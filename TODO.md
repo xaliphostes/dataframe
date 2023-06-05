@@ -15,3 +15,7 @@ If we know that the Serie is with `itemSize=1`, then we can use the second metho
 2. The file `inferring.h` might be helpful to deal with `double` / `Array` (or not).
 
 3. Finish the `Manager` / `Decomposer` with some examples...
+
+4. Code coverage
+See [this link](https://github.com/pyarmak/cmake-gtest-coverage-example/blob/master/cmake/modules/CodeCoverage.cmake)
+See also [this link](https://www.danielsieger.com/blog/2022/03/06/code-coverage-for-cpp.html#:~:text=What's%20Code%20Coverage%3F,blocks%2C%20or%20lines%20being%20covered.)

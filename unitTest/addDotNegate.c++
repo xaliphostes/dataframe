@@ -29,13 +29,7 @@
 #include "../src/math/add.h"
 #include "../src/math/dot.h"
 #include "../src/math/negate.h"
-
-void assertEqual(double a, double b) {
-    if (a != b) {
-        std::cout << "Value " << a << " is NOT EQUAL to value " << b << std::endl ;
-        exit(-1);
-    }
-}
+#include "assertions.h"
 
 int main()
 {
@@ -46,33 +40,23 @@ int main()
     df::Serie e(2, {2, 2, 1, 1, 0, 0});
 
     {
-        auto s = df::add({a,b,c}).asArray();
-        assertEqual(s[0], 7);
-        assertEqual(s[1], 7);
-        assertEqual(s[2], 6);
-        assertEqual(s[3], 6);
+        auto s = df::add({a,b,c});
+        assertArrayEqual(s, Array{7,7,6,6});
     }
 
     {
-        auto s = df::dot(a, b).asArray();
-        assertEqual(s[0], 10);
-        assertEqual(s[1], 10);
+        auto s = df::dot(a, b);
+        assertArrayEqual(s, Array{10, 10});
     }
 
     {
-        auto s = df::negate(a).asArray();
-        assertEqual(s[0], -1);
-        assertEqual(s[1], -2);
-        assertEqual(s[2], -3);
-        assertEqual(s[3], -4);
+        auto s = df::negate(a);
+        assertArrayEqual(s, Array{-1, -2, -3, -4});
     }
 
     {
-        auto s = df::add({a, df::negate(a)}).asArray();
-        assertEqual(s[0], 0);
-        assertEqual(s[1], 0);
-        assertEqual(s[2], 0);
-        assertEqual(s[3], 0);
+        auto s = df::add({a, df::negate(a)});
+        assertArrayEqual(s, Array{0,0,0,0});
     }
 
     return 0;
