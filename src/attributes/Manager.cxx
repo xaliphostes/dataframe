@@ -22,6 +22,7 @@
  */
 
 #include "Manager.h"
+#include <algorithm>
 
 namespace df
 {
