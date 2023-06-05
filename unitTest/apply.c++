@@ -22,6 +22,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
 #include "../src/utils.h"
