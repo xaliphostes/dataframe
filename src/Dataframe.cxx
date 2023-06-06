@@ -47,6 +47,9 @@ namespace df
         }
     }
 
+    /**
+     * @brief Add a new Serie in this Dataframe. If a Serie with the same name already exists, it is replaced.
+     */
     void Dataframe::add(const std::string &name, const Serie &serie)
     {
         if (count_ == 0) {
@@ -57,6 +60,14 @@ namespace df
             throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count ("+std::to_string(serie.count())+") is different from the Dataframe count ("+std::to_string(count_)+")");
         }
         series_[name] = serie;
+    }
+
+    /**
+     * @brief Same as {@link add}
+     */
+    void Dataframe::set(const std::string &name, const Serie &serie)
+    {
+        add(name, serie);
     }
 
     void Dataframe::del(const std::string &name)

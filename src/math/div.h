@@ -22,44 +22,14 @@
  */
 
 #pragma once
-#include "Serie.h"
-#include <map>
-#include <string>
-
-/**
- * @brief Create a Dataframe containing several Series with same count.
- * @example
- * ```c++
- * Dataframe d ;
- * d.add("positions", Serie(3, 20)) ;
- * d.add("indices", Serie(3, 14)) ;
- * std::cout << d["positions"].array() << std::endl ;
- * d["positions"].dump() ;
- * ```
- */
+#include "../Serie.h"
 
 namespace df
 {
 
-    class Dataframe
-    {
-    public:
-        Dataframe(uint32_t count = 0);
-        void setCount(uint32_t count);
+    Serie div(const Serie &serie, double);
 
-        bool create(const std::string &name, uint32_t itemSize, uint32_t count = 0); // convenience
-        void add(const std::string &name, const Serie &serie);
-        void set(const std::string &name, const Serie &serie);
-        void del(const std::string &name);
-
-        Serie &operator[](const std::string &name);
-        const std::map<std::string, Serie>& series() const {return series_;}
-
-        void dump() const;
-
-    private:
-        uint32_t count_{0};
-        std::map<std::string, Serie> series_;
-    };
+    // TODO:
+    // Serie div(const Serie &serie, const Array &);
 
 }

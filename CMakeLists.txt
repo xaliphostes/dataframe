@@ -67,6 +67,7 @@ set(SRC_dataframe
     ./src/math/scale.cxx
     ./src/math/weightedSum.cxx
     ./src/math/transpose.cxx
+    ./src/math/div.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})
