@@ -28,6 +28,7 @@ namespace df
 {
 
     Serie div(const Serie &serie, double);
+    Serie div(const Serie &serie, const Serie& divider);
 
     // TODO:
     // Serie div(const Serie &serie, const Array &);

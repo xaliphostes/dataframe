@@ -45,7 +45,7 @@ int main()
         return r;
     });
 
-    assertArrayEqual(s, Array{1, std::sqrt(2), std::sqrt(3), 2});
+    assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
 
     return 0;
 }

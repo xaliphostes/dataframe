@@ -41,22 +41,22 @@ int main()
 
     {
         auto s = df::add({a,b,c});
-        assertArrayEqual(s, Array{7,7,6,6});
+        assertArrayEqual(s.asArray(), Array{7,7,6,6});
     }
 
     {
         auto s = df::dot(a, b);
-        assertArrayEqual(s, Array{10, 10});
+        assertArrayEqual(s.asArray(), Array{10, 10});
     }
 
     {
         auto s = df::negate(a);
-        assertArrayEqual(s, Array{-1, -2, -3, -4});
+        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
     }
 
     {
         auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s, Array{0,0,0,0});
+        assertArrayEqual(s.asArray(), Array{0,0,0,0});
     }
 
     return 0;

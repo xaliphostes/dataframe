@@ -22,58 +22,33 @@
  */
 
 #include <iostream>
-#include <cmath>
 #include "../src/Serie.h"
-#include "../src/math/transpose.h"
+#include "../src/utils.h"
+#include "../src/math/div.h"
 #include "assertions.h"
-
-void m2() {
-    /*
-        1, 2
-        3, 4
-    */
-    df::Serie a(4, {1, 2, 3, 4});
-
-    /*
-        1, 3,
-        2, 4
-    */
-    auto s = df::transpose(a);
-    assertArrayEqual(s.asArray(), Array{1, 3, 2, 4});
-
-    a = df::Serie(5, {1, 2, 3, 4, 5});
-    shouldThrowError([a]() {
-        auto s = df::transpose(a);
-    });
-}
-
-void m3() {
-    /*
-        1, 2, 3
-        4, 5, 6
-        7, 8, 9
-    */
-    df::Serie a(9, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-
-    /*
-        1, 4, 7
-        2, 5, 8
-        3, 6, 9
-    */
-    auto s = df::transpose(a);
-    assertArrayEqual(s.asArray(), Array{1, 4, 7, 2, 5, 8, 3, 6, 9});
-
-    a = df::Serie(8, {1, 2, 3, 4, 5, 6, 7, 8});
-    shouldThrowError([a]() {
-        auto s = df::transpose(a);
-    });
-}
 
 int main()
 {
+    std::vector<Array> sol {{1, 2, 3}, {1, 2, 3}};
     
-    m2();
-    m3();
-    
+    df::Serie a(3, {2, 4, 6, 3, 6, 9});
+    df::Serie divider(1, {2, 3});
+    df::Serie r = df::div(a, divider);
+
+    for (uint32_t i = 0; i < r.count(); ++i)
+    {
+        assertArrayEqual(r.value(i), sol[i]);
+    }
+ 
+    divider = df::Serie(2, {1, 3, 2, 9});
+    shouldThrowError([a, divider](){
+        df::div(a, divider);
+    });
+
+    divider = df::Serie(1, {1, 3, 2});
+    shouldThrowError([a, divider](){
+        df::div(a, divider);
+    });
+
     return 0;
 }

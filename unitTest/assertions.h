@@ -10,12 +10,12 @@ void assertEqual(double a, double b) {
     }
 }
 
-void assertArrayEqual(const df::Serie& serie, const Array& array) {
+void assertArrayEqual(const Array& serie, const Array& array) {
     if (serie.size() != array.size()) {
         std::cerr << "not same size" << std::endl ;
         exit(-1);
     }
-    auto a = serie.asArray();
+    const auto& a = serie;
     for (uint32_t i=0; i<a.size(); ++i) {
         if (a[i] != array[i]) {
             std::cerr << "not same size: " << a[i] << " " << array[i] << std::endl ;

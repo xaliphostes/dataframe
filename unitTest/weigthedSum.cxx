@@ -42,12 +42,12 @@ int main()
     Array weights{2, 3, 4};
     {
         df::Serie s = df::weigthedSum({a, b, c}, weights);
-        assertArrayEqual(s, Array{22,21,16,15});
+        assertArrayEqual(s.asArray(), Array{22,21,16,15});
     }
 
     {
         auto s = df::weigthedSum({a, b, c}, {2, 3, 4});
-        assertArrayEqual(s, Array{22,21,16,15});
+        assertArrayEqual(s.asArray(), Array{22,21,16,15});
     }
 
     shouldThrowError([a, b, weights]() {

@@ -61,3 +61,10 @@ add_test(
   NAME transpose
   COMMAND $<TARGET_FILE:transpose>
 )
+
+add_executable(div div.cxx)
+target_link_libraries(div PRIVATE dataframe-shared)
+add_test(
+  NAME div
+  COMMAND $<TARGET_FILE:div>
+)

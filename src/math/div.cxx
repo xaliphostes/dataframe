@@ -36,4 +36,28 @@ namespace df {
         });
     }
 
+    Serie div(const Serie &serie, const Serie& divider) {
+        // Checks...
+        if (serie.count() != divider.count()) {
+            throw std::invalid_argument("(math/div) count of serie (" +
+                std::to_string(serie.count()) +
+                ") differs from count of divider (" +
+                std::to_string(divider.count()) +
+                ")");
+        }
+        if (divider.itemSize() != 1) {
+            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
+                std::to_string(divider.itemSize()) );
+        }
+
+        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
+            double d = divider.scalar(i);
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        });
+    }
+
 }
