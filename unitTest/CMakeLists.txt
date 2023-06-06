@@ -20,39 +20,44 @@
 #
 project(unitTest)
 
-add_executable(weigthedSum weigthedSum.c++)
+add_executable(weigthedSum weigthedSum.cxx)
 target_link_libraries(weigthedSum PRIVATE dataframe-shared)
-
-add_executable(addDotNegate addDotNegate.c++)
-target_link_libraries(addDotNegate PRIVATE dataframe-shared)
-
-add_executable(scalar scalar.c++)
-target_link_libraries(scalar PRIVATE dataframe-shared)
-
-add_executable(except except.c++)
-target_link_libraries(except PRIVATE dataframe-shared)
-
-add_executable(apply apply.c++)
-target_link_libraries(apply PRIVATE dataframe-shared)
-
-# define tests
 add_test(
   NAME weigthedSum
   COMMAND $<TARGET_FILE:weigthedSum>
 )
+
+add_executable(addDotNegate addDotNegate.cxx)
+target_link_libraries(addDotNegate PRIVATE dataframe-shared)
 add_test(
   NAME addDotNegate
   COMMAND $<TARGET_FILE:addDotNegate>
 )
+
+add_executable(scalar scalar.cxx)
+target_link_libraries(scalar PRIVATE dataframe-shared)
 add_test(
   NAME scalar
   COMMAND $<TARGET_FILE:scalar>
 )
+
+add_executable(except except.cxx)
+target_link_libraries(except PRIVATE dataframe-shared)
 add_test(
   NAME except
   COMMAND $<TARGET_FILE:except>
 )
+
+add_executable(apply apply.cxx)
+target_link_libraries(apply PRIVATE dataframe-shared)
 add_test(
   NAME apply
   COMMAND $<TARGET_FILE:apply>
+)
+
+add_executable(transpose transpose.cxx)
+target_link_libraries(transpose PRIVATE dataframe-shared)
+add_test(
+  NAME transpose
+  COMMAND $<TARGET_FILE:transpose>
 )

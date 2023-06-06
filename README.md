@@ -14,6 +14,8 @@
 
 Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
 
+Compared to Panda, we have some differences since our main consers 
+
 Main functionalities are:
 - Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra.
 - `Serie` of scalar items or n-dim items

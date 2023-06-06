@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "../src/Serie.h"
+#include "../src/utils.h"
 
 void assertEqual(double a, double b) {
     if (a != b) {
@@ -28,6 +29,7 @@ void shouldThrowError(CB&& cb) {
     try
     {
         cb();
+        std::cerr << "not throwing an error!\n";
         exit(-1);
     }
     catch (std::invalid_argument &e)
