@@ -59,6 +59,7 @@ endif()
 set(SRC_dataframe
     ./src/Dataframe.cxx
     ./src/Serie.cxx
+    ./src/nameOfSerie.cxx
     ./src/attributes/Manager.cxx
     ./src/attributes/Decomposer.cxx
     ./src/math/add.cxx

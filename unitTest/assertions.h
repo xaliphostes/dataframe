@@ -3,7 +3,8 @@
 #include "../src/Serie.h"
 #include "../src/utils.h"
 
-void assertEqual(double a, double b) {
+template <typename T>
+void assertEqual(const T &a, const T &b) {
     if (a != b) {
         std::cout << "Value " << a << " is NOT EQUAL to value " << b << std::endl ;
         exit(-1);

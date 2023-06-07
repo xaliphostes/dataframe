@@ -68,3 +68,10 @@ add_test(
   NAME div
   COMMAND $<TARGET_FILE:div>
 )
+
+add_executable(serie serie.cxx)
+target_link_libraries(serie PRIVATE dataframe-shared)
+add_test(
+  NAME serie
+  COMMAND $<TARGET_FILE:serie>
+)

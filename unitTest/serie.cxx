@@ -21,46 +21,22 @@
  *
  */
 
-#pragma once
-#include "Serie.h"
-#include <map>
-#include <string>
+#include <iostream>
+#include <cmath>
+#include "../src/Serie.h"
+#include "../src/Dataframe.h"
+#include "../src/nameOfSerie.h"
+#include "assertions.h"
 
-/**
- * @brief Create a Dataframe containing several Series with same count.
- * @example
- * ```c++
- * Dataframe d ;
- * d.add("positions", Serie(3, 20)) ;
- * d.add("indices", Serie(3, 14)) ;
- * std::cout << d["positions"].array() << std::endl ;
- * d["positions"].dump() ;
- * ```
- */
-
-namespace df
+int main()
 {
+    df::Dataframe dataframe;
+    dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
-    class Dataframe
-    {
-    public:
-        Dataframe(uint32_t count = 0);
-        void setCount(uint32_t count);
+    const df::Serie& toto = dataframe["toto"] ;
 
-        void create(const std::string &name, uint32_t itemSize, uint32_t count = 0); // convenience
-        void add(const std::string &name, const Serie &serie);
-        void set(const std::string &name, const Serie &serie);
-        void del(const std::string &name);
+    String name = df::nameOfSerie(dataframe, toto) ;
+    assertEqual(name, String("toto"));
 
-        Serie &operator[](const std::string &name);
-        const Serie &operator[](const std::string &name) const ;
-        const std::map<std::string, Serie>& series() const {return series_;}
-
-        void dump() const;
-
-    private:
-        uint32_t count_{0};
-        std::map<std::string, Serie> series_;
-    };
-
+    return 0;
 }

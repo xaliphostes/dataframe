@@ -31,6 +31,11 @@ namespace df
     {
     }
 
+    void Dataframe::create(const std::string &name, uint32_t itemSize, uint32_t count)
+    {
+        add(name, Serie(itemSize, count));
+    }
+
     void Dataframe::setCount(uint32_t count)
     {
         if (count_ != count && count > 0)
@@ -52,12 +57,14 @@ namespace df
      */
     void Dataframe::add(const std::string &name, const Serie &serie)
     {
-        if (count_ == 0) {
+        if (count_ == 0)
+        {
             count_ = serie.count();
         }
 
-        if (count_ != serie.count()) {
-            throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count ("+std::to_string(serie.count())+") is different from the Dataframe count ("+std::to_string(count_)+")");
+        if (count_ != serie.count())
+        {
+            throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count (" + std::to_string(serie.count()) + ") is different from the Dataframe count (" + std::to_string(count_) + ")");
         }
         series_[name] = serie;
     }
@@ -82,6 +89,20 @@ namespace df
     Serie &Dataframe::operator[](const std::string &name)
     {
         return series_[name];
+    }
+
+    const Serie &Dataframe::operator[](const std::string &name) const 
+    {
+        for (auto it = series_.cbegin(); it != series_.cend(); ++it)
+        {
+            if (it->first == name) {
+                return it->second;
+            }
+        }
+
+        // Is is correct to do that?
+        static const Serie fake;
+        return fake;
     }
 
     void Dataframe::dump() const
