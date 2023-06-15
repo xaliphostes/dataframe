@@ -51,10 +51,15 @@ namespace df
         void add(const std::string &name, const Serie &serie);
         void set(const std::string &name, const Serie &serie);
         void del(const std::string &name);
+        void clear() ;
+
+        bool contains(const Serie &) const;
+        bool contains(const String &) const;
 
         Serie &operator[](const std::string &name);
-        const Serie &operator[](const std::string &name) const ;
-        const std::map<std::string, Serie>& series() const {return series_;}
+        const Serie &operator[](const std::string &name) const;
+        
+        const std::map<std::string, Serie> &series() const { return series_; }
 
         void dump() const;
 

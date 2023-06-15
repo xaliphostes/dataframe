@@ -22,6 +22,7 @@
  */
 
 #include "Dataframe.h"
+#include "nameOfSerie.h"
 #include <iostream>
 
 namespace df
@@ -29,6 +30,10 @@ namespace df
 
     Dataframe::Dataframe(uint32_t count) : count_(count)
     {
+    }
+
+    void Dataframe::clear() {
+        series_.clear();
     }
 
     void Dataframe::create(const std::string &name, uint32_t itemSize, uint32_t count)
@@ -91,11 +96,12 @@ namespace df
         return series_[name];
     }
 
-    const Serie &Dataframe::operator[](const std::string &name) const 
+    const Serie &Dataframe::operator[](const std::string &name) const
     {
         for (auto it = series_.cbegin(); it != series_.cend(); ++it)
         {
-            if (it->first == name) {
+            if (it->first == name)
+            {
                 return it->second;
             }
         }
@@ -103,6 +109,24 @@ namespace df
         // Is is correct to do that?
         static const Serie fake;
         return fake;
+    }
+
+    bool Dataframe::contains(const Serie &serie) const
+    {
+        String name = nameOfSerie(*this, serie);
+        return name.size() == 0 ? false : true;
+    }
+
+    bool Dataframe::contains(const String &name) const
+    {
+        for (auto it = series_.cbegin(); it != series_.cend(); ++it)
+        {
+            if (it->first == name)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Dataframe::dump() const

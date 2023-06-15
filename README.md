@@ -81,6 +81,7 @@ Possible extension (very simple to implement) ;-)
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
 auto vectors = df::eigenVectors(s) ; // and that's it!
 
+// Display
 vectors.forEach([](const Array& v, uint32_t index) {
     std::cout << "eigen vector at index " 
               << std::to_string(index)
@@ -88,7 +89,22 @@ vectors.forEach([](const Array& v, uint32_t index) {
 });
 ```
 
-## Example 4: Attributes
+## Example 4: Chaining...
+```c++
+df::Serie a(2, {1,2,  3,4}) ;
+df::Serie b(2, {4,3,  2,1}) ;
+df::Serie c(2, {2,2,  1,1}) ;
+
+auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
+    .map([](const Array& arr, uint32_t) {
+        return std::sqrt( pow(arr[0],2) + pow(arr[1],2) + pow(arr[2],2) );
+    })
+    .forEachScalar([](double v, uinit32_t index) {
+        std::cout << index << ": " << v << std::endl ;
+    }) ;
+```
+
+## Example 5: Attributes
 ```c++
 df::Manager mng(dataframe, {
     PositionDecomposer(),

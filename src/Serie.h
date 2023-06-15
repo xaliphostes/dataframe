@@ -52,6 +52,7 @@ namespace df
         Array value(uint32_t i) const;
         double scalar(uint32_t i) const;
         void setValue(uint32_t i, const Array &v);
+        void setScalar(uint32_t i, double);
 
         const Array &asArray() const;
         Array &asArray();

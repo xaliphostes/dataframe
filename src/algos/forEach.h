@@ -21,26 +21,16 @@
  *
  */
 
-#include <iostream>
-#include <cmath>
-#include "../src/Serie.h"
-#include "../src/Dataframe.h"
-#include "../src/nameOfSerie.h"
-#include "assertions.h"
+#pragma once
+#include "../Serie.h"
 
-int main()
+namespace df
 {
-    df::Dataframe dataframe;
-    dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
-    const df::Serie& toto = dataframe["toto"] ;
+    template <typename F>
+    Serie forEach(const Serie &serie, F &&fn)
+    {
+        return serie.forEach(fn);
+    }
 
-    String name = df::nameOfSerie(dataframe, toto) ;
-    assertEqual(name, String("toto"));
-
-    df::Serie serie(1, {1,2,3,4});
-    name = df::nameOfSerie(dataframe, serie) ;
-    assertEqual(name, String(""));
-
-    return 0;
 }

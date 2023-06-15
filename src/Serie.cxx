@@ -95,7 +95,7 @@ namespace df
     {
         auto start = i * itemSize_;
         Array r(itemSize_);
-        for (uint j = 0; j < itemSize_; ++j)
+        for (uint32_t j = 0; j < itemSize_; ++j)
         {
             r[j] = s_[start + j];
         }
@@ -127,6 +127,15 @@ namespace df
         {
             s_[i * size + j] = v[j];
         }
+    }
+
+    void Serie::setScalar(uint32_t i, double v) {
+        if (i >= s_.size())
+        {
+            throw std::invalid_argument("index out of range (" + std::to_string(i) + ">=" + std::to_string(s_.size()) + ")");
+        }
+
+        s_[i] = v;
     }
 
 }
