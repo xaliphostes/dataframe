@@ -32,7 +32,7 @@
  * ```c++
  * Dataframe d ;
  * d.add("positions", Serie(3, 20)) ;
- * d.add("indices", Serie(3, 14)) ;
+ * d.add("indices", Serie(2, 20)) ;
  * std::cout << d["positions"].array() << std::endl ;
  * d["positions"].dump() ;
  * ```

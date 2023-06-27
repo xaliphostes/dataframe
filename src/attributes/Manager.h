@@ -26,10 +26,11 @@
 #include "../Dataframe.h"
 #include "../Serie.h"
 #include "../types.h"
-#include "Decomposer.h"
 
 namespace df
 {
+
+    class Decomposer;
 
     /**
      * @brief Manager of decomposers
@@ -40,9 +41,10 @@ namespace df
         /**
          * By default, no decomposer...
          */
-        Manager(const Dataframe &dataframe, const Decomposers &decomposers = {});
+        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
+        ~Manager();
 
-        void add(const Decomposer &decomposer);
+        void add(Decomposer* decomposer);
         void clear();
 
         Serie serie(uint32_t itemSize, const String &name) const;
@@ -51,8 +53,9 @@ namespace df
 
     private:
         const Dataframe &df_;
-        std::vector<Decomposer> ds_;
+        std::vector<Decomposer*> ds_;
         uint8_t dim_{3};
+        uint dimension_{3};
     };
 
 }

@@ -22,12 +22,15 @@
  */
 
 #include "Manager.h"
+#include "../types.h"
+#include "Decomposer.h"
 #include <algorithm>
 
 namespace df
 {
 
-    Manager::Manager(const Dataframe &dataframe, const Decomposers &decomposers) : df_(dataframe)
+    Manager::Manager(const Dataframe &dataframe, const Decomposers &decomposers, uint dimension) :
+        df_(dataframe), dimension_(dimension)
     {
         for (auto d : decomposers)
         {
@@ -35,7 +38,14 @@ namespace df
         }
     }
 
-    void Manager::add(const Decomposer &decomposer)
+    Manager::~Manager() {
+        for (auto d : ds_) {
+            delete d;
+        }
+        ds_.clear();
+    }
+
+    void Manager::add(Decomposer *decomposer)
     {
         ds_.push_back(decomposer);
     }
@@ -60,13 +70,13 @@ namespace df
             }
         }
 
-        for (const auto &d : ds_)
-        {
-        }
+        // for (const auto &d : ds_)
+        // {
+        // }
 
-        for (const Decomposer &d : ds_)
+        for (auto d : ds_)
         {
-            Serie serie = d.serie(df_, itemSize, name);
+            Serie serie = d->serie(df_, itemSize, name);
             if (serie.isValid())
             {
                 return serie;
@@ -84,8 +94,8 @@ namespace df
         {
             auto name = x.first;
             const Serie &serie = x.second;
-            if (serie.itemSize() == itemSize)
-            { // TODO: use dimension
+            if (serie.itemSize() == itemSize && serie.dimension() == dimension_)
+            {
                 if (name != "positions" && name != "indices")
                 {
                     names.push_back(name);
@@ -93,9 +103,9 @@ namespace df
             }
 
             // Add names from decomposers
-            for (const auto &d : ds_)
+            for (auto d : ds_)
             {
-                const auto otherNames = d.names(df_, itemSize, serie, name);
+                Strings otherNames = d->names(df_, itemSize, serie, name);
                 for (const auto &s : otherNames)
                 {
                     names.push_back(s);

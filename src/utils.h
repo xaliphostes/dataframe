@@ -52,4 +52,14 @@ namespace df
         (void)expander{0, (void(std::cout << ' ' << std::forward<Args>(args)), 0)...};
     }
 
+    template<typename T, typename Func>
+    std::vector<T> map(const std::vector<T>& input, Func func) {
+        std::vector<T> result;
+        result.reserve(input.size());
+        for (const auto& element : input) {
+            result.push_back(func(element));
+        }
+        return result;
+    }
+
 }

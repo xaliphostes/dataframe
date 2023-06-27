@@ -37,14 +37,23 @@ int main()
     df::Serie b(2, {4, 3, 2, 1, 3, 3});
     df::Serie c(3, {4, 3, 2, 1, 3, 3}); // different itemSize from previous
 
+    /**
+     * @brief Different count
+     */
     shouldThrowError([a, b]() {
         df::add({a, b});
     });
 
+    /**
+     * @brief Different itemSize
+     */
     shouldThrowError([a, c]() {
         df::add({a, c});
     });
 
+    /**
+     * @brief Add in a dataframe with different count
+     */
     shouldThrowError([a, b]() {
         // Not same count
         df::Dataframe dataframe ;

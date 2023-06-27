@@ -75,3 +75,10 @@ add_test(
   NAME serie
   COMMAND $<TARGET_FILE:serie>
 )
+
+add_executable(decomposer decomposer.cxx)
+target_link_libraries(decomposer PRIVATE dataframe-shared)
+add_test(
+  NAME decomposer
+  COMMAND $<TARGET_FILE:decomposer>
+)

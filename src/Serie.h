@@ -32,20 +32,21 @@ namespace df
     class Serie
     {
     public:
-        Serie(int itemSize = 0, uint32_t count = 0);
-        Serie(int itemSize, const Array &values);
-        Serie(int itemSize, const std::initializer_list<double> &values);
+        Serie(int itemSize = 0, uint32_t count = 0, uint dimension=3);
+        Serie(int itemSize, const Array &values, uint dimension=3);
+        Serie(int itemSize, const std::initializer_list<double> &values, uint dimension=3);
         Serie(const Serie &s);
 
-        bool isValid() const ;
+        bool isValid() const;
         void reCount(uint32_t);
 
         Serie &operator=(const Serie &s);
-        Serie clone() const ;
+        Serie clone() const;
 
         uint32_t size() const;
         uint32_t count() const;
         uint32_t itemSize() const;
+        uint dimension() const;
 
         void dump() const;
 
@@ -57,18 +58,26 @@ namespace df
         const Array &asArray() const;
         Array &asArray();
 
-        template <typename F> void forEach(F &&cb) const;
-        template <typename F> void forEachScalar(F &&cb) const;
-        template <typename F> Serie map(F &&cb) const;
-        template <typename F> Array reduce(F &&reduceFn, const Array &acc);
+        template <typename F>
+        void forEach(F &&cb) const;
+
+        template <typename F>
+        void forEachScalar(F &&cb) const;
+        
+        template <typename F>
+        Serie map(F &&cb) const;
+        
+        template <typename F>
+        Array reduce(F &&reduceFn, const Array &acc);
 
     private:
         Array s_;
         uint32_t count_{0};
+        uint dimension_{3};
         int itemSize_{1};
     };
 
-    using Series = std::vector<Serie> ;
+    using Series = std::vector<Serie>;
 
 }
 

@@ -1,7 +1,7 @@
 # Dataframe
 
 <p align="center">
-  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=support&color=success" alt="Windows support">
+  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=soon&color=red" alt="Windows support">
   <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
   <img src="https://img.shields.io/static/v1?label=macOS&logo=apple&logoColor=white&message=support&color=success" alt="macOS support">
 </p>
@@ -14,7 +14,7 @@
 
 Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
 
-Compared to Panda, we have some differences since our main consers 
+Compared to Panda, we have some differences since our main consern is **linear algebra**.
 
 Main functionalities are:
 - Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra.
@@ -22,10 +22,10 @@ Main functionalities are:
 - Mathematical functions on `Serie`
 - Decomposition of a `Serie` into a new `Serie` (virtual Serie) using the `Manager` and some `Decomposer`s
 - Functional programming (no mutating, less bugs, very simple to use)
-- Very simple API
-- Can be extended for mathematical functions such as **eigenValues** or **eigenVectors** on a `Serie`
+- Very simple API for both `Serie` and `Dataframe`
+- Can be easily extended for mathematical functions such as **eigenValues** or **eigenVectors** on a `Serie`
 
-Not tested yet under Windows, but will have to add `export` for shared library.
+Not yet tested under Windows, but will have to add `export` for shared library.
 
 # Organization of this lib
 
@@ -38,9 +38,9 @@ Not tested yet under Windows, but will have to add `export` for shared library.
     - ...
 
 # Compilation
-Create a `build` dirctory, **go inside** and type
+Create a `build` directory, **go inside** and type
 ```sh
-cmake .. && make
+cmake .. && make -j12
 ```
 
 # Running unit tests

@@ -27,30 +27,30 @@
 namespace df
 {
 
-    Serie::Serie(int itemSize, uint32_t count) : itemSize_(itemSize), count_(count)
+    Serie::Serie(int itemSize, uint32_t count, uint dimension) : itemSize_(itemSize), count_(count), dimension_(dimension)
     {
         s_ = Array(count * itemSize);
     }
 
-    Serie::Serie(const Serie &s) : itemSize_(s.itemSize_), count_(s.count_)
+    Serie::Serie(const Serie &s) : itemSize_(s.itemSize_), count_(s.count_), dimension_(s.dimension_)
     {
         s_ = Array(s.s_.cbegin(), s.s_.cend());
     }
 
-    Serie::Serie(int itemSize, const Array &values) : itemSize_(itemSize)
+    Serie::Serie(int itemSize, const Array &values, uint dimension) : itemSize_(itemSize), dimension_(dimension)
     {
         count_ = values.size() / itemSize;
         s_ = values;
     }
 
-    Serie::Serie(int itemSize, const std::initializer_list<double> &values) : itemSize_(itemSize)
+    Serie::Serie(int itemSize, const std::initializer_list<double> &values, uint dimension) : itemSize_(itemSize), dimension_(dimension)
     {
         count_ = values.size() / itemSize;
         s_ = Array(values);
     }
 
     bool Serie::isValid() const {
-        return itemSize_==0;
+        return itemSize_ > 0;
     }
 
     void Serie::reCount(uint32_t c)
@@ -76,6 +76,8 @@ namespace df
     uint32_t Serie::count() const { return count_; }
 
     uint32_t Serie::itemSize() const { return itemSize_; }
+
+    uint Serie::dimension() const { return dimension_; }
 
     void Serie::dump() const
     {

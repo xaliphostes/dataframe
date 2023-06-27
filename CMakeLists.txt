@@ -62,6 +62,7 @@ set(SRC_dataframe
     ./src/nameOfSerie.cxx
     ./src/attributes/Manager.cxx
     ./src/attributes/Decomposer.cxx
+    ./src/attributes/ComponentsDecomposer.cxx
     ./src/math/add.cxx
     ./src/math/dot.cxx
     ./src/math/negate.cxx

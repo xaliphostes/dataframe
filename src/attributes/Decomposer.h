@@ -40,6 +40,6 @@ namespace df
         virtual Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const ;
     };
 
-    using Decomposers = std::vector<Decomposer>;
+    using Decomposers = std::vector<Decomposer*>;
 
 }

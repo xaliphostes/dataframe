@@ -59,14 +59,6 @@ namespace df
             {
                 return reduceFn(previousResult, item);
             });
-
-        // auto cumul = acc;
-        // forEach([reduceFn, cumul](Array v, uint32_t i) {
-        //     cumul = reduceFn(cumul, v);
-        // });
-        // return cumul;
-
-        
     }
 
     template <typename F>

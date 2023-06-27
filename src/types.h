@@ -43,3 +43,11 @@ inline std::ostream& operator<<(std::ostream& o, const Array& a) {
     std::cerr << std::endl ;
     return o ;
 }
+
+inline std::ostream& operator<<(std::ostream& o, const Strings& a) {
+    for (const String& v : a) {
+        std::cerr << "  " << v << std::endl ;
+    }
+    // std::cerr << std::endl ;
+    return o ;
+}

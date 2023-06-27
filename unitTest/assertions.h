@@ -3,6 +3,18 @@
 #include "../src/Serie.h"
 #include "../src/utils.h"
 
+void assertCondition(bool cond, const String& msg="") {
+    if ( !cond ) {
+        if (msg.size()>0) {
+            std::cout << "Condition failed (msg = " << msg << ")!" << std::endl ;
+        }
+        else {
+            std::cout << "Condition failed!" << std::endl ;
+        }
+        exit(-1);
+    }
+}
+
 template <typename T>
 void assertEqual(const T &a, const T &b) {
     if (a != b) {
