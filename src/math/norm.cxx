@@ -21,43 +21,40 @@
  *
  */
 
-#pragma once
+#include "norm.h"
+#include <numeric>
+#include <cmath>
 
-#include "../Dataframe.h"
-#include "../Serie.h"
-#include "../types.h"
+namespace df {
 
-namespace df
-{
+    Serie norm(const Serie& s) {
+        return norm2(s).map( [](const Array& a, uint32_t) {
+            return Array{std::sqrt(a[0])};
+        });
+    }
 
-    class Decomposer;
+    Serie norm2(const Serie& s) {
+        if (s.isValid() == false) {
+            return Serie();
+        }
 
-    /**
-     * @brief Manager of decomposers
-     */
-    class Manager
-    {
-    public:
-        /**
-         * By default, no decomposer...
-         */
-        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
-        ~Manager();
+        if (s.itemSize() == 1) {
+            return s.clone();
+        }
 
-        void add(Decomposer* decomposer);
-        void clear();
+        Array data = createArray(1, s.count());
 
-        uint nbDecomposers() const {return ds_.size();}
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            Array v = s.value(i);
+            double n = 0;
+            for (uint j=0; j<v.size(); ++j) {
+                double w = v[j];
+                n += w*w;
+            }
+            data[i] = n;
+        }
 
-        Serie serie(uint32_t itemSize, const String &name) const;
-        Strings names(uint32_t itemSize) const;
-        bool contains(uint32_t itemSize, const String &name) const;
-
-    private:
-        const Dataframe &df_;
-        std::vector<Decomposer*> ds_;
-        uint8_t dim_{3};
-        uint dimension_{3};
-    };
+        return Serie(1,data);
+    }
 
 }

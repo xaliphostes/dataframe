@@ -21,15 +21,47 @@
  *
  */
 
-#pragma once
-#include "Decomposer.h"
+#include "Area.h"
+#include "Normals.h"
+#include "../utils.h"
+#include "../types.h"
+#include "../math/div.h"
+#include "../math/norm.h"
+#include <algorithm>
 
-namespace df {
+namespace df
+{
 
-    class ComponentsDecomposer: public Decomposer {
-    public:
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    };
+    Area::Area(const String &name): name_(name)
+    {
+    }
+
+    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1) {
+            return Strings();
+        }
+        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+            return Strings();
+        }
+
+        return Strings{name_};
+    }
+
+    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
+        if (name != name_) {
+            return Serie();
+        }
+
+        Normals n("n");
+
+        Serie normals = n.serie(dataframe, 3, "n");
+        if (normals.isValid()) {
+            return div(norm(normals), 2);
+        }
+
+        return Serie();
+    }
 
 }

@@ -62,4 +62,9 @@ namespace df
         return result;
     }
 
+    template <typename C>
+    bool contains(const std::vector<C>& vec, const C& item) {
+        return std::find(vec.begin(), vec.end(), item) != vec.end() ;
+    }
+
 }

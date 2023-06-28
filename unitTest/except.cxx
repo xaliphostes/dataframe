@@ -54,7 +54,7 @@ int main()
     /**
      * @brief Add in a dataframe with different count
      */
-    shouldThrowError([a, b]() {
+    shouldNotThrowError([a, b]() {
         // Not same count
         df::Dataframe dataframe ;
         dataframe.add("pos", a);

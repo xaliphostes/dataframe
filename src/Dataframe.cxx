@@ -69,7 +69,7 @@ namespace df
 
         if (count_ != serie.count())
         {
-            throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count (" + std::to_string(serie.count()) + ") is different from the Dataframe count (" + std::to_string(count_) + ")");
+            // throw std::invalid_argument("Cannot add a Serie in a Dataframe when its count (" + std::to_string(serie.count()) + ") is different from the Dataframe count (" + std::to_string(count_) + ")");
         }
         series_[name] = serie;
     }

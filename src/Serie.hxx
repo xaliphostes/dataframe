@@ -74,7 +74,7 @@ namespace df
 
             if (itemSize == 0)
             {
-                // Here we go! We got the itemSize for teh new Serie :-)
+                // Here we go! We got the itemSize for the new Serie :-)
                 itemSize = r.size();
                 R = Serie(itemSize, count_);
             }

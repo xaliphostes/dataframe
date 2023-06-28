@@ -25,13 +25,17 @@
 #include "../src/Serie.h"
 #include "../src/Dataframe.h"
 #include "../src/attributes/Manager.h"
-#include "../src/attributes/ComponentsDecomposer.h"
+#include "../src/attributes/Components.h"
+#include "../src/attributes/Coordinates.h"
+#include "../src/attributes/Normals.h"
+#include "../src/attributes/Area.h"
+#include "../src/attributes/Valence.h"
 #include "../src/types.h"
 #include "assertions.h"
 
 namespace df {
 
-    class EigenValuesDecomposer: public df::Decomposer {
+    class EigenValues: public df::Decomposer {
         Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override {
             if (name == "positions" || name == "indices") {
                 return Strings();
@@ -55,7 +59,7 @@ namespace df {
         }
     };
 
-    class EigenVectorsDecomposer: public df::Decomposer {
+    class EigenVectors: public df::Decomposer {
         Strings names(const df::Dataframe &dataframe, uint32_t itemSize, const df::Serie &serie, const String &name) const override {
             if (name == "positions" || name == "indices") {
                 return Strings();
@@ -78,8 +82,39 @@ namespace df {
             return df::Serie();
         }
     };
+
 }
 
+void basic() {
+    df::Dataframe dataframe;
+    dataframe.add("a", df::Serie(1, {1, 2})); // scalar
+    dataframe.add("positions", df::Serie(3, {2,4,6, 3,6,9, 1,2,3})); // vector 3
+    dataframe.add("indices", df::Serie(3, {0,1,2})); // vector 3
+    dataframe.add("S", df::Serie(6, {2,4,6,3,6,9, 1,2,3,4,5,6, 9,8,7,6,5,4})); // sym matrix 3x3
+
+    df::Manager mng(dataframe, {
+        new df::Components(),
+        new df::EigenValues(),
+        new df::EigenVectors(),
+        new df::Normals(),
+        new df::Coordinates(),
+        new df::Area(),
+        new df::Valence()
+    }, 3);
+
+    {
+        Strings names = mng.names(1);
+        std::cerr << "Scalars:\n" << names ;
+    }
+    {
+        Strings names = mng.names(3);
+        std::cerr << "Vector3:\n" << names ;
+    }
+    {
+        Strings names = mng.names(6);
+        std::cerr << "SMatrix33:\n" << names ;
+    }
+}
 
 void namesExist() {
     df::Dataframe dataframe;
@@ -89,16 +124,13 @@ void namesExist() {
     dataframe.add("E", df::Serie(9, {2, 4, 6, 3, 6, 9, 1, 2, 3,  4, 5, 6, 7, 8, 9, 1, 2, 3})); // full matrix 3x3
 
     df::Manager mng(dataframe, {
-        new df::ComponentsDecomposer(),
-        new df::EigenValuesDecomposer()
+        new df::Components(),
+        new df::EigenValues()
     }, 3);
 
     // Gather scalar attributes
     // ------------------------
     Strings names = mng.names(1);
-
-    std::cerr << names.size() << std::endl ;
-    std::cerr << names << std::endl ;
 
     assertCondition(names.size() == 22, "names.size() != 22");
     assertCondition(mng.contains(1, "a"));
@@ -124,14 +156,11 @@ void namesExist() {
     assertCondition(mng.contains(1, "Uy"));
     assertCondition(mng.contains(1, "Uz"));
 
-    mng.add(new df::EigenVectorsDecomposer());
+    mng.add(new df::EigenVectors());
 
     // Gather vector3 attributes
     // -------------------------
     names = mng.names(3);
-    
-    std::cerr << names.size() << std::endl ;
-    std::cerr << names << std::endl ;
 
     assertCondition(names.size() == 4, "names.size() != 4");
     assertCondition(mng.contains(3, "U"));
@@ -140,9 +169,79 @@ void namesExist() {
     assertCondition(mng.contains(3, "S3"));
 }
 
+void coordinates() {
+    df::Dataframe dataframe;
+    dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
+    dataframe.add("indices", df::Serie(3, {0,1,2}));
+
+    df::Manager mng(dataframe, {
+        new df::Coordinates(),
+        new df::Normals()
+    }, 3);
+    
+    assertCondition(mng.nbDecomposers() == 2, "nb decomposers != 2");
+
+    Strings names = mng.names(1);
+    assertCondition(names.size() == 3, "names(1).size() != 3");
+
+    df::Serie x = mng.serie(1, "x");
+    assertCondition(x.isValid() == true, "x not valid");
+    assertArrayEqual(x.asArray(), Array{0, 1, 1});
+    
+    df::Serie y = mng.serie(1, "y");
+    assertCondition(y.isValid() == true, "y not valid");
+    assertArrayEqual(y.asArray(), Array{0, 0, 1});
+
+    df::Serie z = mng.serie(1, "z");
+    assertCondition(z.isValid() == true, "z not valid");
+    assertArrayEqual(z.asArray(), Array{0, 0, 0});
+}
+
+void normals() {
+    df::Dataframe dataframe;
+    dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
+    dataframe.add("indices", df::Serie(3, {0,1,2}));
+
+    df::Manager mng(dataframe, {
+        new df::Normals()
+    }, 3);
+    
+    assertCondition(mng.nbDecomposers() == 1, "nb decomposers != 1");
+
+    Strings names = mng.names(3);
+    assertCondition(names.size() == 1, "names(3).size() != 1");
+
+    df::Serie normals = mng.serie(3, "normals");
+    assertCondition(normals.isValid() == true, "normals not valid");
+    assertArrayEqual(normals.asArray(), Array{0, 0, 1});
+}
+
+void area() {
+    df::Dataframe dataframe;
+    dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
+    dataframe.add("indices", df::Serie(3, {0,1,2}));
+
+    df::Manager mng(dataframe, {
+        new df::Area()
+    }, 1);
+    
+    assertCondition(mng.nbDecomposers() == 1, "nb decomposers != 1");
+
+    Strings names = mng.names(1);
+    assertCondition(names.size() == 1, "names(1).size() != 1");
+
+    df::Serie normals = mng.serie(3, "area");
+    assertCondition(normals.isValid() == true, "area not valid");
+    assertEqual(normals.asArray()[0], 0.5);
+}
+
 int main()
 {
+    basic();
     namesExist();
+    coordinates();
+    normals();
+    area();
     
     return 0;
 }

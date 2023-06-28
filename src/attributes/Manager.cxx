@@ -24,6 +24,7 @@
 #include "Manager.h"
 #include "../types.h"
 #include "Decomposer.h"
+#include <set>
 #include <algorithm>
 
 namespace df
@@ -70,10 +71,6 @@ namespace df
             }
         }
 
-        // for (const auto &d : ds_)
-        // {
-        // }
-
         for (auto d : ds_)
         {
             Serie serie = d->serie(df_, itemSize, name);
@@ -87,7 +84,7 @@ namespace df
 
     Strings Manager::names(uint32_t itemSize) const
     {
-        Strings names;
+        std::set<String> names;
 
         // Add series with same itemSize
         for (auto const &x : df_.series())
@@ -98,7 +95,7 @@ namespace df
             {
                 if (name != "positions" && name != "indices")
                 {
-                    names.push_back(name);
+                    names.insert(name);
                 }
             }
 
@@ -108,12 +105,12 @@ namespace df
                 Strings otherNames = d->names(df_, itemSize, serie, name);
                 for (const auto &s : otherNames)
                 {
-                    names.push_back(s);
+                    names.insert(s);
                 }
             }
         }
 
-        return names;
+        return Strings(names.begin(), names.end());
     }
 
     bool Manager::contains(uint32_t itemSize, const String &name) const

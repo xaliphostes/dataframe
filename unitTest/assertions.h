@@ -51,3 +51,16 @@ void shouldThrowError(CB&& cb) {
         df::error(e.what());
     }
 }
+
+template <typename CB>
+void shouldNotThrowError(CB&& cb) {
+    try
+    {
+        cb();
+    }
+    catch (std::invalid_argument &e)
+    {
+        df::error(e.what());
+        exit(-1);
+    }
+}

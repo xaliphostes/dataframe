@@ -62,7 +62,11 @@ set(SRC_dataframe
     ./src/nameOfSerie.cxx
     ./src/attributes/Manager.cxx
     ./src/attributes/Decomposer.cxx
-    ./src/attributes/ComponentsDecomposer.cxx
+    ./src/attributes/Components.cxx
+    ./src/attributes/Normals.cxx
+    ./src/attributes/Coordinates.cxx
+    ./src/attributes/Valence.cxx
+    ./src/attributes/Area.cxx
     ./src/math/add.cxx
     ./src/math/dot.cxx
     ./src/math/negate.cxx
@@ -70,6 +74,7 @@ set(SRC_dataframe
     ./src/math/weightedSum.cxx
     ./src/math/transpose.cxx
     ./src/math/div.cxx
+    ./src/math/norm.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

@@ -106,16 +106,22 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
 
 ## Example 5: Attributes
 ```c++
+df::Dataframe dataframe;
+dataframe.add("positions", Serie(3, {...})); // geometry
+dataframe.add("indices", Serie(3, {...})); // topology (triangles)
+dataframe.add("S", Serie(6, {...})); // Stresses (sym 3x3 matrices)
+
 df::Manager mng(dataframe, {
-    PositionDecomposer(),
+    Coordinates(),
     ComponentDecomposer(),
     EigenValuesDecomposer(),
-    EigenVectorsDecomposer()
+    EigenVectorsDecomposer(),
+    Normals("n")
 ])
 
 // Gather possible scalar series names
 console.log( mng.names(1) )
-// Will display: Sxx, Sxy, Sxz, Syy, Syz, Szz, S1, S2, S
+// Will display: Sxx, Sxy, Sxz, Syy, Syz, Szz, S1, S2, S3, x, y, z, nx, ny, nz
 
 Serie scalarS1 = mng.serie(1, 'S1') // eigen values for S1
 Serie vectorS1 = mng.serie(3, 'S1') // eigen vectors for S1

@@ -26,28 +26,33 @@
 #include <iostream>
 #include <string>
 
-using Array = std::vector<double> ;
-using String = std::string ;
-using Strings = std::vector<String> ;
+using Array = std::vector<double>;
+using String = std::string;
+using Strings = std::vector<String>;
 
-inline Array createArray(uint32_t size, double initValue) {
+inline Array createArray(uint32_t size, double initValue)
+{
     Array a(size);
     std::fill(a.begin(), a.end(), initValue);
     return a;
 }
 
-inline std::ostream& operator<<(std::ostream& o, const Array& a) {
-    for (auto v : a) {
-        std::cerr << v << " " ;
+inline std::ostream &operator<<(std::ostream &o, const Array &a)
+{
+    for (auto v : a)
+    {
+        std::cerr << v << " ";
     }
-    std::cerr << std::endl ;
-    return o ;
+    std::cerr << std::endl;
+    return o;
 }
 
-inline std::ostream& operator<<(std::ostream& o, const Strings& a) {
-    for (const String& v : a) {
-        std::cerr << "  " << v << std::endl ;
+inline std::ostream &operator<<(std::ostream &o, const Strings &a)
+{
+    for (const String &v : a)
+    {
+        std::cerr << "  " << v << std::endl;
     }
-    // std::cerr << std::endl ;
-    return o ;
+    std::cerr << std::endl ;
+    return o;
 }

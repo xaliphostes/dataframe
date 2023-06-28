@@ -21,7 +21,7 @@
  *
  */
 
-#include "ComponentsDecomposer.h"
+#include "Components.h"
 #include "../nameOfSerie.h"
 #include "../algos/apply.h"
 #include "../utils.h"
@@ -38,7 +38,7 @@ namespace df
     static Strings smatrix3Names{"xx", "xy", "xz", "yy", "yz", "zz"};
     static Strings matrix3Names{"xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz"};
 
-    Strings ComponentsDecomposer::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    Strings Components::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
     {
         if (name == "positions" || name == "indices")
         {
@@ -93,7 +93,7 @@ namespace df
         return names;
     }
 
-    Serie ComponentsDecomposer::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    Serie Components::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
     {
         if (itemSize > 1)
         {

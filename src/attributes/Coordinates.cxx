@@ -21,43 +21,40 @@
  *
  */
 
-#pragma once
-
-#include "../Dataframe.h"
-#include "../Serie.h"
+#include "Coordinates.h"
+#include "../utils.h"
 #include "../types.h"
+#include <algorithm>
 
 namespace df
 {
 
-    class Decomposer;
-
-    /**
-     * @brief Manager of decomposers
-     */
-    class Manager
+    Coordinates::Coordinates(const Strings &names): names_(names)
     {
-    public:
-        /**
-         * By default, no decomposer...
-         */
-        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
-        ~Manager();
+    }
 
-        void add(Decomposer* decomposer);
-        void clear();
+    Strings Coordinates::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1 || name != "positions") {
+            return Strings();
+        }
+        return names_;
+    }
 
-        uint nbDecomposers() const {return ds_.size();}
+    Serie Coordinates::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
 
-        Serie serie(uint32_t itemSize, const String &name) const;
-        Strings names(uint32_t itemSize) const;
-        bool contains(uint32_t itemSize, const String &name) const;
-
-    private:
-        const Dataframe &df_;
-        std::vector<Decomposer*> ds_;
-        uint8_t dim_{3};
-        uint dimension_{3};
-    };
+        if (itemSize == 1) {
+            const Serie& serie = dataframe["positions"];
+            for (uint i=0; i<3; ++i) {
+                if (name == names_[i]) {
+                    return serie.map( [i](const Array& item, uint32_t) {
+                        return Array{item[i]};
+                    });
+                }
+            }
+        }
+        return Serie();
+    }
 
 }

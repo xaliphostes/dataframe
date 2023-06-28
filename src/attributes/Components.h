@@ -22,42 +22,14 @@
  */
 
 #pragma once
+#include "Decomposer.h"
 
-#include "../Dataframe.h"
-#include "../Serie.h"
-#include "../types.h"
+namespace df {
 
-namespace df
-{
-
-    class Decomposer;
-
-    /**
-     * @brief Manager of decomposers
-     */
-    class Manager
-    {
+    class Components: public Decomposer {
     public:
-        /**
-         * By default, no decomposer...
-         */
-        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
-        ~Manager();
-
-        void add(Decomposer* decomposer);
-        void clear();
-
-        uint nbDecomposers() const {return ds_.size();}
-
-        Serie serie(uint32_t itemSize, const String &name) const;
-        Strings names(uint32_t itemSize) const;
-        bool contains(uint32_t itemSize, const String &name) const;
-
-    private:
-        const Dataframe &df_;
-        std::vector<Decomposer*> ds_;
-        uint8_t dim_{3};
-        uint dimension_{3};
+        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
+        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
     };
 
 }

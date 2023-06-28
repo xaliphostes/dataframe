@@ -21,43 +21,52 @@
  *
  */
 
-#pragma once
-
-#include "../Dataframe.h"
-#include "../Serie.h"
+#include "Valence.h"
+#include "../utils.h"
 #include "../types.h"
+#include <algorithm>
 
 namespace df
 {
 
-    class Decomposer;
-
-    /**
-     * @brief Manager of decomposers
-     */
-    class Manager
+    Valence::Valence(const String &name): name_(name)
     {
-    public:
-        /**
-         * By default, no decomposer...
-         */
-        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
-        ~Manager();
+    }
 
-        void add(Decomposer* decomposer);
-        void clear();
+    Strings Valence::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1) {
+            return Strings();
+        }
+        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+            return Strings();
+        }
 
-        uint nbDecomposers() const {return ds_.size();}
+        return Strings{name_};
+    }
 
-        Serie serie(uint32_t itemSize, const String &name) const;
-        Strings names(uint32_t itemSize) const;
-        bool contains(uint32_t itemSize, const String &name) const;
+    Serie Valence::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
 
-    private:
-        const Dataframe &df_;
-        std::vector<Decomposer*> ds_;
-        uint8_t dim_{3};
-        uint dimension_{3};
-    };
+        if (name != name_) {
+            return Serie();
+        }
+
+        const Serie& positions = dataframe["positions"];
+        const Serie& indices = dataframe["indices"];
+        if (!positions.isValid() || !indices.isValid()) {
+            return Serie();
+        }
+
+        Array ids = createArray(positions.count(), 0);
+
+        indices.forEach( [&](const Array& t, uint32_t) {
+            ids[t[0]]++;
+            ids[t[0]]++;
+            ids[t[0]]++;
+        });
+
+        return Serie(1, ids);
+    }
 
 }
