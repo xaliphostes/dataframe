@@ -21,33 +21,16 @@
  *
  */
 
-#include <iostream>
-#include "../src/Serie.h"
-#include "../src/utils.h"
-#include "../src/algos/reduce.h"
-#include "assertions.h"
+#pragma once
+#include "filter.h"
 
-int main()
+namespace df
 {
-    df::Serie serie(3, {1,2,3, 4,5,6}); // 2 items with itemSize = 3
 
-    df::Serie s = df::reduce(
-        serie, [](const Array &prev, const Array &cur) {
-            return Array{prev[0] + cur[0], prev[1] + cur[1]};
-        }, Array{10,20}
-    );
+    template <typename F>
+    Serie cut(const Serie &serie, F &&predicate)
+    {
+        return filter(serie, predicate);
+    }
 
-    Array sol{10 + 1 + 4, 20 + 2 + 5}; // 2 items with itemSize = 2
-    assertArrayEqual(s.asArray(), sol);
-    std::cerr << s.asArray() << std::endl;
-
-    s = df::reduce(
-        serie, [](const Array &prev, const Array &cur) {
-            return Array{prev[0] + cur[0]};
-        }, Array{0}
-    );
-    std::cerr << s.asArray() << std::endl;
-
-
-    return 0;
 }
