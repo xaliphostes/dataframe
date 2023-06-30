@@ -49,16 +49,16 @@ namespace df
     }
 
     template <typename F>
-    Array Serie::reduce(F &&reduceFn, const Array &acc)
+    Serie Serie::reduce(F &&reduceFn, const Array &acc) const
     {
-        return std::accumulate(
-            s_.begin(),
-            s_.end(),
-            acc,
-            [reduceFn, acc](const Array &previousResult, const Array &item)
-            {
-                return reduceFn(previousResult, item);
-            });
+        Array r = acc;
+        uint itemSize = 1;
+        this->forEach([&](const Array &a, uint32_t) {
+            r = reduceFn(r, a);
+            itemSize = r.size();
+        });
+
+        return Serie(itemSize, r, this->dimension_);
     }
 
     template <typename F>
@@ -85,6 +85,19 @@ namespace df
             }
         }
         return R;
+    }
+
+    template <typename F>
+    Serie Serie::filter(F &&predicate) const
+    {
+        Array r;
+        this->forEach( [&](const Array& a, uint32_t) {
+            if (predicate(a) == true) {
+                r.insert(std::end(r), std::begin(a), std::end(a));
+            }
+        });
+
+        return Serie(this->itemSize(), r);
     }
 
     inline const Array &Serie::asArray() const

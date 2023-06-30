@@ -68,7 +68,10 @@ namespace df
         Serie map(F &&cb) const;
         
         template <typename F>
-        Array reduce(F &&reduceFn, const Array &acc);
+        Serie reduce(F &&reduceFn, const Array &acc) const;
+
+        template <typename F>
+        Serie filter(F &&reduceFn) const;
 
     private:
         Array s_;

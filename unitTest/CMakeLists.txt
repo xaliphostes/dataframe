@@ -82,3 +82,17 @@ add_test(
   NAME decomposer
   COMMAND $<TARGET_FILE:decomposer>
 )
+
+add_executable(reduce reduce.cxx)
+target_link_libraries(reduce PRIVATE dataframe-shared)
+add_test(
+  NAME reduce
+  COMMAND $<TARGET_FILE:reduce>
+)
+
+add_executable(filter filter.cxx)
+target_link_libraries(filter PRIVATE dataframe-shared)
+add_test(
+  NAME filter
+  COMMAND $<TARGET_FILE:filter>
+)
