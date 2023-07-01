@@ -30,38 +30,8 @@ namespace df
 
     Serie bins(const Serie &serie, uint nb)
     {
-        if (serie.itemSize() != 1)
-        {
-            throw std::invalid_argument("bins: Serie must have itemSize=1");
-            return Serie();
-        }
-        if (nb < 1)
-        {
-            return Serie();
-        }
-
         auto m = minMax(serie);
-
-        double start = m[0];
-        double stop = m[1];
-        double size = (stop - start) / double(nb);
-
-        // binning
-        Array b = createArray(nb, 0);
-        serie.forEachScalar([&](double v, uint32_t) {
-            uint32_t i = std::trunc((v - start) / size);
-            if (i >= nb)
-            {
-                i = nb - 1;
-            }
-            if (i < 0 || i >= nb)
-            {
-                throw std::invalid_argument("bins: index for bin (" + std::to_string(i) + ") out of bounds (0, "+std::to_string(nb)+")");
-            }
-            b[i]++;
-        });
-
-        return Serie(1, b);
+        return bins(serie, nb, m[0], m[1]);
     }
 
     Serie bins(const Serie &serie, uint nb, double start, double stop)
