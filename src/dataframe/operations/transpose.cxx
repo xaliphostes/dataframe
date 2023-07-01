@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/math/transpose.h>
+#include <dataframe/operations/transpose.h>
 
 namespace df
 {

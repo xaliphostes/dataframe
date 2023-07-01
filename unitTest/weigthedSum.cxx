@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/math/weightedSum.h>
+#include <dataframe/operations/weightedSum.h>
 #include "assertions.h"
 
 int main()

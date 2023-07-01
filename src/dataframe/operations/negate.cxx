@@ -21,40 +21,16 @@
  *
  */
 
-#include <dataframe/math/div.h>
+#include <dataframe/operations/dot.h>
 
 namespace df {
 
-    Serie div(const Serie &serie, double d) {
-        
-        return serie.map([d](const Array& a, uint32_t i) { // ieme item
-            Array r = a;
-            for (uint32_t j=0; j<a.size(); ++j) {
-                r[j] /= d;
-            }
-            return r;
-        });
-    }
-
-    Serie div(const Serie &serie, const Serie& divider) {
-        // Checks...
-        if (serie.count() != divider.count()) {
-            throw std::invalid_argument("(math/div) count of serie (" +
-                std::to_string(serie.count()) +
-                ") differs from count of divider (" +
-                std::to_string(divider.count()) +
-                ")");
-        }
-        if (divider.itemSize() != 1) {
-            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
-                std::to_string(divider.itemSize()) );
-        }
-
-        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
-            double d = divider.scalar(i);
-            Array r = a;
-            for (uint32_t j=0; j<a.size(); ++j) {
-                r[j] /= d;
+    Serie negate(const Serie &serie) {
+        uint32_t itemSize = serie.itemSize();
+        return serie.map([itemSize](const Array& a, uint32_t i) { // ieme item
+            Array r = a ;
+            for (uint32_t k=0; k<itemSize; ++k) {
+                r[k] *= -1;
             }
             return r;
         });

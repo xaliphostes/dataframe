@@ -21,40 +21,43 @@
  *
  */
 
-#include <dataframe/math/norm.h>
-#include <numeric>
-#include <cmath>
+#include <dataframe/operations/div.h>
 
 namespace df {
 
-    Serie norm(const Serie& s) {
-        return norm2(s).map( [](const Array& a, uint32_t) {
-            return Array{std::sqrt(a[0])};
+    Serie div(const Serie &serie, double d) {
+        
+        return serie.map([d](const Array& a, uint32_t i) { // ieme item
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
         });
     }
 
-    Serie norm2(const Serie& s) {
-        if (s.isValid() == false) {
-            return Serie();
+    Serie div(const Serie &serie, const Serie& divider) {
+        // Checks...
+        if (serie.count() != divider.count()) {
+            throw std::invalid_argument("(math/div) count of serie (" +
+                std::to_string(serie.count()) +
+                ") differs from count of divider (" +
+                std::to_string(divider.count()) +
+                ")");
+        }
+        if (divider.itemSize() != 1) {
+            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
+                std::to_string(divider.itemSize()) );
         }
 
-        if (s.itemSize() == 1) {
-            return s.clone();
-        }
-
-        Array data = createArray(1, s.count());
-
-        for (uint32_t i = 0; i < s.count(); ++i) {
-            Array v = s.value(i);
-            double n = 0;
-            for (uint j=0; j<v.size(); ++j) {
-                double w = v[j];
-                n += w*w;
+        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
+            double d = divider.scalar(i);
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
             }
-            data[i] = n;
-        }
-
-        return Serie(1,data);
+            return r;
+        });
     }
 
 }

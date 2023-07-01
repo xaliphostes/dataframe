@@ -1,4 +1,4 @@
-#include <dataframe/math/eigen.h>
+#include <dataframe/operations/eigen.h>
 #include <cmath>
 
 namespace df

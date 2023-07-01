@@ -24,7 +24,7 @@
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/math/transpose.h>
+#include <dataframe/operations/transpose.h>
 #include "assertions.h"
 
 void m2() {

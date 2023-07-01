@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/math/div.h>
+#include <dataframe/operations/div.h>
 #include "assertions.h"
 
 int main()

@@ -36,8 +36,7 @@ Not yet tested under Windows, but will have to add `export` for shared library.
         - Eigen vectors
         - Eigen values
         - ...
-    - **math** provides some examples of what is possible to do with `Serie` (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe))
-    - **geo** rpovides some examples of functions to create `Serie`s for `geo`-metry, `geo`-logy, `geo`-physics and so on...
+    - **operations** provides some examples of what is possible to do with `Serie` (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, for geophysics and so on...
 
 # Compilation
 Create a `build` directory, **go inside** and type

@@ -25,8 +25,8 @@
 #include <dataframe/attributes/Normals.h>
 #include <dataframe/utils/utils.h>
 #include <dataframe/types.h>
-#include <dataframe/math/div.h>
-#include <dataframe/math/norm.h>
+#include <dataframe/operations/div.h>
+#include <dataframe/operations/norm.h>
 #include <algorithm>
 
 namespace df

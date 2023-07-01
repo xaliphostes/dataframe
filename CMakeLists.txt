@@ -74,19 +74,18 @@ set(SRC_dataframe
     ./src/dataframe/attributes/EigenValues.cxx
     ./src/dataframe/attributes/EigenVectors.cxx
 
-    ./src/dataframe/math/add.cxx
-    ./src/dataframe/math/dot.cxx
-    ./src/dataframe/math/negate.cxx
-    ./src/dataframe/math/scale.cxx
-    ./src/dataframe/math/weightedSum.cxx
-    ./src/dataframe/math/transpose.cxx
-    ./src/dataframe/math/div.cxx
-    ./src/dataframe/math/norm.cxx
-    ./src/dataframe/math/eigen.cxx
-
-    ./src/dataframe/geo/areas.cxx
-    ./src/dataframe/geo/normals.cxx
-    ./src/dataframe/geo/insar.cxx
+    ./src/dataframe/operations/add.cxx
+    ./src/dataframe/operations/dot.cxx
+    ./src/dataframe/operations/negate.cxx
+    ./src/dataframe/operations/scale.cxx
+    ./src/dataframe/operations/weightedSum.cxx
+    ./src/dataframe/operations/transpose.cxx
+    ./src/dataframe/operations/div.cxx
+    ./src/dataframe/operations/norm.cxx
+    ./src/dataframe/operations/eigen.cxx
+    ./src/dataframe/operations/areas.cxx
+    ./src/dataframe/operations/normals.cxx
+    ./src/dataframe/operations/insar.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

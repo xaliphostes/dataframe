@@ -24,7 +24,7 @@
 #include <dataframe/attributes/EigenVectors.h>
 #include <dataframe/utils/utils.h>
 #include <dataframe/types.h>
-#include <dataframe/math/eigen.h>
+#include <dataframe/operations/eigen.h>
 #include <algorithm>
 
 namespace df

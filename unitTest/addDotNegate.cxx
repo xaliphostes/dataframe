@@ -23,9 +23,9 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/math/add.h>
-#include <dataframe/math/dot.h>
-#include <dataframe/math/negate.h>
+#include <dataframe/operations/add.h>
+#include <dataframe/operations/dot.h>
+#include <dataframe/operations/negate.h>
 #include "assertions.h"
 
 int main()

@@ -21,48 +21,40 @@
  *
  */
 
-#include <dataframe/geo/insar.h>
-#include <dataframe/math/dot.h>
+#include <dataframe/operations/norm.h>
+#include <numeric>
 #include <cmath>
 
 namespace df {
 
-    /**
-     * @brief Compute the insar Serie (itemSize = 1)
-     * @param u The displacement vector field
-     * @param los The satellite direction (a 3D vector)
-     * @return Serie of itemSize=1
-     */
-    Serie insar(const Serie &u, const Array& los) {
-        if (!u.isValid() || u.itemSize() != 3) {
-            return Serie();
-        }
-
-        if (los.size() != 3) {
-            return Serie();
-        }
-
-        return dot(u, los);
-    }
-
-    static inline double frac(double val) {
-        return val - std::floor(val);
-    }
-
-    /**
-     * @brief Compute the fringes given the insar Serie
-     * @param insar The insar computed from {@link insar}
-     * @param fringeSpacing The spacing of teh fringes
-     * @return Serie of itemSize=1
-     */
-    Serie fringes(const Serie &insar, double fringeSpacing) {
-        if (!insar.isValid() || insar.itemSize() != 1) {
-            return Serie();
-        }
-
-        return insar.map( [fringeSpacing](const Array &v, uint32_t) {
-            return Array{std::fabs(fringeSpacing * frac(v[0] / fringeSpacing))};
+    Serie norm(const Serie& s) {
+        return norm2(s).map( [](const Array& a, uint32_t) {
+            return Array{std::sqrt(a[0])};
         });
+    }
+
+    Serie norm2(const Serie& s) {
+        if (s.isValid() == false) {
+            return Serie();
+        }
+
+        if (s.itemSize() == 1) {
+            return s.clone();
+        }
+
+        Array data = createArray(1, s.count());
+
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            Array v = s.value(i);
+            double n = 0;
+            for (uint j=0; j<v.size(); ++j) {
+                double w = v[j];
+                n += w*w;
+            }
+            data[i] = n;
+        }
+
+        return Serie(1,data);
     }
 
 }
