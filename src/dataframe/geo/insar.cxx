@@ -46,7 +46,7 @@ namespace df {
     }
 
     static inline double frac(double val) {
-        return val - std::floorf(val);
+        return val - std::floor(val);
     }
 
     /**
