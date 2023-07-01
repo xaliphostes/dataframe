@@ -21,39 +21,18 @@
  *
  */
 
-#include <dataframe/attributes/Normals.h>
-// #include <dataframe/utils/utils.h>
-// #include <dataframe/types.h>
+#include <dataframe/geo/areas.h>
 #include <dataframe/geo/normals.h>
-#include <algorithm>
+#include <dataframe/math/div.h>
+#include <dataframe/math/norm.h>
 
-namespace df
-{
+namespace df {
 
-    Normals::Normals(const String &name): name_(name)
-    {
-    }
-
-    Strings Normals::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 3) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Normals::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-
-        if (name != name_) {
+    Serie areas(const Serie &positions, const Serie& indices) {
+        if (!positions.isValid() || !indices.isValid()) {
             return Serie();
         }
-
-        return normals(dataframe["positions"], dataframe["indices"]);
+        return div(norm(normals(positions, indices)), 2);
     }
 
 }

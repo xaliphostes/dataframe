@@ -21,39 +21,13 @@
  *
  */
 
-#include <dataframe/attributes/Normals.h>
-// #include <dataframe/utils/utils.h>
-// #include <dataframe/types.h>
-#include <dataframe/geo/normals.h>
-#include <algorithm>
+#pragma once
+#include <dataframe/Serie.h>
 
 namespace df
 {
 
-    Normals::Normals(const String &name): name_(name)
-    {
-    }
-
-    Strings Normals::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 3) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Normals::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-
-        if (name != name_) {
-            return Serie();
-        }
-
-        return normals(dataframe["positions"], dataframe["indices"]);
-    }
+    Serie insar(const Serie &u, const Array &los);
+    Serie fringes(const Serie &insar, double spacing);
 
 }

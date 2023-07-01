@@ -21,47 +21,12 @@
  *
  */
 
-#include <dataframe/attributes/Area.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/math/div.h>
-#include <dataframe/math/norm.h>
-#include <algorithm>
+#pragma once
+#include <dataframe/Serie.h>
 
 namespace df
 {
 
-    Area::Area(const String &name): name_(name)
-    {
-    }
-
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
-        }
-
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
-        }
-
-        return Serie();
-    }
+    Serie areas(const Serie &positions, const Serie& indices);
 
 }

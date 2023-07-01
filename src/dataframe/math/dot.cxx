@@ -37,4 +37,20 @@ namespace df {
         });
     }
 
+    Serie dot(const Serie &a, const Array &b) {
+        if (a.value(0).size() != b.size()) {
+            return Serie();
+        }
+
+        uint32_t itemSize = a.itemSize();
+
+        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
+            Array r = createArray(1, 0) ;
+            for (uint32_t k=0; k<itemSize; ++k) {
+                r[0] += arr[k] * b[k];
+            }
+            return r;
+        });
+    }
+
 }

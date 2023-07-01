@@ -61,16 +61,19 @@ include_directories(include)
 set(SRC_dataframe
     ./src/dataframe/Dataframe.cxx
     ./src/dataframe/Serie.cxx
+
     ./src/dataframe/utils/nameOfSerie.cxx
+
     ./src/dataframe/attributes/Manager.cxx
     ./src/dataframe/attributes/Decomposer.cxx
     ./src/dataframe/attributes/Components.cxx
     ./src/dataframe/attributes/Normals.cxx
     ./src/dataframe/attributes/Coordinates.cxx
     ./src/dataframe/attributes/Valence.cxx
-    ./src/dataframe/attributes/Area.cxx
+    ./src/dataframe/attributes/Areas.cxx
     ./src/dataframe/attributes/EigenValues.cxx
     ./src/dataframe/attributes/EigenVectors.cxx
+
     ./src/dataframe/math/add.cxx
     ./src/dataframe/math/dot.cxx
     ./src/dataframe/math/negate.cxx
@@ -80,6 +83,10 @@ set(SRC_dataframe
     ./src/dataframe/math/div.cxx
     ./src/dataframe/math/norm.cxx
     ./src/dataframe/math/eigen.cxx
+
+    ./src/dataframe/geo/areas.cxx
+    ./src/dataframe/geo/normals.cxx
+    ./src/dataframe/geo/insar.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

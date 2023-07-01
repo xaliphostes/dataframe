@@ -28,5 +28,6 @@ namespace df
 {
     
     Serie dot(const Serie &a, const Serie &b) ;
+    Serie dot(const Serie &a, const Array &b) ;
     
 }
