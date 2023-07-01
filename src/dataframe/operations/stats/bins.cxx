@@ -24,6 +24,7 @@
 #include <dataframe/operations/stats/bins.h>
 #include <dataframe/operations/math/minMax.h>
 #include <dataframe/types.h>
+#include <cmath>
 
 namespace df
 {
