@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/add.h>
+#include <dataframe/operations/math/add.h>
 
 namespace df {
 

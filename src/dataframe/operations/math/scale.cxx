@@ -21,40 +21,38 @@
  *
  */
 
-#include <dataframe/operations/norm.h>
-#include <numeric>
-#include <cmath>
+#include <dataframe/operations/math/scale.h>
 
 namespace df {
 
-    Serie norm(const Serie& s) {
-        return norm2(s).map( [](const Array& a, uint32_t) {
-            return Array{std::sqrt(a[0])};
+    Serie scale(const Serie& s, double scale) {
+        uint32_t size = s.itemSize();
+        return s.map([scale, size](const Array& a, uint32_t i) {
+            Array r = a ;
+            for (uint32_t k=0; k<size; ++k) {
+                r[k] *= scale;
+            }
+            return r;
         });
     }
 
-    Serie norm2(const Serie& s) {
-        if (s.isValid() == false) {
-            return Serie();
+    Serie scale(const Serie& s, const Array& scales) {
+        if (s.itemSize() != scales.size()) {
+            throw std::invalid_argument("(scale) Serie itemSize (" +
+                std::to_string(s.itemSize()) +
+                " differs from scale size (" +
+                std::to_string(scales.size()) +
+                ")");
         }
 
-        if (s.itemSize() == 1) {
-            return s.clone();
-        }
-
-        Array data = createArray(1, s.count());
-
-        for (uint32_t i = 0; i < s.count(); ++i) {
-            Array v = s.value(i);
-            double n = 0;
-            for (uint j=0; j<v.size(); ++j) {
-                double w = v[j];
-                n += w*w;
+        uint32_t size = s.itemSize();
+        return s.map([scales, size](const Array& a, uint32_t i) {
+            Array r = a ;
+            for (uint32_t k=0; k<size; ++k) {
+                r[k] *= scales[k];
             }
-            data[i] = n;
-        }
-
-        return Serie(1,data);
+            return r;
+        });
     }
 
 }

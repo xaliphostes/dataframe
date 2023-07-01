@@ -21,47 +21,41 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
-#include <algorithm>
+#include <iostream>
+#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/operations/stats/bins.h>
+#include "assertions.h"
 
-namespace df
+void bins()
 {
+    df::Serie s(1, {57, 57, 57, 58, 63, 66, 66, 67, 67, 68, 69, 70, 70, 70, 70, 72, 73, 75, 75, 76, 76, 78, 79, 81});
 
-    Area::Area(const String &name): name_(name)
     {
+        df::Serie a = df::bins(s, 10);
+
+        uint32_t nb1 = s.count();
+        Array sol{4, 0, 1, 2, 3, 5, 2, 4, 1, 2};
+        assertArrayEqual(a.asArray(), sol);
+
+        auto nb2 = std::reduce(sol.begin(), sol.end());
+        assertEqual(nb1, (uint32_t)nb2);
     }
 
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
     {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
+        df::Serie a = df::bins(s, 10, 0, 100);
+        uint nb1 = s.count();
+        Array sol{0, 0, 0, 0, 0, 4, 7, 12, 1, 0};
+        assertArrayEqual(a.asArray(), sol);
 
-        return Strings{name_};
+        auto nb2 = std::reduce(sol.begin(), sol.end());
+        assertEqual(nb1, (uint32_t)nb2);
     }
+}
 
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
-        }
+int main()
+{
+    bins();
 
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
-        }
-
-        return Serie();
-    }
-
+    return 0;
 }

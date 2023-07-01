@@ -1,9 +1,9 @@
 # Dataframe
 
 <p align="center">
-  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=soon&color=red" alt="Windows support">
   <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
   <img src="https://img.shields.io/static/v1?label=macOS&logo=apple&logoColor=white&message=support&color=success" alt="macOS support">
+  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=soon&color=red" alt="Windows support">
 </p>
 
 <p align="center">
@@ -17,7 +17,12 @@ Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows 
 Compared to Panda, we have some differences since our main consern is **linear algebra**.
 
 Main functionalities are:
-- Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra.
+- Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra. Tensors are stored as packed array, hense the notion of `itemSize`.
+    - A first example is given by a `itemSize=6` with `dimension=3` which represents a symmetric matrix of dimension 3 (6 coefficients)
+    - A second exmaple is given by a `itemSize=3` with `dimension=3` which represents a vector of dimension 3 (3 coefficients)
+    - However, the same last example but with `itemSize=2` represents a matrix of dimension 2 (still 3 coefficients).
+    - When `itemSize=9` and `dimension=3`, we have a non-symmetric matrix of dimension 3 (9 coefficients)
+
 - `Serie` of scalar items or n-dim items
 - Mathematical functions on `Serie`
 - Decomposition of a `Serie` into a new `Serie` (virtual Serie) using the `Manager` and some `Decomposer`s
@@ -36,7 +41,7 @@ Not yet tested under Windows, but will have to add `export` for shared library.
         - Eigen vectors
         - Eigen values
         - ...
-    - **operations** provides some examples of what is possible to do with `Serie` (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, for geophysics and so on...
+    - **operations** provides some examples of what is possible to do with `Serie` in term of linear algebra, statistics etc... (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, geophysics and so on...
 
 # Compilation
 Create a `build` directory, **go inside** and type

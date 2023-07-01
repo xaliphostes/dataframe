@@ -21,18 +21,13 @@
  *
  */
 
-#include <dataframe/operations/areas.h>
-#include <dataframe/operations/normals.h>
-#include <dataframe/operations/div.h>
-#include <dataframe/operations/norm.h>
+#pragma once
+#include <dataframe/Serie.h>
 
-namespace df {
+namespace df
+{
 
-    Serie areas(const Serie &positions, const Serie& indices) {
-        if (!positions.isValid() || !indices.isValid()) {
-            return Serie();
-        }
-        return div(norm(normals(positions, indices)), 2);
-    }
+    Serie bins(const Serie &serie, uint nb) ;
+    Serie bins(const Serie &serie, uint nb, double min, double max) ;
 
 }

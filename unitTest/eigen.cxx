@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/operations/eigen.h>
+#include <dataframe/operations/algebra/eigen.h>
 #include <dataframe/attributes/Manager.h>
 #include <dataframe/attributes/EigenValues.h>
 #include <dataframe/attributes/EigenVectors.h>

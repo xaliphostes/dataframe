@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/dot.h>
+#include <dataframe/operations/math/negate.h>
 
 namespace df {
 

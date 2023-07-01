@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/weightedSum.h>
+#include <dataframe/operations/math/weightedSum.h>
 
 namespace df {
 

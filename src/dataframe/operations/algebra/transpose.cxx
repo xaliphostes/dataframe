@@ -21,47 +21,37 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
-#include <algorithm>
+#include <dataframe/operations/algebra/transpose.h>
 
 namespace df
 {
 
-    Area::Area(const String &name): name_(name)
+    /**
+     * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
+     */
+    Serie transpose(const Serie &serie)
     {
-    }
 
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
+        if (serie.itemSize() != 4 && serie.itemSize() != 9) {
+            throw std::invalid_argument("(transpose) items size should be 4 or 9 only (for now). Got " +
+                std::to_string(serie.itemSize()));
         }
 
-        return Strings{name_};
-    }
-
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
+        if (serie.itemSize() == 4) {
+            return serie.map([](const Array &item, uint32_t i) {
+                return Array {
+                    item[0], item[2],
+                    item[1], item[3],
+                };
+            });
         }
-
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
-        }
-
-        return Serie();
+        return serie.map([](const Array &item, uint32_t i) {
+            return Array {
+                item[0], item[3], item[6],
+                item[1], item[4], item[7],
+                item[2], item[5], item[8]
+            };
+        });
     }
 
 }

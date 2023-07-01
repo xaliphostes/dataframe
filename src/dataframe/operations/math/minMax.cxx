@@ -21,47 +21,23 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
-#include <algorithm>
+#include <dataframe/operations/math/minMax.h>
 
-namespace df
-{
+namespace df {
 
-    Area::Area(const String &name): name_(name)
-    {
-    }
-
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
+    Array minMax(const Serie &serie) {
+        if (serie.itemSize() != 1) {
+            throw std::invalid_argument("minMax: for the moment only Serie with itemSize=1 is allowed");
         }
 
-        return Strings{name_};
-    }
+        double min = 1e302;
+        double max = -1e302;
+        serie.forEachScalar([&](double v, uint32_t) {
+            if (v > max) max = v;
+            if (v < min) min = v;
+        });
 
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
-        }
-
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
-        }
-
-        return Serie();
+        return Array{min,max};
     }
 
 }

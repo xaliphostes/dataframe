@@ -21,38 +21,23 @@
  *
  */
 
-#include <dataframe/operations/scale.h>
+#include <iostream>
+#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/operations/math/minMax.h>
+#include "assertions.h"
 
-namespace df {
+void minMax()
+{
+    df::Serie s(1, {1, -2, 31.1, 4});
+    Array m = df::minMax(s);
+    assertDoubleEqual(m[0], -2);
+    assertDoubleEqual(m[1], 31.1);
+}
 
-    Serie scale(const Serie& s, double scale) {
-        uint32_t size = s.itemSize();
-        return s.map([scale, size](const Array& a, uint32_t i) {
-            Array r = a ;
-            for (uint32_t k=0; k<size; ++k) {
-                r[k] *= scale;
-            }
-            return r;
-        });
-    }
+int main()
+{
+    minMax();
 
-    Serie scale(const Serie& s, const Array& scales) {
-        if (s.itemSize() != scales.size()) {
-            throw std::invalid_argument("(scale) Serie itemSize (" +
-                std::to_string(s.itemSize()) +
-                " differs from scale size (" +
-                std::to_string(scales.size()) +
-                ")");
-        }
-
-        uint32_t size = s.itemSize();
-        return s.map([scales, size](const Array& a, uint32_t i) {
-            Array r = a ;
-            for (uint32_t k=0; k<size; ++k) {
-                r[k] *= scales[k];
-            }
-            return r;
-        });
-    }
-
+    return 0;
 }

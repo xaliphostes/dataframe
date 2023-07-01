@@ -20,6 +20,13 @@
 #
 project(unitTest)
 
+add_executable(basics basics.cxx)
+target_link_libraries(basics PRIVATE dataframe-shared)
+add_test(
+  NAME basics
+  COMMAND $<TARGET_FILE:basics>
+)
+
 add_executable(weigthedSum weigthedSum.cxx)
 target_link_libraries(weigthedSum PRIVATE dataframe-shared)
 add_test(
@@ -102,4 +109,11 @@ target_link_libraries(eigen PRIVATE dataframe-shared)
 add_test(
   NAME eigen
   COMMAND $<TARGET_FILE:eigen>
+)
+
+add_executable(stats stats.cxx)
+target_link_libraries(stats PRIVATE dataframe-shared)
+add_test(
+  NAME stats
+  COMMAND $<TARGET_FILE:stats>
 )

@@ -21,47 +21,48 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
-#include <algorithm>
+#include <dataframe/operations/geo/insar.h>
+#include <dataframe/operations/algebra/dot.h>
+#include <cmath>
 
-namespace df
-{
+namespace df {
 
-    Area::Area(const String &name): name_(name)
-    {
-    }
-
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
+    /**
+     * @brief Compute the insar Serie (itemSize = 1)
+     * @param u The displacement vector field
+     * @param los The satellite direction (a 3D vector)
+     * @return Serie of itemSize=1
+     */
+    Serie insar(const Serie &u, const Array& los) {
+        if (!u.isValid() || u.itemSize() != 3) {
             return Serie();
         }
 
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
+        if (los.size() != 3) {
+            return Serie();
         }
 
-        return Serie();
+        return dot(u, los);
+    }
+
+    static inline double frac(double val) {
+        return val - std::floor(val);
+    }
+
+    /**
+     * @brief Compute the fringes given the insar Serie
+     * @param insar The insar computed from {@link insar}
+     * @param fringeSpacing The spacing of teh fringes
+     * @return Serie of itemSize=1
+     */
+    Serie fringes(const Serie &insar, double fringeSpacing) {
+        if (!insar.isValid() || insar.itemSize() != 1) {
+            return Serie();
+        }
+
+        return insar.map( [fringeSpacing](const Array &v, uint32_t) {
+            return Array{std::fabs(fringeSpacing * frac(v[0] / fringeSpacing))};
+        });
     }
 
 }

@@ -24,7 +24,7 @@
 #include <iostream>
 #include <dataframe/Serie.h>
 #include <dataframe/Dataframe.h>
-#include <dataframe/operations/add.h>
+#include <dataframe/operations/math/add.h>
 #include "assertions.h"
 
 

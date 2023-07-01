@@ -21,47 +21,43 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
 #include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
-#include <algorithm>
 
-namespace df
-{
+namespace df {
 
-    Area::Area(const String &name): name_(name)
-    {
+    Serie div(const Serie &serie, double d) {
+        
+        return serie.map([d](const Array& a, uint32_t i) { // ieme item
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        });
     }
 
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
+    Serie div(const Serie &serie, const Serie& divider) {
+        // Checks...
+        if (serie.count() != divider.count()) {
+            throw std::invalid_argument("(math/div) count of serie (" +
+                std::to_string(serie.count()) +
+                ") differs from count of divider (" +
+                std::to_string(divider.count()) +
+                ")");
         }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
+        if (divider.itemSize() != 1) {
+            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
+                std::to_string(divider.itemSize()) );
         }
 
-        Normals n("n");
-
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return div(norm(normals), 2);
-        }
-
-        return Serie();
+        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
+            double d = divider.scalar(i);
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        });
     }
 
 }

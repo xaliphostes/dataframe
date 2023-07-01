@@ -21,40 +21,33 @@
  *
  */
 
-#include <dataframe/operations/div.h>
+#include <dataframe/operations/algebra/dot.h>
 
 namespace df {
 
-    Serie div(const Serie &serie, double d) {
-        
-        return serie.map([d](const Array& a, uint32_t i) { // ieme item
-            Array r = a;
-            for (uint32_t j=0; j<a.size(); ++j) {
-                r[j] /= d;
+    Serie dot(const Serie &a, const Serie &b) {
+        uint32_t itemSize = a.itemSize();
+        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
+            Array r = createArray(1, 0) ;
+            const Array& bb = b.value(i) ;
+            for (uint32_t k=0; k<itemSize; ++k) {
+                r[0] += arr[k] * bb[k];
             }
             return r;
         });
     }
 
-    Serie div(const Serie &serie, const Serie& divider) {
-        // Checks...
-        if (serie.count() != divider.count()) {
-            throw std::invalid_argument("(math/div) count of serie (" +
-                std::to_string(serie.count()) +
-                ") differs from count of divider (" +
-                std::to_string(divider.count()) +
-                ")");
-        }
-        if (divider.itemSize() != 1) {
-            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
-                std::to_string(divider.itemSize()) );
+    Serie dot(const Serie &a, const Array &b) {
+        if (a.value(0).size() != b.size()) {
+            return Serie();
         }
 
-        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
-            double d = divider.scalar(i);
-            Array r = a;
-            for (uint32_t j=0; j<a.size(); ++j) {
-                r[j] /= d;
+        uint32_t itemSize = a.itemSize();
+
+        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
+            Array r = createArray(1, 0) ;
+            for (uint32_t k=0; k<itemSize; ++k) {
+                r[0] += arr[k] * b[k];
             }
             return r;
         });

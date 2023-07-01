@@ -21,10 +21,10 @@
  *
  */
 
-#include <dataframe/operations/areas.h>
-#include <dataframe/operations/normals.h>
-#include <dataframe/operations/div.h>
-#include <dataframe/operations/norm.h>
+#include <dataframe/operations/geo/areas.h>
+#include <dataframe/operations/geo/normals.h>
+#include <dataframe/operations/math/div.h>
+#include <dataframe/operations/algebra/norm.h>
 
 namespace df {
 
