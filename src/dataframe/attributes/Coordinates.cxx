@@ -21,37 +21,40 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
+#include <dataframe/attributes/Coordinates.h>
 #include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/types.h>
+#include <algorithm>
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    Coordinates::Coordinates(const Strings &names): names_(names)
     {
-        assertEqual(a.scalar(i), sol[i]);
     }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
 
-    // ----------------------------------------
+    Strings Coordinates::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1 || name != "positions") {
+            return Strings();
+        }
+        return names_;
+    }
 
-    df::Serie b(2, {1, 3, 2, 9});
+    Serie Coordinates::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
+        if (itemSize == 1) {
+            const Serie& serie = dataframe["positions"];
+            for (uint i=0; i<3; ++i) {
+                if (name == names_[i]) {
+                    return serie.map( [i](const Array& item, uint32_t) {
+                        return Array{item[i]};
+                    });
+                }
+            }
+        }
+        return Serie();
+    }
 
-    return 0;
 }

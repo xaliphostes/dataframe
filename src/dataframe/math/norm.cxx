@@ -21,37 +21,40 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/math/norm.h>
+#include <numeric>
+#include <cmath>
 
+namespace df {
 
-int main()
-{
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
-
-    for (uint32_t i = 0; i < a.count(); ++i)
-    {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
-
-    // ----------------------------------------
-
-    df::Serie b(2, {1, 3, 2, 9});
-
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
+    Serie norm(const Serie& s) {
+        return norm2(s).map( [](const Array& a, uint32_t) {
+            return Array{std::sqrt(a[0])};
         });
-    });
+    }
 
-    return 0;
+    Serie norm2(const Serie& s) {
+        if (s.isValid() == false) {
+            return Serie();
+        }
+
+        if (s.itemSize() == 1) {
+            return s.clone();
+        }
+
+        Array data = createArray(1, s.count());
+
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            Array v = s.value(i);
+            double n = 0;
+            for (uint j=0; j<v.size(); ++j) {
+                double w = v[j];
+                n += w*w;
+            }
+            data[i] = n;
+        }
+
+        return Serie(1,data);
+    }
+
 }

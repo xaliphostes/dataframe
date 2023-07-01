@@ -22,15 +22,15 @@
  */
 
 #include <iostream>
-#include "../src/Serie.h"
-#include "../src/Dataframe.h"
-#include "../src/attributes/Manager.h"
-#include "../src/attributes/Components.h"
-#include "../src/attributes/Coordinates.h"
-#include "../src/attributes/Normals.h"
-#include "../src/attributes/Area.h"
-#include "../src/attributes/Valence.h"
-#include "../src/types.h"
+#include <dataframe/Serie.h>
+#include <dataframe/Dataframe.h>
+#include <dataframe/types.h>
+#include <dataframe/attributes/Manager.h>
+#include <dataframe/attributes/Components.h>
+#include <dataframe/attributes/Coordinates.h>
+#include <dataframe/attributes/Normals.h>
+#include <dataframe/attributes/Area.h>
+#include <dataframe/attributes/Valence.h>
 #include "assertions.h"
 
 namespace df {

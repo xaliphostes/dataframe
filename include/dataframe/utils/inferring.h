@@ -21,37 +21,48 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#pragma once
 
+#include <dataframe/types.h>
+#include <tuple>
 
-int main()
+/*
+ * INFO: Not used yet...
+ */
+
+template <typename T>
+struct function_traits : public function_traits<decltype(&T::operator())>
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
+};
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+template <typename ClassType, typename ReturnType, typename... Args>
+struct function_traits<ReturnType (ClassType::*)(Args...) const>
+{
+    typedef ReturnType result_type;
+    enum
     {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
+        arity = sizeof...(Args)
+    };
 
-    // ----------------------------------------
+    template <uint32_t i>
+    struct arg
+    {
+        typedef typename std::tuple_element<i, std::tuple<Args...>>::type type;
+    };
+};
 
-    df::Serie b(2, {1, 3, 2, 9});
+// ========================================================
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
+template <typename F>
+bool isReturnTypeADouble(F cb)
+{
+    using traits = function_traits<decltype(cb)>;
+    return std::is_same<double, typename traits::result_type>::value;
+}
 
-    return 0;
+template <typename F>
+bool isReturnTypeAnArray(F cb)
+{
+    using traits = function_traits<decltype(cb)>;
+    return std::is_same<Array, typename traits::result_type>::value;
 }

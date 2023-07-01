@@ -22,9 +22,9 @@
  */
 
 #include <iostream>
-#include "../src/Serie.h"
-#include "../src/utils.h"
-#include "../src/algos/filter.h"
+#include <dataframe/Serie.h>
+#include <dataframe/utils/utils.h>
+#include <dataframe/algos/filter.h>
 #include "assertions.h"
 
 int main()

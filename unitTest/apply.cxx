@@ -23,15 +23,12 @@
 
 #include <iostream>
 #include <cmath>
-#include "../src/Serie.h"
-#include "../src/Dataframe.h"
-#include "../src/utils.h"
-#include "../src/algos/apply.h"
-#include "../src/math/weightedSum.h"
-#include "../src/math/add.h"
-#include "../src/math/dot.h"
-#include "../src/math/negate.h"
+#include <dataframe/Serie.h>
+#include <dataframe/Dataframe.h>
+#include <dataframe/utils/utils.h>
+#include <dataframe/algos/apply.h>
 #include "assertions.h"
+
 
 int main()
 {

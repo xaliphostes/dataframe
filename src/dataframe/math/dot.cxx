@@ -21,37 +21,20 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/math/dot.h>
 
+namespace df {
 
-int main()
-{
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
-
-    for (uint32_t i = 0; i < a.count(); ++i)
-    {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
-
-    // ----------------------------------------
-
-    df::Serie b(2, {1, 3, 2, 9});
-
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
+    Serie dot(const Serie &a, const Serie &b) {
+        uint32_t itemSize = a.itemSize();
+        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
+            Array r = createArray(1, 0) ;
+            const Array& bb = b.value(i) ;
+            for (uint32_t k=0; k<itemSize; ++k) {
+                r[0] += arr[k] * bb[k];
+            }
+            return r;
         });
-    });
+    }
 
-    return 0;
 }

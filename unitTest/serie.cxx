@@ -23,9 +23,9 @@
 
 #include <iostream>
 #include <cmath>
-#include "../src/Serie.h"
-#include "../src/Dataframe.h"
-#include "../src/nameOfSerie.h"
+#include <dataframe/Serie.h>
+#include <dataframe/Dataframe.h>
+#include <dataframe/utils/nameOfSerie.h>
 #include "assertions.h"
 
 int main()

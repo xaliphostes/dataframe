@@ -22,13 +22,13 @@
  */
 
 #include <iostream>
-#include "../src/Serie.h"
-#include "../src/Dataframe.h"
-#include "../src/utils.h"
-#include "../src/math/weightedSum.h"
-#include "../src/math/add.h"
-#include "../src/math/dot.h"
-#include "../src/math/negate.h"
+#include <dataframe/Serie.h>
+#include <dataframe/Dataframe.h>
+#include <dataframe/utils/utils.h>
+#include <dataframe/math/weightedSum.h>
+#include <dataframe/math/add.h>
+#include <dataframe/math/dot.h>
+#include <dataframe/math/negate.h>
 #include "assertions.h"
 
 int main()

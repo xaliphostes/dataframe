@@ -21,37 +21,25 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
+#pragma once
+
 #include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/types.h>
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    /**
+     * @brief Interface for a decomposer
+     */
+    class Decomposer
     {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
+    public:
+        virtual Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const ;
+        virtual Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const ;
+    };
 
-    // ----------------------------------------
+    using Decomposers = std::vector<Decomposer*>;
 
-    df::Serie b(2, {1, 3, 2, 9});
-
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
-
-    return 0;
 }

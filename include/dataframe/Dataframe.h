@@ -21,37 +21,51 @@
  *
  */
 
-#include <iostream>
+#pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <map>
+#include <string>
 
+/**
+ * @brief Create a Dataframe containing several Series with same count.
+ * @example
+ * ```c++
+ * Dataframe d ;
+ * d.add("positions", Serie(3, 20)) ;
+ * d.add("indices", Serie(2, 20)) ;
+ * std::cout << d["positions"].array() << std::endl ;
+ * d["positions"].dump() ;
+ * ```
+ */
 
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    class Dataframe
     {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
+    public:
+        Dataframe(uint32_t count = 0);
+        void setCount(uint32_t count);
 
-    // ----------------------------------------
+        void create(const std::string &name, uint32_t itemSize, uint32_t count = 0); // convenience
+        void add(const std::string &name, const Serie &serie);
+        void set(const std::string &name, const Serie &serie);
+        void del(const std::string &name);
+        void clear() ;
 
-    df::Serie b(2, {1, 3, 2, 9});
+        bool contains(const Serie &) const;
+        bool contains(const String &) const;
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
+        Serie &operator[](const std::string &name);
+        const Serie &operator[](const std::string &name) const;
+        
+        const std::map<std::string, Serie> &series() const { return series_; }
 
-    return 0;
+        void dump() const;
+
+    private:
+        uint32_t count_{0};
+        std::map<std::string, Serie> series_;
+    };
+
 }

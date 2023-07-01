@@ -21,34 +21,43 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/utils/utils.h>
 #include <dataframe/math/div.h>
-#include "assertions.h"
 
-int main()
-{
-    std::vector<Array> sol {{1, 2, 3}, {1, 2, 3}};
-    
-    df::Serie a(3, {2, 4, 6, 3, 6, 9});
-    df::Serie divider(1, {2, 3});
-    df::Serie r = df::div(a, divider);
+namespace df {
 
-    for (uint32_t i = 0; i < r.count(); ++i)
-    {
-        assertArrayEqual(r.value(i), sol[i]);
+    Serie div(const Serie &serie, double d) {
+        
+        return serie.map([d](const Array& a, uint32_t i) { // ieme item
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        });
     }
- 
-    divider = df::Serie(2, {1, 3, 2, 9});
-    shouldThrowError([a, divider](){
-        df::div(a, divider);
-    });
 
-    divider = df::Serie(1, {1, 3, 2});
-    shouldThrowError([a, divider](){
-        df::div(a, divider);
-    });
+    Serie div(const Serie &serie, const Serie& divider) {
+        // Checks...
+        if (serie.count() != divider.count()) {
+            throw std::invalid_argument("(math/div) count of serie (" +
+                std::to_string(serie.count()) +
+                ") differs from count of divider (" +
+                std::to_string(divider.count()) +
+                ")");
+        }
+        if (divider.itemSize() != 1) {
+            throw std::invalid_argument("(math/div) itemSize of divider should be 1. Got " +
+                std::to_string(divider.itemSize()) );
+        }
 
-    return 0;
+        return serie.map([divider](const Array& a, uint32_t i) { // ieme item
+            double d = divider.scalar(i);
+            Array r = a;
+            for (uint32_t j=0; j<a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        });
+    }
+
 }

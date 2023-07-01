@@ -23,8 +23,8 @@
 
 #include <iostream>
 #include <cmath>
-#include "../src/Serie.h"
-#include "../src/math/transpose.h"
+#include <dataframe/Serie.h>
+#include <dataframe/math/transpose.h>
 #include "assertions.h"
 
 void m2() {

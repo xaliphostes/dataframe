@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include "../src/Serie.h"
-#include "../src/utils.h"
+#include <dataframe/Serie.h>
+#include <dataframe/utils/utils.h>
 
 void assertCondition(bool cond, const String& msg="") {
     if ( !cond ) {

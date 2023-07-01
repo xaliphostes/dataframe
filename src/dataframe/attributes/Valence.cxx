@@ -21,37 +21,52 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
+#include <dataframe/attributes/Valence.h>
 #include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/types.h>
+#include <algorithm>
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    Valence::Valence(const String &name): name_(name)
     {
-        assertEqual(a.scalar(i), sol[i]);
     }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
 
-    // ----------------------------------------
+    Strings Valence::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1) {
+            return Strings();
+        }
+        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+            return Strings();
+        }
 
-    df::Serie b(2, {1, 3, 2, 9});
+        return Strings{name_};
+    }
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
+    Serie Valence::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
+
+        if (name != name_) {
+            return Serie();
+        }
+
+        const Serie& positions = dataframe["positions"];
+        const Serie& indices = dataframe["indices"];
+        if (!positions.isValid() || !indices.isValid()) {
+            return Serie();
+        }
+
+        Array ids = createArray(positions.count(), 0);
+
+        indices.forEach( [&](const Array& t, uint32_t) {
+            ids[t[0]]++;
+            ids[t[0]]++;
+            ids[t[0]]++;
         });
-    });
 
-    return 0;
+        return Serie(1, ids);
+    }
+
 }

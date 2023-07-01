@@ -21,37 +21,47 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
+#include <dataframe/attributes/Area.h>
+#include <dataframe/attributes/Normals.h>
 #include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/types.h>
+#include <dataframe/math/div.h>
+#include <dataframe/math/norm.h>
+#include <algorithm>
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    Area::Area(const String &name): name_(name)
     {
-        assertEqual(a.scalar(i), sol[i]);
     }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
 
-    // ----------------------------------------
+    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != 1) {
+            return Strings();
+        }
+        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+            return Strings();
+        }
 
-    df::Serie b(2, {1, 3, 2, 9});
+        return Strings{name_};
+    }
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
+    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
+        if (name != name_) {
+            return Serie();
+        }
 
-    return 0;
+        Normals n("n");
+
+        Serie normals = n.serie(dataframe, 3, "n");
+        if (normals.isValid()) {
+            return div(norm(normals), 2);
+        }
+
+        return Serie();
+    }
+
 }

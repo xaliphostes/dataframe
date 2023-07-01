@@ -56,25 +56,27 @@ else()
     message("Setting build type to 'Debug' (specified in cli).")
 endif()
 
+include_directories(include)
+
 set(SRC_dataframe
-    ./src/Dataframe.cxx
-    ./src/Serie.cxx
-    ./src/nameOfSerie.cxx
-    ./src/attributes/Manager.cxx
-    ./src/attributes/Decomposer.cxx
-    ./src/attributes/Components.cxx
-    ./src/attributes/Normals.cxx
-    ./src/attributes/Coordinates.cxx
-    ./src/attributes/Valence.cxx
-    ./src/attributes/Area.cxx
-    ./src/math/add.cxx
-    ./src/math/dot.cxx
-    ./src/math/negate.cxx
-    ./src/math/scale.cxx
-    ./src/math/weightedSum.cxx
-    ./src/math/transpose.cxx
-    ./src/math/div.cxx
-    ./src/math/norm.cxx
+    ./src/dataframe/Dataframe.cxx
+    ./src/dataframe/Serie.cxx
+    ./src/dataframe/utils/nameOfSerie.cxx
+    ./src/dataframe/attributes/Manager.cxx
+    ./src/dataframe/attributes/Decomposer.cxx
+    ./src/dataframe/attributes/Components.cxx
+    ./src/dataframe/attributes/Normals.cxx
+    ./src/dataframe/attributes/Coordinates.cxx
+    ./src/dataframe/attributes/Valence.cxx
+    ./src/dataframe/attributes/Area.cxx
+    ./src/dataframe/math/add.cxx
+    ./src/dataframe/math/dot.cxx
+    ./src/dataframe/math/negate.cxx
+    ./src/dataframe/math/scale.cxx
+    ./src/dataframe/math/weightedSum.cxx
+    ./src/dataframe/math/transpose.cxx
+    ./src/dataframe/math/div.cxx
+    ./src/dataframe/math/norm.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

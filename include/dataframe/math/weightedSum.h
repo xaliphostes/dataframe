@@ -21,37 +21,13 @@
  *
  */
 
-#include <iostream>
+#pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
-    {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) ;
+    Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) ;
 
-    // ----------------------------------------
-
-    df::Serie b(2, {1, 3, 2, 9});
-
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
-        });
-    });
-
-    return 0;
 }

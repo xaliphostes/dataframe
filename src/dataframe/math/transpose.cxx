@@ -21,37 +21,37 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
+#include <dataframe/math/transpose.h>
 
-
-int main()
+namespace df
 {
-    Array sol{1, 3, 2, 9};
-    
-    df::Serie a(1, {1, 3, 2, 9});
 
-    for (uint32_t i = 0; i < a.count(); ++i)
+    /**
+     * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
+     */
+    Serie transpose(const Serie &serie)
     {
-        assertEqual(a.scalar(i), sol[i]);
-    }
- 
-    a.forEachScalar([sol](double t, uint32_t i) {
-        assertEqual(t, sol[i]);
-    });
 
-    // ----------------------------------------
+        if (serie.itemSize() != 4 && serie.itemSize() != 9) {
+            throw std::invalid_argument("(transpose) items size should be 4 or 9 only (for now). Got " +
+                std::to_string(serie.itemSize()));
+        }
 
-    df::Serie b(2, {1, 3, 2, 9});
-
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
+        if (serie.itemSize() == 4) {
+            return serie.map([](const Array &item, uint32_t i) {
+                return Array {
+                    item[0], item[2],
+                    item[1], item[3],
+                };
+            });
+        }
+        return serie.map([](const Array &item, uint32_t i) {
+            return Array {
+                item[0], item[3], item[6],
+                item[1], item[4], item[7],
+                item[2], item[5], item[8]
+            };
         });
-    });
+    }
 
-    return 0;
 }
