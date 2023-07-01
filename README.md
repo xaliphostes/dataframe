@@ -76,7 +76,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
 
 ## Example 3
-Possible extension (very simple to implement) ;-)
+Eigen
 ```c++
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
 auto vectors = df::eigenVectors(s) ; // and that's it!
@@ -113,9 +113,9 @@ dataframe.add("S", Serie(6, {...})); // Stresses (sym 3x3 matrices)
 
 df::Manager mng(dataframe, {
     Coordinates(),
-    ComponentDecomposer(),
-    EigenValuesDecomposer(),
-    EigenVectorsDecomposer(),
+    Components(),
+    EigenValues(),
+    EigenVectors(),
     Normals("n")
 ])
 

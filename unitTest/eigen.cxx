@@ -24,10 +24,12 @@
 #include <iostream>
 #include <dataframe/Serie.h>
 #include <dataframe/math/eigen.h>
+#include <dataframe/attributes/Manager.h>
+#include <dataframe/attributes/EigenValues.h>
+#include <dataframe/attributes/EigenVectors.h>
 #include "assertions.h"
 
-int main()
-{
+void basic() {
     // sym matrix 3x3 => itemSize=6
     // 3 items
     df::Serie serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4});
@@ -53,6 +55,52 @@ int main()
     vectors.forEach([vecs](const Array &v, uint32_t i) {
         assertArrayEqual(vecs[i], v, 1e-4);
     });
+}
+
+void attributes() {
+    // Serie stress is:
+    //   sym matrix 3x3 => itemSize = 6
+    //   3 items
+
+    df::Dataframe dataframe;
+    dataframe.add("S", df::Serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4}));
+
+    df::Manager mng(dataframe, {
+        new df::EigenValues(),
+        new df::EigenVectors()
+    }, 3);
+
+    // Eigen values: itemSize = 1 = scalar
+    {
+        Strings names = mng.names(1);
+        assertCondition(names.size() == 3, "names(1).size() != 3");
+        assertCondition(mng.contains(1, "S1"));
+        assertCondition(mng.contains(1, "S2"));
+        assertCondition(mng.contains(1, "S3"));
+    }
+
+    // Eigen vectors: itemSize = 3 = vector3
+    {
+        Strings names = mng.names(3);
+        assertCondition(names.size() == 3, "names(3).size() != 3");
+        assertCondition(mng.contains(3, "S1"));
+        assertCondition(mng.contains(3, "S2"));
+        assertCondition(mng.contains(3, "S3"));
+    }
+
+    // The 3x3 symmetric matrices themself: itemSize = 6
+    {
+        Strings names = mng.names(6);
+        assertCondition(names.size() == 1, "names(6).size() != 1");
+        assertCondition(mng.contains(6, "S"));
+    }
+
+}
+
+int main()
+{
+    basic();
+    attributes();
 
     return 0;
 }

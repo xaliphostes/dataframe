@@ -69,6 +69,8 @@ set(SRC_dataframe
     ./src/dataframe/attributes/Coordinates.cxx
     ./src/dataframe/attributes/Valence.cxx
     ./src/dataframe/attributes/Area.cxx
+    ./src/dataframe/attributes/EigenValues.cxx
+    ./src/dataframe/attributes/EigenVectors.cxx
     ./src/dataframe/math/add.cxx
     ./src/dataframe/math/dot.cxx
     ./src/dataframe/math/negate.cxx
