@@ -77,6 +77,7 @@ set(SRC_dataframe
     ./src/dataframe/math/transpose.cxx
     ./src/dataframe/math/div.cxx
     ./src/dataframe/math/norm.cxx
+    ./src/dataframe/math/eigen.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

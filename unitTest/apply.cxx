@@ -24,8 +24,6 @@
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
 #include <dataframe/algos/apply.h>
 #include "assertions.h"
 

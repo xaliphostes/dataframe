@@ -23,9 +23,6 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/math/negate.h>
 #include "assertions.h"
 
 

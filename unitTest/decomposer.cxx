@@ -24,7 +24,6 @@
 #include <iostream>
 #include <dataframe/Serie.h>
 #include <dataframe/Dataframe.h>
-#include <dataframe/types.h>
 #include <dataframe/attributes/Manager.h>
 #include <dataframe/attributes/Components.h>
 #include <dataframe/attributes/Coordinates.h>

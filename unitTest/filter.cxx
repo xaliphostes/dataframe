@@ -23,7 +23,6 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/utils/utils.h>
 #include <dataframe/algos/filter.h>
 #include "assertions.h"
 

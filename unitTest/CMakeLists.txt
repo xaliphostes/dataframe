@@ -96,3 +96,10 @@ add_test(
   NAME filter
   COMMAND $<TARGET_FILE:filter>
 )
+
+add_executable(eigen eigen.cxx)
+target_link_libraries(eigen PRIVATE dataframe-shared)
+add_test(
+  NAME eigen
+  COMMAND $<TARGET_FILE:eigen>
+)

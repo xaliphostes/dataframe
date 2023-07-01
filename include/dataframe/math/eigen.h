@@ -21,40 +21,13 @@
  *
  */
 
-#include <iostream>
+#pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/math/add.h>
-#include <dataframe/math/dot.h>
-#include <dataframe/math/negate.h>
-#include "assertions.h"
 
-int main()
+namespace df
 {
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
 
-    {
-        auto s = df::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
+    Serie eigenValues(const Serie &serie) ;
+    Serie eigenVectors(const Serie &serie) ;
 
-    {
-        auto s = df::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
-    }
-
-    {
-        auto s = df::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
 }
