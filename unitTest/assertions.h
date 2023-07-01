@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <cmath>
 #include <dataframe/utils/utils.h>
 
 void assertCondition(bool cond, const String &msg = "")
