@@ -76,13 +76,6 @@ add_test(
   COMMAND $<TARGET_FILE:div>
 )
 
-add_executable(serie serie.cxx)
-target_link_libraries(serie PRIVATE dataframe-shared)
-add_test(
-  NAME serie
-  COMMAND $<TARGET_FILE:serie>
-)
-
 add_executable(decomposer decomposer.cxx)
 target_link_libraries(decomposer PRIVATE dataframe-shared)
 add_test(
@@ -116,4 +109,11 @@ target_link_libraries(stats PRIVATE dataframe-shared)
 add_test(
   NAME stats
   COMMAND $<TARGET_FILE:stats>
+)
+
+add_executable(serie serie.cxx)
+target_link_libraries(serie PRIVATE dataframe-shared)
+add_test(
+  NAME serie
+  COMMAND $<TARGET_FILE:serie>
 )

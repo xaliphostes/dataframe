@@ -31,7 +31,7 @@ int main()
     df::Serie serie(3, {1,2,3, 4,5,6}); // 2 items with itemSize = 3
 
     df::Serie s = df::reduce(
-        serie, [](const Array &prev, const Array &cur) {
+        serie, [](const Array &prev, const Array &cur, uint32_t) {
             return Array{prev[0] + cur[0], prev[1] + cur[1]};
         }, Array{10,20}
     );
@@ -41,7 +41,7 @@ int main()
     std::cerr << s.asArray() << std::endl;
 
     s = df::reduce(
-        serie, [](const Array &prev, const Array &cur) {
+        serie, [](const Array &prev, const Array &cur, uint32_t) {
             return Array{prev[0] + cur[0]};
         }, Array{0}
     );

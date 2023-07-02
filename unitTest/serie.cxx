@@ -42,5 +42,25 @@ int main()
     name = df::nameOfSerie(dataframe, serie) ;
     assertEqual(name, String(""));
 
+    serie.forEachScalar([](double v, uint32_t) {
+        std::cerr << v << " " ;
+    });
+    std::cerr << std::endl ;
+
+    df::Serie b = serie.mapScalar([](double v, uint32_t) {
+        return -1;
+    });
+    std::cerr << b << std::endl ;
+
+    double c = serie.reduceScalar([](double prev, double cur, uint32_t) {
+        return prev+cur;
+    }, 10);
+    std::cerr << c << std::endl << std::endl ;
+
+    df::Serie d = serie.filterScalar([](double v, uint32_t) {
+        return v<=3.2;
+    });
+    std::cerr << d << std::endl ;
+
     return 0;
 }

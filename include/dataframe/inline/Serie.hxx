@@ -39,7 +39,7 @@ namespace df
     inline void Serie::forEachScalar(F &&cb) const
     {
         if (itemSize_ != 1) {
-            throw std::invalid_argument("(forEachScalar) itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+            throw std::invalid_argument("(forEachScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
         }
 
         for (uint32_t i = 0; i < count_; ++i)
@@ -53,12 +53,27 @@ namespace df
     {
         Array r = acc;
         uint itemSize = 1;
-        this->forEach([&](const Array &a, uint32_t) {
-            r = reduceFn(r, a);
+        this->forEach([&](const Array &a, uint32_t index) {
+            r = reduceFn(r, a, index);
             itemSize = r.size();
         });
 
         return Serie(itemSize, r, this->dimension_);
+    }
+
+    template <typename F>
+    double Serie::reduceScalar(F &&reduceFn, double acc) const
+    {
+        if (itemSize_ != 1) {
+            throw std::invalid_argument("reduceScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        }
+
+        double r = acc;
+        this->forEachScalar([&](double a, uint32_t index) {
+            r = reduceFn(r, a, index);
+        });
+
+        return r; // Serie(1, Array{r}, this->dimension_);
     }
 
     template <typename F>
@@ -88,6 +103,23 @@ namespace df
     }
 
     template <typename F>
+    inline Serie Serie::mapScalar(F &&cb) const
+    {
+        if (itemSize_ != 1) {
+            throw std::invalid_argument("mapScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        }
+
+        Serie R(1, count_);
+        uint32_t id = 0;
+
+        for (uint32_t i = 0; i < count_; ++i)
+        {
+            R.s_[id++] = cb(scalar(i), i);
+        }
+        return R;
+    }
+
+    template <typename F>
     Serie Serie::filter(F &&predicate) const
     {
         Array r;
@@ -100,6 +132,22 @@ namespace df
         return Serie(this->itemSize(), r);
     }
 
+    template <typename F>
+    Serie Serie::filterScalar(F &&predicate) const
+    {
+        if (itemSize_ != 1) {
+            throw std::invalid_argument("filterScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        }
+        Array r;
+        this->forEachScalar( [&](double a, uint32_t index) {
+            if (predicate(a, index) == true) {
+                r.push_back(a);
+            }
+        });
+
+        return Serie(1, r);
+    }
+
     inline const Array &Serie::asArray() const
     {
         return s_;
@@ -110,13 +158,28 @@ namespace df
         return s_;
     }
 
-    inline std::ostream &operator<<(std::ostream &o, Array a)
+    inline std::ostream &operator<<(std::ostream &o, const Serie &s)
     {
-        for (uint32_t i = 0; i < a.size(); ++i)
+        std::cerr << "Serie:" << std::endl;
+        std::cerr << "  itemSize : " << s.itemSize() << std::endl;
+        std::cerr << "  count    : " << s.count() << std::endl;
+        std::cerr << "  dimension: " << s.dimension() << std::endl;
+        std::cerr << "  values   : [" ; 
+        for (auto v : s.asArray())
         {
-            o << a[i] << " ";
+            std::cerr << v << " ";
         }
+        std::cerr << "]" << std::endl;
         return o;
     }
+
+    // inline std::ostream &operator<<(std::ostream &o, Array a)
+    // {
+    //     for (uint32_t i = 0; i < a.size(); ++i)
+    //     {
+    //         o << a[i] << " ";
+    //     }
+    //     return o;
+    // }
 
 }
