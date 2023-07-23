@@ -95,16 +95,44 @@ namespace df
          * Maybe a templated class is possible ??!
          */
 
+        /**
+         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
+         */
         template <typename F> void forEach(F &&cb) const;
+
+        /**
+         * @param cb A callback function with signature `(double current, uint32_t index)`
+         */
         template <typename F> void forEachScalar(F &&cb) const;
 
+        /**
+         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
+         */
         template <typename F> Serie map(F &&cb) const;
+
+        /**
+         * @param cb A callback function with signature `(double current, uint32_t index)`
+         */
         template <typename F> Serie mapScalar(F &&cb) const;
 
+        /**
+         * @param cb A callback function with signature `(const Array& previous, const Array& current, uint32_t index)`
+         */
         template <typename F> Serie reduce(F &&reduceFn, const Array &init) const;
+
+        /**
+         * @param cb A callback function with signature `(double previous, double current, uint32_t index)`
+         */
         template <typename F> double reduceScalar(F &&reduceFn, double init) const;
 
+        /**
+         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
+         */
         template <typename F> Serie filter(F &&reduceFn) const;
+
+        /**
+         * @param cb A callback function with signature `(double current, uint32_t index)`
+         */
         template <typename F> Serie filterScalar(F &&reduceFn) const;
 
     private:

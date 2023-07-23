@@ -21,26 +21,39 @@
  *
  */
 
-#include <iostream>
+#include <dataframe/operations/stats/mean.h>
+#include <dataframe/types.h>
 #include <cmath>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/nameOfSerie.h>
-#include "assertions.h"
 
-int main()
+namespace df
 {
-    df::Dataframe dataframe;
-    dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
-    const df::Serie& toto = dataframe["toto"] ;
+    Tuple mean(const Serie &serie)
+    {
+        uint32_t count = serie.count();
+        Tuple m;
+        if (serie.itemSize() == 1) {
+            m.isNumber = true;
+            m.number = serie.reduceScalar([](double prev, double cur, uint32_t) {
+                return prev + cur;
+            }, 0) / count ;
+            return m;
+        }
 
-    String name = df::nameOfSerie(dataframe, toto) ;
-    assertEqual(name, String("toto"));
+        Array b = createArray(serie.itemSize(), 0);
 
-    df::Serie serie(1, {1,2,3,4});
-    name = df::nameOfSerie(dataframe, serie) ;
-    assertEqual(name, String(""));
+        serie.forEach([&](const Array& a, uint32_t) {
+            for (uint j = 0; j < a.size(); ++j) {
+                b[j] += a[j];
+            }
+        });
 
-    return 0;
+        for (double& v: b) {
+            v /= count;
+        }
+        
+        m.array = b;
+        return m;
+    }
+
 }

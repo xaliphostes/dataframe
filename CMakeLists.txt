@@ -75,9 +75,11 @@ set(SRC_dataframe
     ./src/dataframe/attributes/EigenVectors.cxx
 
     ./src/dataframe/operations/math/add.cxx
+    ./src/dataframe/operations/math/sub.cxx
     ./src/dataframe/operations/math/negate.cxx
     ./src/dataframe/operations/math/scale.cxx
     ./src/dataframe/operations/math/weightedSum.cxx
+    ./src/dataframe/operations/math/mult.cxx
     ./src/dataframe/operations/math/div.cxx
     ./src/dataframe/operations/math/minMax.cxx
 
@@ -91,6 +93,8 @@ set(SRC_dataframe
     ./src/dataframe/operations/geo/insar.cxx
 
     ./src/dataframe/operations/stats/bins.cxx
+    ./src/dataframe/operations/stats/mean.cxx
+    ./src/dataframe/operations/stats/covariance.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

@@ -3,6 +3,13 @@
 #include <cmath>
 #include <dataframe/utils/utils.h>
 
+#define START_TEST(name) void name() { std::cerr << "Start " << #name  << " test" << std::endl;
+#define END_TEST(name) std::cerr << #name  << " test OK\n" << std::endl;}
+
+void message(const String &msg) {
+
+}
+
 void assertCondition(bool cond, const String &msg = "")
 {
     if (!cond)

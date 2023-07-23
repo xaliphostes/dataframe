@@ -25,10 +25,11 @@
 #include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/operations/stats/bins.h>
+#include <dataframe/operations/stats/mean.h>
+#include <dataframe/operations/stats/covariance.h>
 #include "assertions.h"
 
-void bins()
-{
+START_TEST(bins) {
     df::Serie s(1, {57, 57, 57, 58, 63, 66, 66, 67, 67, 68, 69, 70, 70, 70, 70, 72, 73, 75, 75, 76, 76, 78, 79, 81});
 
     {
@@ -51,11 +52,43 @@ void bins()
         auto nb2 = std::reduce(sol.begin(), sol.end());
         assertEqual(nb1, (uint32_t)nb2);
     }
-}
+} END_TEST(bins)
+
+START_TEST(mean1) {
+    df::Serie serie(1, {0,1,2,3,4,5,6,7,8});
+    double a = df::mean(serie).number;
+    double sol = (9 * (9 - 1)) / 2 / 9;
+    assertDoubleEqual(a, sol);
+} END_TEST(mean1)
+
+START_TEST(mean3) {
+    df::Serie serie(3, {0,1,2, 3,4,5, 6,7,8});
+    Array a = df::mean(serie).array;
+    Array sol{3, 4, 5};
+    assertArrayEqual(a, sol);
+} END_TEST(mean3)
+
+START_TEST(cov) {
+    df::Serie x, y;
+    double c;
+
+    x = df::Serie(1, {1, 2, 3, 4});
+    y = df::Serie(1, {5, 6, 7, 8});
+    c = df::covariance(x, y);
+    assertDoubleEqual(c, 1.25);
+
+    x = df::Serie(1, {0.90010907, 0.13484424, 0.62036035});
+    y = df::Serie(1, {0.12528585, 0.26962463, 0.51111198});
+    c = df::covariance(x, y);
+    assertDoubleEqual(c, -0.011238, 1e-5);
+} END_TEST(cov)
 
 int main()
 {
     bins();
+    mean1();
+    mean3();
+    cov();
 
     return 0;
 }

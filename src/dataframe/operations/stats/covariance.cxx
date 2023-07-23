@@ -21,26 +21,35 @@
  *
  */
 
-#include <iostream>
+#include <dataframe/operations/stats/covariance.h>
+#include <dataframe/operations/stats/mean.h>
+#include <dataframe/operations/math/mult.h>
+#include <dataframe/operations/math/sub.h>
+#include <dataframe/types.h>
 #include <cmath>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/nameOfSerie.h>
-#include "assertions.h"
 
-int main()
+namespace df
 {
-    df::Dataframe dataframe;
-    dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
-    const df::Serie& toto = dataframe["toto"] ;
+    double covariance(const Serie &x, const Serie &y)
+    {
+       if (x.count() != y.count()) {
+        throw std::invalid_argument("covariance: x and y must have the same length");
+        }
+        if (x.itemSize() != 1) {
+            throw std::invalid_argument("covariance: x must have itemSize = 1");
+        }
+        if (y.itemSize() != 1) {
+            throw std::invalid_argument("covariance: y must have itemSize = 1");
+        }
 
-    String name = df::nameOfSerie(dataframe, toto) ;
-    assertEqual(name, String("toto"));
+        double N = x.size();
+        double xb = mean(x).number;
+        double yb = mean(y).number;
+        // std::cerr << xb << " " << yb << std::endl;
+        return mult(sub(x, xb), sub(y, yb)).reduceScalar([N](double acc, double value, uint32_t) {
+            return acc + value / N;
+        }, 0);
+    }
 
-    df::Serie serie(1, {1,2,3,4});
-    name = df::nameOfSerie(dataframe, serie) ;
-    assertEqual(name, String(""));
-
-    return 0;
 }
