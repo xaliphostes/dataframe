@@ -21,35 +21,25 @@
  *
  */
 
-#include <dataframe/operations/stats/covariance.h>
-#include <dataframe/operations/stats/mean.h>
-#include <dataframe/operations/math/mult.h>
-#include <dataframe/operations/math/sub.h>
-#include <dataframe/types.h>
-#include <cmath>
+#pragma once
+#include "../Serie.h"
+#include <algorithm>
 
 namespace df
 {
 
-    double covariance(const Serie &x, const Serie &y)
+    template <typename F>
+    Serie sort(const Serie &serie, F &&predicate)
     {
-        if (x.count() != y.count()) {
-            throw std::invalid_argument("covariance: x and y must have the same length");
-        }
-        if (x.itemSize() != 1) {
-            throw std::invalid_argument("covariance: x must have itemSize = 1");
-        }
-        if (y.itemSize() != 1) {
-            throw std::invalid_argument("covariance: y must have itemSize = 1");
-        }
+        // throw std::invalid_argument("sort TODO...");
+        // return Serie();
+        
+    }
 
-        double N = x.size();
-        double xb = mean(x).number;
-        double yb = mean(y).number;
-
-        return mult(sub(x, xb), sub(y, yb)).reduceScalar([N](double acc, double value, uint32_t) {
-            return acc + value / N;
-        }, 0);
+    Serie sort(const Serie &serie)
+    {
+        throw std::invalid_argument("sort TODO...");
+        return Serie();
     }
 
 }

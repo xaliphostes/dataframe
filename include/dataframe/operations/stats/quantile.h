@@ -21,35 +21,19 @@
  *
  */
 
-#include <dataframe/operations/stats/covariance.h>
-#include <dataframe/operations/stats/mean.h>
-#include <dataframe/operations/math/mult.h>
-#include <dataframe/operations/math/sub.h>
-#include <dataframe/types.h>
-#include <cmath>
+#pragma once
+#include <dataframe/Serie.h>
 
 namespace df
 {
 
-    double covariance(const Serie &x, const Serie &y)
-    {
-        if (x.count() != y.count()) {
-            throw std::invalid_argument("covariance: x and y must have the same length");
-        }
-        if (x.itemSize() != 1) {
-            throw std::invalid_argument("covariance: x must have itemSize = 1");
-        }
-        if (y.itemSize() != 1) {
-            throw std::invalid_argument("covariance: y must have itemSize = 1");
-        }
-
-        double N = x.size();
-        double xb = mean(x).number;
-        double yb = mean(y).number;
-
-        return mult(sub(x, xb), sub(y, yb)).reduceScalar([N](double acc, double value, uint32_t) {
-            return acc + value / N;
-        }, 0);
-    }
+    double quantile(const Serie &serie, double q);
+    double q25(const Serie &serie);
+    double q50(const Serie &serie);
+    double q75(const Serie &serie);
+    double IQR(const Serie &serie);
+    Serie outliers(const Serie &serie, double mustache);
+    Serie isOutliers(const Serie &serie, double mustache);
+    Serie notOutliers(const Serie &serie, double mustache = 1.5);
 
 }

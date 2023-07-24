@@ -70,17 +70,31 @@ START_TEST(mean3) {
 
 START_TEST(cov) {
     df::Serie x, y;
-    double c;
+    double cov, mx, my;
 
+    // mean x  : 2.5
+    // mean y  : 6.5
+    // cov(x,y): 1.25
     x = df::Serie(1, {1, 2, 3, 4});
     y = df::Serie(1, {5, 6, 7, 8});
-    c = df::covariance(x, y);
-    assertDoubleEqual(c, 1.25);
+    mx = df::mean(x).number;
+    my = df::mean(y).number;
+    cov = df::covariance(x, y);
+    assertDoubleEqual(mx, 2.5);
+    assertDoubleEqual(my, 6.5);
+    assertDoubleEqual(cov, 1.25);
 
+    // mean x  : 0.5518
+    // mean y  : 0.302
+    // cov(x,y): -0.0112
     x = df::Serie(1, {0.90010907, 0.13484424, 0.62036035});
     y = df::Serie(1, {0.12528585, 0.26962463, 0.51111198});
-    c = df::covariance(x, y);
-    assertDoubleEqual(c, -0.011238, 1e-5);
+    mx = df::mean(x).number;
+    my = df::mean(y).number;
+    cov = df::covariance(x, y);
+    assertDoubleEqual(mx, 0.5518, 1e-3);
+    assertDoubleEqual(my, 0.302, 1e-3);
+    assertDoubleEqual(cov, -0.011238, 1e-3);
 } END_TEST(cov)
 
 int main()
