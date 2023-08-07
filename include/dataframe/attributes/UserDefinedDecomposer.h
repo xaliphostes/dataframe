@@ -28,17 +28,52 @@ namespace df
 {
 
     /**
-     * @brief Get the valence of each node of a triangulate mesh (number of adjacent triangles).
-     * Series `positions` and `indices`, with `itemSize=3` for both, must be
-     * part of the `Dataframe`.
+     * @brief User defined decomposer using a lambda function
      */
-    class Valence: public Decomposer {
+    template <typename F>
+    class UserDefinedDecomposer : public Decomposer
+    {
     public:
-        Valence(const String& name = "val");
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
+        UserDefinedDecomposer(uint itemSize, const String &name, F &&cb);
+        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override;
         Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
+
     private:
+        uint itemSize_{0};
         String name_;
+        F &&cb_;
     };
+
+    // ------------------------------------------------------------
+
+    template <typename F>
+    inline UserDefinedDecomposer<F>::UserDefinedDecomposer(uint itemSize, const String &name, F &&cb) : itemSize_(itemSize), name_(name), cb_(std::move(cb))
+    {
+    }
+
+    template <typename F>
+    inline Strings UserDefinedDecomposer<F>::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
+    {
+        if (itemSize != itemSize_) {
+            return Strings();
+        }
+        
+        Serie s = cb_(dataframe);
+        if (s.isValid() == false) {
+            return Strings();
+        }
+
+        return Strings{name_};
+    }
+
+    template <typename F>
+    inline Serie UserDefinedDecomposer<F>::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
+    {
+        if (itemSize != itemSize_ || name_ != name) {
+            return Serie();
+        }
+
+        return cb_(dataframe);
+    }
 
 }

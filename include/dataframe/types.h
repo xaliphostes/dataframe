@@ -30,15 +30,19 @@ using Array = std::vector<double>;
 using String = std::string;
 using Strings = std::vector<String>;
 
+// --------------------------------------------------------------------------------
 /**
- * @brief In this context of `dataframe`, a Tuple represents either
- * a number (if Serie.itemSize() == 1), or an array (if Serie.itemSize() > 1).
+ * @brief In this context of `dataframe`, a `Tuple` represents either
+ * a number (if `Serie.itemSize() == 1`), or an array (if `Serie.itemSize() > 1`).
+ * If `Serie.itemSize() == 1`, then (of course) `isNumber` is set to true.
  */
 struct Tuple {
     bool isNumber{false};
     double number;
     Array array;
 };
+// --------------------------------------------------------------------------------
+
 
 inline Array createArray(uint32_t size, double initValue)
 {

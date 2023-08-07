@@ -33,7 +33,7 @@ namespace df
     {
         // throw std::invalid_argument("sort TODO...");
         // return Serie();
-        
+        std::sort(serie.)
     }
 
     Serie sort(const Serie &serie)

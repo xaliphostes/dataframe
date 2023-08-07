@@ -27,6 +27,11 @@
 namespace df
 {
 
+    /**
+     * @brief Compute the normals of a triangulated mesh (for now).
+     * Series `positions` and `indices`, with `itemSize=3` for both, must be
+     * part of the `Dataframe`.
+     */
     class Normals: public Decomposer {
     public:
         Normals(const String& name = "normals");

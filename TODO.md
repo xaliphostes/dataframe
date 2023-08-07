@@ -14,6 +14,9 @@ public:
 ```
 If we know that the Serie is with `itemSize=1`, then we can use the second method. Otherwise, the first one have to be used.
 
+3. Iterators: See https://github.com/VinGarcia/Simple-Iterator-Template
+for an implementation of iterators using some macros
+
 3. The file `inferring.h` might be helpful to deal with `double` / `Array` (or not).
 
 4. Finish the `Manager` / `Decomposer` with some examples...

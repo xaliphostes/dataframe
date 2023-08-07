@@ -27,9 +27,7 @@
 #include <dataframe/algos/apply.h>
 #include "assertions.h"
 
-
-int main()
-{
+START_TEST(apply1) {
     df::Serie a(1, {1, 2, 3, 4});
 
     auto s = df::apply(a, [](const Array& a, uint32_t i) {
@@ -41,6 +39,11 @@ int main()
     });
 
     assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
+} END_TEST(apply1)
+
+int main()
+{
+    apply1();
 
     return 0;
 }

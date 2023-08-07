@@ -30,6 +30,7 @@
 #include <dataframe/attributes/Normals.h>
 #include <dataframe/attributes/Areas.h>
 #include <dataframe/attributes/Valence.h>
+#include <dataframe/attributes/UserDefinedDecomposer.h>
 #include "assertions.h"
 
 namespace df {
@@ -254,6 +255,29 @@ void area() {
     assertEqual(normals.asArray()[0], 0.5);
 }
 
+START_TEST(userDefined) {
+    df::Dataframe dataframe;
+    dataframe.add("S", df::Serie(6, {2,4,6,3,6,9, 1,2,3,4,5,6, 9,8,7,6,5,4})); // sym matrix 3x3
+
+    df::Manager mng(dataframe, {
+        new df::UserDefinedDecomposer(1, "xx", [](const df::Dataframe& dataframe) {
+            return df::Components().serie(dataframe, 1, "Sxx");
+            // return dataframe["S"];
+        })
+    }, 3);
+
+    auto s = mng.serie(1, "xx");
+
+    // std::cerr << s << std::endl;
+    // std::cerr << "Available series of scalars :\n" << mng.names(1) << std::endl;
+    // std::cerr << "Available series of vector3 :\n" << mng.names(3) << std::endl;
+    // std::cerr << "Available series of matrix33:\n" << mng.names(6) << std::endl;
+
+    assertArrayEqual(s.asArray(), Array{2, 1, 9});
+    
+} END_TEST(userDefined)
+
+
 int main()
 {
     // test();
@@ -262,6 +286,7 @@ int main()
     coordinates();
     normals();
     area();
+    userDefined();
     
     return 0;
 }
