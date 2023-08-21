@@ -117,3 +117,17 @@ add_test(
   NAME serie
   COMMAND $<TARGET_FILE:serie>
 )
+
+add_executable(cross cross.cxx)
+target_link_libraries(cross PRIVATE dataframe-shared)
+add_test(
+  NAME cross
+  COMMAND $<TARGET_FILE:cross>
+)
+
+add_executable(view view.cxx)
+target_link_libraries(view PRIVATE dataframe-shared)
+add_test(
+  NAME view
+  COMMAND $<TARGET_FILE:view>
+)

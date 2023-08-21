@@ -21,7 +21,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(dataframe)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS on)
 
@@ -84,6 +84,8 @@ set(SRC_dataframe
     ./src/dataframe/operations/math/minMax.cxx
 
     ./src/dataframe/operations/algebra/dot.cxx
+    ./src/dataframe/operations/algebra/det.cxx
+    ./src/dataframe/operations/algebra/cross.cxx
     ./src/dataframe/operations/algebra/transpose.cxx
     ./src/dataframe/operations/algebra/norm.cxx
     ./src/dataframe/operations/algebra/eigen.cxx
@@ -95,6 +97,9 @@ set(SRC_dataframe
     ./src/dataframe/operations/stats/bins.cxx
     ./src/dataframe/operations/stats/mean.cxx
     ./src/dataframe/operations/stats/covariance.cxx
+
+    ./src/dataframe/view/Matrix.cxx
+    ./src/dataframe/view/Vector.cxx
 )
 
 add_library(dataframe-shared SHARED ${SRC_dataframe})

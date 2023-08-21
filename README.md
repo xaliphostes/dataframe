@@ -16,6 +16,10 @@ Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows 
 
 Compared to Panda, we have some differences since our main consern is **linear algebra**.
 
+## Requirements
+- C++23
+- cmake
+
 Main functionalities are:
 - Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra. Tensors are stored as packed array, hense the notion of `itemSize`.
     - A first example is given by a `itemSize=6` with `dimension=3` which represents a symmetric matrix of dimension 3 (6 coefficients)
