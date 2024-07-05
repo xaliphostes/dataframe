@@ -54,16 +54,22 @@ cmake .. && make -j12
 ```
 
 # Running unit tests
-In the same directory, type
+**NOTE**: The internal cmake test is used to perform unit testing.
+
+In the same directory as for the compilation (i.e., the `build` directory), only type
 ```sh
 ctest
+```
+or
+```sh
+make test
 ```
 
 # API
 
 ## Example 1
 ```c++
-df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the dim of the Serie: 3
+df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the item size of the Serie: 3
 df::Serie b(3, {4,3,3,  2,1,0}) ;
 
 df::Serie dot = df::dot(a, b) ;
@@ -82,6 +88,7 @@ df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
 df::Serie c(2, {2,2,  1,1}) ;
 
+// Performs s = 2*a + 3*b + 4*c
 auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
 
@@ -129,12 +136,20 @@ df::Manager mng(dataframe, {
     Normals("n")
 ])
 
-// Gather possible scalar series names
+// Gather all possible scalar serie names
 console.log( mng.names(1) )
 // Will display: Sxx, Sxy, Sxz, Syy, Syz, Szz, S1, S2, S3, x, y, z, nx, ny, nz
 
-Serie scalarS1 = mng.serie(1, 'S1') // eigen values for S1
-Serie vectorS1 = mng.serie(3, 'S1') // eigen vectors for S1
+// Gather all possible vector serie names
+console.log( mng.names(3) )
+// Will display: S1, S2, S3, n
+
+// Gather all possible symmetric matrix serie names
+console.log( mng.names(6) )
+// Will display: S
+
+Serie scalarS1 = mng.serie(1, 'S1') // eigen value S1 for all items
+Serie vectorS1 = mng.serie(3, 'S1') // eigen vector S1 for all items
 ```
 
 ## Licence

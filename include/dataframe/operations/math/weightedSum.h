@@ -27,6 +27,20 @@
 namespace df
 {
 
+    /**
+     * Performs a weighted sum of series.
+     * 
+     * Example:
+     * @code
+     * df::Serie a(2, {1, 2, 3, 4});
+     * df::Serie b(2, {4, 3, 2, 1});
+     * df::Serie c(2, {2, 2, 1, 1});
+     * 
+     * Array weights{2, 3, 4};
+     * 
+     * df::Serie s = df::weigthedSum({a, b, c}, weights);
+     * @endcode
+     */
     Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) ;
     Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) ;
 

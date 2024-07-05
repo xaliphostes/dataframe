@@ -31,9 +31,8 @@ namespace df
     template <typename F>
     Serie sort(const Serie &serie, F &&predicate)
     {
-        // throw std::invalid_argument("sort TODO...");
-        // return Serie();
-        std::sort(serie.)
+        throw std::invalid_argument("sort TODO...");
+        return Serie();
     }
 
     Serie sort(const Serie &serie)
