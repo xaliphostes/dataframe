@@ -38,8 +38,9 @@ namespace df
     template <typename F>
     inline void Serie::forEachScalar(F &&cb) const
     {
-        if (itemSize_ != 1) {
-            throw std::invalid_argument("(forEachScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        if (itemSize_ != 1)
+        {
+            throw std::invalid_argument("(forEachScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
         }
 
         for (uint32_t i = 0; i < count_; ++i)
@@ -53,10 +54,10 @@ namespace df
     {
         Array r = acc;
         uint itemSize = 1;
-        this->forEach([&](const Array &a, uint32_t index) {
+        this->forEach([&](const Array &a, uint32_t index)
+                      {
             r = reduceFn(r, a, index);
-            itemSize = r.size();
-        });
+            itemSize = r.size(); });
 
         return Serie(itemSize, r, this->dimension_);
     }
@@ -64,14 +65,14 @@ namespace df
     template <typename F>
     double Serie::reduceScalar(F &&reduceFn, double acc) const
     {
-        if (itemSize_ != 1) {
-            throw std::invalid_argument("reduceScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        if (itemSize_ != 1)
+        {
+            throw std::invalid_argument("reduceScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
         }
 
         double r = acc;
-        this->forEachScalar([&](double a, uint32_t index) {
-            r = reduceFn(r, a, index);
-        });
+        this->forEachScalar([&](double a, uint32_t index)
+                            { r = reduceFn(r, a, index); });
 
         return r; // Serie(1, Array{r}, this->dimension_);
     }
@@ -105,8 +106,9 @@ namespace df
     template <typename F>
     inline Serie Serie::mapScalar(F &&cb) const
     {
-        if (itemSize_ != 1) {
-            throw std::invalid_argument("mapScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        if (itemSize_ != 1)
+        {
+            throw std::invalid_argument("mapScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
         }
 
         Serie R(1, count_);
@@ -123,11 +125,11 @@ namespace df
     Serie Serie::filter(F &&predicate) const
     {
         Array r;
-        this->forEach( [&](const Array& a, uint32_t) {
+        this->forEach([&](const Array &a, uint32_t)
+                      {
             if (predicate(a) == true) {
                 r.insert(std::end(r), std::begin(a), std::end(a));
-            }
-        });
+            } });
 
         return Serie(this->itemSize(), r);
     }
@@ -135,17 +137,61 @@ namespace df
     template <typename F>
     Serie Serie::filterScalar(F &&predicate) const
     {
-        if (itemSize_ != 1) {
-            throw std::invalid_argument("filterScalar: itemSize is not 1 (got "+std::to_string(itemSize_)+")") ;
+        if (itemSize_ != 1)
+        {
+            throw std::invalid_argument("filterScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
         }
         Array r;
-        this->forEachScalar( [&](double a, uint32_t index) {
+        this->forEachScalar([&](double a, uint32_t index)
+                            {
             if (predicate(a, index) == true) {
                 r.push_back(a);
-            }
-        });
+            } });
 
         return Serie(1, r);
+    }
+
+    /**
+     * @brief Pipes the current Serie through a series of operations
+     * @param op A function that takes a Serie and returns a Serie
+     * @return Serie A new Serie after applying the operation
+     *
+     * @example
+     * ```cpp
+     * Serie s(1, {1, 2, 3, 4});
+     * auto result = s.pipe([](const Serie& s) {
+     *     return s.mapScalar([](double v, uint32_t) { return v * 2; });
+     * }).pipe([](const Serie& s) {
+     *     return s.filterScalar([](double v, uint32_t) { return v > 4; });
+     * });
+     * ```
+     */
+    template <typename F>
+    Serie Serie::pipe(F &&op) const
+    {
+        return op(*this);
+    }
+
+    /**
+     * @brief Variadic template version that allows chaining multiple operations
+     * @param op First operation
+     * @param ops Rest of the operations
+     * @return Serie A new Serie after applying all operations in sequence
+     * 
+     * @example
+     * ```cpp
+     * Serie s(1, {1, 2, 3, 4});
+     * auto result = s.pipe(
+     *     [](const Serie& s) { return s.mapScalar([](double v, uint32_t) { return v * 2; }); },
+     *     [](const Serie& s) { return s.filterScalar([](double v, uint32_t) { return v > 4; }); },
+     *     [](const Serie& s) { return s.mapScalar([](double v, uint32_t) { return v + 1; }); }
+     * );
+     * ```
+     */
+    template <typename F, typename... Fs>
+    Serie Serie::pipe(F &&op, Fs &&...ops) const
+    {
+        return pipe(std::forward<F>(op)).pipe(std::forward<Fs>(ops)...);
     }
 
     inline const Array &Serie::asArray() const
@@ -164,7 +210,7 @@ namespace df
         std::cerr << "  itemSize : " << s.itemSize() << std::endl;
         std::cerr << "  count    : " << s.count() << std::endl;
         std::cerr << "  dimension: " << s.dimension() << std::endl;
-        std::cerr << "  values   : [" ; 
+        std::cerr << "  values   : [";
         for (auto v : s.asArray())
         {
             std::cerr << v << " ";

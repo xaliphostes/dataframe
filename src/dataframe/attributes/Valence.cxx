@@ -62,8 +62,8 @@ namespace df
 
         indices.forEach( [&](const Array& t, uint32_t) {
             ids[t[0]]++;
-            ids[t[0]]++;
-            ids[t[0]]++;
+            ids[t[1]]++;
+            ids[t[2]]++;
         });
 
         return Serie(1, ids);

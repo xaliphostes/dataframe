@@ -131,3 +131,24 @@ add_test(
   NAME view
   COMMAND $<TARGET_FILE:view>
 )
+
+add_executable(zip zip.cxx)
+target_link_libraries(zip PRIVATE dataframe-shared)
+add_test(
+  NAME zip
+  COMMAND $<TARGET_FILE:zip>
+)
+
+add_executable(pipe pipe.cxx)
+target_link_libraries(pipe PRIVATE dataframe-shared)
+add_test(
+  NAME pipe
+  COMMAND $<TARGET_FILE:pipe>
+)
+
+add_executable(map map.cxx)
+target_link_libraries(map PRIVATE dataframe-shared)
+add_test(
+  NAME map
+  COMMAND $<TARGET_FILE:map>
+)

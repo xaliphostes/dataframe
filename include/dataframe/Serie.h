@@ -33,7 +33,7 @@ namespace df
      * @note For basic operations such as `forEach`, `map`, `filter` and `reduce`,
      * we provide (for optimization purpose), a **scalar** version (`forEachScalar`,
      * `mapScalar`, `filterScalar` and `reduceScalar`).
-     * 
+     *
      * @example
      * For a Serie of non-scalar (itemSize>1):
      * ```c++
@@ -45,7 +45,7 @@ namespace df
      * // 1 2 3
      * // 4 5 6
      * ```
-     * 
+     *
      * @example
      * For a Serie of scalars:
      * ```c++
@@ -98,42 +98,56 @@ namespace df
         /**
          * @param cb A callback function with signature `(const Array& current, uint32_t index)`
          */
-        template <typename F> void forEach(F &&cb) const;
+        template <typename F>
+        void forEach(F &&cb) const;
 
         /**
          * @param cb A callback function with signature `(double current, uint32_t index)`
          */
-        template <typename F> void forEachScalar(F &&cb) const;
+        template <typename F>
+        void forEachScalar(F &&cb) const;
 
         /**
          * @param cb A callback function with signature `(const Array& current, uint32_t index)`
          */
-        template <typename F> Serie map(F &&cb) const;
+        template <typename F>
+        Serie map(F &&cb) const;
 
         /**
          * @param cb A callback function with signature `(double current, uint32_t index)`
          */
-        template <typename F> Serie mapScalar(F &&cb) const;
+        template <typename F>
+        Serie mapScalar(F &&cb) const;
 
         /**
          * @param cb A callback function with signature `(const Array& previous, const Array& current, uint32_t index)`
          */
-        template <typename F> Serie reduce(F &&reduceFn, const Array &init) const;
+        template <typename F>
+        Serie reduce(F &&reduceFn, const Array &init) const;
 
         /**
          * @param cb A callback function with signature `(double previous, double current, uint32_t index)`
          */
-        template <typename F> double reduceScalar(F &&reduceFn, double init) const;
+        template <typename F>
+        double reduceScalar(F &&reduceFn, double init) const;
 
         /**
          * @param cb A callback function with signature `(const Array& current, uint32_t index)`
          */
-        template <typename F> Serie filter(F &&reduceFn) const;
+        template <typename F>
+        Serie filter(F &&reduceFn) const;
 
         /**
          * @param cb A callback function with signature `(double current, uint32_t index)`
          */
-        template <typename F> Serie filterScalar(F &&reduceFn) const;
+        template <typename F>
+        Serie filterScalar(F &&reduceFn) const;
+
+        template <typename F>
+        Serie pipe(F &&op) const ;
+
+        template <typename F, typename... Fs>
+        Serie pipe(F &&op, Fs &&...ops) const ;
 
     private:
         Array s_;
@@ -144,7 +158,7 @@ namespace df
 
     using Series = std::vector<Serie>;
 
-    std::ostream &operator<<(std::ostream &o, const Serie &a) ;
+    std::ostream &operator<<(std::ostream &o, const Serie &a);
 
 }
 

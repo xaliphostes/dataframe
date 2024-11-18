@@ -27,7 +27,14 @@
 namespace df
 {
 
+    /**
+     * @brief Bin a serie for which `itemSize = 1`. In this version, the min and max are computed.
+     */
     Serie bins(const Serie &serie, uint nb) ;
+
+    /**
+     * @brief Bin a serie for which `itemSize = 1`. In this version, the min and max are provided.
+     */
     Serie bins(const Serie &serie, uint nb, double min, double max) ;
 
 }

@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   
 </p>
@@ -17,7 +17,7 @@ Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows 
 Compared to Panda, we have some differences since our main consern is **linear algebra**.
 
 ## Requirements
-- C++23
+- C++20 (but C++23 soon)
 - cmake
 
 Main functionalities are:
@@ -45,7 +45,8 @@ Not yet tested under Windows, but will have to add `export` for shared library.
         - Eigen vectors
         - Eigen values
         - ...
-    - **operations** provides some examples of what is possible to do with `Serie` in term of linear algebra, statistics etc... (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, geophysics and so on...
+    - **operations** provides some examples of what is possible to do with `Serie` in term of linear algebra, statistics etc... (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, geophysics and so on... Right now, sub folders are `algebra`, `geo` (for geometry, geology, geophysics...), `math` and `stats`
+    - **algos** provides some algorithms such as `filter`, `foreach`...
 
 # Compilation
 Create a `build` directory, **go inside** and type

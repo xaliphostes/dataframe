@@ -27,13 +27,45 @@
 namespace df
 {
 
+    /**
+     * @brief Get the quantile q of a serie. The serie must have itemSize = 1,
+     * and q must be in [0,1].
+     */
     double quantile(const Serie &serie, double q);
+
+    /**
+     * @brief Get the quantile for q = 0.25
+     */
     double q25(const Serie &serie);
+
+    /**
+     * @brief Get the quantile for q = 0.5
+     */
     double q50(const Serie &serie);
+
+    /**
+     * @brief Get the quantile for q = 0.75
+     */
     double q75(const Serie &serie);
+
+    /**
+     * Get the q75 - q25
+     */
     double IQR(const Serie &serie);
+
+    /**
+     * Get the outliers of a serie given the mustache
+     */
     Serie outliers(const Serie &serie, double mustache);
+
+    /**
+     * To be done !
+     */
     Serie isOutliers(const Serie &serie, double mustache);
+
+    /**
+     * To be done !
+     */
     Serie notOutliers(const Serie &serie, double mustache = 1.5);
 
 }

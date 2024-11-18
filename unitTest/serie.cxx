@@ -33,14 +33,29 @@ int main()
     df::Dataframe dataframe;
     dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
-    const df::Serie& toto = dataframe["toto"] ;
+    const df::Serie &toto = dataframe["toto"];
 
-    String name = df::nameOfSerie(dataframe, toto) ;
+    String name = df::nameOfSerie(dataframe, toto);
     assertEqual(name, String("toto"));
 
-    df::Serie serie(1, {1,2,3,4});
-    name = df::nameOfSerie(dataframe, serie) ;
+    df::Serie serie(1, {1, 2, 3, 4});
+    name = df::nameOfSerie(dataframe, serie);
     assertEqual(name, String(""));
+
+    serie.forEach([](const Array &a, uint32_t index) {
+        std::cerr << index << "  " << a << std::endl ;
+        assertCondition(a.size()==1, "size should be 1");
+        assertCondition(a[0]==index+1, "value should be " + std::to_string(index+1) + ". Got " + std::to_string(a[0]) + "!");
+
+        
+    });
+
+    // We know the serie is made of scalar values, so use it for performance reasons...
+    //
+    serie.forEachScalar([](double a, uint32_t index) {
+        std::cerr << index << "  " << a << std::endl;
+        assertCondition(a==index+1, "value should be " + std::to_string(index+1) + ". Got " + std::to_string(a) + "!");
+    });
 
     return 0;
 }
