@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
+#include <dataframe/algos/map.h>
 #include "assertions.h"
 
 void test_scalar() {
@@ -33,7 +34,7 @@ void test_scalar() {
     });
     std::cerr << std::endl ;
 
-    df::Serie b = serie.mapScalar([](double v, uint32_t) {
+    df::Serie b = df::map(serie, [](double v, uint32_t) {
         return -1;
     });
     std::cerr << b << std::endl ;
@@ -43,7 +44,7 @@ void test_scalar() {
     }, 10);
     std::cerr << c << std::endl << std::endl ;
 
-    df::Serie d = serie.filterScalar([](double v, uint32_t) {
+    df::Serie d = serie.filter([](double v, uint32_t) {
         return v<=3.2;
     });
     std::cerr << d << std::endl ;

@@ -68,7 +68,7 @@ namespace df {
             throw std::invalid_argument("(add) Serie must have itemSize=1");
         }
 
-        return serie.mapScalar([v](double a, uint32_t i) {
+        return serie.map([v](double a, uint32_t i) {
             return a + v;
         });
     }

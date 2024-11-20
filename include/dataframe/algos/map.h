@@ -25,154 +25,146 @@
 #include <dataframe/Serie.h>
 #include <stdexcept>
 #include <functional>
+#include <type_traits>
 
 namespace df
 {
 
-    /**
-     * @brief Maps a function over a Serie's non-scalar values
-     * @param serie Input Serie
-     * @param f Function to apply to each value
-     * @return Serie A new Serie containing mapped values
-     * @throws std::invalid_argument if input Serie is invalid or is scalar
-     *
-     * @example
-     * ```cpp
-     * Serie s(3, {1,2,3, 4,5,6});  // 2 items of size 3
-     * auto result = map(s, [](const Array& v, uint32_t i) {
-     *     Array out(v.size());
-     *     for(size_t j = 0; j < v.size(); ++j) {
-     *         out[j] = v[j] * 2;
-     *     }
-     *     return out;
-     * });
-     * ```
-     */
-    template <typename F>
-    Serie map(const Serie &serie, F &&f)
+    namespace detail
     {
-        if (!serie.isValid())
+        template <typename F>
+        struct callback_traits
         {
-            throw std::invalid_argument("Input Serie must be valid");
-        }
+        private:
+            template <typename G>
+            static auto test_input(int)
+                -> decltype(std::declval<G>()(std::declval<double>(), std::declval<uint32_t>()), std::true_type{});
 
-        if (serie.itemSize() < 1)
-        {
-            throw std::invalid_argument("Input Serie must have positive itemSize");
-        }
+            template <typename>
+            static auto test_input(...) -> std::false_type;
 
-        // Create result Serie with same dimensions
-        Serie result(serie.itemSize(), serie.count(), serie.dimension());
+            template <typename G>
+            static auto test_return(int)
+                -> std::is_same<decltype(std::declval<G>()(
+                                    std::declval<double>(), std::declval<uint32_t>())),
+                                double>;
 
-        // Map each value
-        for (uint32_t i = 0; i < serie.count(); ++i)
-        {
-            Array value = serie.value(i);
-            Array mapped = f(value, i);
+            template <typename>
+            static auto test_return(...) -> std::false_type;
 
-            if (mapped.size() != serie.itemSize())
-            {
-                throw std::invalid_argument(
-                    "Mapped value size (" + std::to_string(mapped.size()) +
-                    ") must match input Serie itemSize (" + std::to_string(serie.itemSize()) + ")");
-            }
-
-            result.setValue(i, mapped);
-        }
-
-        return result;
-    }
-
-    /**
-     * @brief Maps a function over a Serie's scalar values
-     * @param serie Input Serie
-     * @param f Function to apply to each scalar value
-     * @return Serie A new Serie containing mapped values
-     * @throws std::invalid_argument if input Serie is invalid
-     *
-     * @example
-     * ```cpp
-     * Serie s(1, {1, 2, 3, 4});
-     * auto result = mapScalar(s, [](double v, uint32_t i) {
-     *     return v * 2;
-     * });
-     * ```
-     */
-    template <typename F>
-    Serie mapScalar(const Serie &serie, F &&f)
-    {
-        if (!serie.isValid())
-        {
-            throw std::invalid_argument("Input Serie must be valid");
-        }
-
-        // Create result Serie with same dimensions
-        Serie result(1, serie.count(), serie.dimension());
-
-        // Map each scalar value
-        for (uint32_t i = 0; i < serie.count(); ++i)
-        {
-            result.setScalar(i, f(serie.scalar(i), i));
-        }
-
-        return result;
-    }
-
-    /**
-     * @brief Creates a mapping function that can be reused with different Series
-     * @param f Function to apply to each value
-     * @return Function that takes a Serie and returns a mapped Serie
-     *
-     * @example
-     * ```cpp
-     * auto doubler = makeMap([](const Array& v, uint32_t) {
-     *     Array out(v.size());
-     *     for(size_t j = 0; j < v.size(); ++j) {
-     *         out[j] = v[j] * 2;
-     *     }
-     *     return out;
-     * });
-     *
-     * Serie s1(3, {1,2,3, 4,5,6});
-     * Serie s2(3, {7,8,9, 10,11,12});
-     *
-     * auto result1 = doubler(s1);
-     * auto result2 = doubler(s2);
-     * ```
-     */
-    template <typename F>
-    auto makeMap(F &&f)
-    {
-        return [f = std::forward<F>(f)](const Serie &serie)
-        {
-            return map(serie, f);
+        public:
+            static constexpr bool has_scalar_input = decltype(test_input<F>(0))::value;
+            static constexpr bool has_scalar_output = decltype(test_return<F>(0))::value;
         };
+
+        template <typename F>
+        inline constexpr bool has_scalar_input_v = callback_traits<F>::has_scalar_input;
+
+        template <typename F>
+        inline constexpr bool has_scalar_output_v = callback_traits<F>::has_scalar_output;
     }
 
     /**
-     * @brief Creates a scalar mapping function that can be reused with different Series
-     * @param f Function to apply to each scalar value
-     * @return Function that takes a Serie and returns a mapped Serie
-     *
-     * @example
-     * ```cpp
-     * auto doubler = makeMapScalar([](double v, uint32_t) {
-     *     return v * 2;
-     * });
-     *
-     * Serie s1(1, {1, 2, 3});
-     * Serie s2(1, {4, 5, 6});
-     *
-     * auto result1 = doubler(s1);
-     * auto result2 = doubler(s2);
-     * ```
+     * @brief Maps a function over a Serie, allowing change in itemSize
      */
     template <typename F>
-    auto makeMapScalar(F &&f)
+    auto map(const Serie &serie, F &&cb)
     {
-        return [f = std::forward<F>(f)](const Serie &serie)
+        if constexpr (detail::has_scalar_input_v<F>)
         {
-            return mapScalar(serie, f);
+            // Input is scalar
+            using ResultType = std::invoke_result_t<F, double, uint32_t>;
+
+            if constexpr (std::is_arithmetic_v<ResultType>)
+            {
+                // Scalar to scalar (including int, double, etc.)
+                Array results;
+                results.reserve(serie.count());
+                for (uint32_t i = 0; i < serie.count(); ++i)
+                {
+                    results.push_back(static_cast<double>(cb(serie.template get<double>(i), i)));
+                }
+                return Serie(1, results);
+            }
+            else
+            {
+                // Scalar to vector
+                if (serie.count() == 0)
+                {
+                    return Serie(0, 0);
+                }
+                auto first_result = cb(serie.template get<double>(0), 0);
+                size_t itemSize = first_result.size();
+
+                Array flattened;
+                flattened.reserve(itemSize * serie.count());
+                flattened.insert(flattened.end(), first_result.begin(), first_result.end());
+
+                for (uint32_t i = 1; i < serie.count(); ++i)
+                {
+                    auto result = cb(serie.template get<double>(i), i);
+                    if (result.size() != itemSize)
+                    {
+                        throw std::runtime_error("Inconsistent output vector sizes in map");
+                    }
+                    flattened.insert(flattened.end(), result.begin(), result.end());
+                }
+                return Serie(itemSize, flattened);
+            }
+        }
+        else
+        {
+            // Input is vector
+            using ResultType = std::invoke_result_t<F, const Array &, uint32_t>;
+
+            if constexpr (std::is_same_v<ResultType, double>)
+            {
+                // Vector to scalar
+                Array results;
+                results.reserve(serie.count());
+                for (uint32_t i = 0; i < serie.count(); ++i)
+                {
+                    results.push_back(cb(serie.template get<Array>(i), i));
+                }
+                return Serie(1, results);
+            }
+            else
+            {
+                // Vector to vector
+                if (serie.count() == 0)
+                {
+                    return Serie(0, 0);
+                }
+                auto first_result = cb(serie.template get<Array>(0), 0);
+                size_t itemSize = first_result.size();
+
+                Array flattened;
+                flattened.reserve(itemSize * serie.count());
+                flattened.insert(flattened.end(), first_result.begin(), first_result.end());
+
+                for (uint32_t i = 1; i < serie.count(); ++i)
+                {
+                    auto result = cb(serie.template get<Array>(i), i);
+                    if (result.size() != itemSize)
+                    {
+                        throw std::runtime_error("Inconsistent output vector sizes in map");
+                    }
+                    flattened.insert(flattened.end(), result.begin(), result.end());
+                }
+                return Serie(itemSize, flattened);
+            }
+        }
+    }
+
+    /**
+     * @brief Creates a reusable map function
+     */
+    template <typename F>
+    auto makeMap(F &&cb)
+    {
+        return [cb = std::forward<F>(cb)](const auto &serie)
+        {
+            return map(serie, cb);
         };
     }
 

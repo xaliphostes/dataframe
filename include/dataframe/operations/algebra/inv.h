@@ -22,15 +22,11 @@
  */
 
 #pragma once
-#include <dataframe/algos/map.h>
+#include <dataframe/Serie.h>
 
 namespace df
 {
 
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
-    {
-        return map(serie, fn);
-    }
+    Serie inv(const Serie &serie) ;
 
 }

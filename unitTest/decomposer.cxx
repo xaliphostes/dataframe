@@ -281,6 +281,8 @@ START_TEST(userDefined) {
 int main()
 {
     // test();
+
+
     basic();
     namesExist();
     coordinates();

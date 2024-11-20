@@ -89,6 +89,7 @@ set(SRC_dataframe
     ./src/dataframe/operations/algebra/transpose.cxx
     ./src/dataframe/operations/algebra/norm.cxx
     ./src/dataframe/operations/algebra/eigen.cxx
+    ./src/dataframe/operations/algebra/inv.cxx
 
     ./src/dataframe/operations/geo/areas.cxx
     ./src/dataframe/operations/geo/normals.cxx

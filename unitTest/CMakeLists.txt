@@ -20,135 +20,35 @@
 #
 project(unitTest)
 
-add_executable(basics basics.cxx)
-target_link_libraries(basics PRIVATE dataframe-shared)
-add_test(
-  NAME basics
-  COMMAND $<TARGET_FILE:basics>
-)
+function(add_test_executable NAME)
+    add_executable(${NAME} ${NAME}.cxx)
+    target_link_libraries(${NAME} PRIVATE dataframe-shared)
+    add_test(
+        NAME ${NAME}
+        COMMAND $<TARGET_FILE:${NAME}>
+    )
+endfunction()
 
-add_executable(weigthedSum weigthedSum.cxx)
-target_link_libraries(weigthedSum PRIVATE dataframe-shared)
-add_test(
-  NAME weigthedSum
-  COMMAND $<TARGET_FILE:weigthedSum>
-)
+add_test_executable(basics)
+add_test_executable(weigthedSum)
+add_test_executable(addDotNegate)
+add_test_executable(scalar)
+add_test_executable(except)
+add_test_executable(apply)
+add_test_executable(transpose)
+add_test_executable(div)
+add_test_executable(decomposer)
+add_test_executable(reduce)
+add_test_executable(filter)
+add_test_executable(eigen)
+add_test_executable(stats)
+add_test_executable(serie)
+add_test_executable(cross)
+add_test_executable(view)
+add_test_executable(zip)
+add_test_executable(pipe)
+add_test_executable(map)
+add_test_executable(equals)
+add_test_executable(forEach)
+add_test_executable(inv)
 
-add_executable(addDotNegate addDotNegate.cxx)
-target_link_libraries(addDotNegate PRIVATE dataframe-shared)
-add_test(
-  NAME addDotNegate
-  COMMAND $<TARGET_FILE:addDotNegate>
-)
-
-add_executable(scalar scalar.cxx)
-target_link_libraries(scalar PRIVATE dataframe-shared)
-add_test(
-  NAME scalar
-  COMMAND $<TARGET_FILE:scalar>
-)
-
-add_executable(except except.cxx)
-target_link_libraries(except PRIVATE dataframe-shared)
-add_test(
-  NAME except
-  COMMAND $<TARGET_FILE:except>
-)
-
-add_executable(apply apply.cxx)
-target_link_libraries(apply PRIVATE dataframe-shared)
-add_test(
-  NAME apply
-  COMMAND $<TARGET_FILE:apply>
-)
-
-add_executable(transpose transpose.cxx)
-target_link_libraries(transpose PRIVATE dataframe-shared)
-add_test(
-  NAME transpose
-  COMMAND $<TARGET_FILE:transpose>
-)
-
-add_executable(div div.cxx)
-target_link_libraries(div PRIVATE dataframe-shared)
-add_test(
-  NAME div
-  COMMAND $<TARGET_FILE:div>
-)
-
-add_executable(decomposer decomposer.cxx)
-target_link_libraries(decomposer PRIVATE dataframe-shared)
-add_test(
-  NAME decomposer
-  COMMAND $<TARGET_FILE:decomposer>
-)
-
-add_executable(reduce reduce.cxx)
-target_link_libraries(reduce PRIVATE dataframe-shared)
-add_test(
-  NAME reduce
-  COMMAND $<TARGET_FILE:reduce>
-)
-
-add_executable(filter filter.cxx)
-target_link_libraries(filter PRIVATE dataframe-shared)
-add_test(
-  NAME filter
-  COMMAND $<TARGET_FILE:filter>
-)
-
-add_executable(eigen eigen.cxx)
-target_link_libraries(eigen PRIVATE dataframe-shared)
-add_test(
-  NAME eigen
-  COMMAND $<TARGET_FILE:eigen>
-)
-
-add_executable(stats stats.cxx)
-target_link_libraries(stats PRIVATE dataframe-shared)
-add_test(
-  NAME stats
-  COMMAND $<TARGET_FILE:stats>
-)
-
-add_executable(serie serie.cxx)
-target_link_libraries(serie PRIVATE dataframe-shared)
-add_test(
-  NAME serie
-  COMMAND $<TARGET_FILE:serie>
-)
-
-add_executable(cross cross.cxx)
-target_link_libraries(cross PRIVATE dataframe-shared)
-add_test(
-  NAME cross
-  COMMAND $<TARGET_FILE:cross>
-)
-
-add_executable(view view.cxx)
-target_link_libraries(view PRIVATE dataframe-shared)
-add_test(
-  NAME view
-  COMMAND $<TARGET_FILE:view>
-)
-
-add_executable(zip zip.cxx)
-target_link_libraries(zip PRIVATE dataframe-shared)
-add_test(
-  NAME zip
-  COMMAND $<TARGET_FILE:zip>
-)
-
-add_executable(pipe pipe.cxx)
-target_link_libraries(pipe PRIVATE dataframe-shared)
-add_test(
-  NAME pipe
-  COMMAND $<TARGET_FILE:pipe>
-)
-
-add_executable(map map.cxx)
-target_link_libraries(map PRIVATE dataframe-shared)
-add_test(
-  NAME map
-  COMMAND $<TARGET_FILE:map>
-)

@@ -21,16 +21,33 @@
  *
  */
 
-#pragma once
-#include <dataframe/algos/map.h>
+#include <iostream>
+#include <dataframe/Serie.h>
+#include <dataframe/operations/algebra/inv.h>
+#include "assertions.h"
 
-namespace df
+int main()
 {
-
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
     {
-        return map(serie, fn);
+        std::cerr << "TO CHECK !!!" << std::endl ;
+        df::Serie s(6, {1, 2, 3, 4, 5, 6});
+        auto result = df::inv(s);
+        assertSerieEqual(result, {
+            1, -3, 2,
+                3, -1,
+                    0
+        });
     }
 
+    {
+        std::cerr << "TO CHECK !!!" << std::endl ;
+        df::Serie s(9, {2, 3, 1, 6, 5, 4, 7, 9, 8});
+        auto result = df::inv(s);
+        std::cerr << result << std::endl;
+        assertSerieEqual(result, {
+            -0.121212, 0.454545, -0.212121,
+            0.606061, -0.272727, -0.0909091,
+            -0.575758, -0.0909091, 0.242424},
+        1e5);
+    }
 }

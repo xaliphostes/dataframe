@@ -40,13 +40,46 @@ Not yet tested under Windows, but will have to add `export` for shared library.
 
 - Main files are `Dataframe` and `Serie`
 - Folders:
+    - **algos** provides some algorithms such as:
+        - `filter`
+        - `foreach`
+        - `zip`
+        - `pipe`
+        - `reduce`
+        - `map`
+        - ...
+    - **operations** provides some examples of what is possible to do with `Serie` in term of linear algebra, statistics etc... (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, geophysics and so on... Right now, sub folders are
+        - `algebra`
+            - `cross`
+            - `det`
+            - `dot`
+            - `eigen`
+            - `norm`
+            - `transpose`
+        - `geo` (for geometry, geology, geophysics...)
+            - `area`
+            - `insar`
+            - `normals`
+        - `math`
+            - `add`
+            - `div`
+            - `equals`
+            - `minMax`
+            - `mult`
+            - `negate`
+            - `scale`
+            - `sub`
+            - `weightedSum`
+        - `stats`
+            - `bins`
+            - `covariance`
+            - `mean`
+            - `quantile`
     - **attributes** provides a way of decomposing any `Serie` into other `Serie`. For example, a `Serie` with `itemType=6` might represent symmetric matrices 3x3. Therefore, attributes (i.e., possible decomposed `Serie`s) can be :
         - Components of the matrices
         - Eigen vectors
         - Eigen values
         - ...
-    - **operations** provides some examples of what is possible to do with `Serie` in term of linear algebra, statistics etc... (see also the [dataframe in TypeScript](https://github.com/youwol/dataframe)). It also provides some examples of functions to create `Serie`s from geometry, geophysics and so on... Right now, sub folders are `algebra`, `geo` (for geometry, geology, geophysics...), `math` and `stats`
-    - **algos** provides some algorithms such as `filter`, `foreach`...
 
 # Compilation
 Create a `build` directory, **go inside** and type
@@ -57,7 +90,7 @@ cmake .. && make -j12
 # Running unit tests
 **NOTE**: The internal cmake test is used to perform unit testing.
 
-In the same directory as for the compilation (i.e., the `build` directory), only type
+In the **same directory** as for the compilation (i.e., the `build` directory), only type
 ```sh
 ctest
 ```
@@ -66,9 +99,58 @@ or
 make test
 ```
 
+# Warning
+When including algos from `<dataframe/algos/>`, be sure to include first `<dataframe/Serie.h>`!
+
 # API
 
 ## Example 1
+```c++
+// Data structures
+df::Serie positions(3, {...});  // Positions of measures (x,y,z)
+df::Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
+df::Serie markers(1, {...});    // Goologic markers (0=sandstone, 1=granit...)
+
+// 1. Compute the principal stresses and directions
+auto principal_stresses = df::map(stress, [](const Array& s, uint32_t) {
+    // s = [xx,yy,zz,xy,yz,xz]
+    // Return [sigma1, sigma2, sigma3, dir1_x,dir1_y,dir1_z, ...]
+    return computeEigenSystem(s);
+});
+
+// 2. Filter points in compression
+auto compression = df::filter(principal_stresses, [](const Array& ps, uint32_t) {
+    return ps[0] < 0;  // sigma1 < 0 means compression
+});
+
+// 3. Compute the invariants for each type of rock
+auto invariants = df::map(df::zip(compression, markers), [](const Array& data, uint32_t) {
+    Array stress_part(data.begin(), data.begin() + 6);
+    int marker = static_cast<int>(data.back());
+    return computeInvariants(stress_part, marker);
+});
+
+// 4. Compute statistics for each type of rock
+df::forEach(df::zip(invariants, markers), [](const Array& data, uint32_t i) {
+    Array inv = Array(data.begin(), data.begin() + 3);
+    int marker = static_cast<int>(data.back());
+    updateStatistics(marker, inv);
+});
+
+// 5. Detect critical zones
+auto critical = df::map(df::zip(principal_stresses, positions), [](const Array& data, uint32_t) {
+    Array stress_part(data.begin(), data.begin() + 9);
+    Array pos(data.begin() + 9, data.end());
+    return computeCriticalityIndex(stress_part, pos);
+});
+
+// 6. Compute the mean of critical indices
+double mean_criticality = df::reduce(critical, [](double acc, double v, uint32_t) {
+    return acc + v;
+}, 0.0) / critical.count();
+```
+
+## Example 2
 ```c++
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the item size of the Serie: 3
 df::Serie b(3, {4,3,3,  2,1,0}) ;
@@ -77,7 +159,7 @@ df::Serie dot = df::dot(a, b) ;
 dot.dump();
 ```
 
-## Example 2
+## Example 3
 Performs a weighted sum of Series ;-)
 
 Constraints:
@@ -93,7 +175,7 @@ df::Serie c(2, {2,2,  1,1}) ;
 auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
 
-## Example 3
+## Example 4
 Eigen
 ```c++
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
@@ -107,7 +189,7 @@ vectors.forEach([](const Array& v, uint32_t index) {
 });
 ```
 
-## Example 4: Chaining...
+## Example 5: Chaining...
 ```c++
 df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
@@ -122,7 +204,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
     }) ;
 ```
 
-## Example 5: Attributes
+## Example 6: Attributes
 ```c++
 df::Dataframe dataframe;
 dataframe.add("positions", Serie(3, {...})); // geometry

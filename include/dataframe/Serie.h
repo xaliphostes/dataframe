@@ -28,6 +28,50 @@
 
 namespace df
 {
+    namespace detail
+    {
+        // Trait pour détecter si un type est une Array
+        template <typename T>
+        struct is_array : std::false_type
+        {
+        };
+
+        template <>
+        struct is_array<Array> : std::true_type
+        {
+        };
+
+        template <typename T>
+        inline constexpr bool is_array_v = is_array<std::decay_t<T>>::value;
+
+        // Pour array_size
+        template <typename T>
+        struct array_size
+        {
+            static constexpr size_t value = 1;
+        };
+
+        template <>
+        struct array_size<Array>
+        {
+            static constexpr size_t value = 0; // Taille dynamique
+        };
+
+        // Type traits pour détecter la signature de la fonction
+        template <typename F, typename = void>
+        struct is_scalar_callback : std::false_type
+        {
+        };
+
+        template <typename F>
+        struct is_scalar_callback<F, std::void_t<decltype(std::declval<F>()(
+                                         std::declval<double>(), std::declval<uint32_t>()))>> : std::true_type
+        {
+        };
+
+        template <typename F>
+        inline constexpr bool is_scalar_callback_v = is_scalar_callback<F>::value;
+    }
 
     /**
      * @note For basic operations such as `forEach`, `map`, `filter` and `reduce`,
@@ -87,67 +131,87 @@ namespace df
         const Array &asArray() const;
         Array &asArray();
 
-        /*
-         * For the following methods, I need HELP to deal with
-         * scalar values and non-scalar, and in order to
-         * reduce the number of methods as well as the
-         * complexity of this class.
-         * Maybe a templated class is possible ??!
+        /**
+         * @brief Unified get method that handles both scalar and Array cases
+         * @tparam T Return type (deduced automatically)
+         * @param i Index
+         * @return Either a double (scalar) or an Array based on itemSize
+         *
+         * @example
+         * ```cpp
+         * Serie s1(1, {1, 2, 3});
+         * double val = s1.get<double>(0);    // Retourne 1.0
+         *
+         * Serie s2(3, {1,2,3, 4,5,6});
+         * Array vec = s2.get<Array>(0);      // Retourne {1,2,3}
+         *
+         * // Ou simplement avec déduction automatique:
+         * auto val = s1.get(0);  // double
+         * auto vec = s2.get(0);  // Array
+         * ```
          */
+        template <typename T = Array>
+        auto get(uint32_t i) const -> std::conditional_t<detail::is_array_v<T>, Array, double>;
 
         /**
-         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
+         * @brief Unified set method that handles both scalar and Array cases
+         * @tparam T Input type (deduced automatically)
+         * @param i Index
+         * @param value Value to set (either double or Array)
+         *
+         * @example
+         * ```cpp
+         * Serie s1(1, {1, 2, 3});
+         * s1.set(0, 42.0);           // Set scalar value
+         *
+         * Serie s2(3, {1,2,3, 4,5,6});
+         * s2.set(0, Array{7,8,9});   // Set vector value
+         * ```
          */
+        template <typename T>
+        void set(uint32_t i, const T &value);
+
+        // -----------------------------------------------------
+
         template <typename F>
-        void forEach(F &&cb) const;
+        void forEach(F &&cb) const ;
 
-        /**
-         * @param cb A callback function with signature `(double current, uint32_t index)`
-         */
-        template <typename F>
-        void forEachScalar(F &&cb) const;
-
-        /**
-         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
-         */
         template <typename F>
         Serie map(F &&cb) const;
 
-        /**
-         * @param cb A callback function with signature `(double current, uint32_t index)`
-         */
         template <typename F>
-        Serie mapScalar(F &&cb) const;
+        auto reduce(F &&cb, double init);
 
-        /**
-         * @param cb A callback function with signature `(const Array& previous, const Array& current, uint32_t index)`
-         */
         template <typename F>
-        Serie reduce(F &&reduceFn, const Array &init) const;
+        auto reduce(F &&cb, const Array &init);
 
-        /**
-         * @param cb A callback function with signature `(double previous, double current, uint32_t index)`
-         */
-        template <typename F>
-        double reduceScalar(F &&reduceFn, double init) const;
 
-        /**
-         * @param cb A callback function with signature `(const Array& current, uint32_t index)`
-         */
         template <typename F>
         Serie filter(F &&reduceFn) const;
 
-        /**
-         * @param cb A callback function with signature `(double current, uint32_t index)`
-         */
         template <typename F>
-        Serie filterScalar(F &&reduceFn) const;
-
-        template <typename F>
-        Serie pipe(F &&op) const ;
+        Serie pipe(F &&op) const;
 
         template <typename F, typename... Fs>
-        Serie pipe(F &&op, Fs &&...ops) const ;
+        Serie pipe(F &&op, Fs &&...ops) const;
+
+        
+
+
+
+        // -------------- TO BE REMOVED ---------------
+        // template <typename F>
+        // Serie filterScalar(F &&reduceFn) const;
+
+        template <typename F>
+        double reduceScalar(F &&reduceFn, double init) const;
+
+        // template <typename F>
+        // Serie mapScalar(F &&cb) const;
+
+        template <typename F>
+        void forEachScalar(F &&cb) const;
+        // ---------------------------------------------
 
     private:
         Array s_;

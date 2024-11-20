@@ -63,6 +63,11 @@ void assertArrayEqual(const Array &serie, const Array &array, double tol = 1e-7)
     }
 }
 
+void assertSerieEqual(const df::Serie &s1, const Array &s2, double tol = 1e-7)
+{
+    assertArrayEqual(s1.asArray(), s2, tol);
+}
+
 template <typename CB>
 void shouldThrowError(CB &&cb)
 {
