@@ -154,7 +154,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
     .map([](const Array& arr, uint32_t) {
         return std::sqrt( pow(arr[0],2) + pow(arr[1],2) + pow(arr[2],2) );
     })
-    .forEachScalar([](double v, uinit32_t index) {
+    .forEach([](double v, uinit32_t index) {
         std::cout << index << ": " << v << std::endl ;
     }) ;
 ```
@@ -190,8 +190,8 @@ Serie scalarS1 = mng.serie(1, 'S1') // eigen value S1 for all items
 Serie vectorS1 = mng.serie(3, 'S1') // eigen vector S1 for all items
 ```
 
-## Example 6:
-A complete example using multiple features
+## Example 6: piping
+A complete example using multiple features using the piping feature
 
 ```cpp
 #include <dataframe/Serie.h>
@@ -227,8 +227,10 @@ auto computeCriticalityIndex = makeMap([=](const Array& data, uint32_t) {
 });
 
 // Pipeline principal
-auto result = pipe(stress,
-    // 1. Eigen values and vectors 
+auto result = pipe(
+    stress, // the initial Serie to deal with
+
+    // 1. Eigen values and vectors (of this initial serie)
     [](const Serie& s) { 
         auto [val, vec] = eigenSystem(s); 
         return zip(val, vec);
