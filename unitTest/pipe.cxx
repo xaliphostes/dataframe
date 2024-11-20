@@ -1,6 +1,6 @@
 #include <dataframe/Serie.h>
-#include <dataframe/algos/pipe.h>
-#include <dataframe/operations/math/equals.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/math/equals.h>
 #include "assertions.h"
 
 int main()

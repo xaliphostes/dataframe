@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/stats/mean.h>
+#include <dataframe/functional/stats/mean.h>
 #include <dataframe/types.h>
 #include <cmath>
 

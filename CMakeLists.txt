@@ -74,30 +74,30 @@ set(SRC_dataframe
     ./src/dataframe/attributes/EigenValues.cxx
     ./src/dataframe/attributes/EigenVectors.cxx
 
-    ./src/dataframe/operations/math/add.cxx
-    ./src/dataframe/operations/math/sub.cxx
-    ./src/dataframe/operations/math/negate.cxx
-    ./src/dataframe/operations/math/scale.cxx
-    ./src/dataframe/operations/math/weightedSum.cxx
-    ./src/dataframe/operations/math/mult.cxx
-    ./src/dataframe/operations/math/div.cxx
-    ./src/dataframe/operations/math/minMax.cxx
+    ./src/dataframe/functional/math/add.cxx
+    ./src/dataframe/functional/math/sub.cxx
+    ./src/dataframe/functional/math/negate.cxx
+    ./src/dataframe/functional/math/scale.cxx
+    ./src/dataframe/functional/math/weightedSum.cxx
+    ./src/dataframe/functional/math/mult.cxx
+    ./src/dataframe/functional/math/div.cxx
+    ./src/dataframe/functional/math/minMax.cxx
 
-    ./src/dataframe/operations/algebra/dot.cxx
-    ./src/dataframe/operations/algebra/det.cxx
-    ./src/dataframe/operations/algebra/cross.cxx
-    ./src/dataframe/operations/algebra/transpose.cxx
-    ./src/dataframe/operations/algebra/norm.cxx
-    ./src/dataframe/operations/algebra/eigen.cxx
-    ./src/dataframe/operations/algebra/inv.cxx
+    ./src/dataframe/functional/algebra/dot.cxx
+    ./src/dataframe/functional/algebra/det.cxx
+    ./src/dataframe/functional/algebra/cross.cxx
+    ./src/dataframe/functional/algebra/transpose.cxx
+    ./src/dataframe/functional/algebra/norm.cxx
+    ./src/dataframe/functional/algebra/eigen.cxx
+    ./src/dataframe/functional/algebra/inv.cxx
 
-    ./src/dataframe/operations/geo/areas.cxx
-    ./src/dataframe/operations/geo/normals.cxx
-    ./src/dataframe/operations/geo/insar.cxx
+    ./src/dataframe/functional/geo/areas.cxx
+    ./src/dataframe/functional/geo/normals.cxx
+    ./src/dataframe/functional/geo/insar.cxx
 
-    ./src/dataframe/operations/stats/bins.cxx
-    ./src/dataframe/operations/stats/mean.cxx
-    ./src/dataframe/operations/stats/covariance.cxx
+    ./src/dataframe/functional/stats/bins.cxx
+    ./src/dataframe/functional/stats/mean.cxx
+    ./src/dataframe/functional/stats/covariance.cxx
 
     ./src/dataframe/view/Matrix.cxx
     ./src/dataframe/view/Vector.cxx

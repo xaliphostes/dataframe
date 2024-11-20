@@ -21,37 +21,35 @@
  *
  */
 
-#include <dataframe/operations/algebra/transpose.h>
+#include <dataframe/functional/stats/covariance.h>
+#include <dataframe/functional/stats/mean.h>
+#include <dataframe/functional/math/mult.h>
+#include <dataframe/functional/math/sub.h>
+#include <dataframe/types.h>
+#include <cmath>
 
 namespace df
 {
 
-    /**
-     * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
-     */
-    Serie transpose(const Serie &serie)
+    double covariance(const Serie &x, const Serie &y)
     {
-
-        if (serie.itemSize() != 4 && serie.itemSize() != 9) {
-            throw std::invalid_argument("(transpose) items size should be 4 or 9 only (for now). Got " +
-                std::to_string(serie.itemSize()));
+        if (x.count() != y.count()) {
+            throw std::invalid_argument("covariance: x and y must have the same length");
+        }
+        if (x.itemSize() != 1) {
+            throw std::invalid_argument("covariance: x must have itemSize = 1");
+        }
+        if (y.itemSize() != 1) {
+            throw std::invalid_argument("covariance: y must have itemSize = 1");
         }
 
-        if (serie.itemSize() == 4) {
-            return serie.map([](const Array &item, uint32_t i) {
-                return Array {
-                    item[0], item[2],
-                    item[1], item[3],
-                };
-            });
-        }
-        return serie.map([](const Array &item, uint32_t i) {
-            return Array {
-                item[0], item[3], item[6],
-                item[1], item[4], item[7],
-                item[2], item[5], item[8]
-            };
-        });
+        double N = x.size();
+        double xb = mean(x).number;
+        double yb = mean(y).number;
+
+        return mult(sub(x, xb), sub(y, yb)).reduceScalar([N](double acc, double value, uint32_t) {
+            return acc + value / N;
+        }, 0);
     }
 
 }

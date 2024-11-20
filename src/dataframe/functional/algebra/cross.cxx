@@ -21,18 +21,32 @@
  *
  */
 
-#include <dataframe/operations/geo/areas.h>
-#include <dataframe/operations/geo/normals.h>
-#include <dataframe/operations/math/div.h>
-#include <dataframe/operations/algebra/norm.h>
+#include <dataframe/functional/algebra/cross.h>
 
 namespace df {
 
-    Serie areas(const Serie &positions, const Serie& indices) {
-        if (!positions.isValid() || !indices.isValid()) {
-            return Serie();
+    Serie cross(const Serie &a, const Serie &b) {
+        if (a.isValid() == false) {
+            throw std::invalid_argument("cross: serie a is not valid");
         }
-        return div(norm(normals(positions, indices)), 2);
+        if (b.isValid() == false) {
+            throw std::invalid_argument("cross: serie b is not valid");
+        }
+        if (a.itemSize() != 3) {
+            throw std::invalid_argument("cross: serie a must have itemSize=3");
+        }
+        if (b.itemSize() != 3) {
+            throw std::invalid_argument("cross: serie b must have itemSize=3");
+        }
+
+        return a.map( [&](const Array& A, uint32_t i) {
+            auto B = b.value(i);
+            return Array{
+                A[1] * B[2] - A[2] * B[1],
+                A[2] * B[0] - A[0] * B[2],
+                A[0] * B[1] - A[1] * B[0]
+            };
+        });
     }
 
 }

@@ -21,50 +21,37 @@
  *
  */
 
-#include <dataframe/operations/stats/bins.h>
-#include <dataframe/operations/math/minMax.h>
-#include <dataframe/types.h>
-#include <cmath>
+#include <dataframe/functional/algebra/transpose.h>
 
 namespace df
 {
 
-    Serie bins(const Serie &serie, uint nb)
+    /**
+     * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
+     */
+    Serie transpose(const Serie &serie)
     {
-        auto m = minMax(serie);
-        return bins(serie, nb, m[0], m[1]);
-    }
 
-    Serie bins(const Serie &serie, uint nb, double start, double stop)
-    {
-        if (serie.itemSize() != 1)
-        {
-            throw std::invalid_argument("bins: Serie must have itemSize=1");
-            return Serie();
-        }
-        if (nb < 1)
-        {
-            return Serie();
+        if (serie.itemSize() != 4 && serie.itemSize() != 9) {
+            throw std::invalid_argument("(transpose) items size should be 4 or 9 only (for now). Got " +
+                std::to_string(serie.itemSize()));
         }
 
-        double size = (stop - start) / double(nb);
-
-        // binning
-        Array b = createArray(nb, 0);
-        serie.forEachScalar([&](double v, uint32_t) {
-            uint32_t i = std::trunc((v - start) / size);
-            if (i >= nb)
-            {
-                i = nb - 1;
-            }
-            if (i < 0 || i >= nb)
-            {
-                throw std::invalid_argument("bins: index for bin (" + std::to_string(i) + ") out of bounds (0, "+std::to_string(nb)+")");
-            }
-            b[i]++;
+        if (serie.itemSize() == 4) {
+            return serie.map([](const Array &item, uint32_t i) {
+                return Array {
+                    item[0], item[2],
+                    item[1], item[3],
+                };
+            });
+        }
+        return serie.map([](const Array &item, uint32_t i) {
+            return Array {
+                item[0], item[3], item[6],
+                item[1], item[4], item[7],
+                item[2], item[5], item[8]
+            };
         });
-
-        return Serie(1, b);
     }
 
 }

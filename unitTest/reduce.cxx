@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/algos/reduce.h>
+#include <dataframe/functional/reduce.h>
 #include "assertions.h"
 
 int main()

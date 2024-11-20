@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/algos/map.h>
+#include <dataframe/functional/map.h>
 #include "assertions.h"
 
 void test_scalar() {

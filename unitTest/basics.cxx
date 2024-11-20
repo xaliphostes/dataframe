@@ -24,7 +24,7 @@
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/operations/math/minMax.h>
+#include <dataframe/functional/math/minMax.h>
 #include "assertions.h"
 
 void minMax()

@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/algos/filter.h>
+#include <dataframe/functional/filter.h>
 #include "assertions.h"
 
 using namespace df;

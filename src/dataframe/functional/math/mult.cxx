@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/math/mult.h>
+#include <dataframe/functional/math/mult.h>
 
 namespace df {
 

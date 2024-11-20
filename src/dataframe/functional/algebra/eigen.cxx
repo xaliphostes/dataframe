@@ -20,7 +20,7 @@
  * SOFTWARE.
  *
  */
-#include <dataframe/operations/algebra/eigen.h>
+#include <dataframe/functional/algebra/eigen.h>
 #include <cmath>
 
 namespace df

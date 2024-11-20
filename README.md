@@ -101,89 +101,11 @@ make test
 ```
 
 # Warning
-When including algos from `<dataframe/algos/>`, be sure to include first `<dataframe/Serie.h>`!
+When including algos from `<dataframe/functional/>`, be sure to include first `<dataframe/Serie.h>`!
 
 # API
 
 ## Example 1
-
-```cpp
-double computeCriticalityIndex(const Array& values, const Array& vectors, const Array& position) {
-    // Principal stress values
-    double sigma1 = values[0];  // Most compressive
-    double sigma2 = values[1];
-    double sigma3 = values[2];  // Least compressive
-    
-    // Mohr-Coulomb parameters
-    const double cohesion = 10.0;     // MPa
-    const double friction_angle = 30.0 * M_PI / 180.0;  // radians
-    
-    // Calculate stress invariants
-    double mean_stress = (sigma1 + sigma2 + sigma3) / 3.0;
-    double deviatoric_stress = sigma1 - sigma3;
-    
-    // Mohr-Coulomb failure criterion
-    double critical_stress = 2 * cohesion * std::cos(friction_angle) / 
-                           (1 - std::sin(friction_angle));
-    
-    // Distance to failure surface
-    // 1.0 means at failure, < 1.0 is stable, > 1.0 is unstable
-    double criticality = deviatoric_stress / critical_stress;
-    
-    // Optional: Weight by depth or distance from a reference point
-    double depth = -position[2];  // Assuming z is up
-    double depth_factor = std::exp(-depth / 1000.0);  // Decay with depth
-    
-    return criticality * depth_factor;
-}
-
-// Data structures
-df::Serie positions(3, {...});  // Positions of measures (x,y,z)
-df::Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
-df::Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
-
-// 1. Compute teh principal values and vectors
-auto [values, vectors] = df::eigenSystem(stress);
-
-// 2. Filter compressive points
-auto compressed_values = df::filter(values, [](const Array& v, uint32_t) {
-   return v[0] < 0;  // sigma1 < 0 => compression
-});
-auto compressed_vectors = df::filter(vectors, [&compressed_values](const Array& v, uint32_t i) {
-   return i < compressed_values.count();  // Keep corresponding vectors
-});
-
-// 3. Compute invariant for each type of rock
-auto invariants = df::map(df::zip(df::zip(compressed_values, compressed_vectors), markers), 
-   [](const Array& data, uint32_t) {
-       Array values(data.begin(), data.begin() + 3);
-       Array vectors(data.begin() + 3, data.end() - 1);
-       int marker = static_cast<int>(data.back());
-       return computeInvariants(values, vectors, marker);
-   });
-
-// 4. Compute statistics
-df::forEach(df::zip(invariants, markers), [](const Array& data, uint32_t i) {
-   Array inv = Array(data.begin(), data.begin() + 3);
-   int marker = static_cast<int>(data.back());
-   updateStatistics(marker, inv);
-});
-
-// 5. Identify critical zones
-auto critical = df::map(
-   df::zip(df::zip(compressed_values, compressed_vectors), positions), 
-   [](const Array& data, uint32_t) {
-       Array values(data.begin(), data.begin() + 3);
-       Array vectors(data.begin() + 3, data.end() - 3);
-       Array pos(data.end() - 3, data.end());
-       return computeCriticalityIndex(values, vectors, pos);
-   });
-
-// 6. Compute the mean of critical indices
-double mean_criticality = df::mean(critical);
-```
-
-## Example 2
 ```cpp
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the item size of the Serie: 3
 df::Serie b(3, {4,3,3,  2,1,0}) ;
@@ -192,7 +114,7 @@ df::Serie dot = df::dot(a, b) ;
 dot.dump();
 ```
 
-## Example 3
+## Example 2
 Performs a weighted sum of Series ;-)
 
 Constraints:
@@ -208,7 +130,7 @@ df::Serie c(2, {2,2,  1,1}) ;
 auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 ```
 
-## Example 4
+## Example 3
 Eigen
 ```cpp
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
@@ -222,7 +144,7 @@ vectors.forEach([](const Array& v, uint32_t index) {
 });
 ```
 
-## Example 5: Chaining...
+## Example 4: Chaining...
 ```cpp
 df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
@@ -237,7 +159,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
     }) ;
 ```
 
-## Example 6: Attributes
+## Example 5: Attributes
 ```cpp
 df::Dataframe dataframe;
 dataframe.add("positions", Serie(3, {...})); // geometry
@@ -266,6 +188,65 @@ console.log( mng.names(6) )
 
 Serie scalarS1 = mng.serie(1, 'S1') // eigen value S1 for all items
 Serie vectorS1 = mng.serie(3, 'S1') // eigen vector S1 for all items
+```
+
+## Example 6:
+A complete example using multiple features
+
+```cpp
+#include <dataframe/Serie.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/zip.h>
+#include <dataframe/functional/map.h>
+#include <dataframe/functional/filter.h>
+#include <dataframe/functional/forEach.h>
+#include <dataframe/functional/algebra/eigen.h>
+#include <dataframe/functional/stats/mean.h>
+
+using namespace df;
+
+// Input sata structures
+Serie positions(3, {...});  // Positions of measures (x,y,z)
+Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
+Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
+
+// Calcule la criticité d'un état de contrainte
+auto computeCriticalityIndex = makeMap([=](const Array& data, uint32_t) {
+    Array values(data.begin(), data.begin() + 3);
+    Array pos(data.end() - 3, data.end());
+    
+    double sigma1 = values[0];
+    double sigma3 = values[2];
+    double deviatoric = sigma1 - sigma3;
+    
+    double critical_stress = 2 * cohesion * std::cos(friction_angle) / 
+                           (1 - std::sin(friction_angle));
+    
+    double depth_factor = std::exp(-(-pos[2]) / 1000.0);
+    return (deviatoric / critical_stress) * depth_factor;
+});
+
+// Pipeline principal
+auto result = pipe(stress,
+    // 1. Eigen values and vectors 
+    [](const Serie& s) { 
+        auto [val, vec] = eigenSystem(s); 
+        return zip(val, vec);
+    },
+    
+    // 2. Filtering of compressive points
+    makeFilter([](const Array& data, uint32_t) {
+        return data[0] < 0;  // sigma1 < 0
+    }),
+    
+    // 3. Add positions and compute criticity
+    [&positions](const Serie& s) {
+        return computeCriticalityIndex(zip(s, positions));
+    }
+);
+
+// Mean
+double mean_criticality = mean(result);
 ```
 
 ## Licence

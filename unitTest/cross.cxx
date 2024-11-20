@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/operations/algebra/cross.h>
+#include <dataframe/functional/algebra/cross.h>
 #include "assertions.h"
 
 void crossTest(const Array &A, const Array &B, const Array &sol)

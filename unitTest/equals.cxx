@@ -1,4 +1,4 @@
-#include <dataframe/operations/math/equals.h>
+#include <dataframe/functional/math/equals.h>
 #include <dataframe/Serie.h>
 
 using namespace df;

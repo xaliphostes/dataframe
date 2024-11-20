@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/algebra/det.h>
+#include <dataframe/functional/algebra/det.h>
 #include <dataframe/view/Matrix.h>
 
 namespace df {

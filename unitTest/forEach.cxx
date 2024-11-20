@@ -23,8 +23,8 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/algos/forEach.h>
-#include <dataframe/operations/math/div.h>
+#include <dataframe/functional/forEach.h>
+#include <dataframe/functional/math/div.h>
 #include "assertions.h"
 
 int main()

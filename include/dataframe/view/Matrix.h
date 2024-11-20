@@ -28,7 +28,7 @@ namespace df
 {
 
     /**
-     * @example See `src/dataframe/operations/algebra/det.cxx`
+     * @example See `src/dataframe/functional/algebra/det.cxx`
      */
     class Matrix
     {

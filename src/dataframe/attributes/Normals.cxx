@@ -24,7 +24,7 @@
 #include <dataframe/attributes/Normals.h>
 // #include <dataframe/utils/utils.h>
 // #include <dataframe/types.h>
-#include <dataframe/operations/geo/normals.h>
+#include <dataframe/functional/geo/normals.h>
 #include <algorithm>
 
 namespace df

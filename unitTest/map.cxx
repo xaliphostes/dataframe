@@ -22,9 +22,9 @@
  */
 
 #include <dataframe/Serie.h>
-#include <dataframe/algos/pipe.h>
-#include <dataframe/algos/zip.h>
-#include <dataframe/algos/map.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/zip.h>
+#include <dataframe/functional/map.h>
 #include "assertions.h"
 
 // These functions can be combined with the pipe and zip functions:

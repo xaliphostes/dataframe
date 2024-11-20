@@ -22,7 +22,7 @@
  */
 
 #pragma once
-#include <dataframe/algos/map.h>
+#include <dataframe/functional/map.h>
 
 namespace df
 {

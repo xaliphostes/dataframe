@@ -22,11 +22,11 @@
  */
 
 #include "../utils/inferring.h"
-#include "../algos/forEach.h"
-#include "../algos/reduce.h"
-#include "../algos/map.h"
-#include "../algos/filter.h"
-#include "../algos/pipe.h"
+#include "../functional/forEach.h"
+#include "../functional/reduce.h"
+#include "../functional/map.h"
+#include "../functional/filter.h"
+#include "../functional/pipe.h"
 
 namespace df
 {

@@ -21,40 +21,18 @@
  *
  */
 
-#include <dataframe/operations/algebra/norm.h>
-#include <numeric>
-#include <cmath>
+#include <dataframe/functional/geo/areas.h>
+#include <dataframe/functional/geo/normals.h>
+#include <dataframe/functional/math/div.h>
+#include <dataframe/functional/algebra/norm.h>
 
 namespace df {
 
-    Serie norm(const Serie& s) {
-        return norm2(s).map( [](const Array& a, uint32_t) {
-            return Array{std::sqrt(a[0])};
-        });
-    }
-
-    Serie norm2(const Serie& s) {
-        if (s.isValid() == false) {
+    Serie areas(const Serie &positions, const Serie& indices) {
+        if (!positions.isValid() || !indices.isValid()) {
             return Serie();
         }
-
-        if (s.itemSize() == 1) {
-            return s.clone();
-        }
-
-        Array data = createArray(1, s.count());
-
-        for (uint32_t i = 0; i < s.count(); ++i) {
-            Array v = s.value(i);
-            double n = 0;
-            for (uint j=0; j<v.size(); ++j) {
-                double w = v[j];
-                n += w*w;
-            }
-            data[i] = n;
-        }
-
-        return Serie(1,data);
+        return div(norm(normals(positions, indices)), 2);
     }
 
 }

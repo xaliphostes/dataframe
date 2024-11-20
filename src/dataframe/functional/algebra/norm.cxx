@@ -21,36 +21,40 @@
  *
  */
 
-#include <dataframe/operations/algebra/dot.h>
+#include <dataframe/functional/algebra/norm.h>
+#include <numeric>
+#include <cmath>
 
 namespace df {
 
-    Serie dot(const Serie &a, const Serie &b) {
-        uint32_t itemSize = a.itemSize();
-        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
-            Array r = createArray(1, 0) ;
-            const Array& bb = b.value(i) ;
-            for (uint32_t k=0; k<itemSize; ++k) {
-                r[0] += arr[k] * bb[k];
-            }
-            return r;
+    Serie norm(const Serie& s) {
+        return norm2(s).map( [](const Array& a, uint32_t) {
+            return Array{std::sqrt(a[0])};
         });
     }
 
-    Serie dot(const Serie &a, const Array &b) {
-        if (a.value(0).size() != b.size()) {
+    Serie norm2(const Serie& s) {
+        if (s.isValid() == false) {
             return Serie();
         }
 
-        uint32_t itemSize = a.itemSize();
+        if (s.itemSize() == 1) {
+            return s.clone();
+        }
 
-        return a.map([itemSize, b](const Array& arr, uint32_t i) { // ieme item
-            Array r = createArray(1, 0) ;
-            for (uint32_t k=0; k<itemSize; ++k) {
-                r[0] += arr[k] * b[k];
+        Array data = createArray(1, s.count());
+
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            Array v = s.value(i);
+            double n = 0;
+            for (uint j=0; j<v.size(); ++j) {
+                double w = v[j];
+                n += w*w;
             }
-            return r;
-        });
+            data[i] = n;
+        }
+
+        return Serie(1,data);
     }
 
 }

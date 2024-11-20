@@ -24,9 +24,9 @@
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/operations/stats/bins.h>
-#include <dataframe/operations/stats/mean.h>
-#include <dataframe/operations/stats/covariance.h>
+#include <dataframe/functional/stats/bins.h>
+#include <dataframe/functional/stats/mean.h>
+#include <dataframe/functional/stats/covariance.h>
 #include "assertions.h"
 
 START_TEST(bins) {

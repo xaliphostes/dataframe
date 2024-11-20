@@ -24,7 +24,7 @@
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/algos/apply.h>
+#include <dataframe/functional/apply.h>
 #include "assertions.h"
 
 START_TEST(apply1) {

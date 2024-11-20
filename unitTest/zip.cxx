@@ -1,4 +1,4 @@
-#include <dataframe/algos/zip.h>
+#include <dataframe/functional/zip.h>
 #include <dataframe/Serie.h>
 
 int main() {

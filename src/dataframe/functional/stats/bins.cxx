@@ -21,38 +21,50 @@
  *
  */
 
-#include <dataframe/operations/math/scale.h>
+#include <dataframe/functional/stats/bins.h>
+#include <dataframe/functional/math/minMax.h>
+#include <dataframe/types.h>
+#include <cmath>
 
-namespace df {
+namespace df
+{
 
-    Serie scale(const Serie& s, double scale) {
-        uint32_t size = s.itemSize();
-        return s.map([scale, size](const Array& a, uint32_t i) {
-            Array r = a ;
-            for (uint32_t k=0; k<size; ++k) {
-                r[k] *= scale;
-            }
-            return r;
-        });
+    Serie bins(const Serie &serie, uint nb)
+    {
+        auto m = minMax(serie);
+        return bins(serie, nb, m[0], m[1]);
     }
 
-    Serie scale(const Serie& s, const Array& scales) {
-        if (s.itemSize() != scales.size()) {
-            throw std::invalid_argument("(scale) Serie itemSize (" +
-                std::to_string(s.itemSize()) +
-                " differs from scale size (" +
-                std::to_string(scales.size()) +
-                ")");
+    Serie bins(const Serie &serie, uint nb, double start, double stop)
+    {
+        if (serie.itemSize() != 1)
+        {
+            throw std::invalid_argument("bins: Serie must have itemSize=1");
+            return Serie();
+        }
+        if (nb < 1)
+        {
+            return Serie();
         }
 
-        uint32_t size = s.itemSize();
-        return s.map([scales, size](const Array& a, uint32_t i) {
-            Array r = a ;
-            for (uint32_t k=0; k<size; ++k) {
-                r[k] *= scales[k];
+        double size = (stop - start) / double(nb);
+
+        // binning
+        Array b = createArray(nb, 0);
+        serie.forEachScalar([&](double v, uint32_t) {
+            uint32_t i = std::trunc((v - start) / size);
+            if (i >= nb)
+            {
+                i = nb - 1;
             }
-            return r;
+            if (i < 0 || i >= nb)
+            {
+                throw std::invalid_argument("bins: index for bin (" + std::to_string(i) + ") out of bounds (0, "+std::to_string(nb)+")");
+            }
+            b[i]++;
         });
+
+        return Serie(1, b);
     }
 
 }

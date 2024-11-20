@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/operations/math/div.h>
+#include <dataframe/functional/math/div.h>
 
 namespace df {
 

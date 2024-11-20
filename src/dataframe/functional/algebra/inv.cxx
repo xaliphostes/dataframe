@@ -1,4 +1,4 @@
-#include <dataframe/operations/algebra/inv.h>
+#include <dataframe/functional/algebra/inv.h>
 
 namespace df {
 

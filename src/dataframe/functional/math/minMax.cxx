@@ -21,32 +21,23 @@
  *
  */
 
-#include <dataframe/operations/algebra/cross.h>
+#include <dataframe/functional/math/minMax.h>
 
 namespace df {
 
-    Serie cross(const Serie &a, const Serie &b) {
-        if (a.isValid() == false) {
-            throw std::invalid_argument("cross: serie a is not valid");
-        }
-        if (b.isValid() == false) {
-            throw std::invalid_argument("cross: serie b is not valid");
-        }
-        if (a.itemSize() != 3) {
-            throw std::invalid_argument("cross: serie a must have itemSize=3");
-        }
-        if (b.itemSize() != 3) {
-            throw std::invalid_argument("cross: serie b must have itemSize=3");
+    Array minMax(const Serie &serie) {
+        if (serie.itemSize() != 1) {
+            throw std::invalid_argument("minMax: for the moment only Serie with itemSize=1 is allowed");
         }
 
-        return a.map( [&](const Array& A, uint32_t i) {
-            auto B = b.value(i);
-            return Array{
-                A[1] * B[2] - A[2] * B[1],
-                A[2] * B[0] - A[0] * B[2],
-                A[0] * B[1] - A[1] * B[0]
-            };
+        double min = 1e302;
+        double max = -1e302;
+        serie.forEachScalar([&](double v, uint32_t) {
+            if (v > max) max = v;
+            if (v < min) min = v;
         });
+
+        return Array{min,max};
     }
 
 }

@@ -21,9 +21,9 @@
  *
  */
 
-#include <dataframe/operations/stats/quantile.h>
-#include <dataframe/algos/cut.h>
-#include <dataframe/algos/sort.h>
+#include <dataframe/functional/stats/quantile.h>
+#include <dataframe/functional/cut.h>
+#include <dataframe/functional/sort.h>
 
 namespace df
 {

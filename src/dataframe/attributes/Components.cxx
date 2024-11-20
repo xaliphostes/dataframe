@@ -23,7 +23,7 @@
 
 #include <dataframe/attributes/Components.h>
 #include <dataframe/utils/nameOfSerie.h>
-#include <dataframe/algos/apply.h>
+#include <dataframe/functional/apply.h>
 #include <dataframe/utils/utils.h>
 #include <algorithm>
 

@@ -21,11 +21,11 @@
  *
  */
 
-#include <dataframe/operations/math/sub.h>
+#include <dataframe/functional/math/add.h>
 
 namespace df {
 
-    Serie sub(const std::initializer_list<Serie> &list) {
+    Serie add(const std::initializer_list<Serie> &list) {
         Series series(list) ;
 
         const Serie& firstSerie = series[0];
@@ -34,7 +34,7 @@ namespace df {
         for (uint32_t j=1; j<series.size(); ++j) {
             const Serie& serie = series[j];
             if (firstSerie.count() != serie.count()) {
-                throw std::invalid_argument("(sub) Series are incompatble. Serie 0 has count=" +
+                throw std::invalid_argument("(add) Series are incompatble. Serie 0 has count=" +
                     std::to_string(firstSerie.count()) +
                     " and the Serie " +
                     std::to_string(j) +
@@ -42,7 +42,7 @@ namespace df {
                     std::to_string(serie.count()));
             }
             if (firstSerie.itemSize() != serie.itemSize()) {
-                throw std::invalid_argument("(sub) Series are incompatble. Serie 0 has itemSize=" +
+                throw std::invalid_argument("(add) Series are incompatble. Serie 0 has itemSize=" +
                     std::to_string(firstSerie.itemSize()) +
                     " and the Serie " +
                     std::to_string(j) +
@@ -56,20 +56,20 @@ namespace df {
             for (uint32_t j=1; j<series.size(); ++j) {
                 const Serie& serie = series[j];
                 for (uint32_t k=0; k<itemSize; ++k) {
-                    r[k] -= serie.value(i)[k];
+                    r[k] += serie.value(i)[k];
                 }
             }
             return r;
         });
     }
 
-    Serie sub(const Serie &serie, double v) {
+    Serie add(const Serie &serie, double v) {
         if (serie.itemSize() != 1) {
-            throw std::invalid_argument("(sub) Serie must have itemSize=1");
+            throw std::invalid_argument("(add) Serie must have itemSize=1");
         }
 
         return serie.map([v](double a, uint32_t i) {
-            return a - v;
+            return a + v;
         });
     }
 
