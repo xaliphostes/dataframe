@@ -158,6 +158,22 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
         std::cout << index << ": " << v << std::endl ;
     }) ;
 ```
+or using the `pipe` function:
+```cpp
+Serie a(2, {1,2,  3,4});
+Serie b(2, {4,3,  2,1});
+Serie c(2, {2,2,  1,1});
+
+pipe(
+    weigthedSum({a, b, c}, {2, 3, 4}),
+    makeMap([](const Array& arr, uint32_t) {
+        return std::sqrt(pow(arr[0],2) + pow(arr[1],2) + pow(arr[2],2));
+    }),
+    makeForEach([](double v, uint32_t index) {
+        std::cout << index << ": " << v << std::endl;
+    })
+);
+```
 
 ## Example 5: Attributes
 ```cpp
