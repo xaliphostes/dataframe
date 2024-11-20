@@ -108,6 +108,35 @@ When including algos from `<dataframe/algos/>`, be sure to include first `<dataf
 ## Example 1
 
 ```cpp
+double computeCriticalityIndex(const Array& values, const Array& vectors, const Array& position) {
+    // Principal stress values
+    double sigma1 = values[0];  // Most compressive
+    double sigma2 = values[1];
+    double sigma3 = values[2];  // Least compressive
+    
+    // Mohr-Coulomb parameters
+    const double cohesion = 10.0;     // MPa
+    const double friction_angle = 30.0 * M_PI / 180.0;  // radians
+    
+    // Calculate stress invariants
+    double mean_stress = (sigma1 + sigma2 + sigma3) / 3.0;
+    double deviatoric_stress = sigma1 - sigma3;
+    
+    // Mohr-Coulomb failure criterion
+    double critical_stress = 2 * cohesion * std::cos(friction_angle) / 
+                           (1 - std::sin(friction_angle));
+    
+    // Distance to failure surface
+    // 1.0 means at failure, < 1.0 is stable, > 1.0 is unstable
+    double criticality = deviatoric_stress / critical_stress;
+    
+    // Optional: Weight by depth or distance from a reference point
+    double depth = -position[2];  // Assuming z is up
+    double depth_factor = std::exp(-depth / 1000.0);  // Decay with depth
+    
+    return criticality * depth_factor;
+}
+
 // Data structures
 df::Serie positions(3, {...});  // Positions of measures (x,y,z)
 df::Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
