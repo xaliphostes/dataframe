@@ -29,30 +29,34 @@ namespace df
 
     Serie eigenValues(const Serie &serie)
     {
-        if (serie.dimension() == 2 && serie.itemSize() != 3) {
+        if (serie.dimension() == 2 && serie.itemSize() != 3)
+        {
             return Serie();
         }
-        if (serie.dimension() == 3 && serie.itemSize() != 6) {
+        if (serie.dimension() == 3 && serie.itemSize() != 6)
+        {
             return Serie();
         }
 
-        if (serie.dimension() == 2 && serie.itemSize() == 3) {
-            double eigen_vec[4] ;
-            double eigen_val[2] ;
-            double m[3] ;
-            return serie.map( [&](const Array& mat, uint32_t) {
+        if (serie.dimension() == 2 && serie.itemSize() == 3)
+        {
+            double eigen_vec[4];
+            double eigen_val[2];
+            double m[3];
+            return serie.map([&](const Array &mat, uint32_t)
+                             {
                 m[0] = mat[0];
                 m[1] = mat[1];
                 m[2] = mat[2];
                 symmetricEigen(m, 2, eigen_vec, eigen_val);
-                return Array{eigen_val[0], eigen_val[1]};
-            });
+                return Array{eigen_val[0], eigen_val[1]}; });
         }
 
-        double eigen_vec[9] ;
-        double eigen_val[3] ;
-        double m[6] ;
-        return serie.map( [&](const Array& mat, uint32_t) {
+        double eigen_vec[9];
+        double eigen_val[3];
+        double m[6];
+        return serie.map([&](const Array &mat, uint32_t)
+                         {
             m[0] = mat[0] ;
             m[1] = mat[1] ;
             m[2] = mat[3] ;
@@ -60,36 +64,39 @@ namespace df
             m[4] = mat[4] ;
             m[5] = mat[5] ;
             symmetricEigen(m, 3, eigen_vec, eigen_val);
-            return Array{eigen_val[0], eigen_val[1], eigen_val[2]};
-        });
+            return Array{eigen_val[0], eigen_val[1], eigen_val[2]}; });
     }
 
     Serie eigenVectors(const Serie &serie)
     {
-        if (serie.dimension() == 2 && serie.itemSize() != 3) {
+        if (serie.dimension() == 2 && serie.itemSize() != 3)
+        {
             return Serie();
         }
-        if (serie.dimension() == 3 && serie.itemSize() != 6) {
+        if (serie.dimension() == 3 && serie.itemSize() != 6)
+        {
             return Serie();
         }
 
-        if (serie.dimension() == 2 && serie.itemSize() == 3) {
-            double eigen_vec[4] ;
-            double eigen_val[2] ;
-            double m[3] ;
-            return serie.map( [&](const Array& mat, uint32_t) {
+        if (serie.dimension() == 2 && serie.itemSize() == 3)
+        {
+            double eigen_vec[4];
+            double eigen_val[2];
+            double m[3];
+            return serie.map([&](const Array &mat, uint32_t)
+                             {
                 m[0] = mat[0];
                 m[1] = mat[1];
                 m[2] = mat[2];
                 symmetricEigen(m, 2, eigen_vec, eigen_val);
-                return Array{eigen_vec[0], eigen_vec[1], eigen_vec[2], eigen_vec[3]};
-            });
+                return Array{eigen_vec[0], eigen_vec[1], eigen_vec[2], eigen_vec[3]}; });
         }
 
-        double eigen_vec[9] ;
-        double eigen_val[3] ;
-        double m[6] ;
-        return serie.map( [&](const Array& mat, uint32_t) {
+        double eigen_vec[9];
+        double eigen_val[3];
+        double m[6];
+        return serie.map([&](const Array &mat, uint32_t)
+                         {
             m[0] = mat[0] ;
             m[1] = mat[1] ;
             m[2] = mat[3] ;
@@ -101,8 +108,72 @@ namespace df
                 eigen_vec[0], eigen_vec[1], eigen_vec[2],
                 eigen_vec[3], eigen_vec[4], eigen_vec[5],
                 eigen_vec[6], eigen_vec[7], eigen_vec[8]
-            };
-        });
+            }; });
+    }
+
+    /**
+     * @brief Return both the eigen values and vectors as a tuple
+     * @example
+     * ```cpp
+     * df::Serie s(6, {...});  // Symmetric tensor
+     * auto [values, vectors] = df::eigenSystem(s);
+     * ```
+     */
+    EigenSystem eigenSystem(const Serie &serie)
+    {
+        if (serie.dimension() == 2 && serie.itemSize() == 3)
+        {
+            double eigen_vec[4];
+            double eigen_val[2];
+            double m[3];
+
+            Serie values(2, serie.count());
+            Serie vectors(4, serie.count());
+
+            for (uint32_t i = 0; i < serie.count(); ++i)
+            {
+                Array mat = serie.get<Array>(i);
+                m[0] = mat[0];
+                m[1] = mat[1];
+                m[2] = mat[2];
+                symmetricEigen(m, 2, eigen_vec, eigen_val);
+                values.set(i, Array{eigen_val[0], eigen_val[1]});
+                vectors.set(i, Array{eigen_vec[0], eigen_vec[1], eigen_vec[2], eigen_vec[3]});
+            }
+
+            return {values, vectors};
+        }
+
+        if (serie.dimension() == 3 && serie.itemSize() == 6)
+        {
+            double eigen_vec[9];
+            double eigen_val[3];
+            double m[6];
+
+            Serie values(3, serie.count());
+            Serie vectors(9, serie.count());
+
+            for (uint32_t i = 0; i < serie.count(); ++i)
+            {
+                Array mat = serie.get<Array>(i);
+                m[0] = mat[0]; // xx
+                m[1] = mat[1]; // xy
+                m[2] = mat[3]; // xz
+                m[3] = mat[2]; // yy
+                m[4] = mat[4]; // yz
+                m[5] = mat[5]; // zz
+                symmetricEigen(m, 3, eigen_vec, eigen_val);
+                values.set(i, Array{eigen_val[0], eigen_val[1], eigen_val[2]});
+                vectors.set(i, Array{
+                                   eigen_vec[0], eigen_vec[1], eigen_vec[2],
+                                   eigen_vec[3], eigen_vec[4], eigen_vec[5],
+                                   eigen_vec[6], eigen_vec[7], eigen_vec[8]});
+            }
+
+            return {values, vectors};
+        }
+
+        return {Serie(), Serie()};
     }
 
     /**

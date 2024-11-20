@@ -52,6 +52,7 @@ Not yet tested under Windows, but will have to add `export` for shared library.
         - `algebra`
             - `cross`
             - `det`
+            - `inv`
             - `dot`
             - `eigen`
             - `norm`
@@ -109,45 +110,47 @@ When including algos from `<dataframe/algos/>`, be sure to include first `<dataf
 // Data structures
 df::Serie positions(3, {...});  // Positions of measures (x,y,z)
 df::Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
-df::Serie markers(1, {...});    // Goologic markers (0=sandstone, 1=granit...)
+df::Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
 
-// 1. Compute the principal stresses and directions
-auto principal_stresses = df::map(stress, [](const Array& s, uint32_t) {
-    // s = [xx,yy,zz,xy,yz,xz]
-    // Return [sigma1, sigma2, sigma3, dir1_x,dir1_y,dir1_z, ...]
-    return computeEigenSystem(s);
+// 1. Compute teh principal values and vectors
+auto [values, vectors] = df::eigenSystem(stress);
+
+// 2. Filter compressive points
+auto compressed_values = df::filter(values, [](const Array& v, uint32_t) {
+   return v[0] < 0;  // sigma1 < 0 => compression
+});
+auto compressed_vectors = df::filter(vectors, [&compressed_values](const Array& v, uint32_t i) {
+   return i < compressed_values.count();  // Keep corresponding vectors
 });
 
-// 2. Filter points in compression
-auto compression = df::filter(principal_stresses, [](const Array& ps, uint32_t) {
-    return ps[0] < 0;  // sigma1 < 0 means compression
-});
+// 3. Compute invariant for each type of rock
+auto invariants = df::map(df::zip(df::zip(compressed_values, compressed_vectors), markers), 
+   [](const Array& data, uint32_t) {
+       Array values(data.begin(), data.begin() + 3);
+       Array vectors(data.begin() + 3, data.end() - 1);
+       int marker = static_cast<int>(data.back());
+       return computeInvariants(values, vectors, marker);
+   });
 
-// 3. Compute the invariants for each type of rock
-auto invariants = df::map(df::zip(compression, markers), [](const Array& data, uint32_t) {
-    Array stress_part(data.begin(), data.begin() + 6);
-    int marker = static_cast<int>(data.back());
-    return computeInvariants(stress_part, marker);
-});
-
-// 4. Compute statistics for each type of rock
+// 4. Compute statistics
 df::forEach(df::zip(invariants, markers), [](const Array& data, uint32_t i) {
-    Array inv = Array(data.begin(), data.begin() + 3);
-    int marker = static_cast<int>(data.back());
-    updateStatistics(marker, inv);
+   Array inv = Array(data.begin(), data.begin() + 3);
+   int marker = static_cast<int>(data.back());
+   updateStatistics(marker, inv);
 });
 
-// 5. Detect critical zones
-auto critical = df::map(df::zip(principal_stresses, positions), [](const Array& data, uint32_t) {
-    Array stress_part(data.begin(), data.begin() + 9);
-    Array pos(data.begin() + 9, data.end());
-    return computeCriticalityIndex(stress_part, pos);
-});
+// 5. Identify critical zones
+auto critical = df::map(
+   df::zip(df::zip(compressed_values, compressed_vectors), positions), 
+   [](const Array& data, uint32_t) {
+       Array values(data.begin(), data.begin() + 3);
+       Array vectors(data.begin() + 3, data.end() - 3);
+       Array pos(data.end() - 3, data.end());
+       return computeCriticalityIndex(values, vectors, pos);
+   });
 
 // 6. Compute the mean of critical indices
-double mean_criticality = df::reduce(critical, [](double acc, double v, uint32_t) {
-    return acc + v;
-}, 0.0) / critical.count();
+double mean_criticality = df::mean(critical);
 ```
 
 ## Example 2

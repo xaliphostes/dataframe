@@ -27,7 +27,13 @@
 namespace df
 {
 
-    Serie eigenValues(const Serie &serie) ;
-    Serie eigenVectors(const Serie &serie) ;
+    Serie eigenValues(const Serie &serie);
+    Serie eigenVectors(const Serie &serie);
+
+    using EigenSystem = std::tuple<Serie, Serie>;
+    /**
+     * Return both the principal values and vectors as a tuple
+     */
+    EigenSystem eigenSystem(const Serie &serie);
 
 }
