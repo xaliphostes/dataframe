@@ -106,7 +106,8 @@ When including algos from `<dataframe/algos/>`, be sure to include first `<dataf
 # API
 
 ## Example 1
-```c++
+
+```cpp
 // Data structures
 df::Serie positions(3, {...});  // Positions of measures (x,y,z)
 df::Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
@@ -154,7 +155,7 @@ double mean_criticality = df::mean(critical);
 ```
 
 ## Example 2
-```c++
+```cpp
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the item size of the Serie: 3
 df::Serie b(3, {4,3,3,  2,1,0}) ;
 
@@ -169,7 +170,7 @@ Constraints:
 - All `Serie` must have the same `count()`
 - All `Serie` must have the same `itemSize()`
 - Size of weights must be equal to the size of array of the provided `Serie`s
-```c++
+```cpp
 df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
 df::Serie c(2, {2,2,  1,1}) ;
@@ -180,7 +181,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
 
 ## Example 4
 Eigen
-```c++
+```cpp
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
 auto vectors = df::eigenVectors(s) ; // and that's it!
 
@@ -193,7 +194,7 @@ vectors.forEach([](const Array& v, uint32_t index) {
 ```
 
 ## Example 5: Chaining...
-```c++
+```cpp
 df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
 df::Serie c(2, {2,2,  1,1}) ;
@@ -208,7 +209,7 @@ auto s = df::weigthedSum({a, b, c}, {2, 3, 4})
 ```
 
 ## Example 6: Attributes
-```c++
+```cpp
 df::Dataframe dataframe;
 dataframe.add("positions", Serie(3, {...})); // geometry
 dataframe.add("indices", Serie(3, {...})); // topology (triangles)
