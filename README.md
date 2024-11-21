@@ -166,9 +166,11 @@ Serie c(2, {2,2,  1,1});
 
 pipe(
     weigthedSum({a, b, c}, {2, 3, 4}),
+
     makeMap([](const Array& arr, uint32_t) {
         return std::sqrt(pow(arr[0],2) + pow(arr[1],2) + pow(arr[2],2));
     }),
+
     makeForEach([](double v, uint32_t index) {
         std::cout << index << ": " << v << std::endl;
     })
@@ -221,12 +223,12 @@ A complete example using multiple features using the piping feature
 
 using namespace df;
 
-// Input sata structures
+// Input data structures
 Serie positions(3, {...});  // Positions of measures (x,y,z)
 Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
 Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
 
-// Calcule la criticité d'un état de contrainte
+// Compute the critical stress state
 auto computeCriticalityIndex = makeMap([=](const Array& data, uint32_t) {
     Array values(data.begin(), data.begin() + 3);
     Array pos(data.end() - 3, data.end());
@@ -242,7 +244,7 @@ auto computeCriticalityIndex = makeMap([=](const Array& data, uint32_t) {
     return (deviatoric / critical_stress) * depth_factor;
 });
 
-// Pipeline principal
+// Principal pipeline
 auto result = pipe(
     stress, // the initial Serie to deal with
 
