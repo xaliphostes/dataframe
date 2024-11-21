@@ -167,49 +167,49 @@ namespace df
         }
     }
 
-#ifndef __APPLE__
-    /**
-     * @brief Parallel forEach implementation
-     * @param serie Input Serie
-     * @param cb Callback function
-     *
-     * @note Requires C++17 or later
-     *
-     * @example
-     * ```cpp
-     * Serie s(3, {1,2,3, 4,5,6, 7,8,9});
-     * forEachParallel(s, [](const auto& v, uint32_t i) {
-     *     // This will be executed in parallel
-     *     heavyComputation(v);
-     * });
-     * ```
-     */
-    template <typename Serie, typename F>
-    void forEachParallel(const Serie &serie, F &&cb)
-    {
-#include <execution>
-        std::vector<uint32_t> indices(serie.count());
-        std::iota(indices.begin(), indices.end(), 0);
+// #ifndef __APPLE__
+//     /**
+//      * @brief Parallel forEach implementation
+//      * @param serie Input Serie
+//      * @param cb Callback function
+//      *
+//      * @note Requires C++17 or later
+//      *
+//      * @example
+//      * ```cpp
+//      * Serie s(3, {1,2,3, 4,5,6, 7,8,9});
+//      * forEachParallel(s, [](const auto& v, uint32_t i) {
+//      *     // This will be executed in parallel
+//      *     heavyComputation(v);
+//      * });
+//      * ```
+//      */
+//     template <typename Serie, typename F>
+//     void forEachParallel(const Serie &serie, F &&cb)
+//     {
+// #include <execution>
+//         std::vector<uint32_t> indices(serie.count());
+//         std::iota(indices.begin(), indices.end(), 0);
 
-        if constexpr (detail::is_scalar_callback_v<F>)
-        {
-            // Scalar version
-            std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
-                          [&](uint32_t i)
-                          {
-                              cb(serie.template get<double>(i), i);
-                          });
-        }
-        else
-        {
-            // Array version
-            std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
-                          [&](uint32_t i)
-                          {
-                              cb(serie.template get<Array>(i), i);
-                          });
-        }
-    }
-#endif
+//         if constexpr (detail::is_scalar_callback_v<F>)
+//         {
+//             // Scalar version
+//             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+//                           [&](uint32_t i)
+//                           {
+//                               cb(serie.template get<double>(i), i);
+//                           });
+//         }
+//         else
+//         {
+//             // Array version
+//             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+//                           [&](uint32_t i)
+//                           {
+//                               cb(serie.template get<Array>(i), i);
+//                           });
+//         }
+//     }
+// #endif
 
 }
