@@ -14,14 +14,14 @@
 
 Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
 
-Compared to Panda, we have some differences since our main consern is **linear algebra**.
+Compared to Panda, we have some differences since our main consern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra).
 
 ## Requirements
 - C++20 (but C++23 soon)
 - cmake
 
 Main functionalities are:
-- Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is linear algebra. Tensors are stored as packed array, hense the notion of `itemSize`.
+- Compared to Panda, each item of a Serie is either a scalar (i.e., a number) or an array of scalars... and that's it!. This is it because our main concern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra). Tensors are stored as packed array, hense the notion of `itemSize`.
     - A first example is given by a `itemSize=6` with `dimension=3` which represents a symmetric matrix of dimension 3 (6 coefficients)
     - A second exmaple is given by a `itemSize=3` with `dimension=3` which represents a vector of dimension 3 (3 coefficients)
     - However, the same last example but with `itemSize=2` represents a matrix of dimension 2 (still 3 coefficients).
