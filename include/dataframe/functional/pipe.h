@@ -37,7 +37,7 @@ namespace df
      * ```cpp
      * Serie s(1, {1, 2, 3, 4});
      * auto result = pipe(s, [](const Serie& s) {
-     *     return s.mapScalar([](double v, uint32_t) { return v * 2; });
+     *     return s.map([](double v, uint32_t) { return v * 2; });
      * });
      * ```
      */
@@ -58,9 +58,9 @@ namespace df
      * ```cpp
      * Serie s(1, {1, 2, 3, 4});
      * auto result = pipe(s,
-     *     [](const Serie& s) { return s.mapScalar([](double v, uint32_t) { return v * 2; }); },
-     *     [](const Serie& s) { return s.filterScalar([](double v, uint32_t) { return v > 4; }); },
-     *     [](const Serie& s) { return s.mapScalar([](double v, uint32_t) { return v + 1; }); }
+     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
+     *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); },
+     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v + 1; }); }
      * );
      * ```
      */
@@ -79,8 +79,8 @@ namespace df
      * @example
      * ```cpp
      * auto pipeline = makePipe(
-     *     [](const Serie& s) { return s.mapScalar([](double v, uint32_t) { return v * 2; }); },
-     *     [](const Serie& s) { return s.filterScalar([](double v, uint32_t) { return v > 4; }); }
+     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
+     *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
      * );
      *
      * Serie s1(1, {1, 2, 3, 4});

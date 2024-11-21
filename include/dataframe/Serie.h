@@ -74,9 +74,7 @@ namespace df
     }
 
     /**
-     * @note For basic operations such as `forEach`, `map`, `filter` and `reduce`,
-     * we provide (for optimization purpose), a **scalar** version (`forEachScalar`,
-     * `mapScalar`, `filterScalar` and `reduceScalar`).
+     * @note For basic operations such as `forEach`, `map`, `filter` and `reduce`.
      *
      * @example
      * For a Serie of non-scalar (itemSize>1):
@@ -94,7 +92,7 @@ namespace df
      * For a Serie of scalars:
      * ```c++
      * Serie s(1, {1, 3});
-     * s.forEachScalar( [](double v, uint32_t) {
+     * s.forEach( [](double v, uint32_t) {
      *      std::cerr << v << std::endl ;
      * });
      * // Display:
