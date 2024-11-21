@@ -51,7 +51,7 @@ namespace df
 
         // binning
         Array b = createArray(nb, 0);
-        serie.forEachScalar([&](double v, uint32_t) {
+        serie.forEach([&](double v, uint32_t) {
             uint32_t i = std::trunc((v - start) / size);
             if (i >= nb)
             {

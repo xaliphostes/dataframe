@@ -32,17 +32,20 @@ int main()
     {
         // Pour Serie scalaire
         df::Serie s1(1, {1, 2, 3});
-        df::forEach(s1, [](double v, uint32_t i)
-                { std::cout << "Value " << i << ": " << v << "\n"; });
+        df::forEach(s1, [](double v, uint32_t i) {
+            // std::cout << "Value " << i << ": " << v << "\n";
+        });
 
         // Pour Serie non-scalaire
         df::Serie s2(3, {1, 2, 3, 4, 5, 6});
-        df::forEach(s2, [](const Array &v, uint32_t i)
-                { std::cout << "Vector " << i << ": " << v << "\n"; });
+        df::forEach(s2, [](const Array &v, uint32_t i) {
+            // std::cout << "Vector " << i << ": " << v << "\n";
+        });
 
         // Avec déduction automatique du type
-        df::forEach(s2, [](const auto &v, uint32_t i)
-                { std::cout << "Item " << i << ": " << v << "\n"; });
+        df::forEach(s2, [](const auto &v, uint32_t i) {
+            // std::cout << "Item " << i << ": " << v << "\n";
+        });
     }
 
     // makeForEach pour créer des fonctions réutilisables

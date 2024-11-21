@@ -47,7 +47,7 @@ namespace df
         double xb = mean(x).number;
         double yb = mean(y).number;
 
-        return mult(sub(x, xb), sub(y, yb)).reduceScalar([N](double acc, double value, uint32_t) {
+        return mult(sub(x, xb), sub(y, yb)).reduce([N](double acc, double value, uint32_t) {
             return acc + value / N;
         }, 0);
     }

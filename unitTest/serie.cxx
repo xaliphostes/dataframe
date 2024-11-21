@@ -42,16 +42,14 @@ int main()
     name = df::nameOfSerie(dataframe, serie);
     assertEqual(name, String(""));
 
-    serie.forEach([](const Array &a, uint32_t index)
+    serie.forEach([](double a, uint32_t index)
                   {
                       std::cerr << index << "  " << a << std::endl;
-                      assertCondition(a.size() == 1, "size should be 1");
-                      assertCondition(a[0] == index + 1, "value should be " + std::to_string(index + 1) + ". Got " + std::to_string(a[0]) + "!");
                   });
 
     // We know the serie is made of scalar values, so use it for performance reasons...
     //
-    serie.forEachScalar([](double a, uint32_t index)
+    serie.forEach([](double a, uint32_t index)
                         {
         std::cerr << index << "  " << a << std::endl;
         assertCondition(a==index+1, "value should be " + std::to_string(index+1) + ". Got " + std::to_string(a) + "!"); });

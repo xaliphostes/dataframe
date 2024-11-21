@@ -51,4 +51,5 @@ add_test_executable(map)
 add_test_executable(equals)
 add_test_executable(forEach)
 add_test_executable(inv)
+add_test_executable(sort)
 

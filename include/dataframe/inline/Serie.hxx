@@ -60,27 +60,32 @@ namespace df
     */
 
     template <typename F>
-    void Serie::forEach(F &&cb) const  {
+    void Serie::forEach(F &&cb) const
+    {
         df::forEach(*this, cb);
     }
 
     template <typename F>
-    Serie Serie::map(F &&cb) const  {
+    Serie Serie::map(F &&cb) const
+    {
         return df::map(*this, cb);
     }
 
     template <typename F>
-    auto Serie::reduce(F &&cb, double init) {
+    auto Serie::reduce(F &&cb, double init)
+    {
         return df::reduce(*this, cb, init);
     }
 
     template <typename F>
-    auto Serie::reduce(F &&cb, const Array &init) {
+    auto Serie::reduce(F &&cb, const Array &init)
+    {
         return df::reduce(*this, cb, init);
     }
 
     template <typename F>
-    Serie Serie::filter(F &&predicate) const  {
+    Serie Serie::filter(F &&predicate) const
+    {
         return df::filter(*this, predicate);
     }
 
@@ -95,57 +100,6 @@ namespace df
     {
         return df::pipe(*this, op, ops...);
     }
-
-
-
-
-
-    template <typename F>
-    inline void Serie::forEachScalar(F &&cb) const
-    {
-        if (itemSize_ != 1)
-        {
-            throw std::invalid_argument("(forEachScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
-        }
-
-        for (uint32_t i = 0; i < count_; ++i)
-        {
-            cb(scalar(i), i);
-        }
-    }
-
-    template <typename F>
-    double Serie::reduceScalar(F &&reduceFn, double acc) const
-    {
-        if (itemSize_ != 1)
-        {
-            throw std::invalid_argument("reduceScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
-        }
-
-        double r = acc;
-        this->forEachScalar([&](double a, uint32_t index)
-                            { r = reduceFn(r, a, index); });
-
-        return r; // Serie(1, Array{r}, this->dimension_);
-    }
-
-    // template <typename F>
-    // inline Serie Serie::mapScalar(F &&cb) const
-    // {
-    //     if (itemSize_ != 1)
-    //     {
-    //         throw std::invalid_argument("mapScalar: itemSize is not 1 (got " + std::to_string(itemSize_) + ")");
-    //     }
-
-    //     Serie R(1, count_);
-    //     uint32_t id = 0;
-
-    //     for (uint32_t i = 0; i < count_; ++i)
-    //     {
-    //         R.s_[id++] = cb(scalar(i), i);
-    //     }
-    //     return R;
-    // }
 
     inline const Array &Serie::asArray() const
     {
@@ -165,14 +119,33 @@ namespace df
         std::cerr << "  dimension: " << s.dimension() << std::endl;
         std::cerr << "  values   : [";
         Array v = s.asArray();
-        for (uint32_t i=0; i<v.size()-1; ++i)
+        for (uint32_t i = 0; i < v.size() - 1; ++i)
         {
             std::cerr << v[i] << ", ";
         }
-        std::cerr << v[v.size()-1] << "]";
+        std::cerr << v[v.size() - 1] << "]";
         return o;
     }
 
+    /**
+     * @brief Unified get method that handles both scalar and Array cases
+     * @tparam T Return type (deduced automatically)
+     * @param i Index
+     * @return Either a double (scalar) or an Array based on itemSize
+     *
+     * @example
+     * ```cpp
+     * Serie s1(1, {1, 2, 3});
+     * double val = s1.get<double>(0);    // Retourne 1.0
+     *
+     * Serie s2(3, {1,2,3, 4,5,6});
+     * Array vec = s2.get<Array>(0);      // Retourne {1,2,3}
+     *
+     * // Ou simplement avec déduction automatique:
+     * auto val = s1.get(0);  // double
+     * auto vec = s2.get(0);  // Array
+     * ```
+     */
     template <typename T>
     inline auto Serie::get(uint32_t i) const -> std::conditional_t<detail::is_array_v<T>, Array, double>
     {
@@ -200,6 +173,21 @@ namespace df
         }
     }
 
+    /**
+     * @brief Unified set method that handles both scalar and Array cases
+     * @tparam T Input type (deduced automatically)
+     * @param i Index
+     * @param value Value to set (either double or Array)
+     *
+     * @example
+     * ```cpp
+     * Serie s1(1, {1, 2, 3});
+     * s1.set(0, 42.0);           // Set scalar value
+     *
+     * Serie s2(3, {1,2,3, 4,5,6});
+     * s2.set(0, Array{7,8,9});   // Set vector value
+     * ```
+     */
     template <typename T>
     inline void Serie::set(uint32_t i, const T &value)
     {

@@ -32,7 +32,7 @@ namespace df {
 
         double min = 1e302;
         double max = -1e302;
-        serie.forEachScalar([&](double v, uint32_t) {
+        serie.forEach([&](double v, uint32_t) {
             if (v > max) max = v;
             if (v < min) min = v;
         });

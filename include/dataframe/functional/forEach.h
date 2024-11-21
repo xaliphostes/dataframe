@@ -45,6 +45,23 @@ namespace df
 
         template <typename F>
         inline constexpr bool is_array_callback_v = is_array_callback<F>::value;
+
+        // -------------------------------------
+
+        // Add new trait for generic callbacks
+        template <typename F, typename = void>
+        struct is_generic_callback : std::false_type
+        {
+        };
+
+        template <typename F>
+        struct is_generic_callback<F, std::void_t<decltype(std::declval<F>()(std::declval<double>(), std::declval<uint32_t>()),
+                                                           std::declval<F>()(std::declval<Array>(), std::declval<uint32_t>()))>> : std::true_type
+        {
+        };
+
+        template <typename F>
+        inline constexpr bool is_generic_callback_v = is_generic_callback<F>::value;
     }
 
     /**
@@ -77,12 +94,31 @@ namespace df
     template <typename Serie, typename F>
     void forEach(const Serie &serie, F &&cb)
     {
-        static_assert(detail::is_scalar_callback_v<F> || detail::is_array_callback_v<F>,
-                      "Callback must accept either (double, uint32_t) or (const Array&, uint32_t)");
+        static_assert(detail::is_scalar_callback_v<F> ||
+                          detail::is_array_callback_v<F> ||
+                          detail::is_generic_callback_v<F>,
+                      "Callback must accept either (double, uint32_t), (const Array&, uint32_t), or be generic");
 
-        if constexpr (detail::is_scalar_callback_v<F>)
+        if constexpr (detail::is_generic_callback_v<F>)
         {
-            // Scalar version
+            for (uint32_t i = 0; i < serie.count(); ++i)
+            {
+                if (serie.itemSize() == 1)
+                {
+                    cb(serie.template get<double>(i), i);
+                }
+                else
+                {
+                    cb(serie.template get<Array>(i), i);
+                }
+            }
+        }
+        else if constexpr (detail::is_scalar_callback_v<F>)
+        {
+            if (serie.itemSize() != 1)
+            {
+                throw std::invalid_argument("Cannot use scalar callback for Serie with itemSize > 1");
+            }
             for (uint32_t i = 0; i < serie.count(); ++i)
             {
                 cb(serie.template get<double>(i), i);
@@ -90,7 +126,10 @@ namespace df
         }
         else
         {
-            // Array version
+            if (serie.itemSize() == 1)
+            {
+                throw std::invalid_argument("Cannot use array callback for Serie with itemSize == 1");
+            }
             for (uint32_t i = 0; i < serie.count(); ++i)
             {
                 cb(serie.template get<Array>(i), i);
@@ -167,49 +206,49 @@ namespace df
         }
     }
 
-// #ifndef __APPLE__
-//     /**
-//      * @brief Parallel forEach implementation
-//      * @param serie Input Serie
-//      * @param cb Callback function
-//      *
-//      * @note Requires C++17 or later
-//      *
-//      * @example
-//      * ```cpp
-//      * Serie s(3, {1,2,3, 4,5,6, 7,8,9});
-//      * forEachParallel(s, [](const auto& v, uint32_t i) {
-//      *     // This will be executed in parallel
-//      *     heavyComputation(v);
-//      * });
-//      * ```
-//      */
-//     template <typename Serie, typename F>
-//     void forEachParallel(const Serie &serie, F &&cb)
-//     {
-// #include <execution>
-//         std::vector<uint32_t> indices(serie.count());
-//         std::iota(indices.begin(), indices.end(), 0);
+    // #ifndef __APPLE__
+    //     /**
+    //      * @brief Parallel forEach implementation
+    //      * @param serie Input Serie
+    //      * @param cb Callback function
+    //      *
+    //      * @note Requires C++17 or later
+    //      *
+    //      * @example
+    //      * ```cpp
+    //      * Serie s(3, {1,2,3, 4,5,6, 7,8,9});
+    //      * forEachParallel(s, [](const auto& v, uint32_t i) {
+    //      *     // This will be executed in parallel
+    //      *     heavyComputation(v);
+    //      * });
+    //      * ```
+    //      */
+    //     template <typename Serie, typename F>
+    //     void forEachParallel(const Serie &serie, F &&cb)
+    //     {
+    // #include <execution>
+    //         std::vector<uint32_t> indices(serie.count());
+    //         std::iota(indices.begin(), indices.end(), 0);
 
-//         if constexpr (detail::is_scalar_callback_v<F>)
-//         {
-//             // Scalar version
-//             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
-//                           [&](uint32_t i)
-//                           {
-//                               cb(serie.template get<double>(i), i);
-//                           });
-//         }
-//         else
-//         {
-//             // Array version
-//             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
-//                           [&](uint32_t i)
-//                           {
-//                               cb(serie.template get<Array>(i), i);
-//                           });
-//         }
-//     }
-// #endif
+    //         if constexpr (detail::is_scalar_callback_v<F>)
+    //         {
+    //             // Scalar version
+    //             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+    //                           [&](uint32_t i)
+    //                           {
+    //                               cb(serie.template get<double>(i), i);
+    //                           });
+    //         }
+    //         else
+    //         {
+    //             // Array version
+    //             std::for_each(std::execution::par_unseq, indices.begin(), indices.end(),
+    //                           [&](uint32_t i)
+    //                           {
+    //                               cb(serie.template get<Array>(i), i);
+    //                           });
+    //         }
+    //     }
+    // #endif
 
 }

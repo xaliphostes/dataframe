@@ -28,17 +28,57 @@
 namespace df
 {
 
-    template <typename F>
-    Serie sort(const Serie &serie, F &&predicate)
+    template <typename Comparator>
+    Serie sort(const Serie &serie, Comparator &&comp)
     {
-        throw std::invalid_argument("sort TODO...");
-        return Serie();
+        if (!serie.isValid())
+            return Serie();
+
+        if (serie.itemSize() == 1)
+        {
+            Array values;
+            values.reserve(serie.count());
+            for (uint32_t i = 0; i < serie.count(); ++i)
+            {
+                values.push_back(serie.template get<double>(i));
+            }
+
+            std::sort(values.begin(), values.end());
+            return Serie(1, values);
+        }
+        else
+        {
+            std::vector<Array> values;
+            values.reserve(serie.count());
+            for (uint32_t i = 0; i < serie.count(); ++i)
+            {
+                values.push_back(serie.template get<Array>(i));
+            }
+
+            std::sort(values.begin(), values.end(), comp);
+
+            Array flattened;
+            flattened.reserve(serie.itemSize() * values.size());
+            for (const auto &v : values)
+            {
+                flattened.insert(flattened.end(), v.begin(), v.end());
+            }
+            return Serie(serie.itemSize(), flattened);
+        }
     }
 
-    Serie sort(const Serie &serie)
+    inline Serie sort(const Serie &serie)
     {
-        throw std::invalid_argument("sort TODO...");
-        return Serie();
+        if (serie.itemSize() == 1)
+        {
+            return sort(serie, std::less<>{});
+        }
+        return sort(serie, [](const Array &a, const Array &b)
+                    {
+        for(size_t i = 0; i < a.size(); ++i) {
+            if(a[i] != b[i]) return a[i] < b[i];
+        }
+        return false; });
     }
 
 }

@@ -21,40 +21,25 @@
  *
  */
 
-#include <dataframe/functional/stats/mean.h>
-#include <dataframe/functional/reduce.h>
-#include <dataframe/types.h>
-#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/functional/sort.h>
+#include "assertions.h"
 
-namespace df
+using namespace df;
+
+int main()
 {
+    Serie s1(1, {3, 1, 4, 1, 5});
+    auto sorted1 = sort(s1);
+    assertSerieEqual(sorted1, {1, 1, 3, 4, 5});
 
-    Tuple mean(const Serie &serie)
-    {
-        uint32_t count = serie.count();
-        Tuple m;
-        if (serie.itemSize() == 1) {
-            m.isNumber = true;
-            m.number = reduce(serie, [](double prev, double cur, uint32_t) {
-                return prev + cur;
-            }, 0) / count ;
-            return m;
-        }
+    Serie s2(2, {3, 1,   1, 2,   2, 2});
+    auto sorted2 = sort(s2); // Lexicographic sort
+    assertSerieEqual(sorted2, {1, 2, 2, 2, 3, 1});
 
-        Array b = createArray(serie.itemSize(), 0);
-
-        serie.forEach([&](const Array& a, uint32_t) {
-            for (uint j = 0; j < a.size(); ++j) {
-                b[j] += a[j];
-            }
-        });
-
-        for (double& v: b) {
-            v /= count;
-        }
-        
-        m.array = b;
-        return m;
-    }
-
+    // Custom comparator
+    auto sorted3 = sort(s2, [](const Array &a, const Array &b) {
+        return a[1] < b[1];
+    });
+    assertSerieEqual(sorted3, {3, 1, 1, 2, 2, 2});
 }

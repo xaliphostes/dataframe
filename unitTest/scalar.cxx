@@ -29,7 +29,7 @@
 void test_scalar() {
     df::Serie serie(1, {1,2,3,4});
 
-    serie.forEachScalar([](double v, uint32_t) {
+    serie.forEach([](double v, uint32_t) {
         std::cerr << v << " " ;
     });
     std::cerr << std::endl ;
@@ -39,7 +39,7 @@ void test_scalar() {
     });
     std::cerr << b << std::endl ;
 
-    double c = serie.reduceScalar([](double prev, double cur, uint32_t) {
+    double c = serie.reduce([](double prev, double cur, uint32_t) {
         return prev+cur;
     }, 10);
     std::cerr << c << std::endl << std::endl ;
@@ -60,7 +60,7 @@ void other_test() {
         assertEqual(a.scalar(i), sol[i]);
     }
  
-    a.forEachScalar([sol](double t, uint32_t i) {
+    a.forEach([sol](double t, uint32_t i) {
         assertEqual(t, sol[i]);
     });
 
@@ -68,9 +68,17 @@ void other_test() {
 
     df::Serie b(2, {1, 3, 2, 9});
 
-    shouldThrowError([b](){
-        b.forEachScalar([](double t, uint32_t i) {
+    shouldThrowError([b]() {
+        b.forEach([](double t, uint32_t i) {
+            // std::cerr << "should throw error: " << t << " " << i << std::endl;
         });
+    });
+
+    shouldNotThrowError([b]() {
+        b.forEach([](const Array &t, uint32_t i) {
+            // std::cerr << "should not throw error: " << t << " " << i << std::endl;
+        });
+
     });
 }
 
