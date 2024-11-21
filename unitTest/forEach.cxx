@@ -68,16 +68,16 @@ int main()
         });
     }
 
-#ifndef __APPLE__
-    // forEachParallel pour le traitement parallèle
-    {
-        df::Serie s(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-        df::forEachParallel(s, [](const auto &v, uint32_t i) {
-            // Sera exécuté en parallèle
-            heavyComputation(v); 
-        );
-    }
-#endif
+// #ifndef __APPLE__
+//     // forEachParallel pour le traitement parallèle
+//     {
+//         df::Serie s(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+//         df::forEachParallel(s, [](const auto &v, uint32_t i) {
+//             // Sera exécuté en parallèle
+//             heavyComputation(v); 
+//         );
+//     }
+// #endif
 
     return 0;
 }
