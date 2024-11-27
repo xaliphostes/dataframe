@@ -25,6 +25,7 @@
 #include <dataframe/functional/conditional/check.h>
 #include <dataframe/functional/cut.h>
 #include <dataframe/functional/sort.h>
+#include <cmath>
 
 namespace df
 {

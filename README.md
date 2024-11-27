@@ -167,11 +167,11 @@ Serie c(2, {2,2,  1,1});
 pipe(
     weigthedSum({a, b, c}, {2, 3, 4}),
 
-    makeMap([](const Array& arr, uint32_t) {
+    make_map([](const Array& arr, uint32_t) {
         return std::sqrt(pow(arr[0],2) + pow(arr[1],2) + pow(arr[2],2));
     }),
 
-    makeForEach([](double v, uint32_t index) {
+    make_forEach([](double v, uint32_t index) {
         std::cout << index << ": " << v << std::endl;
     })
 );
@@ -229,7 +229,7 @@ Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
 Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
 
 // Compute the critical stress state
-auto computeCriticalityIndex = makeMap([=](const Array& data, uint32_t) {
+auto computeCriticalityIndex = make_map([=](const Array& data, uint32_t) {
     Array values(data.begin(), data.begin() + 3);
     Array pos(data.end() - 3, data.end());
     
@@ -255,7 +255,7 @@ auto result = pipe(
     },
     
     // 2. Filtering of compressive points
-    makeFilter([](const Array& data, uint32_t) {
+    make_filter([](const Array& data, uint32_t) {
         return data[0] < 0;  // sigma1 < 0
     }),
     
