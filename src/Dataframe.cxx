@@ -96,7 +96,27 @@ namespace df
         return series_[name];
     }
 
+    Serie &Dataframe::get(const std::string &name)
+    {
+        return series_[name];
+    }
+
     const Serie &Dataframe::operator[](const std::string &name) const
+    {
+        for (auto it = series_.cbegin(); it != series_.cend(); ++it)
+        {
+            if (it->first == name)
+            {
+                return it->second;
+            }
+        }
+
+        // Is is correct to do that?
+        static const Serie fake;
+        return fake;
+    }
+
+    const Serie &Dataframe::get(const std::string &name) const
     {
         for (auto it = series_.cbegin(); it != series_.cend(); ++it)
         {

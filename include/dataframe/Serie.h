@@ -30,7 +30,7 @@ namespace df
 {
     namespace detail
     {
-        // Trait pour détecter si un type est une Array
+        // Trait for tetecting if a type is an array
         template <typename T>
         struct is_array : std::false_type
         {
@@ -44,7 +44,7 @@ namespace df
         template <typename T>
         inline constexpr bool is_array_v = is_array<std::decay_t<T>>::value;
 
-        // Pour array_size
+        // For array_size
         template <typename T>
         struct array_size
         {
@@ -54,10 +54,10 @@ namespace df
         template <>
         struct array_size<Array>
         {
-            static constexpr size_t value = 0; // Taille dynamique
+            static constexpr size_t value = 0; // dynamic size
         };
 
-        // Type traits pour détecter la signature de la fonction
+        // Type traits for detecting the function signature
         template <typename F, typename = void>
         struct is_scalar_callback : std::false_type
         {
@@ -74,30 +74,26 @@ namespace df
     }
 
     /**
-     * @note For basic operations such as `forEach`, `map`, `filter` and `reduce`.
-     *
+     * @brief The most important class of this library.
+     * @todo A concise description...
      * @example
      * For a Serie of non-scalar (itemSize>1):
      * ```c++
-     * Serie s(3, {1,2,3, 4,5,6});
-     * s.forEach( [](const Array &v, uint32_t) {
+     * Serie s1(3, {1,2,3, 4,5,6});
+     * s1.forEach( [](const Array &v, uint32_t) {
      *      std::cerr << v << std::endl ;
      * });
      * // Display:
      * // 1 2 3
      * // 4 5 6
-     * ```
-     *
-     * @example
-     * For a Serie of scalars:
-     * ```c++
-     * Serie s(1, {1, 3});
-     * s.forEach( [](double v, uint32_t) {
+     * 
+     * Serie s2(1, {1, 3});
+     * s2.forEach( [](double v, uint32_t) {
      *      std::cerr << v << std::endl ;
      * });
      * // Display:
      * // 1
-     * // 4
+     * // 3
      * ```
      */
     class Serie
@@ -135,6 +131,12 @@ namespace df
         template <typename T>
         void set(uint32_t i, const T &value);
 
+        // auto begin() { return s_.begin(); }
+        // auto end() { return s_.end(); }
+
+        // auto begin() const { return s_.begin(); }
+        // auto end() const { return s_.end(); }
+
         // -----------------------------------------------------
 
         template <typename F>
@@ -165,7 +167,17 @@ namespace df
         int itemSize_{1};
     };
 
+    // ---------------------------------------------
+
     using Series = std::vector<Serie>;
+
+    // ---------------------------------------------
+
+    inline Serie toSerie(uint32_t itemSize, const Array& a, uint dim = 3) {
+        return Serie(itemSize, a, 3);
+    }
+
+    // ---------------------------------------------
 
     std::ostream &operator<<(std::ostream &o, const Serie &a);
 

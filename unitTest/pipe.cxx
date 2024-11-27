@@ -39,7 +39,7 @@ int main()
     assertCondition(df::equals(solution, result1));
     
     // Creating and using a reusable pipeline
-    auto doubleAndFilter = df::makePipe(
+    auto doubleAndFilter = df::make_pipe(
         [](const df::Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
         [](const df::Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
     );

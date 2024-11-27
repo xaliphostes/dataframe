@@ -1,0 +1,25 @@
+Language: Cpp
+# Style général
+BasedOnStyle: Chromium  # Vous pouvez choisir entre LLVM, Google, Chromium, Mozilla, WebKit
+
+# Configuration spécifique pour les lambdas
+LambdaBodyIndentation: Signature  # Comment indenter le corps des lambdas
+AlwaysBreakAfterReturnType: None
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+
+# Autres paramètres utiles
+ColumnLimit: 100  # Longueur maximale des lignes
+IndentWidth: 4    # Nombre d'espaces pour l'indentation

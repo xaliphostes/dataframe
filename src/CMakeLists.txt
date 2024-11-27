@@ -1,4 +1,4 @@
-# Copyright (c) 2023 fmaerten@gmail.com
+# Copyright (c) 2024-now fmaerten@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,40 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(unitTest)
 
-function(add_test_executable NAME)
-    add_executable(${NAME} ${NAME}.cxx)
-    target_link_libraries(${NAME} PRIVATE dataframe-shared)
-    add_test(
-        NAME ${NAME}
-        COMMAND $<TARGET_FILE:${NAME}>
-    )
-endfunction()
+project(dataframe)
 
-add_test_executable(basics)
-add_test_executable(weigthedSum)
-add_test_executable(addDotNegate)
-add_test_executable(scalar)
-add_test_executable(except)
-add_test_executable(apply)
-add_test_executable(transpose)
-add_test_executable(div)
-add_test_executable(decomposer)
-add_test_executable(reduce)
-add_test_executable(filter)
-add_test_executable(eigen)
-add_test_executable(stats)
-add_test_executable(serie)
-add_test_executable(cross)
-add_test_executable(view)
-add_test_executable(zip)
-add_test_executable(pipe)
-add_test_executable(map)
-add_test_executable(equals)
-add_test_executable(forEach)
-add_test_executable(inv)
-add_test_executable(sort)
-add_test_executable(check)
-add_test_executable(normalize)
-
+file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/../include/geophysics/*.h" "${PROJECT_SOURCE_DIR}/*.cxx")
+add_library(dataframe-shared SHARED ${SRC})

@@ -23,6 +23,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/macros.h>
 #include <type_traits>
 
 namespace df
@@ -144,7 +145,7 @@ namespace df
      *
      * @example
      * ```cpp
-     * auto printer = makeForEach([](const auto& v, uint32_t i) {
+     * auto printer = make_forEach([](const auto& v, uint32_t i) {
      *     std::cout << "Item " << i << ": " << v << "\n";
      * });
      *
@@ -155,14 +156,7 @@ namespace df
      * printer(s2); // Works with non-scalar Serie
      * ```
      */
-    template <typename F>
-    auto makeForEach(F &&cb)
-    {
-        return [cb = std::forward<F>(cb)](const auto &serie)
-        {
-            forEach(serie, cb);
-        };
-    }
+    MAKE_OP(forEach);
 
     /**
      * @brief Indexed forEach that provides more index information

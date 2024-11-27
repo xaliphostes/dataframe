@@ -48,9 +48,9 @@ int main()
         });
     }
 
-    // makeForEach pour créer des fonctions réutilisables
+    // make_forEach pour créer des fonctions réutilisables
     {
-        auto printer = df::makeForEach([](const auto &v, uint32_t i)
+        auto printer = df::make_forEach([](const auto &v, uint32_t i)
                                    { std::cout << "Item " << i << ": " << v << "\n"; });
 
         df::Serie s1(1, {1, 2, 3});

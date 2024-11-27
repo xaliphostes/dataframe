@@ -36,7 +36,7 @@ void doPipe()
     // Combine multiple operations
     auto result = df::pipe(
         df::zip(s1, s2),
-        df::makeMap([](const Array &v, uint32_t)
+        df::make_map([](const Array &v, uint32_t)
                     {
             Array out(v.size());
             for(size_t j = 0; j < v.size(); ++j) {
@@ -45,10 +45,10 @@ void doPipe()
             return out; }));
 
     // Create reusable transformations
-    auto pipeline = df::makePipe(
-        df::makeMap([](double v, uint32_t)
+    auto pipeline = df::make_pipe(
+        df::make_map([](double v, uint32_t)
                     { return v * 2; }),
-        df::makeMap([](double v, uint32_t)
+        df::make_map([](double v, uint32_t)
                     { return v + 1; }));
 
     auto transformed = pipeline(s1);
@@ -58,18 +58,18 @@ int main()
 {
 
     {
-        auto doubler = df::makeMap([](double v, uint32_t) { return v * 2; });
+        auto doubler = df::make_map([](double v, uint32_t) { return v * 2; });
         df::Serie s(1, {1, 2, 3, 4, 5});
         auto result = doubler(s);
         assertSerieEqual(result, {2, 4, 6, 8, 10});
     }
 
     {
-        auto norm = df::makeMap([](const Array &v, uint32_t)
+        auto norm = df::make_map([](const Array &v, uint32_t)
                                 { return std::sqrt(v[0] * v[0] + v[1] * v[1]); });
         df::Serie s(2, {1, 2, 3, 4, 5, 6});
         auto result = norm(s); // [2.24, 5, 7.81]
-        assertSerieEqual(result, {2.236, 5, 7.81025}, 1e-4);
+        assertSerieEqual(result, Array{2.236, 5, 7.81025}, 1e-4);
     }
 
     {
@@ -96,7 +96,7 @@ int main()
                 sum += x * x;
             return std::sqrt(sum); // Retourne un double
         }); // [3.74166, 8.77496]
-        assertSerieEqual(norms, {3.74166, 8.77496}, 1e-4);
+        assertSerieEqual(norms, Array{3.74166, 8.77496}, 1e-4);
 
         // Vector → Vector
         auto scaled = map(s2, [](const Array &v, uint32_t) {
@@ -108,7 +108,7 @@ int main()
             }
             return result; // Retourne un Array
         }); // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12]
-        assertSerieEqual(scaled, {1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12});
+        assertSerieEqual(scaled, Array{1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12});
     }
 
     doPipe();

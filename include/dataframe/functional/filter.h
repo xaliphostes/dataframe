@@ -134,7 +134,7 @@ namespace df
      * @brief Creates a reusable filter function
      */
     template <typename F>
-    auto makeFilter(F &&cb)
+    auto make_filter(F &&cb)
     {
         static_assert(detail::callback_filter_traits<F>::returns_bool,
                       "Filter predicate must return bool");

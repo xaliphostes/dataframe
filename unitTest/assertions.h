@@ -24,7 +24,9 @@
 #pragma once
 #include <iostream>
 #include <cmath>
+#include <dataframe/Serie.h>
 #include <dataframe/utils/utils.h>
+#include <dataframe/types.h>
 
 #define START_TEST(name) void name() { std::cerr << "Start " << #name  << " test" << std::endl;
 #define END_TEST(name) std::cerr << #name  << " test OK\n" << std::endl;}
@@ -89,6 +91,11 @@ void assertArrayEqual(const Array &serie, const Array &array, double tol = 1e-7)
 void assertSerieEqual(const df::Serie &s1, const Array &s2, double tol = 1e-7)
 {
     assertArrayEqual(s1.asArray(), s2, tol);
+}
+
+void assertSerieEqual(const df::Serie &s1, const df::Serie &s2, double tol = 1e-7)
+{
+    assertArrayEqual(s1.asArray(), s2.asArray(), tol);
 }
 
 template <typename CB>

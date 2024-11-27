@@ -23,6 +23,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/macros.h>
 
 namespace df
 {
@@ -30,7 +31,6 @@ namespace df
     Serie div(const Serie &serie, double);
     Serie div(const Serie &serie, const Serie& divider);
 
-    // TODO:
-    // Serie div(const Serie &serie, const Array &);
-
+    // To be use with pipe
+    MAKE_OP(div);
 }

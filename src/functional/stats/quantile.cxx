@@ -22,6 +22,7 @@
  */
 
 #include <dataframe/functional/stats/quantile.h>
+#include <dataframe/functional/conditional/check.h>
 #include <dataframe/functional/cut.h>
 #include <dataframe/functional/sort.h>
 
@@ -76,12 +77,28 @@ namespace df
         });
     }
 
+    /**
+     * Return a serie of boolean indicating if an item of the serie s is an outliers or not
+     * @category Dataframe/stats
+     */
     Serie isOutliers(const Serie &serie, double mustache) {
-
+        auto o = __ouliers__(serie, mustache);
+        return check(serie, [o](double v, uint32_t) {
+            return v < std::get<0>(o) || v > std::get<1>(o);
+        });
     }
 
-    Serie notOutliers(const Serie &serie, double mustache = 1.5) {
-
+    /**
+     * @see https://en.wikipedia.org/wiki/Interquartile_range
+     * @see https://en.wikipedia.org/wiki/Box_plot
+     * @param mustache The statistical distance for which a point is considered as outlier. Default 1.5
+     * @category Dataframe/stats
+     */
+    Serie notOutliers(const Serie &serie, double mustache) {
+        auto o = __ouliers__(serie, mustache);
+        return cut(serie, [o](double v, uint32_t) {
+            return v >= std::get<0>(o) && v <= std::get<1>(o);
+        });
     }
 
     // --------------------------------------

@@ -21,33 +21,43 @@
  *
  */
 
-#include <iostream>
+#include "assertions.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/math/div.h>
-#include "assertions.h"
+#include <dataframe/functional/pipe.h>
+#include <iostream>
 
 int main()
 {
-    std::vector<Array> sol {{1, 2, 3}, {1, 2, 3}};
-    
-    df::Serie a(3, {2, 4, 6, 3, 6, 9});
-    df::Serie divider(1, {2, 3});
-    df::Serie r = df::div(a, divider);
+    df::Serie a(3, { 2, 4, 6, 3, 6, 9 });
 
-    for (uint32_t i = 0; i < r.count(); ++i)
     {
-        assertArrayEqual(r.value(i), sol[i]);
-    }
- 
-    divider = df::Serie(2, {1, 3, 2, 9});
-    shouldThrowError([a, divider](){
-        df::div(a, divider);
-    });
+        df::Serie divider(1, { 2, 3 });
+        df::Serie sol(3, { 1, 2, 3, 1, 2, 3 });
+        
+        df::Serie r1 = df::div(a, divider);
+        assertSerieEqual(r1, sol);
 
-    divider = df::Serie(1, {1, 3, 2});
-    shouldThrowError([a, divider](){
-        df::div(a, divider);
-    });
+        df::Serie r2 = df::pipe(
+            a,
+            df::make_div(divider)
+        );
+        assertSerieEqual(r2, sol);
+    }
+
+    {
+        df::Serie divider = df::Serie(2, { 1, 3, 2, 9 });
+        shouldThrowError([a, divider]() {
+            df::div(a, divider);
+        });
+    }
+
+    {
+        df::Serie divider = df::Serie(1, { 1, 3, 2 });
+        shouldThrowError([a, divider]() {
+            df::div(a, divider);
+        });
+    }
 
     return 0;
 }

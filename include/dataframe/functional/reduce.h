@@ -110,7 +110,7 @@ namespace df
      * @brief Creates a reusable reduce function
      */
     template <typename F>
-    auto makeReduce(F &&cb, double init)
+    auto make_reduce(F &&cb, double init)
     {
         static_assert(detail::is_reduce_scalar_callback_v<F>,
                       "Scalar reduce requires a callback taking doubles");
@@ -121,7 +121,7 @@ namespace df
     }
 
     template <typename F>
-    auto makeReduce(F &&cb, const Array &init)
+    auto make_reduce(F &&cb, const Array &init)
     {
         static_assert(!detail::is_reduce_scalar_callback_v<F>,
                       "Vector reduce requires a callback taking Arrays");

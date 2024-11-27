@@ -159,13 +159,6 @@ namespace df
     /**
      * @brief Creates a reusable map function
      */
-    template <typename F>
-    auto makeMap(F &&cb)
-    {
-        return [cb = std::forward<F>(cb)](const auto &serie)
-        {
-            return map(serie, cb);
-        };
-    }
+    MAKE_OP(map);
 
 } // namespace df

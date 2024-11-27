@@ -78,7 +78,7 @@ namespace df
      *
      * @example
      * ```cpp
-     * auto pipeline = makePipe(
+     * auto pipeline = make_pipe(
      *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
      *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
      * );
@@ -91,7 +91,7 @@ namespace df
      * ```
      */
     template <typename... Fs>
-    auto makePipe(Fs &&...ops)
+    auto make_pipe(Fs &&...ops)
     {
         return [... ops = std::forward<Fs>(ops)](const Serie &serie)
         {

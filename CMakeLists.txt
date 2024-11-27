@@ -58,52 +58,8 @@ endif()
 
 include_directories(include)
 
-set(SRC_dataframe
-    ./src/dataframe/Dataframe.cxx
-    ./src/dataframe/Serie.cxx
+add_subdirectory(src)
 
-    ./src/dataframe/utils/nameOfSerie.cxx
-
-    ./src/dataframe/attributes/Manager.cxx
-    ./src/dataframe/attributes/Decomposer.cxx
-    ./src/dataframe/attributes/Components.cxx
-    ./src/dataframe/attributes/Normals.cxx
-    ./src/dataframe/attributes/Coordinates.cxx
-    ./src/dataframe/attributes/Valence.cxx
-    ./src/dataframe/attributes/Areas.cxx
-    ./src/dataframe/attributes/EigenValues.cxx
-    ./src/dataframe/attributes/EigenVectors.cxx
-
-    ./src/dataframe/functional/math/add.cxx
-    ./src/dataframe/functional/math/sub.cxx
-    ./src/dataframe/functional/math/negate.cxx
-    ./src/dataframe/functional/math/scale.cxx
-    ./src/dataframe/functional/math/weightedSum.cxx
-    ./src/dataframe/functional/math/mult.cxx
-    ./src/dataframe/functional/math/div.cxx
-    ./src/dataframe/functional/math/minMax.cxx
-
-    ./src/dataframe/functional/algebra/dot.cxx
-    ./src/dataframe/functional/algebra/det.cxx
-    ./src/dataframe/functional/algebra/cross.cxx
-    ./src/dataframe/functional/algebra/transpose.cxx
-    ./src/dataframe/functional/algebra/norm.cxx
-    ./src/dataframe/functional/algebra/eigen.cxx
-    ./src/dataframe/functional/algebra/inv.cxx
-
-    ./src/dataframe/functional/geo/areas.cxx
-    ./src/dataframe/functional/geo/normals.cxx
-    ./src/dataframe/functional/geo/insar.cxx
-
-    ./src/dataframe/functional/stats/bins.cxx
-    ./src/dataframe/functional/stats/mean.cxx
-    ./src/dataframe/functional/stats/covariance.cxx
-
-    ./src/dataframe/view/Matrix.cxx
-    ./src/dataframe/view/Vector.cxx
-)
-
-add_library(dataframe-shared SHARED ${SRC_dataframe})
 set_target_properties(dataframe-shared PROPERTIES OUTPUT_NAME Dataframe)
 
 set_target_properties(dataframe-shared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DIST_DIR})

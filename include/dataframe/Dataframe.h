@@ -58,6 +58,9 @@ namespace df
 
         Serie &operator[](const std::string &name);
         const Serie &operator[](const std::string &name) const;
+        Serie &get(const std::string &name);
+        const Serie &get(const std::string &name) const;
+
         
         const std::map<std::string, Serie> &series() const { return series_; }
 
