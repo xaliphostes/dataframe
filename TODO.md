@@ -14,3 +14,5 @@ See also [this link](https://www.danielsieger.com/blog/2022/03/06/code-coverage-
 5. Replace `Array` by a Tuple in `minMax`
 
 6. **CHECK** the inv test !!!
+
+7. In zip function, collapse scalar and vector
