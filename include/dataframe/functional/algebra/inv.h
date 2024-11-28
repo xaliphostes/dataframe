@@ -29,4 +29,6 @@ namespace df
 
     Serie inv(const Serie &serie) ;
 
+    MAKE_OP(inv);
+
 }

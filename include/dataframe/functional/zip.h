@@ -109,6 +109,8 @@ namespace df
         return result;
     }
 
+    MAKE_OP(zip);
+
     /**
      * @brief Zips a vector of Series together into a single Serie
      * @param series Vector of input Series
@@ -186,5 +188,7 @@ namespace df
 
         return result;
     }
+
+    MAKE_OP(zipVector);
 
 } // namespace df

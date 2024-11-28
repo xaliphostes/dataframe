@@ -37,4 +37,6 @@ namespace df
      */
     Serie bins(const Serie &serie, uint nb, double min, double max) ;
 
+    MAKE_OP(bins);
+
 }

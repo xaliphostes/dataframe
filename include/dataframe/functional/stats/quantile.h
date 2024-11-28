@@ -32,40 +32,48 @@ namespace df
      * and q must be in [0,1].
      */
     double quantile(const Serie &serie, double q);
+    MAKE_OP(quantile);
 
     /**
      * @brief Get the quantile for q = 0.25
      */
     double q25(const Serie &serie);
+    MAKE_OP(q25);
 
     /**
      * @brief Get the quantile for q = 0.5
      */
     double q50(const Serie &serie);
+    MAKE_OP(q50);
 
     /**
      * @brief Get the quantile for q = 0.75
      */
     double q75(const Serie &serie);
+    MAKE_OP(q75);
 
     /**
      * Get the q75 - q25
      */
     double IQR(const Serie &serie);
+    MAKE_OP(IQR);
 
     /**
      * Get the outliers of a serie given the mustache
      */
     Serie outliers(const Serie &serie, double mustache);
+    MAKE_OP(outliers);
 
     /**
      * To be done !
      */
     Serie isOutliers(const Serie &serie, double mustache);
+    MAKE_OP(isOutliers);
 
     /**
      * To be done !
      */
     Serie notOutliers(const Serie &serie, double mustache = 1.5);
+    MAKE_OP(notOutliers);
 
 }

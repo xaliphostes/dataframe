@@ -30,4 +30,7 @@ namespace df
     Serie norm(const Serie& s) ;
     Serie norm2(const Serie& s) ;
 
+    MAKE_OP(norm);
+    MAKE_OP(norm2);
+
 }

@@ -33,4 +33,6 @@ namespace df
         return filter(serie, predicate);
     }
 
+    MAKE_OP(cut);
+
 }

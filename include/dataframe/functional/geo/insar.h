@@ -30,4 +30,7 @@ namespace df
     Serie insar(const Serie &u, const Array &los);
     Serie fringes(const Serie &insar, double spacing);
 
+    MAKE_OP(insar);
+    MAKE_OP(fringes);
+
 }

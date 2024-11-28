@@ -29,4 +29,6 @@ namespace df
 
     Serie transpose(const Serie &serie);
 
+    MAKE_OP(transpose);
+
 }

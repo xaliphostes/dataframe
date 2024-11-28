@@ -81,4 +81,6 @@ namespace df
         return false; });
     }
 
+    MAKE_OP(sort);
+
 }

@@ -41,4 +41,6 @@ namespace df
     Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) ;
     Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) ;
 
+    MAKE_OP(weigthedSum);
+
 }

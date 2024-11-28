@@ -29,4 +29,6 @@ namespace df
 
     Serie det(const Serie &a);
 
+    MAKE_OP(det);
+
 }

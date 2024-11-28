@@ -33,4 +33,6 @@ namespace df
      */
     Serie cross(const Serie &a, const Serie &b);
 
+    MAKE_OP(cross);
+
 }

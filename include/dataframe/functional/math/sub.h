@@ -30,4 +30,6 @@ namespace df
     Serie sub(const std::initializer_list<Serie> &list) ;
     Serie sub(const Serie &serie, double v) ;
 
+    MAKE_OP(sub);
+
 }

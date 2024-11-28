@@ -1,4 +1,3 @@
-// Add to a new header file (e.g., "equality.h")
 /*
  * Copyright (c) 2023 fmaerten@gmail.com
  *
@@ -49,6 +48,8 @@ namespace df
         return s1.asArray() == s2.asArray();
     }
 
+    MAKE_OP(equals);
+
     inline bool approximatelyEquals(const Serie &s1, const Serie &s2, double epsilon = DEFAULT_EPSILON)
     {
         // Check basic properties
@@ -70,6 +71,8 @@ namespace df
                               return std::abs(a - b) <= epsilon;
                           });
     }
+
+    MAKE_OP(approximatelyEquals);
 
     /**
      * @brief Base case for equalsAll recursion

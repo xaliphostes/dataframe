@@ -33,4 +33,6 @@ namespace df
         return map(serie, fn);
     }
 
+    MAKE_OP(apply);
+
 }

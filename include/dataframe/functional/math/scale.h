@@ -30,4 +30,6 @@ namespace df
     Serie scale(const Serie& s, double scale) ;
     Serie scale(const Serie& s, const Array& scales) ;
 
+    MAKE_OP(scale);
+
 }

@@ -145,10 +145,4 @@ namespace df
         };
     }
 
-    // template <typename F>
-    // Serie filter(const Serie &serie, F &&predicate)
-    // {
-    //     return serie.filter(predicate);
-    // }
-
 }

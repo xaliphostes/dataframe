@@ -30,4 +30,6 @@ namespace df
     Serie add(const std::initializer_list<Serie> &list) ;
     Serie add(const Serie &serie, double v) ;
 
+    MAKE_OP(add);
+
 }

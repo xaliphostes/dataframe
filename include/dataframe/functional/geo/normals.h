@@ -29,4 +29,6 @@ namespace df
 
     Serie normals(const Serie &positions, const Serie& indices);
 
+    MAKE_OP(normals);
+
 }

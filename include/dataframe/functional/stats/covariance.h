@@ -32,4 +32,6 @@ namespace df
      */
     double covariance(const Serie &x, const Serie &y) ;
 
+    MAKE_OP(covariance);
+
 }

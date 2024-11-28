@@ -36,4 +36,8 @@ namespace df
      */
     EigenSystem eigenSystem(const Serie &serie);
 
+    MAKE_OP(eigenValues);
+    MAKE_OP(eigenVectors);
+    MAKE_OP(eigenSystem);
+
 }

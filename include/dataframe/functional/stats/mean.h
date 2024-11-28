@@ -35,4 +35,6 @@ namespace df
      */
     Tuple mean(const Serie &serie) ;
 
+    MAKE_OP(mean);
+
 }

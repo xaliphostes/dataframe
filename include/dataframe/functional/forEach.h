@@ -200,6 +200,8 @@ namespace df
         }
     }
 
+    MAKE_OP(forEachIndexed);
+
     // #ifndef __APPLE__
     //     /**
     //      * @brief Parallel forEach implementation

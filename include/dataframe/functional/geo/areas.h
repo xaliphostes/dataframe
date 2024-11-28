@@ -29,4 +29,6 @@ namespace df
 
     Serie areas(const Serie &positions, const Serie& indices);
 
+    MAKE_OP(areas);
+
 }

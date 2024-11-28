@@ -29,4 +29,6 @@ namespace df
 
     Array minMax(const Serie &serie) ;
 
+    MAKE_OP(minMax);
+
 }
