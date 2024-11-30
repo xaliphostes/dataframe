@@ -24,6 +24,7 @@
 #pragma once
 #include <dataframe/Serie.h>
 #include <dataframe/details.h>
+#include <array>
 
 namespace df {
 
