@@ -72,9 +72,9 @@ int main() {
 
   // forEachAll
   {
-    df::Serie s1(3, {1, 2, 3, 4, 5, 6}); // vectors
-    df::Serie s2(1, {10, 20});           // scalars
-    df::Serie s3(2, {1, 2, 3, 4});       // 2D vectors
+    df::Serie s1(1, {10, 20});           // scalars
+    df::Serie s2(2, {1, 2, 3, 4});       // 2D vectors
+    df::Serie s3(3, {1, 2, 3, 4, 5, 6}); // vectors
 
     // Print all values together
     df::forEachAll(

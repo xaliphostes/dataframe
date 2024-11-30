@@ -105,16 +105,52 @@ When including algos from `<dataframe/functional/>`, be sure to include first `<
 
 # API
 
-## Example 1
+## Example: forEach and forEachAll
+```cpp
+df::Serie s1(1, {10, 20});           // scalars
+df::Serie s2(2, {1, 2, 3, 4});       // 2D vectors
+df::Serie s3(3, {1, 2, 3, 4, 5, 6}); // 3D vectors
+
+// Loop over s2 only
+df::forEach(s2, [](const Array &v, uint32_t i) {
+    std::cout << "Vector2 " << i << ": " << v << "\n";
+});
+
+// Loop over s1, s2 and s3 together
+df::forEachAll(
+    [=](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
+        std::cout << "Index " << i << ":\n"
+                << "  v1 = " << v1
+                << "  v2 = " << v2
+                << "  v3 = " << v3 << std::endl;
+    },
+    s1, s2, s3
+);
+```
+will display
+```
+Index 0:
+  v1 = 10 
+  v2 = 1 2 
+  v3 = 1 2 3 
+
+Index 1:
+  v1 = 20 
+  v2 = 3 4 
+  v3 = 4 5 6
+```
+
+
+## Example: dot product 2 series
 ```cpp
 df::Serie a(3, {1,2,5,  3,4,9}) ; // first param is the item size of the Serie: 3
 df::Serie b(3, {4,3,3,  2,1,0}) ;
 
 df::Serie dot = df::dot(a, b) ;
-dot.dump();
+std::cout << dot << std::endl;
 ```
 
-## Example 2
+## Example: weighted sum
 Performs a weighted sum of Series ;-)
 
 Constraints:
@@ -128,9 +164,18 @@ df::Serie c(2, {2,2,  1,1}) ;
 
 // Performs s = 2*a + 3*b + 4*c
 auto s = df::weigthedSum({a, b, c}, {2, 3, 4}) ;
+std::cout << s << std::endl;
+```
+will display
+```
+Serie:
+  itemSize : 2
+  count    : 2
+  dimension: 3
+  values   : [22, 21, 16, 15]
 ```
 
-## Example 3
+## Example: eigen vectors
 Eigen
 ```cpp
 df::Serie s(6, {....}) ; // symmetric 3x3 matrices => 6 coefs
@@ -144,7 +189,7 @@ vectors.forEach([](const Array& v, uint32_t index) {
 });
 ```
 
-## Example 4: Chaining...
+## Example: chaining...
 ```cpp
 df::Serie a(2, {1,2,  3,4}) ;
 df::Serie b(2, {4,3,  2,1}) ;
@@ -177,7 +222,7 @@ pipe(
 );
 ```
 
-## Example 5: Attributes
+## Example: attributes
 ```cpp
 df::Dataframe dataframe;
 dataframe.add("positions", Serie(3, {...})); // geometry
@@ -208,7 +253,7 @@ Serie scalarS1 = mng.serie(1, 'S1') // eigen value S1 for all items
 Serie vectorS1 = mng.serie(3, 'S1') // eigen vector S1 for all items
 ```
 
-## Example 6: piping
+## Example: piping
 A complete example using multiple features using the piping feature
 
 ```cpp
