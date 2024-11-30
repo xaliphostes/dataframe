@@ -37,20 +37,11 @@ Serie normalize(const Serie& serie)
     }
 
     if (serie.itemSize() == 1) {
-        // Find min and max of the entire Serie
-        // double min = std::numeric_limits<double>::max();
-        // double max = std::numeric_limits<double>::lowest();
+        // auto minmax = df::minMax(serie);
+        auto [min, max] = minMax(serie);
 
-        // for (uint32_t i = 0; i < serie.count(); ++i)
-        // {
-        //     double v = serie.template get<double>(i);
-        //     min = std::min(min, v);
-        //     max = std::max(max, v);
-        // }
-        auto minmax = df::minMax(serie);
-
-        double l = 1.0 / (minmax[1] - minmax[0]);
-        return serie.map([l, minmax](double v, uint32_t) { return l * (v - minmax[0]); });
+        double l = 1.0 / (max[0] - min[0]);
+        return serie.map([l, min](double v, uint32_t) { return l * (v - min[0]); });
     } else {
         // Normalize each vector independently
         return map(serie, [](const Array& item, uint32_t) {

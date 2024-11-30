@@ -27,7 +27,14 @@
 namespace df
 {
 
-    Array minMax(const Serie &serie) ;
+    // Helper struct to hold min/max results
+    struct MinMax
+    {
+        Array min;
+        Array max;
+    };
+
+    MinMax minMax(const Serie &serie);
 
     MAKE_OP(minMax);
 

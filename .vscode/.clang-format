@@ -1,10 +1,20 @@
 Language: Cpp
-# Style général
 BasedOnStyle: Chromium  # Vous pouvez choisir entre LLVM, Google, Chromium, Mozilla, WebKit
+
+BasedOnStyle: Microsoft  # Peut être : LLVM, Google, Chromium, Mozilla, WebKit
+Standard: c++17     # Version du C++ : c++03, c++11, c++14, c++17, c++20
+UseTab: Never       # Never, ForIndentation, ForContinuationAndIndentation, Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 80
+
+AlignAfterOpenBracket: BlockIndent
+BraceWrapping: {}
+AllowShortLambdasOnASingleLine: All
 
 # Configuration spécifique pour les lambdas
 LambdaBodyIndentation: Signature  # Comment indenter le corps des lambdas
-AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterReturnType: Empty
 BraceWrapping:
   AfterCaseLabel: false
   AfterClass: false
@@ -22,4 +32,3 @@ BraceWrapping:
 
 # Autres paramètres utiles
 ColumnLimit: 100  # Longueur maximale des lignes
-IndentWidth: 4    # Nombre d'espaces pour l'indentation

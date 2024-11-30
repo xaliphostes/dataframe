@@ -223,50 +223,62 @@ A complete example using multiple features using the piping feature
 
 using namespace df;
 
-// Input data structures
-Serie positions(3, {...});  // Positions of measures (x,y,z)
-Serie stress(6, {...});     // Stress tensors (xx,xy,xz,yy,yz,zz)
-Serie markers(1, {...});    // Geologic markers (0=sandstone, 1=granit...)
-
 // Compute the critical stress state
-auto computeCriticalityIndex = make_map([=](const Array& data, uint32_t) {
-    Array values(data.begin(), data.begin() + 3);
-    Array pos(data.end() - 3, data.end());
-    
-    double sigma1 = values[0];
-    double sigma3 = values[2];
-    double deviatoric = sigma1 - sigma3;
-    
-    double critical_stress = 2 * cohesion * std::cos(friction_angle) / 
-                           (1 - std::sin(friction_angle));
-    
-    double depth_factor = std::exp(-(-pos[2]) / 1000.0);
-    return (deviatoric / critical_stress) * depth_factor;
-});
+auto computeCriticalityIndex = [=](const Serie &stress, const Serie &positions) {
+    Serie result(1, stress.count());
 
-// Principal pipeline
-auto result = pipe(
-    stress, // the initial Serie to deal with
+    for (uint32_t i = 0; i < stress.count(); ++i) {
+        const Array &values = stress.get<Array>(i);
+        const Array &pos = positions.get<Array>(i);
 
-    // 1. Eigen values and vectors (of this initial serie)
-    [](const Serie& s) { 
-        auto [val, vec] = eigenSystem(s); 
-        return zip(val, vec);
+        double sigma1 = values[0];
+        double sigma3 = values[2];
+        double deviatoric = sigma1 - sigma3;
+
+        double critical_stress = 2 * cohesion * std::cos(friction_angle) /
+                                    (1 - std::sin(friction_angle));
+
+        double depth_factor = std::exp(-(-pos[2]) / 1000.0);
+        result.set(i, (deviatoric / critical_stress) * depth_factor);
+    }
+    return result;
+};
+
+// Input data structures
+double cohesion = 0.1;
+double friction_angle = 30 * M_PI / 180;
+
+Serie stress(6, {-2, 4, 6, -3, 6, -9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4});
+Serie positions(3, {10, 20, -30, 1, 0, 0, 2, 0, 0});
+Serie markers(1, {1, 2, 2});
+
+// Filter based on multiple conditions
+auto filtered = df::filterAll(
+    [](const Array &s, const Array &p, const Array &m) {
+        return s[0] < 0 &&  // compressive stress
+                p[2] < 0 && // depth condition
+                m[0] == 1;  // specific rock type
     },
-    
-    // 2. Filtering of compressive points
-    make_filter([](const Array& data, uint32_t) {
-        return data[0] < 0;  // sigma1 < 0
-    }),
-    
-    // 3. Add positions and compute criticity
-    [&positions](const Serie& s) {
-        return computeCriticalityIndex(zip(s, positions));
+    stress, positions, markers
+);
+
+// Access filtered Series
+auto filtered_stress = filtered[0];
+auto filtered_positions = filtered[1];
+auto filtered_markers = filtered[2];
+
+// Use in pipeline
+auto result = pipe(
+    df::filterAll([](const Array &s, const Array &p) {
+        return s[0] < 0 && p[2] < 0;
+    }, stress, positions),
+
+    [=](const df::Series &fs) {
+        return computeCriticalityIndex(fs[0], fs[1]);
     }
 );
 
-// Mean
-double mean_criticality = mean(result);
+std::cerr << "Result:" << std::endl << result << std::endl ;
 ```
 
 ## Licence

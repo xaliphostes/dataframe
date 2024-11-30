@@ -22,22 +22,25 @@
  */
 
 #include <iostream>
-#include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/math/minMax.h>
 #include "assertions.h"
 
-void minMax()
-{
-    df::Serie s(1, {1, -2, 31.1, 4});
-    Array m = df::minMax(s);
-    assertDoubleEqual(m[0], -2);
-    assertDoubleEqual(m[1], 31.1);
-}
-
 int main()
 {
-    minMax();
+    // For scalar Serie
+    {
+        df::Serie s1(1, {1, 5, 2, 4, 3});
+        auto [min, max] = df::minMax(s1);
+        assertArrayEqual(min, {1});
+        assertArrayEqual(max, {5});
+    }
 
-    return 0;
+    // For vector Serie
+    {
+        df::Serie s2(3, {1, 2, 3, 4, 1, 6, 2, 5, 0});
+        auto [min, max] = df::minMax(s2);
+        assertArrayEqual(min, {1, 1, 0});
+        assertArrayEqual(max, {4, 5, 6});
+    }
 }

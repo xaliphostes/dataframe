@@ -67,6 +67,9 @@ set_target_properties(dataframe-shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DIS
 set_target_properties(dataframe-shared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIST_DIR})
 set_target_properties(dataframe-shared PROPERTIES PDB_OUTPUT_DIRECTORY ${DIST_DIR})
 
+# examples
+add_subdirectory(examples)
+
 # Testing...
 enable_testing()
 add_subdirectory(unitTest)

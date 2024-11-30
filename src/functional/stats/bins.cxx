@@ -31,8 +31,8 @@ namespace df
 
     Serie bins(const Serie &serie, uint nb)
     {
-        auto m = minMax(serie);
-        return bins(serie, nb, m[0], m[1]);
+        auto [min, max] = minMax(serie);
+        return bins(serie, nb, min[0], max[0]);
     }
 
     Serie bins(const Serie &serie, uint nb, double start, double stop)

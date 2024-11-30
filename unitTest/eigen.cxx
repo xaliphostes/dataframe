@@ -21,40 +21,52 @@
  *
  */
 
-#include <iostream>
+#include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/eigen.h>
-#include <dataframe/attributes/Manager.h>
 #include <dataframe/attributes/EigenValues.h>
 #include <dataframe/attributes/EigenVectors.h>
-#include "assertions.h"
+#include <dataframe/attributes/Manager.h>
+#include <dataframe/functional/algebra/eigen.h>
+#include <iostream>
 
 void basic() {
     // sym matrix 3x3 => itemSize=6
     // 3 items
     df::Serie serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4});
-    auto values = df::eigenValues(serie);
-    auto vectors = df::eigenVectors(serie);
+    std::vector<Array> vals{{16.3328, -0.658031, -1.67482},
+                            {11.3448, 0.170914, -0.515728},
+                            {20.1911, -0.043142, -1.14795}};
+    std::vector<Array> vecs{{0.449309, 0.47523, 0.75649, 0.194453, 0.774452,
+                             -0.602007, 0.871957, -0.417589, -0.255559},
+                            {0.327985, 0.591009, 0.736977, -0.592113, 0.736484,
+                             -0.327099, 0.73609, 0.32909, -0.5915},
+                            {0.688783, 0.553441, 0.468275, 0.15941, -0.745736,
+                             0.64689, -0.707225, 0.370919, 0.601874}};
 
-    std::vector<Array> vals{
-        {16.3328, -0.658031, -1.67482},
-        {11.3448, 0.170914, -0.515728},
-        {20.1911, -0.043142, -1.14795}
-    };
+    {
+        auto values = df::eigenValues(serie);
+        auto vectors = df::eigenVectors(serie);
 
-    values.forEach([vals](const Array &v, uint32_t i) {
-        assertArrayEqual(vals[i], v, 1e-4);
-    });
+        values.forEach([vals](const Array &v, uint32_t i) {
+            assertArrayEqual(vals[i], v, 1e-4);
+        });
 
-    std::vector<Array> vecs{
-        {0.449309, 0.47523, 0.75649, 0.194453, 0.774452, -0.602007, 0.871957, -0.417589, -0.255559},
-        {0.327985, 0.591009, 0.736977, -0.592113, 0.736484, -0.327099, 0.73609, 0.32909, -0.5915},
-        {0.688783, 0.553441, 0.468275, 0.15941, -0.745736, 0.64689, -0.707225, 0.370919, 0.601874}
-    };
+        vectors.forEach([vecs](const Array &v, uint32_t i) {
+            assertArrayEqual(vecs[i], v, 1e-4);
+        });
+    }
 
-    vectors.forEach([vecs](const Array &v, uint32_t i) {
-        assertArrayEqual(vecs[i], v, 1e-4);
-    });
+    {
+        auto [values, vectors] = df::eigenSystem(serie);
+
+        values.forEach([vals](const Array &v, uint32_t i) {
+            assertArrayEqual(vals[i], v, 1e-4);
+        });
+
+        vectors.forEach([vecs](const Array &v, uint32_t i) {
+            assertArrayEqual(vecs[i], v, 1e-4);
+        });
+    }
 }
 
 void attributes() {
@@ -63,12 +75,11 @@ void attributes() {
     //   3 items
 
     df::Dataframe dataframe;
-    dataframe.add("S", df::Serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4}));
+    dataframe.add("S", df::Serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8,
+                                     7, 6, 5, 4}));
 
-    df::Manager mng(dataframe, {
-        new df::EigenValues(),
-        new df::EigenVectors()
-    }, 3);
+    df::Manager mng(dataframe, {new df::EigenValues(), new df::EigenVectors()},
+                    3);
 
     // Eigen values: itemSize = 1 = scalar
     {
@@ -94,11 +105,9 @@ void attributes() {
         assertCondition(names.size() == 1, "names(6).size() != 1");
         assertCondition(mng.contains(6, "S"));
     }
-
 }
 
-int main()
-{
+int main() {
     basic();
     attributes();
 

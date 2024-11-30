@@ -26,13 +26,14 @@
 
 int main() {
     // Create some test Series
-    df::Serie s1(1, {1, 2, 3});                 // scalar serie
+    df::Serie s1(1, {1, 2, 3});                // scalar serie
     df::Serie s2(2, {4,5, 6,7, 8,9});          // 2D serie
     df::Serie s3(1, {10, 11, 12});             // scalar serie
     
     // Using variadic zip
     auto result1 = df::zip(s1, s2, s3);
-    result1.dump();  // Will show the combined values
+    // result1.dump();  // Will show the combined values
+    std::cerr << result1 << std::endl ;
     
     // Using vector zip
     std::vector<df::Serie> series = {s1, s2, s3};

@@ -24,79 +24,102 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
 
-    /**
-     * @brief Applies a single operation to a Serie
-     * @param serie The input Serie
-     * @param op Operation to apply (function that takes a Serie and returns a Serie)
-     * @return Serie A new Serie after applying the operation
-     *
-     * @example
-     * ```cpp
-     * Serie s(1, {1, 2, 3, 4});
-     * auto result = pipe(s, [](const Serie& s) {
-     *     return s.map([](double v, uint32_t) { return v * 2; });
-     * });
-     * ```
-     */
-    template <typename F>
-    Serie pipe(const Serie &serie, F &&op)
-    {
-        return op(serie);
-    }
-
-    /**
-     * @brief Applies multiple operations to a Serie in sequence
-     * @param serie The input Serie
-     * @param op First operation
-     * @param ops Rest of the operations
-     * @return Serie A new Serie after applying all operations in sequence
-     *
-     * @example
-     * ```cpp
-     * Serie s(1, {1, 2, 3, 4});
-     * auto result = pipe(s,
-     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
-     *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); },
-     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v + 1; }); }
-     * );
-     * ```
-     */
-    template <typename F, typename... Fs>
-    Serie pipe(const Serie &serie, F &&op, Fs &&...ops)
-    {
-        return pipe(op(serie), std::forward<Fs>(ops)...);
-    }
-
-    /**
-     * @brief Creates a pipeline of operations that can be applied to any Serie
-     * @param op First operation
-     * @param ops Rest of the operations
-     * @return Function that takes a Serie and returns a Serie
-     *
-     * @example
-     * ```cpp
-     * auto pipeline = make_pipe(
-     *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
-     *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
-     * );
-     *
-     * Serie s1(1, {1, 2, 3, 4});
-     * Serie s2(1, {5, 6, 7, 8});
-     *
-     * auto result1 = pipeline(s1);
-     * auto result2 = pipeline(s2);
-     * ```
-     */
-    template <typename... Fs>
-    auto make_pipe(Fs &&...ops)
-    {
-        return [... ops = std::forward<Fs>(ops)](const Serie &serie)
-        {
-            return pipe(serie, ops...);
-        };
-    }
-    
+/**
+ * @brief Applies a single operation to a Serie
+ * @param serie The input Serie
+ * @param op Operation to apply (function that takes a Serie and returns a
+ * Serie)
+ * @return Serie A new Serie after applying the operation
+ *
+ * @example
+ * ```cpp
+ * Serie s(1, {1, 2, 3, 4});
+ * auto result = pipe(s, [](const Serie& s) {
+ *     return s.map([](double v, uint32_t) { return v * 2; });
+ * });
+ * ```
+ */
+template <typename T, typename F> auto pipe(const T &input, F &&op) {
+    return op(input);
 }
+
+/**
+ * @brief Applies multiple operations to a Serie (or other classes) in sequence
+ * @param serie The input Serie (or any other class)
+ * @param op First operation
+ * @param ops Rest of the operations
+ * @return A new Serie or class after applying all operations in sequence
+ *
+ * ```
+ * @example
+ * With a Serie
+ * ```cpp
+ * auto pipeline = pipe(
+ *     serie,
+ *     [](const Serie& s) { return eigenSystem(s); },
+ *     [](const auto& pair) { return pair.first; }
+ * );
+ *   ```
+ * @example
+ * With a pair
+ * ```cpp
+ * auto pipeline = pipe(
+ *     std::make_pair(serie1, serie2),
+ *     [](const auto& pair) {
+ *         const auto& [s1, s2] = pair;
+ *         return someOperation(s1, s2);
+ *     }
+ * );
+ * ```
+ * @example
+ * With anything else
+ * ```cpp
+ * struct Data {
+ *     Serie stress;
+ *     Serie positions;
+ * };
+ *
+ * auto pipeline = pipe(
+ *     Data{stress, positions},
+ *     [](const Data& data) {
+ *         return someOperation(data.stress, data.positions);
+ *     }
+ * );
+ * ```
+ */
+template <typename T, typename F, typename... Fs>
+auto pipe(const T &input, F &&op, Fs &&...ops) {
+    return pipe(op(input), std::forward<Fs>(ops)...);
+}
+
+/**
+ * @brief Creates a pipeline of operations that can be applied to any Serie
+ * @param op First operation
+ * @param ops Rest of the operations
+ * @return Function that takes a Serie and returns a Serie
+ *
+ * @example
+ * ```cpp
+ * auto pipeline = make_pipe(
+ *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2;
+ * }); },
+ *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v >
+ * 4; }); }
+ * );
+ *
+ * Serie s1(1, {1, 2, 3, 4});
+ * Serie s2(1, {5, 6, 7, 8});
+ *
+ * auto result1 = pipeline(s1);
+ * auto result2 = pipeline(s2);
+ * ```
+ */
+template <typename... Fs> auto make_pipe(Fs &&...ops) {
+    return [... ops = std::forward<Fs>(ops)]<typename T>(const T &input) {
+        return pipe(input, ops...);
+    };
+}
+
+} // namespace df

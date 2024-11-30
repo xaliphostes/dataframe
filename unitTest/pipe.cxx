@@ -21,30 +21,101 @@
  *
  */
 
-#include <dataframe/Serie.h>
-#include <dataframe/functional/pipe.h>
-#include <dataframe/functional/math/equals.h>
 #include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/functional/algebra/eigen.h>
+#include <dataframe/functional/apply.h>
+#include <dataframe/functional/math/equals.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/zip.h>
 
-int main()
-{
-    df::Serie s(1, {1, 2, 3, 4, 5});
-    df::Serie solution(1, {6, 8, 10});
+df::Serie someOperation(const df::Serie &s1, const df::Serie &s2) {
+    // std::cerr << "s1:\n" << s1 << std::endl;
+    // std::cerr << "s2:\n" << s2 << std::endl;
+    return df::zip(s1, s2);
+};
 
-    // Using pipe directly
-    auto result1 = pipe(s,
-        [](const df::Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
-        [](const df::Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
-    );
-    assertCondition(df::equals(solution, result1));
-    
-    // Creating and using a reusable pipeline
-    auto doubleAndFilter = df::make_pipe(
-        [](const df::Serie& s) { return s.map([](double v, uint32_t) { return v * 2; }); },
-        [](const df::Serie& s) { return s.filter([](double v, uint32_t) { return v > 4; }); }
-    );
+int main() {
 
-    auto result2 = doubleAndFilter(s);
-    assertCondition(df::equals(solution, result2));
+    {
+        df::Serie s(1, {1, 2, 3, 4, 5});
+        df::Serie solution(1, {6, 8, 10});
 
+        // Using pipe directly
+        auto result1 = pipe(
+            s,
+            [](const df::Serie &s) {
+                return s.map([](double v, uint32_t) { return v * 2; });
+            },
+            [](const df::Serie &s) {
+                return s.filter([](double v, uint32_t) { return v > 4; });
+            });
+        assertCondition(df::equals(solution, result1));
+
+        // Creating and using a reusable pipeline
+        auto doubleAndFilter = df::make_pipe(
+            [](const df::Serie &s) {
+                return s.map([](double v, uint32_t) { return v * 2; });
+            },
+            [](const df::Serie &s) {
+                return s.filter([](double v, uint32_t) { return v > 4; });
+            });
+
+        auto result2 = doubleAndFilter(s);
+        assertCondition(df::equals(solution, result2));
+    }
+
+    // ---------------------------------------------------
+
+    // With a Serie
+    {
+        df::Serie serie(6, {1, 2, 3, 4, 5, 6});
+        auto result = df::pipe(
+            serie, [](const df::Serie &s) { return df::eigenSystem(s); },
+            [](const auto &tuple) { return std::get<0>(tuple); });
+
+        assertEqual<int>(result.itemSize(), 3);
+        assertEqual<int>(result.count(), 1);
+        assertEqual<int>(result.dimension(), 3);
+        assertSerieEqual(result, df::Serie(3, {11.3448, 0.170914, -0.515728}),
+                         1e-4);
+    }
+
+    // With a pair
+    {
+        df::Serie serie1(1, {1, 2, 3});
+        df::Serie serie2(2, {1, 2, 3, 4, 5, 6});
+        auto result =
+            df::pipe(std::make_pair(serie1, serie2), [](const auto &pair) {
+                const auto &[s1, s2] = pair;
+                return someOperation(s1, s2);
+            });
+        assertEqual<int>(result.itemSize(), 3);
+        assertEqual<int>(result.count(), 3);
+        assertEqual<int>(result.dimension(), 3);
+        assertSerieEqual(result, df::Serie(3, {1, 1, 2, 2, 3, 4, 3, 5, 6}));
+    }
+
+    // With anything else (a new struct for example)
+    {
+        df::Serie positions(3, {0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0});
+        df::Serie stress(6, {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,
+                             1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6});
+
+        struct Data {
+            df::Serie stress;
+            df::Serie positions;
+        };
+
+        auto result = df::pipe(Data{stress, positions}, [](const Data &data) {
+            return someOperation(data.stress, data.positions);
+        });
+        assertEqual<int>(result.itemSize(), 9);
+        assertEqual<int>(result.count(), 4);
+        assertEqual<int>(result.dimension(), 3);
+        assertSerieEqual(result,
+                         df::Serie(9, {1, 2, 3, 4, 5, 6, 0, 0, 0, 1, 2, 3,
+                                       4, 5, 6, 1, 0, 0, 1, 2, 3, 4, 5, 6,
+                                       2, 0, 0, 1, 2, 3, 4, 5, 6, 3, 0, 0}));
+    }
 }

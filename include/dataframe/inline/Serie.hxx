@@ -21,203 +21,147 @@
  *
  */
 
-#include "../utils/inferring.h"
-#include "../functional/forEach.h"
-#include "../functional/reduce.h"
-#include "../functional/map.h"
 #include "../functional/filter.h"
+#include "../functional/forEach.h"
+#include "../functional/map.h"
 #include "../functional/pipe.h"
+#include "../functional/reduce.h"
+#include "../utils/inferring.h"
 
-namespace df
-{
+namespace df {
 
-    /* OLD IMPL
-    template <typename F>
-    inline Serie Serie::map(F &&cb) const
-    {
-        uint32_t itemSize = 0;
-        Serie R;
-        uint32_t id = 0;
+template <typename F> void Serie::forEach(F &&cb) const {
+    df::forEach(*this, cb);
+}
 
-        for (uint32_t i = 0; i < count_; ++i)
-        {
-            auto r = cb(value(i), i);
+template <typename F> Serie Serie::map(F &&cb) const {
+    return df::map(*this, cb);
+}
 
-            if (itemSize == 0)
-            {
-                // Here we go! We got the itemSize for the new Serie :-)
-                itemSize = r.size();
-                R = Serie(itemSize, count_);
-            }
+template <typename F> auto Serie::reduce(F &&cb, double init) {
+    return df::reduce(*this, cb, init);
+}
 
-            for (int j = 0; j < itemSize; ++j)
-            {
-                R.s_[id++] = r[j];
-            }
-        }
-        return R;
-    }
-    */
+template <typename F> auto Serie::reduce(F &&cb, const Array &init) {
+    return df::reduce(*this, cb, init);
+}
 
-    template <typename F>
-    void Serie::forEach(F &&cb) const
-    {
-        df::forEach(*this, cb);
-    }
+template <typename F> Serie Serie::filter(F &&predicate) const {
+    return df::filter(*this, predicate);
+}
 
-    template <typename F>
-    Serie Serie::map(F &&cb) const
-    {
-        return df::map(*this, cb);
-    }
+template <typename F> Serie Serie::pipe(F &&op) const {
+    return df::pipe(*this, op);
+}
 
-    template <typename F>
-    auto Serie::reduce(F &&cb, double init)
-    {
-        return df::reduce(*this, cb, init);
-    }
+template <typename F, typename... Fs>
+Serie Serie::pipe(F &&op, Fs &&...ops) const {
+    return df::pipe(*this, op, ops...);
+}
 
-    template <typename F>
-    auto Serie::reduce(F &&cb, const Array &init)
-    {
-        return df::reduce(*this, cb, init);
-    }
+inline const Array &Serie::asArray() const { return s_; }
 
-    template <typename F>
-    Serie Serie::filter(F &&predicate) const
-    {
-        return df::filter(*this, predicate);
-    }
+inline Array &Serie::asArray() { return s_; }
 
-    template <typename F>
-    Serie Serie::pipe(F &&op) const
-    {
-        return df::pipe(*this, op);
-    }
-
-    template <typename F, typename... Fs>
-    Serie Serie::pipe(F &&op, Fs &&...ops) const
-    {
-        return df::pipe(*this, op, ops...);
-    }
-
-    inline const Array &Serie::asArray() const
-    {
-        return s_;
-    }
-
-    inline Array &Serie::asArray()
-    {
-        return s_;
-    }
-
-    inline std::ostream &operator<<(std::ostream &o, const Serie &s)
-    {
-        std::cerr << "Serie:" << std::endl;
-        std::cerr << "  itemSize : " << s.itemSize() << std::endl;
-        std::cerr << "  count    : " << s.count() << std::endl;
-        std::cerr << "  dimension: " << s.dimension() << std::endl;
+inline std::ostream &operator<<(std::ostream &o, const Serie &s) {
+    std::cerr << "Serie:" << std::endl;
+    std::cerr << "  itemSize : " << s.itemSize() << std::endl;
+    std::cerr << "  count    : " << s.count() << std::endl;
+    std::cerr << "  dimension: " << s.dimension() << std::endl;
+    if (s.count() > 0) {
         std::cerr << "  values   : [";
         Array v = s.asArray();
-        for (uint32_t i = 0; i < v.size() - 1; ++i)
-        {
+        for (uint32_t i = 0; i < v.size() - 1; ++i) {
             std::cerr << v[i] << ", ";
         }
         std::cerr << v[v.size() - 1] << "]";
-        return o;
     }
-
-    /**
-     * @brief Unified get method that handles both scalar and Array cases
-     * @tparam T Return type (deduced automatically)
-     * @param i Index
-     * @return Either a double (scalar) or an Array based on itemSize
-     *
-     * @example
-     * ```cpp
-     * Serie s1(1, {1, 2, 3});
-     * double val = s1.get<double>(0);    // Retourne 1.0
-     *
-     * Serie s2(3, {1,2,3, 4,5,6});
-     * Array vec = s2.get<Array>(0);      // Retourne {1,2,3}
-     *
-     * // Ou simplement avec déduction automatique:
-     * auto val = s1.get(0);  // double
-     * auto vec = s2.get(0);  // Array
-     * ```
-     */
-    template <typename T>
-    inline auto Serie::get(uint32_t i) const -> std::conditional_t<detail::is_array_v<T>, Array, double>
-    {
-        if constexpr (detail::is_array_v<T>)
-        {
-            if (itemSize_ == 1)
-            {
-                return Array{s_[i]};
-            }
-            Array r(itemSize_);
-            for (uint32_t j = 0; j < itemSize_; ++j)
-            {
-                r[j] = s_[i * itemSize_ + j];
-            }
-            return r;
-        }
-        else
-        {
-            if (i >= s_.size())
-            {
-                throw std::invalid_argument("index out of bounds (" +
-                                            std::to_string(i) + ">=" + std::to_string(s_.size()) + ")");
-            }
-            return s_[i];
-        }
+    else {
+        std::cerr << "  values   : []";
     }
-
-    /**
-     * @brief Unified set method that handles both scalar and Array cases
-     * @tparam T Input type (deduced automatically)
-     * @param i Index
-     * @param value Value to set (either double or Array)
-     *
-     * @example
-     * ```cpp
-     * Serie s1(1, {1, 2, 3});
-     * s1.set(0, 42.0);           // Set scalar value
-     *
-     * Serie s2(3, {1,2,3, 4,5,6});
-     * s2.set(0, Array{7,8,9});   // Set vector value
-     * ```
-     */
-    template <typename T>
-    inline void Serie::set(uint32_t i, const T &value)
-    {
-        if constexpr (detail::is_array_v<T>)
-        {
-            if (i >= count_)
-            {
-                throw std::invalid_argument("index out of range (" +
-                                            std::to_string(i) + ">=" + std::to_string(count_) + ")");
-            }
-            if (value.size() != itemSize_)
-            {
-                throw std::invalid_argument("provided item size (" +
-                                            std::to_string(value.size()) + ") is different from itemSize (" +
-                                            std::to_string(itemSize_) + ")");
-            }
-            for (uint32_t j = 0; j < itemSize_; ++j)
-            {
-                s_[i * itemSize_ + j] = value[j];
-            }
-        }
-        else
-        {
-            if (i >= s_.size())
-            {
-                throw std::invalid_argument("index out of bounds (" +
-                                            std::to_string(i) + ">=" + std::to_string(s_.size()) + ")");
-            }
-            s_[i] = value;
-        }
-    }
-
+    return o;
 }
+
+/**
+ * @brief Unified get method that handles both scalar and Array cases
+ * @tparam T Return type (deduced automatically)
+ * @param i Index
+ * @return Either a double (scalar) or an Array based on itemSize
+ *
+ * @example
+ * ```cpp
+ * Serie s1(1, {1, 2, 3});
+ * double val = s1.get<double>(0);    // Retourne 1.0
+ *
+ * Serie s2(3, {1,2,3, 4,5,6});
+ * Array vec = s2.get<Array>(0);      // Retourne {1,2,3}
+ *
+ * // Ou simplement avec déduction automatique:
+ * auto val = s1.get(0);  // double
+ * auto vec = s2.get(0);  // Array
+ * ```
+ */
+template <typename T>
+inline auto Serie::get(uint32_t i) const
+    -> std::conditional_t<detail::is_array_v<T>, Array, double> {
+    if constexpr (detail::is_array_v<T>) {
+        if (itemSize_ == 1) {
+            return Array{s_[i]};
+        }
+        Array r(itemSize_);
+        for (uint32_t j = 0; j < itemSize_; ++j) {
+            r[j] = s_[i * itemSize_ + j];
+        }
+        return r;
+    } else {
+        if (i >= s_.size()) {
+            throw std::invalid_argument("index out of bounds (" +
+                                        std::to_string(i) +
+                                        ">=" + std::to_string(s_.size()) + ")");
+        }
+        return s_[i];
+    }
+}
+
+/**
+ * @brief Unified set method that handles both scalar and Array cases
+ * @tparam T Input type (deduced automatically)
+ * @param i Index
+ * @param value Value to set (either double or Array)
+ *
+ * @example
+ * ```cpp
+ * Serie s1(1, {1, 2, 3});
+ * s1.set(0, 42.0);           // Set scalar value
+ *
+ * Serie s2(3, {1,2,3, 4,5,6});
+ * s2.set(0, Array{7,8,9});   // Set vector value
+ * ```
+ */
+template <typename T> inline void Serie::set(uint32_t i, const T &value) {
+    if constexpr (detail::is_array_v<T>) {
+        if (i >= count_) {
+            throw std::invalid_argument("index out of range (" +
+                                        std::to_string(i) +
+                                        ">=" + std::to_string(count_) + ")");
+        }
+        if (value.size() != itemSize_) {
+            throw std::invalid_argument("provided item size (" +
+                                        std::to_string(value.size()) +
+                                        ") is different from itemSize (" +
+                                        std::to_string(itemSize_) + ")");
+        }
+        for (uint32_t j = 0; j < itemSize_; ++j) {
+            s_[i * itemSize_ + j] = value[j];
+        }
+    } else {
+        if (i >= s_.size()) {
+            throw std::invalid_argument("index out of bounds (" +
+                                        std::to_string(i) +
+                                        ">=" + std::to_string(s_.size()) + ")");
+        }
+        s_[i] = value;
+    }
+}
+
+} // namespace df

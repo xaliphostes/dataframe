@@ -21,28 +21,28 @@
  *
  */
 
-#include <iostream>
+#include "assertions.h"
 #include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/apply.h>
-#include "assertions.h"
+#include <iostream>
 
 START_TEST(apply1) {
     df::Serie a(1, {1, 2, 3, 4});
 
-    auto s = df::apply(a, [](const Array& a, uint32_t i) {
+    auto s = df::apply(a, [](const Array &a, uint32_t i) {
         Array r = a;
-        for (auto& v: r) {
-            v = std::sqrt(v) ;
+        for (auto &v : r) {
+            v = std::sqrt(v);
         }
         return r;
     });
 
     assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
-} END_TEST(apply1)
+}
+END_TEST(apply1)
 
-int main()
-{
+int main() {
     apply1();
 
     return 0;
