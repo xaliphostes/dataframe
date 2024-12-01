@@ -22,8 +22,9 @@
  */
 
 #pragma once
-#include <array>
 #include <dataframe/Serie.h>
+#include <array>
+#include <tuple>
 
 namespace df {
 
