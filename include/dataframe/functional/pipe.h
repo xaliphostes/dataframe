@@ -103,10 +103,8 @@ auto pipe(const T &input, F &&op, Fs &&...ops) {
  * @example
  * ```cpp
  * auto pipeline = make_pipe(
- *     [](const Serie& s) { return s.map([](double v, uint32_t) { return v * 2;
- * }); },
- *     [](const Serie& s) { return s.filter([](double v, uint32_t) { return v >
- * 4; }); }
+ *     df::make_map([](double v, uint32_t) { return v * 2; }),
+ *     df::make_filter([](double v, uint32_t) { return v > 4; })
  * );
  *
  * Serie s1(1, {1, 2, 3, 4});

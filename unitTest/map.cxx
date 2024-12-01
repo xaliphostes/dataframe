@@ -24,6 +24,7 @@
 #include "assertions.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/map.h>
+#include <dataframe/functional/print.h>
 #include <dataframe/functional/pipe.h>
 #include <dataframe/functional/zip.h>
 
@@ -113,7 +114,7 @@ int main() {
         df::Serie s1(1, {5, 2});
         
         auto result1 = df::map([](double v, uint32_t) { return v * 2; }, s1);
-        print(result1);
+        df::print(result1);
     }
 
     // Multiple Series mapping

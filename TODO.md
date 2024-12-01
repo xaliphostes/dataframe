@@ -1,8 +1,8 @@
 # TODO list
 
-1. Optimization ?
+1. Optimization?
 
-2. Iterators: See https://github.com/VinGarcia/Simple-Iterator-Template
+2. Iterators?: See https://github.com/VinGarcia/Simple-Iterator-Template
 for an implementation of iterators using some macros
 
 3. Finish the `Manager` / `Decomposer` with some examples...
@@ -15,6 +15,7 @@ See also [this link](https://www.danielsieger.com/blog/2022/03/06/code-coverage-
 
 7. `map`, `filter`, `reduce` as for `forEach`... using claude
 
-7. in function _map (to be replaced by map), we have a problem when the itemSize=1: we have to use `const Array&` instead of `double`. See `unitTest/map.cxx` et the end of the test.
+7. In function _map (to be replaced by map), we have a problem when the itemSize=1: we have to use `const Array&` instead of `double`. See `unitTest/map.cxx` et the end of the test.
 
-7. in functon _forEach, simplify !!!
+7. In functon _forEach, simplify !!!
+

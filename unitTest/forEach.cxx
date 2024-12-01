@@ -66,14 +66,14 @@ int main() {
         printer(s2); // Fonctionne avec Serie non-scalaire
     }
 
-    // forEachAll
+    // Multiple series...
     {
         df::Serie s1(1, {10, 20});           // scalars
         df::Serie s2(2, {1, 2, 3, 4});       // 2D vectors
         df::Serie s3(3, {1, 2, 3, 4, 5, 6}); // vectors
 
         // Print all values together
-        df::forEachAll(
+        df::forEach(
             [=](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
                 std::cout << "Index " << i << ":\n"
                           << "  v1 = " << v1 << "  v2 = " << v2
@@ -89,16 +89,20 @@ int main() {
     {
         // Single Serie
         df::Serie s1(1, {1, 2});
-        df::_forEach(
-            [](double v, uint32_t i) { std::cout << v << " at " << i << "\n"; },
+        df::forEach(
+            [](double v, uint32_t i) { std::cout << "itemSize=1: " << v << " at " << i << "\n"; },
             s1);
 
-        // Multiple Series
         df::Serie s2(2, {1, 2, 3, 4});
+        df::forEach(
+            [](const Array& v, uint32_t i) { std::cout << "itemSize=2: "<< v << " at " << i << "\n"; },
+            s2);
+
+        // Multiple Series
         df::Serie s3(3, {1, 2, 3, 4, 5, 6});
-        df::_forEach(
+        df::forEach(
             [](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
-                std::cout << "At " << i << ": " << v1 << " and " << v2
+                std::cout << "At " << i << ": " << v1 << ", " << v2
                           << " and " << v3 << "\n";
             },
             s1, s2, s3);

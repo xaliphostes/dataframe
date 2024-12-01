@@ -34,7 +34,7 @@ template <typename F> void Serie::forEach(F &&cb) const {
     df::forEach(cb, *this);
 }
 
-template <typename F> Serie Serie::map(F &&cb) const {
+template <typename F> auto Serie::map(F &&cb) const {
     return df::map(cb, *this);
 }
 
@@ -46,16 +46,16 @@ template <typename F> auto Serie::reduce(F &&cb, const Array &init) {
     return df::reduce(*this, cb, init);
 }
 
-template <typename F> Serie Serie::filter(F &&predicate) const {
+template <typename F> auto Serie::filter(F &&predicate) const {
     return df::filter(predicate, *this);
 }
 
-template <typename F> Serie Serie::pipe(F &&op) const {
+template <typename F> auto Serie::pipe(F &&op) const {
     return df::pipe(op, *this);
 }
 
 template <typename F, typename... Fs>
-Serie Serie::pipe(F &&op, Fs &&...ops) const {
+auto Serie::pipe(F &&op, Fs &&...ops) const {
     return df::pipe(*this, op, ops...);
 }
 
@@ -75,8 +75,7 @@ inline std::ostream &operator<<(std::ostream &o, const Serie &s) {
             std::cerr << v[i] << ", ";
         }
         std::cerr << v[v.size() - 1] << "]";
-    }
-    else {
+    } else {
         std::cerr << "  values   : []";
     }
     return o;

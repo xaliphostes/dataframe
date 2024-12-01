@@ -25,13 +25,12 @@
 #include <dataframe/Serie.h>
 #include <dataframe/functional/algebra/eigen.h>
 #include <dataframe/functional/apply.h>
+#include <dataframe/functional/print.h>
 #include <dataframe/functional/math/equals.h>
 #include <dataframe/functional/pipe.h>
 #include <dataframe/functional/zip.h>
 
 df::Serie someOperation(const df::Serie &s1, const df::Serie &s2) {
-    // std::cerr << "s1:\n" << s1 << std::endl;
-    // std::cerr << "s2:\n" << s2 << std::endl;
     return df::zip(s1, s2);
 };
 
@@ -53,16 +52,32 @@ int main() {
         assertCondition(df::equals(solution, result1));
 
         // Creating and using a reusable pipeline
-        auto doubleAndFilter = df::make_pipe(
-            [](const df::Serie &s) {
-                return s.map([](double v, uint32_t) { return v * 2; });
-            },
-            [](const df::Serie &s) {
-                return s.filter([](double v, uint32_t) { return v > 4; });
-            });
+        {
+            auto doubleAndFilter = df::make_pipe(
+                [](const df::Serie &s) {
+                    return s.map([](double v, uint32_t) { return v * 2; });
+                },
+                [](const df::Serie &s) {
+                    return s.filter([](double v, uint32_t) { return v > 4; });
+                });
 
-        auto result2 = doubleAndFilter(s);
-        assertCondition(df::equals(solution, result2));
+            auto result2 = doubleAndFilter(s);
+            assertCondition(df::equals(solution, result2));
+        }
+
+        {
+            auto doubleAndFilter = df::make_pipe(
+                df::make_map([](double v, uint32_t) { return v * 2; }),
+                df::make_filter([](double v, uint32_t) { return v > 4; })
+            );
+
+            auto result2 = doubleAndFilter(s);
+            assertCondition(df::equals(solution, result2));
+
+            df::Serie s2(2, {5, 6, 7, 8});
+            auto result3 = doubleAndFilter(s2);
+            df::print(result3);
+        }
     }
 
     // ---------------------------------------------------

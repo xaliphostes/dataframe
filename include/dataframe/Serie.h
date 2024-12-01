@@ -30,7 +30,109 @@
 
 namespace df {
 
-class Serie;
+namespace details {
+
+/**
+ * Trait for tetecting if a type is an array
+ */
+template <typename T> struct is_array : std::false_type {};
+template <> struct is_array<Array> : std::true_type {};
+template <typename T> inline constexpr bool is_array_v = is_array<std::decay_t<T>>::value;
+
+} // namespace details
+
+// =====================================================================================
+
+/**
+ * @brief The most important class of this library.
+ * @todo A concise description...
+ * @example
+ * For a Serie of non-scalar (itemSize>1):
+ * ```c++
+ * Serie s1(3, {1,2,3, 4,5,6});
+ * s1.forEach( [](const Array &v, uint32_t) {
+ *      std::cerr << v << std::endl ;
+ * });
+ * // Display:
+ * // 1 2 3
+ * // 4 5 6
+ *
+ * Serie s2(1, {1, 3});
+ * s2.forEach( [](double v, uint32_t) {
+ *      std::cerr << v << std::endl ;
+ * });
+ * // Display:
+ * // 1
+ * // 3
+ * ```
+ */
+class Serie {
+  public:
+    Serie(int itemSize = 0, uint32_t count = 0, uint dimension = 3);
+    Serie(int itemSize, const Array &values, uint dimension = 3);
+    Serie(int itemSize, const std::initializer_list<double> &values,
+          uint dimension = 3);
+    Serie(const Serie &s);
+
+    bool isValid() const;
+    void reCount(uint32_t);
+
+    Serie &operator=(const Serie &s);
+    Serie clone() const;
+
+    uint32_t size() const;
+    uint32_t count() const;
+    uint32_t itemSize() const;
+    uint dimension() const;
+
+    void dump() const;
+
+    Array value(uint32_t i) const;
+    double scalar(uint32_t i) const;
+    void setValue(uint32_t i, const Array &v);
+    void setScalar(uint32_t i, double);
+
+    const Array &asArray() const;
+    Array &asArray();
+
+    template <typename T = Array>
+    auto get(uint32_t i) const
+        -> std::conditional_t<details::is_array_v<T>, Array, double>;
+
+    template <typename T> void set(uint32_t i, const T &value);
+
+    // -----------------------------------------------------
+
+    template <typename F> void forEach(F &&cb) const;
+    template <typename F> auto map(F &&cb) const;
+    template <typename F> auto reduce(F &&cb, double init);
+    template <typename F> auto reduce(F &&cb, const Array &init);
+    template <typename F> auto filter(F &&reduceFn) const;
+    template <typename F> auto pipe(F &&op) const;
+    template <typename F, typename... Fs> auto pipe(F &&op, Fs &&...ops) const;
+
+  private:
+    Array s_;
+    uint32_t count_{0};
+    uint dimension_{3};
+    int itemSize_{1};
+};
+
+// ---------------------------------------------
+
+using Series = std::vector<Serie>;
+
+// ---------------------------------------------
+
+Serie toSerie(uint32_t itemSize, const Array &a, uint dim = 3);
+
+// ---------------------------------------------
+
+std::ostream &operator<<(std::ostream &o, const Serie &a);
+
+// ---------------------------------------------
+
+void print(const Array &v);
 
 namespace details {
 
@@ -55,16 +157,6 @@ inline constexpr bool is_serie_v = is_serie<std::remove_reference_t<T>>::value;
 // static_assert(!is_serie_v<int>, "Not a Serie");
 
 // ---------------------------------------------
-
-/**
- * Trait for tetecting if a type is an array
- */
-template <typename T> struct is_array : std::false_type {};
-
-template <> struct is_array<Array> : std::true_type {};
-
-template <typename T>
-inline constexpr bool is_array_v = is_array<std::decay_t<T>>::value;
 
 /**
  * For array_size
@@ -208,117 +300,6 @@ inline constexpr bool has_scalar_output_v =
     callback_traits<F>::has_scalar_output;
 
 } // namespace details
-
-// =====================================================================================
-
-/**
- * @brief The most important class of this library.
- * @todo A concise description...
- * @example
- * For a Serie of non-scalar (itemSize>1):
- * ```c++
- * Serie s1(3, {1,2,3, 4,5,6});
- * s1.forEach( [](const Array &v, uint32_t) {
- *      std::cerr << v << std::endl ;
- * });
- * // Display:
- * // 1 2 3
- * // 4 5 6
- *
- * Serie s2(1, {1, 3});
- * s2.forEach( [](double v, uint32_t) {
- *      std::cerr << v << std::endl ;
- * });
- * // Display:
- * // 1
- * // 3
- * ```
- */
-class Serie {
-  public:
-    Serie(int itemSize = 0, uint32_t count = 0, uint dimension = 3);
-    Serie(int itemSize, const Array &values, uint dimension = 3);
-    Serie(int itemSize, const std::initializer_list<double> &values,
-          uint dimension = 3);
-    Serie(const Serie &s);
-
-    bool isValid() const;
-    void reCount(uint32_t);
-
-    Serie &operator=(const Serie &s);
-    Serie clone() const;
-
-    uint32_t size() const;
-    uint32_t count() const;
-    uint32_t itemSize() const;
-    uint dimension() const;
-
-    void dump() const;
-
-    Array value(uint32_t i) const;
-    double scalar(uint32_t i) const;
-    void setValue(uint32_t i, const Array &v);
-    void setScalar(uint32_t i, double);
-
-    const Array &asArray() const;
-    Array &asArray();
-
-    template <typename T = Array>
-    auto get(uint32_t i) const
-        -> std::conditional_t<details::is_array_v<T>, Array, double>;
-
-    template <typename T> void set(uint32_t i, const T &value);
-
-    // -----------------------------------------------------
-
-    template <typename F> void forEach(F &&cb) const;
-
-    template <typename F> Serie map(F &&cb) const;
-
-    template <typename F> auto reduce(F &&cb, double init);
-
-    template <typename F> auto reduce(F &&cb, const Array &init);
-
-    template <typename F> Serie filter(F &&reduceFn) const;
-
-    template <typename F> Serie pipe(F &&op) const;
-
-    template <typename F, typename... Fs> Serie pipe(F &&op, Fs &&...ops) const;
-
-  private:
-    Array s_;
-    uint32_t count_{0};
-    uint dimension_{3};
-    int itemSize_{1};
-};
-
-// ---------------------------------------------
-
-using Series = std::vector<Serie>;
-
-// ---------------------------------------------
-
-inline Serie toSerie(uint32_t itemSize, const Array &a, uint dim = 3) {
-    return Serie(itemSize, a, 3);
-}
-
-// ---------------------------------------------
-
-std::ostream &operator<<(std::ostream &o, const Serie &a);
-
-inline void print(const Serie &s) { std::cerr << s << std::endl; }
-inline void print(const Array &v) {
-    if (v.size() > 0) {
-        std::cerr << "[";
-        for (uint32_t i = 0; i < v.size() - 1; ++i) {
-            std::cerr << v[i] << ", ";
-        }
-        std::cerr << v[v.size() - 1] << "]\n";
-    }
-    else {
-        std::cerr << "[]\n";
-    }
-}
 
 } // namespace df
 

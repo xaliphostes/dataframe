@@ -16,8 +16,93 @@ Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows 
 
 Compared to Panda, we have some differences since our main consern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra).
 
+## Core concepts
+A serie is a representation of an array of scalars, vectors or matrices.
+<br>When you iterate or use any function, the provided items are either a `double` (when itemSize=1) or an `Array` (when itemSize>1):
+```cpp
+auto s = Serie(1, {1, 0});
+
+forEach([](double v, uint32_t) {
+    std::cout << v << " ";
+}, s)
+// Display: 1 0
+```
+
+```cpp
+auto s = Serie(3, {1,0,1,  -1,0,-2});
+
+forEach([](const Array& v, uint32_t) {
+    std::cout << v << " ";
+}, s)
+// Display: [1,0,1] [-1,0,-2]
+```
+
+A Serie is based on 4 values:
+- `itemSize()`: the elementary size of the item in a Serie
+- `count()`: the number of items in a Serie
+<br><br>
+- `size()`: the number of `double` stored in a Serie 
+- `dimension()`: the space dimension of the Serie. Can be either 2 dimensional or 3 dimensional.
+
+Constructors are:
+- `Serie(itemSize, Array, dimension=3)`
+- `Serie(itemSize, count, dimension=3)`
+
+### Scalar
+For the scalar case, the corresponding itemSize is 1.
+
+For example:
+```cpp
+auto s = Serie(1, {1,0,1,-1,0,-1}); // itemSize=1, count = 6
+```
+
+### Vector
+For vectors, it is the size of the store elementary vectors (all vectors have the same size in a Serie).
+
+For example:
+- 2D coordinate vector: `(x, y)` (itemSize=2)
+```cpp
+// 3 points in a 2D-space
+auto s = Serie(2, {0,0,  1,0,  3,1}, 2); // itemSize=2, count = 3
+```
+- 3D coordinate vector: `(x, y, z)` (itemSize=3)
+```cpp
+// 2 points in a 3D-space
+auto s = Serie(3, {0,0,0,  1,0,0}); // itemSize=3, count = 2
+```
+- any vector size
+```cpp
+auto s = Serie(4, {0,0,0,0,  1,0,1,0}); // itemSize=4, count = 2
+```
+
+### Matrix
+For matrices, they are stored as packed arrays, and the size depends on the dimention as well as the rank.
+
+For example:
+- 2D, symmetric matrix: `(xx, xy, yy)` (itemSize=3)
+```cpp
+// Here, we provide the dimension (default is 3), we never know...
+auto s = Serie(3, {1,0,1,  -1,0,-1}, 2); // itemSize=3, count = 2, dimension=2
+```
+- 2D, non-symmetric matrix: `(xx, xy, yx, yy)` (itemSize=4)
+```cpp
+auto s = Serie(4, {1,0,1,2,  -1,0,-1,2}); // itemSize=4, count = 2
+```
+- 3D, symmetric matrix: `(xx, xy, xz, yy, yz, zz)` (itemSize=6)
+```cpp
+auto s = Serie(6, {1,0,1,2,0,3,  -1,0,-1,2,3,2}); // itemSize=6, count = 2
+```
+- 3D, non-symmetric matrix: `(xx, xy, xz, yx,yy, yz, zx, zy, zz)` (itemSize=9)
+```cpp
+auto s = Serie(9, {1,0,1,2,0,3,2,3,1,  -1,0,-1,2,3,2,-3,3,2}); // itemSize=9, count = 2
+```
+
+The `size()` is rarely used and represents `size = itemSize * count`
+
+The `dimension()` is often used internaly for discriminating between special cases. For example, a symmetric tensor in 2D has `itemSize=3`, i.e., `(xx, xy, yy)`. However, a vector in 3D also has `itemSize=3`, i.e., `(x, y, z)`.
+
 ## Requirements
-- C++20 (but C++23 soon)
+- C++20 (but C++23 soon for parallelization (specifically on macos), by using `std::execution::par_unseq`)
 - cmake
 
 Main functionalities are:
@@ -57,10 +142,12 @@ Not yet tested under Windows, but will have to add `export` for shared library.
             - `eigen`
             - `norm`
             - `transpose`
+            - ...
         - `geo` (for geometry, geology, geophysics...)
             - `area`
             - `insar`
             - `normals`
+            - ...
         - `math`
             - `add`
             - `div`
@@ -71,11 +158,13 @@ Not yet tested under Windows, but will have to add `export` for shared library.
             - `scale`
             - `sub`
             - `weightedSum`
+            - ...
         - `stats`
             - `bins`
             - `covariance`
             - `mean`
             - `quantile`
+            - ...
     - **attributes** provides a way of decomposing any `Serie` into other `Serie`. For example, a `Serie` with `itemType=6` might represent symmetric matrices 3x3. Therefore, attributes (i.e., possible decomposed `Serie`s) can be :
         - Components of the matrices
         - Eigen vectors

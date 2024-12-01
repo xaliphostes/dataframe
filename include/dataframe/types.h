@@ -22,9 +22,9 @@
  */
 
 #pragma once
-#include <vector>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using Array = std::vector<double>;
 using String = std::string;
@@ -33,8 +33,8 @@ using Strings = std::vector<String>;
 // --------------------------------------------------------------------------------
 /**
  * @brief In this context of `dataframe`, a `Tuple` represents either
- * a number (if `Serie.itemSize() == 1`), or an array (if `Serie.itemSize() > 1`).
- * If `Serie.itemSize() == 1`, then (of course) `isNumber` is set to true.
+ * a number (if `Serie.itemSize() == 1`), or an array (if `Serie.itemSize() >
+ * 1`). If `Serie.itemSize() == 1`, then (of course) `isNumber` is set to true.
  */
 struct Tuple {
     bool isNumber{false};
@@ -43,30 +43,32 @@ struct Tuple {
 };
 // --------------------------------------------------------------------------------
 
-
-inline Array createArray(uint32_t size, double initValue)
-{
+inline Array createArray(uint32_t size, double initValue) {
     Array a(size);
     std::fill(a.begin(), a.end(), initValue);
     return a;
 }
 
-inline std::ostream &operator<<(std::ostream &o, const Array &a)
-{
-    for (auto v : a)
-    {
-        std::cerr << v << " ";
+inline std::ostream &operator<<(std::ostream &o, const Array &a) {
+
+    std::cout << "[";
+    if (a.size() > 0) {
+        for (size_t j = 0; j < a.size() - 1; ++j) {
+            std::cout << a[j] << ", ";
+        }
+        std::cout << a.back() << "]";
     }
-    std::cerr << std::endl;
+    else {
+        std::cout << "[]";
+    }
+
     return o;
 }
 
-inline std::ostream &operator<<(std::ostream &o, const Strings &a)
-{
-    for (const String &v : a)
-    {
+inline std::ostream &operator<<(std::ostream &o, const Strings &a) {
+    for (const String &v : a) {
         std::cerr << "  " << v << std::endl;
     }
-    std::cerr << std::endl ;
+    std::cerr << std::endl;
     return o;
 }
