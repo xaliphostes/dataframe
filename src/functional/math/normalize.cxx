@@ -44,7 +44,7 @@ Serie normalize(const Serie& serie)
         return serie.map([l, min](double v, uint32_t) { return l * (v - min[0]); });
     } else {
         // Normalize each vector independently
-        return map(serie, [](const Array& item, uint32_t) {
+        return map([](const Array& item, uint32_t) {
             // Compute length (L2 norm)
             double length_squared = std::accumulate(
                 item.begin(),
@@ -61,7 +61,7 @@ Serie normalize(const Serie& serie)
                 result.begin(),
                 [l](double v) { return v * l; });
             return result;
-        });
+        }, serie);
     }
 }
 }

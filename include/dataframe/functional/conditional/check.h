@@ -32,7 +32,7 @@ namespace df
     template <typename F>
     auto check(const Serie &serie, F &&cb)
     {
-        if constexpr (detail::has_scalar_input_v<F>)
+        if constexpr (details::has_scalar_input_v<F>)
         {
             // Input is scalar
             Array results;

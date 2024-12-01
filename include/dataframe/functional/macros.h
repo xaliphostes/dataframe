@@ -41,5 +41,5 @@
     template <typename F> \
     auto make_##op(F &&cb) \
     { \
-        return [cb = std::forward<F>(cb)](const auto &serie) { return op(serie, cb); }; \
+        return [cb = std::forward<F>(cb)](const auto &serie) { return op(cb, serie); }; \
     }

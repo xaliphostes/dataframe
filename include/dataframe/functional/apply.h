@@ -24,15 +24,15 @@
 #pragma once
 #include <dataframe/functional/map.h>
 
-namespace df
-{
+namespace df {
 
-    template <typename F>
-    Serie apply(const Serie &serie, F &&fn)
-    {
-        return map(serie, fn);
-    }
-
-    MAKE_OP(apply);
-
+/**
+ * Synonym for map
+ */
+template <typename F> Serie apply(F &&fn, const Serie &serie) {
+    return map(fn, serie);
 }
+
+MAKE_OP(apply);
+
+} // namespace df

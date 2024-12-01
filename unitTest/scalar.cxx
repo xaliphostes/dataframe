@@ -34,9 +34,9 @@ void test_scalar() {
     });
     std::cerr << std::endl ;
 
-    df::Serie b = df::map(serie, [](double v, uint32_t) {
+    df::Serie b = df::map([](double v, uint32_t) {
         return -1;
-    });
+    }, serie);
     std::cerr << b << std::endl ;
 
     double c = serie.reduce([](double prev, double cur, uint32_t) {

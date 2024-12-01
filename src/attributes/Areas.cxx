@@ -58,7 +58,7 @@ namespace df
 
         Serie normals = n.serie(dataframe, 3, "n");
         if (normals.isValid()) {
-            return div(norm(normals), 2);
+            return div(2, norm(normals));
         }
 
         return Serie();

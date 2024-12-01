@@ -12,3 +12,9 @@ See [this link](https://github.com/pyarmak/cmake-gtest-coverage-example/blob/mas
 See also [this link](https://www.danielsieger.com/blog/2022/03/06/code-coverage-for-cpp.html#:~:text=What's%20Code%20Coverage%3F,blocks%2C%20or%20lines%20being%20covered.)
 
 6. **CHECK** the inv test !!!
+
+7. `map`, `filter`, `reduce` as for `forEach`... using claude
+
+7. in function _map (to be replaced by map), we have a problem when the itemSize=1: we have to use `const Array&` instead of `double`. See `unitTest/map.cxx` et the end of the test.
+
+7. in functon _forEach, simplify !!!

@@ -32,12 +32,12 @@ int main() {
   {
     // Filtrage scalaire
     Serie s1(1, {1, 2, 3, 4, 5});
-    auto evens = filter(s1, [](double v, uint32_t) { return (int)v % 2 == 0; });
+    auto evens = filter([](double v, uint32_t) { return (int)v % 2 == 0; }, s1);
 
     // Filtrage vectoriel
     Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
     auto filtered =
-        filter(s2, [](const Array &v, uint32_t) { return v[0] > 3; });
+        filter([](const Array &v, uint32_t) { return v[0] > 3; }, s2);
   }
 
   // ----------------------------------------------

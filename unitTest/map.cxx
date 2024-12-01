@@ -21,41 +21,36 @@
  *
  */
 
+#include "assertions.h"
 #include <dataframe/Serie.h>
+#include <dataframe/functional/map.h>
 #include <dataframe/functional/pipe.h>
 #include <dataframe/functional/zip.h>
-#include <dataframe/functional/map.h>
-#include "assertions.h"
 
 // These functions can be combined with the pipe and zip functions:
-void doPipe()
-{
+void doPipe() {
     df::Serie s1(1, {1, 2, 3});
     df::Serie s2(2, {4, 5, 6, 7, 8, 9});
 
     // Combine multiple operations
-    auto result = df::pipe(
-        df::zip(s1, s2),
-        df::make_map([](const Array &v, uint32_t)
-                    {
-            Array out(v.size());
-            for(size_t j = 0; j < v.size(); ++j) {
-                out[j] = v[j] * 2;
-            }
-            return out; }));
+    auto result =
+        df::pipe(df::zip(s1, s2), df::make_map([](const Array &v, uint32_t) {
+                     Array out(v.size());
+                     for (size_t j = 0; j < v.size(); ++j) {
+                         out[j] = v[j] * 2;
+                     }
+                     return out;
+                 }));
 
     // Create reusable transformations
-    auto pipeline = df::make_pipe(
-        df::make_map([](double v, uint32_t)
-                    { return v * 2; }),
-        df::make_map([](double v, uint32_t)
-                    { return v + 1; }));
+    auto pipeline =
+        df::make_pipe(df::make_map([](double v, uint32_t) { return v * 2; }),
+                      df::make_map([](double v, uint32_t) { return v + 1; }));
 
     auto transformed = pipeline(s1);
 }
 
-int main()
-{
+int main() {
 
     {
         auto doubler = df::make_map([](double v, uint32_t) { return v * 2; });
@@ -65,8 +60,9 @@ int main()
     }
 
     {
-        auto norm = df::make_map([](const Array &v, uint32_t)
-                                { return std::sqrt(v[0] * v[0] + v[1] * v[1]); });
+        auto norm = df::make_map([](const Array &v, uint32_t) {
+            return std::sqrt(v[0] * v[0] + v[1] * v[1]);
+        });
         df::Serie s(2, {1, 2, 3, 4, 5, 6});
         auto result = norm(s); // [2.24, 5, 7.81]
         assertSerieEqual(result, Array{2.236, 5, 7.81025}, 1e-4);
@@ -76,40 +72,66 @@ int main()
         df::Serie s1(1, {1, 2, 3, 4});
 
         // Scalar → Scalar
-        auto doubled = map(s1, [](double v, uint32_t) {
+        auto doubled = map([](double v, uint32_t) {
             return v * 2; // Retourne un double
-        }); // [2, 4, 6, 8]
+        }, s1);               // [2, 4, 6, 8]
         assertSerieEqual(doubled, {2, 4, 6, 8});
 
         // Scalar → Vector
-        auto expanded = map(s1, [](double v, uint32_t) {
+        auto expanded = map([](double v, uint32_t) {
             return Array{v, v * v, v * v * v}; // Retourne un Array
-        }); // [1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64]
+        }, s1); // [1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64]
         assertSerieEqual(expanded, {1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64});
 
         df::Serie s2(3, {1, 2, 3, 4, 5, 6});
 
         // Vector → Scalar
-        auto norms = map(s2, [](const Array &v, uint32_t) {
+        auto norms = map([](const Array &v, uint32_t) {
             double sum = 0;
             for (double x : v)
                 sum += x * x;
             return std::sqrt(sum); // Retourne un double
-        }); // [3.74166, 8.77496]
+        }, s2);                        // [3.74166, 8.77496]
         assertSerieEqual(norms, Array{3.74166, 8.77496}, 1e-4);
 
         // Vector → Vector
-        auto scaled = map(s2, [](const Array &v, uint32_t) {
+        auto scaled = map([](const Array &v, uint32_t) {
             Array result(v.size() * 2);
-            for (size_t i = 0; i < v.size(); ++i)
-            {
+            for (size_t i = 0; i < v.size(); ++i) {
                 result[i * 2] = v[i];
                 result[i * 2 + 1] = v[i] * 2;
             }
             return result; // Retourne un Array
-        }); // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12]
+        }, s2);                // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12]
         assertSerieEqual(scaled, Array{1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12});
     }
 
     doPipe();
+
+    // Single Serie mapping
+    {
+        df::Serie s1(1, {5, 2});
+        
+        auto result1 = df::map([](double v, uint32_t) { return v * 2; }, s1);
+        print(result1);
+    }
+
+    // Multiple Series mapping
+    {
+        df::Serie s1(1, {5, 2});
+        df::Serie s2(2, {1, 2, 3, 4});
+        df::Serie s3(3, {1, 2, 3, 4, 5, 6});
+
+        auto result2 = df::map(
+            [](const Array& v, const Array &v1, const Array &v2, uint32_t) {
+                df::print(v);
+                Array result(v1.size() + v2.size());
+                std::copy(v1.begin(), v1.end(), result.begin());
+                std::copy(v2.begin(), v2.end(), result.begin() + v1.size());
+                return result;
+            },
+            s1, s2, s3);
+        print(result2);
+    }
+
 }

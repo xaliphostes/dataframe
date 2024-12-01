@@ -30,7 +30,22 @@
 START_TEST(apply1) {
     df::Serie a(1, {1, 2, 3, 4});
 
-    auto s = df::apply(a, [](const Array &a, uint32_t i) {
+    auto s = df::apply([](const Array &a, uint32_t i) {
+        Array r = a;
+        for (auto &v : r) {
+            v = std::sqrt(v);
+        }
+        return r;
+    }, a);
+
+    assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
+}
+END_TEST()
+
+START_TEST(apply2) {
+    df::Serie a(1, {1, 2, 3, 4});
+
+    auto sqrt = df::make_apply([](const Array &a, uint32_t i) {
         Array r = a;
         for (auto &v : r) {
             v = std::sqrt(v);
@@ -38,12 +53,14 @@ START_TEST(apply1) {
         return r;
     });
 
+    auto s = sqrt(a);
     assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
 }
-END_TEST(apply1)
+END_TEST()
 
 int main() {
     apply1();
+    apply2();
 
     return 0;
 }

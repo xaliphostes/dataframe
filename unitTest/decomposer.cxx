@@ -275,7 +275,7 @@ START_TEST(userDefined) {
 
     assertArrayEqual(s.asArray(), Array{2, 1, 9});
     
-} END_TEST(userDefined)
+} END_TEST()
 
 
 int main()

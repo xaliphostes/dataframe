@@ -52,21 +52,21 @@ START_TEST(bins) {
         auto nb2 = std::reduce(sol.begin(), sol.end());
         assertEqual(nb1, (uint32_t)nb2);
     }
-} END_TEST(bins)
+} END_TEST()
 
 START_TEST(mean1) {
     df::Serie serie(1, {0,1,2,3,4,5,6,7,8});
     double a = df::mean(serie).number;
     double sol = (9 * (9 - 1)) / 2 / 9;
     assertDoubleEqual(a, sol);
-} END_TEST(mean1)
+} END_TEST()
 
 START_TEST(mean3) {
     df::Serie serie(3, {0,1,2, 3,4,5, 6,7,8});
     Array a = df::mean(serie).array;
     Array sol{3, 4, 5};
     assertArrayEqual(a, sol);
-} END_TEST(mean3)
+} END_TEST()
 
 START_TEST(cov) {
     df::Serie x, y;
@@ -95,7 +95,7 @@ START_TEST(cov) {
     assertDoubleEqual(mx, 0.5518, 1e-3);
     assertDoubleEqual(my, 0.302, 1e-3);
     assertDoubleEqual(cov, -0.011238, 1e-3);
-} END_TEST(cov)
+} END_TEST()
 
 int main()
 {

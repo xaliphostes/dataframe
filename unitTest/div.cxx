@@ -35,8 +35,11 @@ int main()
         df::Serie divider(1, { 2, 3 });
         df::Serie sol(3, { 1, 2, 3, 1, 2, 3 });
         
-        df::Serie r1 = df::div(a, divider);
+        df::Serie r1 = df::div(divider, a);
         assertSerieEqual(r1, sol);
+
+        auto diver = df::make_div(divider);
+        assertSerieEqual(diver(a), sol);
 
         df::Serie r2 = df::pipe(
             a,
@@ -48,7 +51,7 @@ int main()
     {
         df::Serie divider = df::Serie(2, { 1, 3, 2, 9 });
         shouldThrowError([a, divider]() {
-            df::div(a, divider);
+            df::div(divider, a);
         });
     }
 

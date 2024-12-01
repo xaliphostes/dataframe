@@ -21,16 +21,14 @@
  *
  */
 
-#pragma once
+#include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/macros.h>
+#include <dataframe/functional/cut.h>
+#include "assertions.h"
 
-namespace df
+int main()
 {
+    // Same as filter !
 
-    Serie div(double, const Serie &serie);
-    Serie div(const Serie& divider, const Serie &serie);
-
-    // To be use with pipe
-    MAKE_OP(div);
+    return 0;
 }

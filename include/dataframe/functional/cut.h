@@ -27,10 +27,13 @@
 namespace df
 {
 
+    /**
+     * Synomym of filter
+     */
     template <typename F>
-    Serie cut(const Serie &serie, F &&predicate)
+    Serie cut(F &&predicate, const Serie &serie)
     {
-        return filter(serie, predicate);
+        return filter(predicate, serie);
     }
 
     MAKE_OP(cut);

@@ -31,11 +31,11 @@
 namespace df {
 
 template <typename F> void Serie::forEach(F &&cb) const {
-    df::forEach(*this, cb);
+    df::forEach(cb, *this);
 }
 
 template <typename F> Serie Serie::map(F &&cb) const {
-    return df::map(*this, cb);
+    return df::map(cb, *this);
 }
 
 template <typename F> auto Serie::reduce(F &&cb, double init) {
@@ -47,11 +47,11 @@ template <typename F> auto Serie::reduce(F &&cb, const Array &init) {
 }
 
 template <typename F> Serie Serie::filter(F &&predicate) const {
-    return df::filter(*this, predicate);
+    return df::filter(predicate, *this);
 }
 
 template <typename F> Serie Serie::pipe(F &&op) const {
-    return df::pipe(*this, op);
+    return df::pipe(op, *this);
 }
 
 template <typename F, typename... Fs>
@@ -103,8 +103,8 @@ inline std::ostream &operator<<(std::ostream &o, const Serie &s) {
  */
 template <typename T>
 inline auto Serie::get(uint32_t i) const
-    -> std::conditional_t<detail::is_array_v<T>, Array, double> {
-    if constexpr (detail::is_array_v<T>) {
+    -> std::conditional_t<details::is_array_v<T>, Array, double> {
+    if constexpr (details::is_array_v<T>) {
         if (itemSize_ == 1) {
             return Array{s_[i]};
         }
@@ -139,7 +139,7 @@ inline auto Serie::get(uint32_t i) const
  * ```
  */
 template <typename T> inline void Serie::set(uint32_t i, const T &value) {
-    if constexpr (detail::is_array_v<T>) {
+    if constexpr (details::is_array_v<T>) {
         if (i >= count_) {
             throw std::invalid_argument("index out of range (" +
                                         std::to_string(i) +

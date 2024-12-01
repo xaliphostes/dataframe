@@ -28,8 +28,8 @@
 #include <dataframe/utils/utils.h>
 #include <dataframe/types.h>
 
-#define START_TEST(name) void name() { std::cerr << "Start " << #name  << " test" << std::endl;
-#define END_TEST(name) std::cerr << #name  << " test OK\n" << std::endl;}
+#define START_TEST(name) void name() { std::cerr << "=======> Start " << #name  << " test <=======" << std::endl;
+#define END_TEST() std::cerr << "=======> test OK <=======\n" << std::endl;}
 
 void message(const String &msg) {
 

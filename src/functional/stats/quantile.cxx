@@ -73,9 +73,9 @@ namespace df
 
     Serie outliers(const Serie &serie, double mustache) {
         auto o = __ouliers__(serie, mustache);
-        return cut(serie, [o](double v, uint32_t) {
+        return cut([o](double v, uint32_t) {
             return v < std::get<0>(o) || v > std::get<1>(o);
-        });
+        }, serie);
     }
 
     /**
@@ -97,9 +97,9 @@ namespace df
      */
     Serie notOutliers(const Serie &serie, double mustache) {
         auto o = __ouliers__(serie, mustache);
-        return cut(serie, [o](double v, uint32_t) {
+        return cut([o](double v, uint32_t) {
             return v >= std::get<0>(o) && v <= std::get<1>(o);
-        });
+        }, serie);
     }
 
     // --------------------------------------

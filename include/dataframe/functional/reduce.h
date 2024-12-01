@@ -24,111 +24,128 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
-    namespace detail
-    {
-        // Helper pour detecter le type de retour d'une fonction
-        template <typename F>
-        struct function_reduce_traits : function_reduce_traits<decltype(&F::operator())>
-        {
-        };
+namespace df {
+namespace detail {
+// Helper pour detecter le type de retour d'une fonction
+template <typename F>
+struct function_reduce_traits
+    : function_reduce_traits<decltype(&F::operator())> {};
 
-        template <typename C, typename R, typename... Args>
-        struct function_reduce_traits<R (C::*)(Args...) const>
-        {
-            using return_type = R;
-            using args_tuple = std::tuple<Args...>;
-        };
+template <typename C, typename R, typename... Args>
+struct function_reduce_traits<R (C::*)(Args...) const> {
+    using return_type = R;
+    using args_tuple = std::tuple<Args...>;
+};
 
-        // Type trait pour détecter les callbacks scalaires
-        template <typename F>
-        struct callback_reduce_traits
-        {
-            using clean_type = std::remove_cv_t<std::remove_reference_t<F>>;
-            using traits = function_reduce_traits<clean_type>;
-            using first_arg = std::tuple_element_t<0, typename traits::args_tuple>;
+// Type trait pour détecter les callbacks scalaires
+template <typename F> struct callback_reduce_traits {
+    using clean_type = std::remove_cv_t<std::remove_reference_t<F>>;
+    using traits = function_reduce_traits<clean_type>;
+    using first_arg = std::tuple_element_t<0, typename traits::args_tuple>;
 
-            static constexpr bool is_scalar = std::is_same_v<
-                std::remove_cv_t<std::remove_reference_t<first_arg>>,
-                double>;
-        };
+    static constexpr bool is_scalar =
+        std::is_same_v<std::remove_cv_t<std::remove_reference_t<first_arg>>,
+                       double>;
+};
 
-        template <typename F>
-        inline constexpr bool is_reduce_scalar_callback_v = callback_reduce_traits<F>::is_scalar;
+template <typename F>
+inline constexpr bool is_reduce_scalar_callback_v =
+    callback_reduce_traits<F>::is_scalar;
+} // namespace detail
+
+/**
+ * @brief Reduces a Serie to either a double or a Serie
+ * @param serie Input Serie
+ * @param cb Reducer function
+ * @param init Initial value (double or Array)
+ * @return double for scalar reduction, Serie for vector reduction
+ *
+ * @example
+ * ```cpp
+ * // Scalar reduction (returns double)
+ * Serie s1(1, {1, 2, 3, 4, 5});
+ * double sum = reduce(s1, [](double acc, double v, uint32_t) {
+ *     return acc + v;
+ * }, 0.0);
+ *
+ * // Vector reduction (returns Serie)
+ * Serie s2(3, {1,2,3, 4,5,6});
+ * Serie sum = reduce(s2, [](const Array& acc, const Array& v, uint32_t) {
+ *     Array result(acc.size());
+ *     for(size_t i = 0; i < acc.size(); ++i) result[i] = acc[i] + v[i];
+ *     return result;
+ * }, Array(3, 0.0));
+ * ```
+ */
+template <typename F>
+auto reduce(const Serie &serie, F &&cb, double init)
+    -> std::enable_if_t<detail::is_reduce_scalar_callback_v<F>, double> {
+    double result = init;
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        result = cb(result, serie.template get<double>(i), i);
     }
-
-    /**
-     * @brief Reduces a Serie to either a double or a Serie
-     * @param serie Input Serie
-     * @param cb Reducer function
-     * @param init Initial value (double or Array)
-     * @return double for scalar reduction, Serie for vector reduction
-     *
-     * @example
-     * ```cpp
-     * // Scalar reduction (returns double)
-     * Serie s1(1, {1, 2, 3, 4, 5});
-     * double sum = reduce(s1, [](double acc, double v, uint32_t) {
-     *     return acc + v;
-     * }, 0.0);
-     *
-     * // Vector reduction (returns Serie)
-     * Serie s2(3, {1,2,3, 4,5,6});
-     * Serie sum = reduce(s2, [](const Array& acc, const Array& v, uint32_t) {
-     *     Array result(acc.size());
-     *     for(size_t i = 0; i < acc.size(); ++i) result[i] = acc[i] + v[i];
-     *     return result;
-     * }, Array(3, 0.0));
-     * ```
-     */
-    template <typename F>
-    auto reduce(const Serie &serie, F &&cb, double init)
-        -> std::enable_if_t<detail::is_reduce_scalar_callback_v<F>, double>
-    {
-        double result = init;
-        for (uint32_t i = 0; i < serie.count(); ++i)
-        {
-            result = cb(result, serie.template get<double>(i), i);
-        }
-        return result;
-    }
-
-    template <typename F>
-    auto reduce(const Serie &serie, F &&cb, const Array &init)
-        -> std::enable_if_t<!detail::is_reduce_scalar_callback_v<F>, Serie>
-    {
-        Array result = init;
-        for (uint32_t i = 0; i < serie.count(); ++i)
-        {
-            result = cb(result, serie.template get<Array>(i), i);
-        }
-        return Serie(result.size(), {result.begin(), result.end()});
-    }
-
-    /**
-     * @brief Creates a reusable reduce function
-     */
-    template <typename F>
-    auto make_reduce(F &&cb, double init)
-    {
-        static_assert(detail::is_reduce_scalar_callback_v<F>,
-                      "Scalar reduce requires a callback taking doubles");
-        return [cb = std::forward<F>(cb), init](const auto &serie)
-        {
-            return reduce(serie, cb, init);
-        };
-    }
-
-    template <typename F>
-    auto make_reduce(F &&cb, const Array &init)
-    {
-        static_assert(!detail::is_reduce_scalar_callback_v<F>,
-                      "Vector reduce requires a callback taking Arrays");
-        return [cb = std::forward<F>(cb), init](const auto &serie)
-        {
-            return reduce(serie, cb, init);
-        };
-    }
-
+    return result;
 }
+
+template <typename F>
+auto reduce(const Serie &serie, F &&cb, const Array &init)
+    -> std::enable_if_t<!detail::is_reduce_scalar_callback_v<F>, Serie> {
+    Array result = init;
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        result = cb(result, serie.template get<Array>(i), i);
+    }
+    return Serie(result.size(), {result.begin(), result.end()});
+}
+
+/**
+ * @brief Creates a reusable reduce function
+ */
+template <typename F> auto make_reduce(F &&cb, double init) {
+    static_assert(detail::is_reduce_scalar_callback_v<F>,
+                  "Scalar reduce requires a callback taking doubles");
+    return [cb = std::forward<F>(cb), init](const auto &serie) {
+        return reduce(serie, cb, init);
+    };
+}
+
+template <typename F> auto make_reduce(F &&cb, const Array &init) {
+    static_assert(!detail::is_reduce_scalar_callback_v<F>,
+                  "Vector reduce requires a callback taking Arrays");
+    return [cb = std::forward<F>(cb), init](const auto &serie) {
+        return reduce(serie, cb, init);
+    };
+}
+
+// -------------------------------------------------------
+
+// template <typename F, typename Init, typename... Args>
+// auto _reduce(F &&callback, Init &&init, const Args &...args) {
+//     if constexpr (details::is_multi_series_call<Args...>::value) {
+//         static_assert(std::conjunction<details::is_serie<Args>...>::value,
+//                       "All arguments after callback must be Series");
+
+//         // Check counts match
+//         std::array<size_t, sizeof...(args)> counts = {
+//             details::get_count(args)...};
+//         for (size_t i = 1; i < counts.size(); ++i) {
+//             if (counts[i] != counts[0]) {
+//                 throw std::invalid_argument(
+//                     "All Series must have the same count");
+//             }
+//         }
+
+//         auto result = init;
+//         for (uint32_t i = 0; i < counts[0]; ++i) {
+//             result = callback(result, details::get_value(args, i)..., i);
+//         }
+//         return result;
+//     } else {
+//         // Single Serie case...
+//         static_assert(sizeof...(args) == 1,
+//                       "Single Serie reduce requires exactly one Serie");
+//         const auto &serie = std::get<0>(std::forward_as_tuple(args...));
+//         return reduce(serie, callback);
+//     }
+// }
+
+} // namespace df
