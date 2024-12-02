@@ -26,6 +26,28 @@
 
 namespace df {
 
+/*
+// Base case - one operation
+template <typename F, typename... Args> auto pipe(F &&op, const Args &...args) {
+    return op(args...);
+}
+
+// Recursive case - multiple operations
+template <typename F, typename... Fs, typename... Args>
+auto pipe(F &&first, Fs &&...ops, const Args &...args) {
+    return pipe(std::forward<Fs>(ops)..., first(args...));
+}
+
+// Helper to create reusable pipeline
+template <typename... Fs> auto make_pipe(Fs &&...ops) {
+    return [ops = std::make_tuple(std::forward<Fs>(ops)...)]<typename... Args>(
+               const Args &...args) {
+        return std::apply([&](auto &&...ops) { return pipe(ops..., args...); },
+                          ops);
+    };
+}
+*/
+
 /**
  * @brief Applies a single operation to a Serie
  * @param serie The input Serie
@@ -46,7 +68,8 @@ template <typename T, typename F> auto pipe(const T &input, F &&op) {
 }
 
 /**
- * @brief Applies multiple operations to a Serie (or other classes) in sequence
+ * @brief Applies multiple operations to a Serie (or other classes) in
+ sequence
  * @param serie The input Serie (or any other class)
  * @param op First operation
  * @param ops Rest of the operations

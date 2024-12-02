@@ -35,9 +35,9 @@ namespace df
         Tuple m;
         if (serie.itemSize() == 1) {
             m.isNumber = true;
-            m.number = reduce(serie, [](double prev, double cur, uint32_t) {
+            m.number = reduce([](double prev, double cur, uint32_t) {
                 return prev + cur;
-            }, 0) / count ;
+            }, serie, 0) / count ;
             return m;
         }
 

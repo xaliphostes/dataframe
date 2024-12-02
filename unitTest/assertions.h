@@ -95,6 +95,10 @@ void assertSerieEqual(const df::Serie &s1, const Array &s2, double tol = 1e-7)
 
 void assertSerieEqual(const df::Serie &s1, const df::Serie &s2, double tol = 1e-7)
 {
+    assertEqual<int>(s1.itemSize(), s2.itemSize());
+    assertEqual<int>(s1.dimension(), s2.dimension());
+    assertEqual<uint32_t>(s1.count(), s2.count());
+    assertEqual<uint32_t>(s1.size(), s2.size()); // we never know ;-)
     assertArrayEqual(s1.asArray(), s2.asArray(), tol);
 }
 

@@ -114,6 +114,7 @@ int main() {
         df::Serie s1(1, {5, 2});
         
         auto result1 = df::map([](double v, uint32_t) { return v * 2; }, s1);
+        std::cerr << "Single Serie mapping\n";
         df::print(result1);
     }
 
@@ -132,7 +133,8 @@ int main() {
                 return result;
             },
             s1, s2, s3);
-        print(result2);
+        std::cerr << "Multiple Serie mapping\n";
+        df::print(result2);
     }
 
 }

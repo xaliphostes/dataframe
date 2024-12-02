@@ -17,25 +17,74 @@ Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows 
 Compared to Panda, we have some differences since our main consern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra).
 
 ## Core concepts
-A serie is a representation of an array of scalars, vectors or matrices.
-<br>When you iterate or use any function, the provided items are either a `double` (when itemSize=1) or an `Array` (when itemSize>1):
-```cpp
-auto s = Serie(1, {1, 0});
+A Serie is a fundamental concept in linear algebra and numerical computation that represents a collection of mathematical objects that share the same structure. Each item in a Serie can be:
+- A scalar value (itemSize=1)
+- A vector (itemSize>1, e.g., 2D or 3D vectors)
+- A tensor (e.g., stress tensor with itemSize=6 for symmetric or 9 for full)
 
-forEach([](double v, uint32_t) {
-    std::cout << v << " ";
-}, s)
-// Display: 1 0
+Even if this lib is called `dataframe` (like the **Panda** lib in Python), the main class is `Serie`.
+<br>The `Dataframe` class is only used to store multiple series with their associated name (i.e., a `std::map` of Serie) 
+
+Key operations include:
+```cpp
+// Core transformations
+map()      // Transform each item via a function 
+reduce()   // Aggregate items into a single value/vector
+filter()   // Select items meeting a condition
+
+// Linear algebra
+eigenValues()    // Compute eigenvalues of tensor items
+eigenVectors()   // Compute eigenvectors of tensor items
+normalize()      // Normalize vectors or tensors
+inv()           // Invert tensors
+
+// Combinations
+zip()      // Combine multiple Series element-wise
+forEach()  // Process each item without modifying
+```
+Series enable vector/tensor operations to be expressed naturally as transformations on collections of mathematical objects, maintaining their algebraic properties throughout the computations.
+
+Example workflow:
+```cpp
+auto stresses = Serie(6, {...});  // Symmetric stress tensors
+auto [values, vectors] = eigenSystem(stresses);  // Decompose into principal values/directions
+auto critical = filter(values, [](const Array& v) {
+    return v[0] < 0;  // Find compressive states
+});
 ```
 
+A more complete workflow using the `pipe` function is given below:
 ```cpp
-auto s = Serie(3, {1,0,1,  -1,0,-2});
+/**
+ * Pipeline to:
+ *  1. Calculate eigenvalues/vectors
+ *  2. Filter compressive states (first eigenvalue < 0)
+ *  3. Normalize eigenvectors
+ *  4. Compute final measure
+ */
+auto critical_stress_pipeline = make_pipe(
+   [](const Serie& s) {
+       auto [val, vec] = eigenSystem(s);
+       return zip(val, vec, positions);  // Combine all data
+   },
+   filter([](const Array& data, uint32_t) {
+       auto eigenvals = Array(data.begin(), data.begin() + 3);
+       return eigenvals[0] < 0;  // Keep compressive states
+   }),
+   map([](const Array& data, uint32_t) {
+       auto pos = Array(data.end() - 3, data.end());
+       return norm(pos);  // Return distance from origin
+   })
+);
 
-forEach([](const Array& v, uint32_t) {
-    std::cout << v << " ";
-}, s)
-// Display: [1,0,1] [-1,0,-2]
+/**
+ * Usage of the pipeline:
+ */
+auto stresses = Serie(6, {...}); // stresses at n points in 3D-space
+auto critical_stress = critical_stress_pipeline(stresses);
 ```
+___
+<br><br><br>
 
 A Serie is based on 4 values:
 - `itemSize()`: the elementary size of the item in a Serie
@@ -44,9 +93,11 @@ A Serie is based on 4 values:
 - `size()`: the number of `double` stored in a Serie 
 - `dimension()`: the space dimension of the Serie. Can be either 2 dimensional or 3 dimensional.
 
-Constructors are:
+and major constructors are:
 - `Serie(itemSize, Array, dimension=3)`
 - `Serie(itemSize, count, dimension=3)`
+
+A Serie can be defined for scalars, vectors or matrices:
 
 ### Scalar
 For the scalar case, the corresponding itemSize is 1.

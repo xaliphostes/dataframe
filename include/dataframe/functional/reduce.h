@@ -78,7 +78,7 @@ inline constexpr bool is_reduce_scalar_callback_v =
  * ```
  */
 template <typename F>
-auto reduce(const Serie &serie, F &&cb, double init)
+auto reduce(F &&cb, const Serie &serie, double init)
     -> std::enable_if_t<detail::is_reduce_scalar_callback_v<F>, double> {
     double result = init;
     for (uint32_t i = 0; i < serie.count(); ++i) {
@@ -88,7 +88,7 @@ auto reduce(const Serie &serie, F &&cb, double init)
 }
 
 template <typename F>
-auto reduce(const Serie &serie, F &&cb, const Array &init)
+auto reduce(F &&cb, const Serie &serie, const Array &init)
     -> std::enable_if_t<!detail::is_reduce_scalar_callback_v<F>, Serie> {
     Array result = init;
     for (uint32_t i = 0; i < serie.count(); ++i) {
@@ -104,7 +104,7 @@ template <typename F> auto make_reduce(F &&cb, double init) {
     static_assert(detail::is_reduce_scalar_callback_v<F>,
                   "Scalar reduce requires a callback taking doubles");
     return [cb = std::forward<F>(cb), init](const auto &serie) {
-        return reduce(serie, cb, init);
+        return reduce(cb, serie, init);
     };
 }
 
@@ -112,7 +112,7 @@ template <typename F> auto make_reduce(F &&cb, const Array &init) {
     static_assert(!detail::is_reduce_scalar_callback_v<F>,
                   "Vector reduce requires a callback taking Arrays");
     return [cb = std::forward<F>(cb), init](const auto &serie) {
-        return reduce(serie, cb, init);
+        return reduce(cb, serie, init);
     };
 }
 

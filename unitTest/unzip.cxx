@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-now fmaerten@gmail.com
+ * Copyright (c) 2023 fmaerten@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,27 +21,27 @@
  *
  */
 
-#pragma once
-#include "../Serie.h"
+#include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/functional/unzip.h>
+#include <dataframe/functional/zip.h>
 
-namespace df {
+int main() {
+    // Original Series
+    df::Serie s1(1, {1, 2});                // Scalar
+    df::Serie s2(2, {3, 4, 5, 6});          // 2D
+    df::Serie s3(3, {7, 8, 9, 10, 11, 12}); // 3D
 
-// Single Serie print implementation
-void print(const Serie &serie);
+    // Zip them
+    auto zipped = df::zip(s1, s2, s3);
+    assertSerieEqual(zipped, Array{1, 3, 4, 7, 8, 9, 2, 5, 6, 10, 11, 12});
 
-// Multiple Series print implementation
-template <typename... Series>
-void print(const Serie &first, const Series &...rest) {
-    static_assert(std::conjunction<details::is_serie<Series>...>::value,
-                  "All arguments must be Series");
-    std::cout << "Series 1:" << std::endl;
-    print(first);
+    // Unzip them
+    auto series = df::unzip(zipped, {1, 2, 3});
 
-    if constexpr (sizeof...(rest) > 0) {
-        size_t index = 2;
-        ((std::cout << "Series " << index++ << ":" << std::endl, print(rest)),
-         ...);
-    }
+    // Check results
+    assertEqual<uint>(series.size(), 3);
+    assertSerieEqual(series[0], s1);
+    assertSerieEqual(series[1], s2);
+    assertSerieEqual(series[2], s3);
 }
-
-} // namespace df

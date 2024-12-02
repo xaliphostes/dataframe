@@ -39,11 +39,11 @@ template <typename F> auto Serie::map(F &&cb) const {
 }
 
 template <typename F> auto Serie::reduce(F &&cb, double init) {
-    return df::reduce(*this, cb, init);
+    return df::reduce(cb, *this, init);
 }
 
 template <typename F> auto Serie::reduce(F &&cb, const Array &init) {
-    return df::reduce(*this, cb, init);
+    return df::reduce(cb, *this, init);
 }
 
 template <typename F> auto Serie::filter(F &&predicate) const {

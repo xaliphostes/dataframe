@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-now fmaerten@gmail.com
+ * Copyright (c) 2023 fmaerten@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,27 +21,40 @@
  *
  */
 
-#pragma once
-#include "../Serie.h"
+#include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/functional/print.h>
+#include <dataframe/functional/reject.h>
+#include <iostream>
 
-namespace df {
+using namespace df;
 
-// Single Serie print implementation
-void print(const Serie &serie);
+int main() {
 
-// Multiple Series print implementation
-template <typename... Series>
-void print(const Serie &first, const Series &...rest) {
-    static_assert(std::conjunction<details::is_serie<Series>...>::value,
-                  "All arguments must be Series");
-    std::cout << "Series 1:" << std::endl;
-    print(first);
+    // Single Serie reject
+    Serie s1(1, {1, 2, 3, 4, 5});
+    auto noEvens = reject([](double v, uint32_t) { return (int)v % 2 == 0; },
+                          s1); // Keep odd numbers
+    print(noEvens);
 
-    if constexpr (sizeof...(rest) > 0) {
-        size_t index = 2;
-        ((std::cout << "Series " << index++ << ":" << std::endl, print(rest)),
-         ...);
-    }
+    // Multiple Series reject
+    Serie stress(6, {1,2,3,4,5,6, 6,5,4,3,2,1});
+    Serie positions(3, {1,2,3, 3,2,1});
+    auto rejected = rejectAll(
+        [](const Array &s, const Array &p) {
+            return s[0] < 0 &&
+                   p[2] > 0; // Remove where both conditions are true
+        },
+        stress, positions);
+    
+    print(rejected[0]);
+    print(rejected[1]);
+
+    // Using make_reject
+    auto removeNegatives =
+        make_reject([](double v, uint32_t) { return v < 0; });
+    auto positives = removeNegatives(s1);
+    print(positives);
+
+    return 0;
 }
-
-} // namespace df

@@ -29,8 +29,9 @@ namespace df {
 /**
  * Synonym for map
  */
-template <typename F> Serie apply(F &&fn, const Serie &serie) {
-    return map(fn, serie);
+template <typename F, typename... Args>
+auto apply(F &&callback, const Args &...args) {
+    return map(callback, args...);
 }
 
 MAKE_OP(apply);
