@@ -245,7 +245,7 @@ When including algos from `<dataframe/functional/>`, be sure to include first `<
 
 # API
 
-## Example: forEach and forEachAll
+## Example: forEach
 ```cpp
 df::Serie s1(1, {10, 20});           // scalars
 df::Serie s2(2, {1, 2, 3, 4});       // 2D vectors
@@ -257,7 +257,7 @@ df::forEach(s2, [](const Array &v, uint32_t i) {
 });
 
 // Loop over s1, s2 and s3 together
-df::forEachAll(
+df::forEach(
     [=](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
         std::cout << "Index " << i << ":\n"
                 << "  v1 = " << v1
@@ -438,7 +438,7 @@ Serie positions(3, {10, 20, -30, 1, 0, 0, 2, 0, 0});
 Serie markers  (1, {1, 2, 2});
 
 // Filter based on multiple conditions
-auto filtered = df::filterAll(
+auto filtered = df::filter(
     [](const Array &s, const Array &p, const Array &m) {
         return s[0] < 0 && // compressive stress
                p[2] < 0 && // depth condition
@@ -455,7 +455,7 @@ auto filtered_markers   = filtered[2];
 // Use in pipeline
 auto result = pipe(
 
-    df::filterAll([](const Array &s, const Array &p) {
+    df::filter([](const Array &s, const Array &p) {
         return s[0] < 0 && p[2] < 0;
     }, stress, positions),
 
