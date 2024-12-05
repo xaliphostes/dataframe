@@ -88,7 +88,7 @@ auto stresses = Serie(6, {...}); // stresses at n points in 3D-space
 auto critical_stress = critical_stress_pipeline(stresses);
 ```
 
-How to run an algorithm in parallel (Except from `example/parallel-postprocess/main.cxx`)
+How to run an algorithm in parallel (excerpt from `example/parallel-postprocess/main.cxx`)
 ```cpp
 #include <dataframe/functional/geo/cartesian_grid.h>
 #include <dataframe/functional/partition_n.h>
