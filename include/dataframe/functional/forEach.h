@@ -23,6 +23,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
 #include <dataframe/functional/macros.h>
 
 #include <type_traits>
@@ -66,15 +67,7 @@ void forEach(F &&callback, const Args &...args) {
         static_assert(std::conjunction<details::is_serie<Args>...>::value,
                       "All arguments after callback must be Series");
 
-        // Check counts match
-        std::array<size_t, sizeof...(args)> counts = {
-            details::get_count(args)...};
-        for (size_t i = 1; i < counts.size(); ++i) {
-            if (counts[i] != counts[0]) {
-                throw std::invalid_argument(
-                    "All Series must have the same count");
-            }
-        }
+        auto counts = utils::countAndCheck(args...);
 
         // Iterate over all series simultaneously
         for (uint32_t i = 0; i < counts[0]; ++i) {

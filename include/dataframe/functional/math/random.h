@@ -21,45 +21,13 @@
  *
  */
 
-#include <iostream>
+#pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/functional/math/add.h>
-#include <dataframe/functional/algebra/dot.h>
-#include <dataframe/functional/math/negate.h>
-#include "assertions.h"
+#include <random>
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
+namespace df {
 
-    {
-        auto s = df::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
+Serie random(uint32_t count, uint32_t itemSize, double min = 0, double max = 1,
+             unsigned seed = std::random_device{}());
 
-    {
-        auto s = df::add(a,b,c);
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
-    }
-
-    {
-        auto s = df::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
-}
+} // namespace df

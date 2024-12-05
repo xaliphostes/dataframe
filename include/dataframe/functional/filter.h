@@ -24,22 +24,12 @@
 #pragma once
 #include <array>
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
 #include <tuple>
 
 namespace df {
 
 namespace details {
-
-// // Helper to detect the return type of a function
-// template <typename F>
-// struct function_filter_traits
-//     : function_filter_traits<decltype(&F::operator())> {};
-
-// template <typename C, typename R, typename... Args>
-// struct function_filter_traits<R (C::*)(Args...) const> {
-//     using return_type = R;
-//     using args_tuple = std::tuple<Args...>;
-// };
 
 // Base template
 template <typename T> struct function_filter_traits;
@@ -177,15 +167,7 @@ auto filter(F &&predicate, const Args &...args) {
         static_assert(std::conjunction<details::is_serie<Args>...>::value,
                       "All arguments after predicate must be Series");
 
-        // Check counts match
-        std::array<size_t, sizeof...(args)> counts = {
-            details::get_count(args)...};
-        for (size_t i = 1; i < counts.size(); ++i) {
-            if (counts[i] != counts[0]) {
-                throw std::invalid_argument(
-                    "All Series must have the same count");
-            }
-        }
+        auto counts = utils::countAndCheck(args...);
 
         // Collect indices that satisfy the predicate
         std::vector<uint32_t> indices;
@@ -259,17 +241,7 @@ Series filterAll(Pred &&predicate, const TheSeries &...series) {
     static_assert(sizeof...(series) >= 2,
                   "filterAll requires at least 2 Series");
 
-    // Check all Series have the same count
-    std::array<size_t, sizeof...(series)> counts = {
-        details::get_count(series)...};
-    for (size_t i = 1; i < counts.size(); ++i) {
-        if (counts[i] != counts[0]) {
-            throw std::invalid_argument(
-                "All Series must have the same count. First is " +
-                std::to_string(counts[0]) + " and " + std::to_string(i) +
-                "eme is " + std::to_string(counts[i]));
-        }
-    }
+    auto counts = utils::countAndCheck(series...);
 
     // Collect indices that satisfy the predicate
     std::vector<uint32_t> indices;

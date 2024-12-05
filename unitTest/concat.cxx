@@ -21,45 +21,16 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/functional/math/add.h>
-#include <dataframe/functional/algebra/dot.h>
-#include <dataframe/functional/math/negate.h>
 #include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/functional/concat.h>
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
+int main() {
+    df::Serie s1(2, {1, 2, 3, 4, 5, 6});
+    df::Serie s2(2, {4, 5, 6, 7, 8, 9});
+    df::Serie s3(2, {10, 11, 12, 13, 10, 10});
 
-    {
-        auto s = df::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::add(a,b,c);
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
-    }
-
-    {
-        auto s = df::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
+    auto result = df::concat(s1, s2, s3);
+    assertArrayEqual(result.asArray(), {1, 2, 3, 4, 5, 6, 4, 5, 6, 7, 8, 9, 10,
+                                        11, 12, 13, 10, 10});
 }

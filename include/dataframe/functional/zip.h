@@ -23,6 +23,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
 #include <tuple>
 #include <stdexcept>
 
@@ -61,19 +62,7 @@ namespace df
             throw std::invalid_argument("All input Series must be valid");
         }
 
-        // Get the count (all series must have the same count)
-        const uint32_t count = std::get<0>(std::forward_as_tuple(series...)).count();
-
-        // Helper to check if all series have the same count
-        auto checkCount = [count](const auto &...s)
-        {
-            return (... && (s.count() == count));
-        };
-
-        if (!checkCount(series...))
-        {
-            throw std::invalid_argument("All input Series must have the same count");
-        }
+        auto count = utils::countAndCheck(series...)[0];
 
         // Calculate total itemSize
         const uint32_t totalItemSize = (... + series.itemSize());
@@ -143,16 +132,7 @@ namespace df
             }
         }
 
-        const uint32_t count = series[0].count();
-
-        // Check if all series have the same count
-        for (const auto &s : series)
-        {
-            if (s.count() != count)
-            {
-                throw std::invalid_argument("All input Series must have the same count");
-            }
-        }
+        size_t count = utils::countAndCheck(series)[0];
 
         // Calculate total itemSize
         uint32_t totalItemSize = 0;

@@ -21,3 +21,4 @@
 project(examples)
 
 add_subdirectory(critical-stress)
+add_subdirectory(parallel-postprocess)

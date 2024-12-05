@@ -32,7 +32,7 @@
 #define END_TEST() std::cerr << "=======> test OK <=======\n" << std::endl;}
 
 void message(const String &msg) {
-
+    std::cerr << msg << std::endl;
 }
 
 void assertCondition(bool cond, const String &msg = "")

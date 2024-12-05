@@ -67,13 +67,13 @@ int main() {
         zip(stress, distances, rockTypes),
 
         // Reject points far from faults
-        reject([](const Array &data, uint32_t) {
+        make_reject([](const Array &data, uint32_t) {
             double distance = data[6]; // Index after stress components
             return distance > 2.0;
         }),
 
         // Keep only compressive states
-        filter([](const Array &data, uint32_t) {
+        make_filter([](const Array &data, uint32_t) {
             double trace = data[0] + data[3] + data[5]; // xx + yy + zz
             return trace < 0;
         }),

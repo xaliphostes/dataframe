@@ -21,45 +21,18 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/functional/math/add.h>
-#include <dataframe/functional/algebra/dot.h>
-#include <dataframe/functional/math/negate.h>
 #include "assertions.h"
+#include <dataframe/Serie.h>
+#include <dataframe/functional/print.h>
+#include <dataframe/functional/memoize.h>
+#include <dataframe/functional/math/random.h>
+#include <dataframe/functional/algebra/eigen.h>
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
+int main() {
+    auto expensive_eigenvals = df::memoize([](const df::Serie &s) {
+        return df::eigenValues(s); // Expensive computation
+    });
 
-    {
-        auto s = df::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::add(a,b,c);
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
-    }
-
-    {
-        auto s = df::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
+    df::Serie stress = df::random(1000000, 6, -1e5, 1e5); // 1 million stresses
+    auto result = expensive_eigenvals(stress);
 }

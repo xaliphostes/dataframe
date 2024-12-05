@@ -2,6 +2,8 @@
 
 1. Optimization?
 
+1. Make this lib only one header, no cpp!
+
 2. Iterators?: See https://github.com/VinGarcia/Simple-Iterator-Template
 for an implementation of iterators using some macros
 

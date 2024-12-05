@@ -23,6 +23,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
 #include <functional>
 #include <stdexcept>
 #include <type_traits>
@@ -117,15 +118,7 @@ auto map(F &&callback, const Args &...args) {
         static_assert(std::conjunction<details::is_serie<Args>...>::value,
                       "All arguments after callback must be Series");
 
-        // Check counts match
-        std::array<size_t, sizeof...(args)> counts = {
-            details::get_count(args)...};
-        for (size_t i = 1; i < counts.size(); ++i) {
-            if (counts[i] != counts[0]) {
-                throw std::invalid_argument(
-                    "All Series must have the same count");
-            }
-        }
+        auto counts = utils::countAndCheck(args...);
 
         // Get first result to determine output Serie properties
         auto first_result = callback(args.template get<Array>(0)..., 0);

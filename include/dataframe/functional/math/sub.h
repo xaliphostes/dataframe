@@ -24,12 +24,51 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
 
-    Serie sub(const std::initializer_list<Serie> &list) ;
-    Serie sub(const Serie &serie, double v) ;
+Serie sub(const std::initializer_list<Serie> &list);
 
-    MAKE_OP(sub);
+Serie sub(const Serie &serie, double v);
 
+inline Serie sub(const Serie& s1, const Serie& s2) {
+    if (s1.itemSize() != s2.itemSize() || s1.count() != s2.count()) {
+        throw std::invalid_argument("Series must have same itemSize and count");
+    }
+
+    Serie result(s1.itemSize(), s1.count());
+    
+    for (uint32_t i = 0; i < s1.count(); ++i) {
+        if (s1.itemSize() == 1) {
+            result.set(i, s1.get<double>(i) - s2.get<double>(i));
+        } else {
+            Array sum(s1.itemSize());
+            auto v1 = s1.get<Array>(i);
+            auto v2 = s2.get<Array>(i);
+            for (size_t j = 0; j < s1.itemSize(); ++j) {
+                sum[j] = v1[j] - v2[j];
+            }
+            result.set(i, sum);
+        }
+    }
+    return result;
 }
+
+template <typename... Series> Serie add(const Series &...series) {
+    if constexpr (sizeof...(series) < 1) {
+        throw std::invalid_argument(
+            "Number of arguments (Serie) must be greater than 1. Got " +
+            std::to_string(sizeof...(series)) + " arguments)");
+    }
+
+    utils::countAndCheck(series...);
+
+    auto first = std::get<0>(std::tuple<const Series &...>(series...));
+
+    Serie result = Serie(first.itemSize(), first.count());
+    ((result = sub(result, series)), ...);
+    return result;
+}
+
+MAKE_OP(sub);
+
+} // namespace df

@@ -30,6 +30,8 @@
 
 namespace df {
 
+// ------------------------------------------------------------
+
 template <typename F> void Serie::forEach(F &&cb) const {
     df::forEach(cb, *this);
 }
@@ -77,6 +79,14 @@ inline std::ostream &operator<<(std::ostream &o, const Serie &s) {
         std::cerr << v[v.size() - 1] << "]";
     } else {
         std::cerr << "  values   : []";
+    }
+    return o;
+}
+
+inline std::ostream &operator<<(std::ostream &o, const Series &series) {
+    o << series.size() << " series:\n";
+    for (const auto& serie: series) {
+        o << serie << std::endl;
     }
     return o;
 }

@@ -129,6 +129,7 @@ Serie toSerie(uint32_t itemSize, const Array &a, uint dim = 3);
 // ---------------------------------------------
 
 std::ostream &operator<<(std::ostream &o, const Serie &a);
+std::ostream &operator<<(std::ostream &o, const Series &a);
 
 // ---------------------------------------------
 

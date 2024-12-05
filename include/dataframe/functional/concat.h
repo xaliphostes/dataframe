@@ -21,45 +21,51 @@
  *
  */
 
-#include <iostream>
+#pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/functional/math/add.h>
-#include <dataframe/functional/algebra/dot.h>
-#include <dataframe/functional/math/negate.h>
-#include "assertions.h"
+#include <dataframe/utils.h>
+#include <stdexcept>
+#include <tuple>
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
+namespace df {
 
-    {
-        auto s = df::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
+/**
+ * Concatenate 2 or more series
+ */
+Serie concat(const std::vector<Serie> &series) {
+    if (series.empty()) {
+        throw std::invalid_argument("concat requires at least one Serie");
     }
 
-    {
-        auto s = df::add(a,b,c);
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
+    uint32_t itemSize = series[0].itemSize();
+    uint32_t totalCount = 0;
+
+    auto counts = utils::countAndCheck();
+    for (const auto &s : series) {
+        if (!s.isValid() || s.itemSize() != itemSize) {
+            throw std::invalid_argument(
+                "All series must be valid and have same itemSize");
+        }
+        totalCount += s.count();
     }
 
-    {
-        auto s = df::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
+    Serie result(itemSize, totalCount);
+    uint32_t currentIndex = 0;
+
+    for (const auto &s : series) {
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            result.set(currentIndex++, s.get<Array>(i));
+        }
     }
 
-    {
-        auto s = df::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::add({a, df::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
+    return result;
 }
+
+template <typename... Series> Serie concat(const Series &...series) {
+    std::vector<Serie> vec{series...};
+    return concat(vec);
+}
+
+MAKE_OP(concat);
+
+} // namespace df
