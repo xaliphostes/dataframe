@@ -26,35 +26,36 @@
 #include <dataframe/types.h>
 #include <cmath>
 
-namespace df
-{
+namespace df {
+namespace stats {
 
-    Tuple mean(const Serie &serie)
-    {
-        uint32_t count = serie.count();
-        Tuple m;
-        if (serie.itemSize() == 1) {
-            m.isNumber = true;
-            m.number = reduce([](double prev, double cur, uint32_t) {
-                return prev + cur;
-            }, serie, 0) / count ;
-            return m;
-        }
-
-        Array b = createArray(serie.itemSize(), 0);
-
-        serie.forEach([&](const Array& a, uint32_t) {
-            for (uint j = 0; j < a.size(); ++j) {
-                b[j] += a[j];
-            }
-        });
-
-        for (double& v: b) {
-            v /= count;
-        }
-        
-        m.array = b;
+Tuple mean(const Serie &serie) {
+    uint32_t count = serie.count();
+    Tuple m;
+    if (serie.itemSize() == 1) {
+        m.isNumber = true;
+        m.number =
+            reduce([](double prev, double cur, uint32_t) { return prev + cur; },
+                   serie, 0) /
+            count;
         return m;
     }
 
+    Array b = createArray(serie.itemSize(), 0);
+
+    serie.forEach([&](const Array &a, uint32_t) {
+        for (uint j = 0; j < a.size(); ++j) {
+            b[j] += a[j];
+        }
+    });
+
+    for (double &v : b) {
+        v /= count;
+    }
+
+    m.array = b;
+    return m;
 }
+
+} // namespace stats
+} // namespace df

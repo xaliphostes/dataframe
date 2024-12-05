@@ -22,3 +22,4 @@ project(examples)
 
 add_subdirectory(critical-stress)
 add_subdirectory(parallel-postprocess)
+add_subdirectory(parallel-jacobi-solver)

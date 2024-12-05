@@ -38,14 +38,14 @@ int main()
      * @brief Different count
      */
     shouldThrowError([a, b]() {
-        df::add({a, b});
+        df::math::add({a, b});
     });
 
     /**
      * @brief Different itemSize
      */
     shouldThrowError([a, c]() {
-        df::add({a, c});
+        df::math::add({a, c});
     });
 
     /**

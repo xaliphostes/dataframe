@@ -25,12 +25,14 @@
 #include <dataframe/Serie.h>
 #include <dataframe/functional/macros.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    Serie div(double, const Serie &serie);
-    Serie div(const Serie& divider, const Serie &serie);
+Serie div(double, const Serie &serie);
+Serie div(const Serie &divider, const Serie &serie);
 
-    // To be use with pipe
-    MAKE_OP(div);
-}
+// To be use with pipe
+MAKE_OP(div);
+
+} // namespace math
+} // namespace df

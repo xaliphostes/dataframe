@@ -24,18 +24,18 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    // Helper struct to hold min/max results
-    struct MinMax
-    {
-        Array min;
-        Array max;
-    };
+// Helper struct to hold min/max results
+struct MinMax {
+    Array min;
+    Array max;
+};
 
-    MinMax minMax(const Serie &serie);
+MinMax minMax(const Serie &serie);
 
-    MAKE_OP(minMax);
+MAKE_OP(minMax);
 
-}
+} // namespace math
+} // namespace df

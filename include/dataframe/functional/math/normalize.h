@@ -25,9 +25,11 @@
 #include "../../Serie.h"
 
 namespace df {
+namespace math {
 
-    Serie normalize(const Serie& serie);
+Serie normalize(const Serie &serie);
 
-    MAKE_OP(normalize);
+MAKE_OP(normalize);
 
-}
+} // namespace math
+} // namespace df

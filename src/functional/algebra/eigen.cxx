@@ -24,6 +24,8 @@
 #include <dataframe/functional/algebra/eigen.h>
 
 namespace df {
+namespace algebra {
+
 void symmetricEigen(const double *, int, double *, double *);
 
 Serie eigenValues(const Serie &serie) {
@@ -369,4 +371,5 @@ void symmetricEigen(const double *mat, int n, double *eigen_vec,
     delete[] index;
 }
 
+} // namespace algebra
 } // namespace df

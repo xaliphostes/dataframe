@@ -21,18 +21,20 @@
  *
  */
 
+#include <dataframe/functional/algebra/norm.h>
 #include <dataframe/functional/geo/areas.h>
 #include <dataframe/functional/geo/normals.h>
 #include <dataframe/functional/math/div.h>
-#include <dataframe/functional/algebra/norm.h>
 
 namespace df {
+namespace geo {
 
-    Serie areas(const Serie &positions, const Serie& indices) {
-        if (!positions.isValid() || !indices.isValid()) {
-            return Serie();
-        }
-        return div(norm(normals(positions, indices)), 2);
+Serie areas(const Serie &positions, const Serie &indices) {
+    if (!positions.isValid() || !indices.isValid()) {
+        return Serie();
     }
-
+    return math::div(algebra::norm(geo::normals(positions, indices)), 2);
 }
+
+} // namespace geo
+} // namespace df

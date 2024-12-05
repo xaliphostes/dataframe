@@ -24,23 +24,26 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    /**
-     * Performs a weighted sum of series.
-     * 
-     * Example:
-     * @code
-     * df::Serie a(2, {1, 2, 3, 4});
-     * df::Serie b(2, {4, 3, 2, 1});
-     * df::Serie c(2, {2, 2, 1, 1});
-     * df::Serie s = df::weigthedSum({a, b, c}, {2, 3, 4});
-     * @endcode
-     */
-    Serie weigthedSum(const std::initializer_list<Serie> &list, const Array &weights) ;
-    Serie weigthedSum(const std::initializer_list<Serie> &list, const std::initializer_list<double> &weights) ;
+/**
+ * Performs a weighted sum of series.
+ *
+ * Example:
+ * @code
+ * df::Serie a(2, {1, 2, 3, 4});
+ * df::Serie b(2, {4, 3, 2, 1});
+ * df::Serie c(2, {2, 2, 1, 1});
+ * df::Serie s = df::weigthedSum({a, b, c}, {2, 3, 4});
+ * @endcode
+ */
+Serie weigthedSum(const std::initializer_list<Serie> &list,
+                  const Array &weights);
+Serie weigthedSum(const std::initializer_list<Serie> &list,
+                  const std::initializer_list<double> &weights);
 
-    MAKE_OP(weigthedSum);
+MAKE_OP(weigthedSum);
 
-}
+} // namespace math
+} // namespace df

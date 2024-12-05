@@ -30,9 +30,9 @@
 
 int main() {
     auto expensive_eigenvals = df::memoize([](const df::Serie &s) {
-        return df::eigenValues(s); // Expensive computation
+        return df::algebra::eigenValues(s); // Expensive computation
     });
 
-    df::Serie stress = df::random(1000000, 6, -1e5, 1e5); // 1 million stresses
+    df::Serie stress = df::math::random(1000000, 6, -1e5, 1e5); // 1 million stresses
     auto result = expensive_eigenvals(stress);
 }

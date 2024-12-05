@@ -31,7 +31,7 @@ int main()
     {
         std::cerr << "TO CHECK !!!" << std::endl ;
         df::Serie s(6, {1, 2, 3, 4, 5, 6});
-        auto result = df::inv(s);
+        auto result = df::algebra::inv(s);
         assertSerieEqual(result, {
             1, -3, 2,
                 3, -1,
@@ -42,7 +42,7 @@ int main()
     {
         std::cerr << "TO CHECK !!!" << std::endl ;
         df::Serie s(9, {2, 3, 1, 6, 5, 4, 7, 9, 8});
-        auto result = df::inv(s);
+        auto result = df::algebra::inv(s);
         std::cerr << result << std::endl;
         assertSerieEqual(result, {
             -0.121212, 0.454545, -0.212121,

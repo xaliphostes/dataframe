@@ -21,52 +21,54 @@
  *
  */
 
+#include <dataframe/functional/algebra/norm.h>
 #include <dataframe/functional/geo/areas.h>
 #include <dataframe/functional/geo/normals.h>
 #include <dataframe/functional/math/div.h>
-#include <dataframe/functional/algebra/norm.h>
 
 namespace df {
+namespace geo {
 
-    Array create(const Array& v1, const Array& v2) ;
+Array create(const Array &v1, const Array &v2);
 
-    Array cross(const Array& v, const Array& w) ;
+Array cross(const Array &v, const Array &w);
 
-    Serie normals(const Serie &positions, const Serie& indices) {
-        if (!positions.isValid() || !indices.isValid()) {
-            return Serie();
-        }
-
-        //   3D points                     triangles
-        if (positions.itemSize() != 3 || indices.itemSize() != 3) {
-            return Serie();
-        }
-
-        Array data = createArray(indices.count()*3, 0);
-
-        uint32_t i = 0;
-        indices.forEach( [&](const Array& t, uint32_t index) {
-            auto v1 = positions.value(t[0]);
-            auto v2 = positions.value(t[1]);
-            auto v3 = positions.value(t[2]);
-            auto n = cross( create(v1, v2), create(v1, v3) );
-            data[i++] = n[0];
-            data[i++] = n[1];
-            data[i++] = n[2];
-        });
-
-        return Serie(3, data);
+Serie normals(const Serie &positions, const Serie &indices) {
+    if (!positions.isValid() || !indices.isValid()) {
+        return Serie();
     }
 
-    Array create(const Array& v1, const Array& v2) {
-        return Array{v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]};
+    //   3D points                     triangles
+    if (positions.itemSize() != 3 || indices.itemSize() != 3) {
+        return Serie();
     }
 
-    Array cross(const Array& v, const Array& w) {
-        double x = v[1] * w[2] - v[2] * w[1];
-        double y = v[2] * w[0] - v[0] * w[2];
-        double z = v[0] * w[1] - v[1] * w[0];
-        return Array{x, y, z};
-    }
+    Array data = createArray(indices.count() * 3, 0);
 
+    uint32_t i = 0;
+    indices.forEach([&](const Array &t, uint32_t index) {
+        auto v1 = positions.value(t[0]);
+        auto v2 = positions.value(t[1]);
+        auto v3 = positions.value(t[2]);
+        auto n = cross(create(v1, v2), create(v1, v3));
+        data[i++] = n[0];
+        data[i++] = n[1];
+        data[i++] = n[2];
+    });
+
+    return Serie(3, data);
 }
+
+Array create(const Array &v1, const Array &v2) {
+    return Array{v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]};
+}
+
+Array cross(const Array &v, const Array &w) {
+    double x = v[1] * w[2] - v[2] * w[1];
+    double y = v[2] * w[0] - v[0] * w[2];
+    double z = v[0] * w[1] - v[1] * w[0];
+    return Array{x, y, z};
+}
+
+} // namespace geo
+} // namespace df

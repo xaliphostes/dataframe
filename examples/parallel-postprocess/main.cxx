@@ -166,6 +166,4 @@ int main() {
         {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
 
     auto strain = df::parallel_execute(model, df::partition_n(nbCores, grid));
-
-    // std::cerr << strain << std::endl;
 }

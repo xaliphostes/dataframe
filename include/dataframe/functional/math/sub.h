@@ -25,18 +25,19 @@
 #include <dataframe/Serie.h>
 
 namespace df {
+namespace math {
 
 Serie sub(const std::initializer_list<Serie> &list);
 
 Serie sub(const Serie &serie, double v);
 
-inline Serie sub(const Serie& s1, const Serie& s2) {
+inline Serie sub(const Serie &s1, const Serie &s2) {
     if (s1.itemSize() != s2.itemSize() || s1.count() != s2.count()) {
         throw std::invalid_argument("Series must have same itemSize and count");
     }
 
     Serie result(s1.itemSize(), s1.count());
-    
+
     for (uint32_t i = 0; i < s1.count(); ++i) {
         if (s1.itemSize() == 1) {
             result.set(i, s1.get<double>(i) - s2.get<double>(i));
@@ -71,4 +72,5 @@ template <typename... Series> Serie add(const Series &...series) {
 
 MAKE_OP(sub);
 
+} // namespace math
 } // namespace df

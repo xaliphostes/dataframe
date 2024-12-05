@@ -24,6 +24,7 @@
 #include <dataframe/functional/math/random.h>
 
 namespace df {
+namespace math {
 
 /**
  * @brief Generate a Serie with uniform random values in [min, max]
@@ -62,4 +63,5 @@ Serie random(uint32_t count, uint32_t itemSize, double min, double max,
     return result;
 }
 
+} // namespace math
 } // namespace df

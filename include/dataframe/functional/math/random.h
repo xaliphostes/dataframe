@@ -26,8 +26,10 @@
 #include <random>
 
 namespace df {
+namespace math {
 
 Serie random(uint32_t count, uint32_t itemSize, double min = 0, double max = 1,
              unsigned seed = std::random_device{}());
-
+             
+} // namespace math
 } // namespace df

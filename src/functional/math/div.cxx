@@ -25,16 +25,19 @@
 #include <dataframe/functional/map.h>
 
 namespace df {
+namespace math {
 
 Serie div(double d, const Serie &serie) {
 
-    return map([d](const Array &a, uint32_t i) { // ieme item
-        Array r = a;
-        for (uint32_t j = 0; j < a.size(); ++j) {
-            r[j] /= d;
-        }
-        return r;
-    }, serie);
+    return map(
+        [d](const Array &a, uint32_t i) { // ieme item
+            Array r = a;
+            for (uint32_t j = 0; j < a.size(); ++j) {
+                r[j] /= d;
+            }
+            return r;
+        },
+        serie);
 }
 
 Serie div(const Serie &divider, const Serie &serie) {
@@ -81,4 +84,5 @@ Serie div(const Serie &divider, const Serie &serie) {
     }
 }
 
+} // namespace math
 } // namespace df

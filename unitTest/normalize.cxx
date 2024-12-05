@@ -29,11 +29,11 @@ int main()
 {
     // Normalisation d'une Serie scalaire
     df::Serie s1(1, {1, 2, 3, 4, 5});
-    auto normalized1 = df::normalize(s1); // Normalise entre 0 et 1
+    auto normalized1 = df::math::normalize(s1); // Normalise entre 0 et 1
     assertSerieEqual(normalized1, {0, 0.25, 0.5, 0.75, 1});
 
     // Normalisation d'une Serie vectorielle
     df::Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-    auto normalized2 = df::normalize(s2); // Normalise chaque vecteur à une longueur de 1
+    auto normalized2 = df::math::normalize(s2); // Normalise chaque vecteur à une longueur de 1
     assertSerieEqual(normalized2, {0.267261, 0.534522, 0.801784, 0.455842, 0.569803, 0.683763, 0.502571, 0.574367, 0.646162}, 1e-6);
 }

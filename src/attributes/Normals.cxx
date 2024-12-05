@@ -53,7 +53,7 @@ namespace df
             return Serie();
         }
 
-        return normals(dataframe["positions"], dataframe["indices"]);
+        return geo::normals(dataframe["positions"], dataframe["indices"]);
     }
 
 }

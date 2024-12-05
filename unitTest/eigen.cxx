@@ -44,8 +44,8 @@ void basic() {
                              0.64689, -0.707225, 0.370919, 0.601874}};
 
     {
-        auto values = df::eigenValues(serie);
-        auto vectors = df::eigenVectors(serie);
+        auto values = df::algebra::eigenValues(serie);
+        auto vectors = df::algebra::eigenVectors(serie);
 
         values.forEach([vals](const Array &v, uint32_t i) {
             assertArrayEqual(vals[i], v, 1e-4);
@@ -57,7 +57,7 @@ void basic() {
     }
 
     {
-        auto [values, vectors] = df::eigenSystem(serie);
+        auto [values, vectors] = df::algebra::eigenSystem(serie);
 
         values.forEach([vals](const Array &v, uint32_t i) {
             assertArrayEqual(vals[i], v, 1e-4);

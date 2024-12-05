@@ -23,35 +23,35 @@
 
 #include <dataframe/functional/algebra/transpose.h>
 
-namespace df
-{
+namespace df {
+namespace algebra {
 
-    /**
-     * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
-     */
-    Serie transpose(const Serie &serie)
-    {
+/**
+ * @brief Transpose a matrix. Only rank-2 matrices with dim 2 or 3.
+ */
+Serie transpose(const Serie &serie) {
 
-        if (serie.itemSize() != 4 && serie.itemSize() != 9) {
-            throw std::invalid_argument("(transpose) items size should be 4 or 9 only (for now). Got " +
-                std::to_string(serie.itemSize()));
-        }
+    if (serie.itemSize() != 4 && serie.itemSize() != 9) {
+        throw std::invalid_argument(
+            "(transpose) items size should be 4 or 9 only (for now). Got " +
+            std::to_string(serie.itemSize()));
+    }
 
-        if (serie.itemSize() == 4) {
-            return serie.map([](const Array &item, uint32_t i) {
-                return Array {
-                    item[0], item[2],
-                    item[1], item[3],
-                };
-            });
-        }
+    if (serie.itemSize() == 4) {
         return serie.map([](const Array &item, uint32_t i) {
-            return Array {
-                item[0], item[3], item[6],
-                item[1], item[4], item[7],
-                item[2], item[5], item[8]
+            return Array{
+                item[0],
+                item[2],
+                item[1],
+                item[3],
             };
         });
     }
-
+    return serie.map([](const Array &item, uint32_t i) {
+        return Array{item[0], item[3], item[6], item[1], item[4],
+                     item[7], item[2], item[5], item[8]};
+    });
 }
+
+} // namespace algebra
+} // namespace df

@@ -23,55 +23,47 @@
 
 #include <dataframe/functional/math/minMax.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    MinMax minMax(const Serie &serie)
-    {
-        if (!serie.isValid())
-        {
-            throw std::invalid_argument("Serie is invalid");
-        }
-
-        if (serie.count() == 0)
-        {
-            return MinMax{Array(), Array()};
-        }
-
-        if (serie.itemSize() == 1)
-        {
-            // Scalar case
-            double min = std::numeric_limits<double>::max();
-            double max = std::numeric_limits<double>::lowest();
-
-            for (uint32_t i = 0; i < serie.count(); ++i)
-            {
-                double v = serie.template get<double>(i);
-                min = std::min(min, v);
-                max = std::max(max, v);
-            }
-
-            return MinMax{Array{min}, Array{max}};
-        }
-        else
-        {
-            // Vector case - component-wise min/max
-            const Array &first = serie.template get<Array>(0);
-            Array min = first;
-            Array max = first;
-
-            for (uint32_t i = 1; i < serie.count(); ++i)
-            {
-                const Array &v = serie.template get<Array>(i);
-                for (size_t j = 0; j < v.size(); ++j)
-                {
-                    min[j] = std::min(min[j], v[j]);
-                    max[j] = std::max(max[j], v[j]);
-                }
-            }
-
-            return MinMax{min, max};
-        }
+MinMax minMax(const Serie &serie) {
+    if (!serie.isValid()) {
+        throw std::invalid_argument("Serie is invalid");
     }
 
+    if (serie.count() == 0) {
+        return MinMax{Array(), Array()};
+    }
+
+    if (serie.itemSize() == 1) {
+        // Scalar case
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::lowest();
+
+        for (uint32_t i = 0; i < serie.count(); ++i) {
+            double v = serie.template get<double>(i);
+            min = std::min(min, v);
+            max = std::max(max, v);
+        }
+
+        return MinMax{Array{min}, Array{max}};
+    } else {
+        // Vector case - component-wise min/max
+        const Array &first = serie.template get<Array>(0);
+        Array min = first;
+        Array max = first;
+
+        for (uint32_t i = 1; i < serie.count(); ++i) {
+            const Array &v = serie.template get<Array>(i);
+            for (size_t j = 0; j < v.size(); ++j) {
+                min[j] = std::min(min[j], v[j]);
+                max[j] = std::max(max[j], v[j]);
+            }
+        }
+
+        return MinMax{min, max};
+    }
+}
+
+} // namespace math
 } // namespace df

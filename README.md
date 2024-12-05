@@ -111,7 +111,7 @@ class Source {
 
 /**
  * Definition of the functor (which cumulate the stress due to each source
- * point) and which willbe run in parallel on multiple cores.
+ * point) and which will be run in parallel on multiple cores.
  */
 struct Model {
     Model(u_int32_t nbSources = 1e4);

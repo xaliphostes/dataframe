@@ -33,7 +33,7 @@ START_TEST(bins) {
     df::Serie s(1, {57, 57, 57, 58, 63, 66, 66, 67, 67, 68, 69, 70, 70, 70, 70, 72, 73, 75, 75, 76, 76, 78, 79, 81});
 
     {
-        df::Serie a = df::bins(s, 10);
+        df::Serie a = df::stats::bins(s, 10);
 
         uint32_t nb1 = s.count();
         Array sol{4, 0, 1, 2, 3, 5, 2, 4, 1, 2};
@@ -44,7 +44,7 @@ START_TEST(bins) {
     }
 
     {
-        df::Serie a = df::bins(s, 10, 0, 100);
+        df::Serie a = df::stats::bins(s, 10, 0, 100);
         uint nb1 = s.count();
         Array sol{0, 0, 0, 0, 0, 4, 7, 12, 1, 0};
         assertArrayEqual(a.asArray(), sol);
@@ -56,14 +56,14 @@ START_TEST(bins) {
 
 START_TEST(mean1) {
     df::Serie serie(1, {0,1,2,3,4,5,6,7,8});
-    double a = df::mean(serie).number;
+    double a = df::stats::mean(serie).number;
     double sol = (9 * (9 - 1)) / 2 / 9;
     assertDoubleEqual(a, sol);
 } END_TEST()
 
 START_TEST(mean3) {
     df::Serie serie(3, {0,1,2, 3,4,5, 6,7,8});
-    Array a = df::mean(serie).array;
+    Array a = df::stats::mean(serie).array;
     Array sol{3, 4, 5};
     assertArrayEqual(a, sol);
 } END_TEST()
@@ -77,9 +77,9 @@ START_TEST(cov) {
     // cov(x,y): 1.25
     x = df::Serie(1, {1, 2, 3, 4});
     y = df::Serie(1, {5, 6, 7, 8});
-    mx = df::mean(x).number;
-    my = df::mean(y).number;
-    cov = df::covariance(x, y);
+    mx = df::stats::mean(x).number;
+    my = df::stats::mean(y).number;
+    cov = df::stats::covariance(x, y);
     assertDoubleEqual(mx, 2.5);
     assertDoubleEqual(my, 6.5);
     assertDoubleEqual(cov, 1.25);
@@ -89,9 +89,9 @@ START_TEST(cov) {
     // cov(x,y): -0.0112
     x = df::Serie(1, {0.90010907, 0.13484424, 0.62036035});
     y = df::Serie(1, {0.12528585, 0.26962463, 0.51111198});
-    mx = df::mean(x).number;
-    my = df::mean(y).number;
-    cov = df::covariance(x, y);
+    mx = df::stats::mean(x).number;
+    my = df::stats::mean(y).number;
+    cov = df::stats::covariance(x, y);
     assertDoubleEqual(mx, 0.5518, 1e-3);
     assertDoubleEqual(my, 0.302, 1e-3);
     assertDoubleEqual(cov, -0.011238, 1e-3);

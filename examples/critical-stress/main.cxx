@@ -80,7 +80,7 @@ int main() {
 
         // 1. Eigen values and vectors
         [](const Serie &s) {
-            auto [val, vec] = eigenSystem(s);
+            auto [val, vec] = df::algebra::eigenSystem(s);
             return val; // We only need eigenvalues for filtering
         },
 
@@ -115,7 +115,7 @@ int main() {
         });
 
     // Mean
-    auto mean_criticality = mean(result);
+    auto mean_criticality = df::stats::mean(result);
     if (mean_criticality.isNumber) {
         std::cerr << mean_criticality.number << std::endl;
     } else {

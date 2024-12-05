@@ -21,97 +21,94 @@
  *
  */
 
-#include <dataframe/functional/stats/quantile.h>
+#include <cmath>
 #include <dataframe/functional/conditional/check.h>
 #include <dataframe/functional/cut.h>
 #include <dataframe/functional/sort.h>
-#include <cmath>
+#include <dataframe/functional/stats/quantile.h>
 
-namespace df
-{
+namespace df {
+namespace stats {
 
-    std::tuple<double, double> __ouliers__(const Serie& s, double mustache) ;
+std::tuple<double, double> __ouliers__(const Serie &s, double mustache);
 
-    double quantile(const Serie &s, double q) {
-        if (!s.isValid()) {
-            throw std::invalid_argument("series is not valid");
-        }
-        if (s.itemSize() != 1) {
-            throw std::invalid_argument("quantile algorithm: itemSize must be 1");
-        }
-        if (q < 0 || q > 1) {
-            throw std::invalid_argument("quantile must be in [0,1]");
-        }
-
-        auto newSerie = sort(s);
-        const Array& sorted = newSerie.asArray();
-        double pos = (sorted.size() - 1) * q;
-        double base = std::floor(pos);
-        double rest = pos - base;
-        if (uint32_t(base + 1) < sorted.size()) {
-            return sorted[uint32_t(base)] + rest * (sorted[uint32_t(base + 1)] - sorted[uint32_t(base)]);
-        } else {
-            return sorted[uint32_t(base)];
-        }
+double quantile(const Serie &s, double q) {
+    if (!s.isValid()) {
+        throw std::invalid_argument("series is not valid");
+    }
+    if (s.itemSize() != 1) {
+        throw std::invalid_argument("quantile algorithm: itemSize must be 1");
+    }
+    if (q < 0 || q > 1) {
+        throw std::invalid_argument("quantile must be in [0,1]");
     }
 
-    double q25(const Serie &s) {
-        return quantile(s, 0.25);
+    auto newSerie = sort(s);
+    const Array &sorted = newSerie.asArray();
+    double pos = (sorted.size() - 1) * q;
+    double base = std::floor(pos);
+    double rest = pos - base;
+    if (uint32_t(base + 1) < sorted.size()) {
+        return sorted[uint32_t(base)] +
+               rest * (sorted[uint32_t(base + 1)] - sorted[uint32_t(base)]);
+    } else {
+        return sorted[uint32_t(base)];
     }
-
-    double q50(const Serie &s) {
-        return quantile(s, 0.5);
-    }
-
-    double q75(const Serie &s) {
-        return quantile(s, 0.75);
-    }
-
-    double IQR(const Serie &s) {
-        return quantile(s, 0.75) - quantile(s, 0.25);
-    }
-
-    Serie outliers(const Serie &serie, double mustache) {
-        auto o = __ouliers__(serie, mustache);
-        return cut([o](double v, uint32_t) {
-            return v < std::get<0>(o) || v > std::get<1>(o);
-        }, serie);
-    }
-
-    /**
-     * Return a serie of boolean indicating if an item of the serie s is an outliers or not
-     * @category Dataframe/stats
-     */
-    Serie isOutliers(const Serie &serie, double mustache) {
-        auto o = __ouliers__(serie, mustache);
-        return check(serie, [o](double v, uint32_t) {
-            return v < std::get<0>(o) || v > std::get<1>(o);
-        });
-    }
-
-    /**
-     * @see https://en.wikipedia.org/wiki/Interquartile_range
-     * @see https://en.wikipedia.org/wiki/Box_plot
-     * @param mustache The statistical distance for which a point is considered as outlier. Default 1.5
-     * @category Dataframe/stats
-     */
-    Serie notOutliers(const Serie &serie, double mustache) {
-        auto o = __ouliers__(serie, mustache);
-        return cut([o](double v, uint32_t) {
-            return v >= std::get<0>(o) && v <= std::get<1>(o);
-        }, serie);
-    }
-
-    // --------------------------------------
-
-    std::tuple<double, double> __ouliers__(const Serie& s, double mustache) {
-        double Q25 = q25(s);
-        double Q75 = q75(s);
-        double iqr = Q75 - Q25;
-        return std::make_tuple(
-            Q25 - mustache * iqr,
-            Q75 + mustache * iqr
-        );
-    }
-
 }
+
+double q25(const Serie &s) { return quantile(s, 0.25); }
+
+double q50(const Serie &s) { return quantile(s, 0.5); }
+
+double q75(const Serie &s) { return quantile(s, 0.75); }
+
+double IQR(const Serie &s) { return quantile(s, 0.75) - quantile(s, 0.25); }
+
+Serie outliers(const Serie &serie, double mustache) {
+    auto o = __ouliers__(serie, mustache);
+    return cut(
+        [o](double v, uint32_t) {
+            return v < std::get<0>(o) || v > std::get<1>(o);
+        },
+        serie);
+}
+
+/**
+ * Return a serie of boolean indicating if an item of the serie s is an outliers
+ * or not
+ * @category Dataframe/stats
+ */
+Serie isOutliers(const Serie &serie, double mustache) {
+    auto o = __ouliers__(serie, mustache);
+    return cond::check(serie, [o](double v, uint32_t) {
+        return v < std::get<0>(o) || v > std::get<1>(o);
+    });
+}
+
+/**
+ * @see https://en.wikipedia.org/wiki/Interquartile_range
+ * @see https://en.wikipedia.org/wiki/Box_plot
+ * @param mustache The statistical distance for which a point is considered as
+ * outlier. Default 1.5
+ * @category Dataframe/stats
+ */
+Serie notOutliers(const Serie &serie, double mustache) {
+    auto o = __ouliers__(serie, mustache);
+    return cut(
+        [o](double v, uint32_t) {
+            return v >= std::get<0>(o) && v <= std::get<1>(o);
+        },
+        serie);
+}
+
+// --------------------------------------
+
+std::tuple<double, double> __ouliers__(const Serie &s, double mustache) {
+    double Q25 = q25(s);
+    double Q75 = q75(s);
+    double iqr = Q75 - Q25;
+    return std::make_tuple(Q25 - mustache * iqr, Q75 + mustache * iqr);
+}
+
+} // namespace stats
+} // namespace df

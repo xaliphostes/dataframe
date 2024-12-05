@@ -24,11 +24,12 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace algebra {
 
-    Serie inv(const Serie &serie) ;
+Serie inv(const Serie &serie);
 
-    MAKE_OP(inv);
+MAKE_OP(inv);
 
-}
+} // namespace algebra
+} // namespace df

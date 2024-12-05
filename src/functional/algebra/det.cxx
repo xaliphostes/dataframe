@@ -25,50 +25,50 @@
 #include <dataframe/view/Matrix.h>
 
 namespace df {
+namespace algebra {
 
-    // =====================================================================
+// =====================================================================
 
-    Serie det(const Serie &s) {
-        if (s.isValid() == false) {
-            throw std::invalid_argument("det: serie s is not valid");
+Serie det(const Serie &s) {
+    if (s.isValid() == false) {
+        throw std::invalid_argument("det: serie s is not valid");
+    }
+
+    return s.map([s](const Array &v, uint32_t) {
+        if ((s.itemSize() == 3 || s.itemSize() == 4) && s.dimension() == 2) {
+            Matrix m = v.size() == 3 ? symSquaredMatrix(v) : squaredMatrix(v);
+            return Array{m.at(0, 0) * m.at(1, 1) - m.at(0, 1) * m.at(1, 0)};
         }
-
-        return s.map( [s](const Array& v, uint32_t) {
-            if ((s.itemSize() == 3 || s.itemSize() == 4) && s.dimension() == 2) {
-                Matrix m = v.size() == 3 ? symSquaredMatrix(v) : squaredMatrix(v);
-                return Array{m.at(0, 0) * m.at(1, 1) - m.at(0, 1) * m.at(1, 0)};
-            }
-            if ((s.itemSize() == 6 || s.itemSize() == 9) && s.dimension() == 3) {
-                Matrix m = v.size() == 6 ? symSquaredMatrix(v) : squaredMatrix(v);
-                return Array{
-                    m.at(0, 0) * m.at(1, 1) * m.at(2, 2) -
-                    m.at(0, 0) * m.at(1, 2) * m.at(2, 1) -
-                    m.at(0, 1) * m.at(1, 0) * m.at(2, 2) +
-                    m.at(0, 1) * m.at(1, 2) * m.at(2, 0) +
-                    m.at(0, 2) * m.at(1, 0) * m.at(2, 1) -
-                    m.at(0, 2) * m.at(1, 1) * m.at(2, 0)
-                };
-            }
-            throw std::invalid_argument("det: itemSize should be 3, 4, 6 or 9");
-        });
-    }
-
-    /*
-    // See https://www.npmjs.com/package/@rafapaezbas/matrix-determinant in JS:
-
-    const cofactor = (array, column) => {
-        const subArray = array.filter((e, i) => i !== 0).map(e => e.filter((o, j) => j !== column))
-        return Math.pow(-1, column) * determinant(subArray)
-    }
-
-    const determinant = (array) => {
-        if (array.length === 1) return array[0][0]
-        let result = 0
-        for (let i = 0; i < array.length; i++) {
-            result += array[0][i] * cofactor(array, i)
+        if ((s.itemSize() == 6 || s.itemSize() == 9) && s.dimension() == 3) {
+            Matrix m = v.size() == 6 ? symSquaredMatrix(v) : squaredMatrix(v);
+            return Array{m.at(0, 0) * m.at(1, 1) * m.at(2, 2) -
+                         m.at(0, 0) * m.at(1, 2) * m.at(2, 1) -
+                         m.at(0, 1) * m.at(1, 0) * m.at(2, 2) +
+                         m.at(0, 1) * m.at(1, 2) * m.at(2, 0) +
+                         m.at(0, 2) * m.at(1, 0) * m.at(2, 1) -
+                         m.at(0, 2) * m.at(1, 1) * m.at(2, 0)};
         }
-        return result
-    }
-    */
-
+        throw std::invalid_argument("det: itemSize should be 3, 4, 6 or 9");
+    });
 }
+
+/*
+// See https://www.npmjs.com/package/@rafapaezbas/matrix-determinant in JS:
+
+const cofactor = (array, column) => {
+    const subArray = array.filter((e, i) => i !== 0).map(e => e.filter((o, j) =>
+j !== column)) return Math.pow(-1, column) * determinant(subArray)
+}
+
+const determinant = (array) => {
+    if (array.length === 1) return array[0][0]
+    let result = 0
+    for (let i = 0; i < array.length; i++) {
+        result += array[0][i] * cofactor(array, i)
+    }
+    return result
+}
+*/
+
+} // namespace algebra
+} // namespace df

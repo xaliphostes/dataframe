@@ -35,23 +35,23 @@ int main() {
 
   Array weights{2, 3, 4};
   {
-    df::Serie s = df::weigthedSum({a, b, c}, weights);
+    df::Serie s = df::math::weigthedSum({a, b, c}, weights);
     assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
   }
 
   {
-    auto s = df::weigthedSum({a, b, c}, {2, 3, 4});
+    auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
     assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
   }
 
   shouldThrowError(
-      [a, b, weights]() { auto s = df::weigthedSum({a, b}, weights); });
+      [a, b, weights]() { auto s = df::math::weigthedSum({a, b}, weights); });
 
   shouldThrowError(
-      [a, b, d, weights]() { df::weigthedSum({a, b, d}, weights); });
+      [a, b, d, weights]() { df::math::weigthedSum({a, b, d}, weights); });
 
   shouldThrowError(
-      [a, b, e, weights]() { df::weigthedSum({a, b, e}, weights); });
+      [a, b, e, weights]() { df::math::weigthedSum({a, b, e}, weights); });
 
   {
     df::Serie a(2, {1, 2, 3, 4});
@@ -59,7 +59,7 @@ int main() {
     df::Serie c(2, {2, 2, 1, 1});
 
     // Performs s = 2*a + 3*b + 4*c
-    auto s = df::weigthedSum({a, b, c}, {2, 3, 4});
+    auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
     std::cout << s << std::endl;
   }
 

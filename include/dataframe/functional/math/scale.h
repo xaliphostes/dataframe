@@ -24,12 +24,13 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    Serie scale(const Serie& s, double scale) ;
-    Serie scale(const Serie& s, const Array& scales) ;
+Serie scale(const Serie &s, double scale);
+Serie scale(const Serie &s, const Array &scales);
 
-    MAKE_OP(scale);
+MAKE_OP(scale);
 
-}
+} // namespace math
+} // namespace df

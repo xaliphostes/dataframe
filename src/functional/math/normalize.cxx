@@ -26,12 +26,13 @@
 #include <dataframe/functional/math/normalize.h>
 
 namespace df {
+namespace math {
+
 /**
  * @brief Normalize a Serie. If itemSize > 1, normalize each item independently,
  * otherwise normalize the entire Serie.
  */
-Serie normalize(const Serie& serie)
-{
+Serie normalize(const Serie &serie) {
     if (!serie.isValid()) {
         throw std::invalid_argument("Serie is invalid");
     }
@@ -41,27 +42,27 @@ Serie normalize(const Serie& serie)
         auto [min, max] = minMax(serie);
 
         double l = 1.0 / (max[0] - min[0]);
-        return serie.map([l, min](double v, uint32_t) { return l * (v - min[0]); });
+        return serie.map(
+            [l, min](double v, uint32_t) { return l * (v - min[0]); });
     } else {
         // Normalize each vector independently
-        return map([](const Array& item, uint32_t) {
-            // Compute length (L2 norm)
-            double length_squared = std::accumulate(
-                item.begin(),
-                item.end(),
-                0.0,
-                [](double acc, double v) { return acc + v * v; });
-            double l = 1.0 / std::sqrt(length_squared);
+        return map(
+            [](const Array &item, uint32_t) {
+                // Compute length (L2 norm)
+                double length_squared = std::accumulate(
+                    item.begin(), item.end(), 0.0,
+                    [](double acc, double v) { return acc + v * v; });
+                double l = 1.0 / std::sqrt(length_squared);
 
-            // Normalize vector
-            Array result(item.size());
-            std::transform(
-                item.begin(),
-                item.end(),
-                result.begin(),
-                [l](double v) { return v * l; });
-            return result;
-        }, serie);
+                // Normalize vector
+                Array result(item.size());
+                std::transform(item.begin(), item.end(), result.begin(),
+                               [l](double v) { return v * l; });
+                return result;
+            },
+            serie);
     }
 }
-}
+
+} // namespace math
+} // namespace df

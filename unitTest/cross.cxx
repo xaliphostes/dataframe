@@ -28,7 +28,7 @@
 
 void crossTest(const Array &A, const Array &B, const Array &sol)
 {
-    assertArrayEqual(df::cross(df::Serie(3, A), df::Serie(3, B)).asArray(), sol);
+    assertArrayEqual(df::algebra::cross(df::Serie(3, A), df::Serie(3, B)).asArray(), sol);
 }
 
 int main()

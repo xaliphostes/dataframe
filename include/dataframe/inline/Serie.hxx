@@ -23,10 +23,11 @@
 
 #include "../functional/filter.h"
 #include "../functional/forEach.h"
+
 #include "../functional/map.h"
 #include "../functional/pipe.h"
 #include "../functional/reduce.h"
-#include "../utils/inferring.h"
+// #include "../utils/inferring.h"
 
 namespace df {
 

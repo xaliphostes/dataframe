@@ -24,13 +24,14 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace geo {
 
-    Serie insar(const Serie &u, const Array &los);
-    Serie fringes(const Serie &insar, double spacing);
+Serie insar(const Serie &u, const Array &los);
+Serie fringes(const Serie &insar, double spacing);
 
-    MAKE_OP(insar);
-    MAKE_OP(fringes);
+MAKE_OP(insar);
+MAKE_OP(fringes);
 
-}
+} // namespace geo
+} // namespace df

@@ -37,27 +37,27 @@ int main()
     df::Serie e(2, {2, 2, 1, 1, 0, 0});
 
     {
-        auto s = df::add({a,b,c});
+        auto s = df::math::add({a,b,c});
         assertArrayEqual(s.asArray(), Array{7,7,6,6});
     }
 
     {
-        auto s = df::add(a,b,c);
+        auto s = df::math::add(a,b,c);
         assertArrayEqual(s.asArray(), Array{7,7,6,6});
     }
 
     {
-        auto s = df::dot(a, b);
+        auto s = df::algebra::dot(a, b);
         assertArrayEqual(s.asArray(), Array{10, 10});
     }
 
     {
-        auto s = df::negate(a);
+        auto s = df::math::negate(a);
         assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
     }
 
     {
-        auto s = df::add({a, df::negate(a)});
+        auto s = df::math::add({a, df::math::negate(a)});
         assertArrayEqual(s.asArray(), Array{0,0,0,0});
     }
 

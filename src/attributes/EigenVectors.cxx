@@ -77,7 +77,7 @@ namespace df
             }
         }
 
-        return eigenVectors(serie).map( [id](const Array& item, uint32_t) {
+        return algebra::eigenVectors(serie).map( [id](const Array& item, uint32_t) {
             return Array{item[id-1]};
         });
     }

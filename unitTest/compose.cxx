@@ -45,7 +45,7 @@ END_TEST()
 START_TEST(compose2) {
     // Example Series operations to compose
     auto computeEigenvalues = [](const df::Serie &s) {
-        return df::eigenValues(s);
+        return df::algebra::eigenValues(s);
     };
 
     auto filterCompressive = [](const df::Serie &s) {
@@ -53,7 +53,7 @@ START_TEST(compose2) {
     };
 
     auto normalizeVectors = [](const df::Serie &s) {
-        return df::normalize(s);
+        return df::math::normalize(s);
     };
 
     // Compose them.

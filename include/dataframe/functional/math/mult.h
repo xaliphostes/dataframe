@@ -25,16 +25,16 @@
 #include <dataframe/Serie.h>
 #include <dataframe/functional/macros.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    Serie mult(const Serie &serie, double);
-    Serie mult(const Serie &serie, const Serie& divider);
+Serie mult(const Serie &serie, double);
+Serie mult(const Serie &serie, const Serie &divider);
 
-    MAKE_OP(mult);
+MAKE_OP(mult);
 
+// TODO:
+// Serie mult(const Serie &serie, const Array &);
 
-    // TODO:
-    // Serie mult(const Serie &serie, const Array &);
-
-}
+} // namespace math
+} // namespace df

@@ -31,7 +31,7 @@ int main()
     // For scalar Serie
     {
         df::Serie s1(1, {1, 5, 2, 4, 3});
-        auto [min, max] = df::minMax(s1);
+        auto [min, max] = df::math::minMax(s1);
         assertArrayEqual(min, {1});
         assertArrayEqual(max, {5});
     }
@@ -39,7 +39,7 @@ int main()
     // For vector Serie
     {
         df::Serie s2(3, {1, 2, 3, 4, 1, 6, 2, 5, 0});
-        auto [min, max] = df::minMax(s2);
+        auto [min, max] = df::math::minMax(s2);
         assertArrayEqual(min, {1, 1, 0});
         assertArrayEqual(max, {4, 5, 6});
     }

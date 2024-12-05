@@ -24,11 +24,12 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace math {
 
-    Serie negate(const Serie &serie) ;
+Serie negate(const Serie &serie);
 
-    MAKE_OP(negate);
+MAKE_OP(negate);
 
-}
+} // namespace math
+} // namespace df

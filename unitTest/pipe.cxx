@@ -54,7 +54,7 @@ int main() {
             }
             
         );
-        assertCondition(df::equals(solution, result1));
+        assertCondition(df::math::equals(solution, result1));
 
         // Creating and using a reusable pipeline
         {
@@ -67,7 +67,7 @@ int main() {
                 });
 
             auto result2 = doubleAndFilter(s);
-            assertCondition(df::equals(solution, result2));
+            assertCondition(df::math::equals(solution, result2));
         }
 
         {
@@ -76,7 +76,7 @@ int main() {
                 df::make_filter([](double v, uint32_t) { return v > 4; }));
 
             auto result2 = doubleAndFilter(s);
-            assertCondition(df::equals(solution, result2));
+            assertCondition(df::math::equals(solution, result2));
 
             df::Serie s2(2, {5, 6, 7, 8});
             auto result3 = doubleAndFilter(s2);
@@ -94,7 +94,7 @@ int main() {
 
             serie,
 
-            [](const df::Serie &s) { return df::eigenSystem(s); },
+            [](const df::Serie &s) { return df::algebra::eigenSystem(s); },
 
             [](const auto &tuple) { return std::get<0>(tuple); }
 

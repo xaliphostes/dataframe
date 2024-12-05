@@ -24,11 +24,12 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df
-{
+namespace df {
+namespace geo {
 
-    Serie areas(const Serie &positions, const Serie& indices);
+Serie areas(const Serie &positions, const Serie &indices);
 
-    MAKE_OP(areas);
+MAKE_OP(areas);
 
-}
+} // namespace geo
+} // namespace df

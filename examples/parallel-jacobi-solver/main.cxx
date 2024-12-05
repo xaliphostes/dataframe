@@ -21,19 +21,20 @@
  *
  */
 
-#pragma once
+#include <array>
+#include <cassert>
+#include <chrono>
+#include <cmath>
+#include <thread>
+
 #include <dataframe/Serie.h>
+#include <dataframe/functional/concat.h>
+#include <dataframe/functional/geo/cartesian_grid.h>
+#include <dataframe/functional/math/add.h>
+#include <dataframe/functional/parallel_execute.h>
+#include <dataframe/functional/partition_n.h>
+#include <dataframe/functional/print.h>
 
-namespace df {
-namespace stats {
-
-/**
- * @brief For two series, x and y and for which itemSize = 1, compute the
- * covariance.
- */
-double covariance(const Serie &x, const Serie &y);
-
-MAKE_OP(covariance);
-
-} // namespace stats
-} // namespace df
+int main() {
+    
+}
