@@ -32,6 +32,10 @@ map()      // Transform each item via a function
 reduce()   // Aggregate items into a single value/vector
 filter()   // Select items meeting a condition
 
+// Transformation/execution
+parallel_execute()
+memoize()
+
 // Linear algebra
 eigenValues()    // Compute eigenvalues of tensor items
 eigenVectors()   // Compute eigenvectors of tensor items
