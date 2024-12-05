@@ -87,6 +87,53 @@ auto critical_stress_pipeline = make_pipe(
 auto stresses = Serie(6, {...}); // stresses at n points in 3D-space
 auto critical_stress = critical_stress_pipeline(stresses);
 ```
+
+How to run an algorithm in parallel (Except from `example/parallel-postprocess/main.cxx`)
+```cpp
+#include <dataframe/functional/geo/cartesian_grid.h>
+#include <dataframe/functional/partition_n.h>
+#include <dataframe/functional/parallel_execute.h>
+
+/**
+ * Computes the 3D Green's function (elastic fundamental solution) for a
+ * point force in an infinite elastic medium and return the stress tensor.
+ */
+class Source {
+  public:
+    Source(const Array &pos, const Array force);
+    Stress stress(const Array &at);
+  private:
+    double xs{0}, ys{0}, zs{0};    // Source position
+    double fx{1000}, fy{0}, fz{0}; // Source force
+    double nu{0.25};               // poisson's ratio
+    double mu{1};                  // shear modulus
+};
+
+/**
+ * Definition of the functor (which cumulate the stress due to each source
+ * point) and which willbe run in parallel on multiple cores.
+ */
+struct Model {
+    Model(u_int32_t nbSources = 1e4);
+
+    df::Serie operator()(const df::Serie &points) const; // <==========
+};
+
+int main() {
+    u_int32_t nbSources = 1e4;
+    u_int32_t nbFields = 1e6;
+    uint nbCores = 12;
+
+    Model model(nbSources);
+
+    // An observation grid around the model
+    df::Serie grid = df::grid::cartesian::from_points(
+        {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
+
+    // Parallelize the computation
+    auto strain = df::parallel_execute(model, df::partition_n(nbCores, grid));
+}
+```
 ___
 <br><br><br>
 
@@ -282,54 +329,6 @@ Index 1:
   v1 = 20 
   v2 = 3 4 
   v3 = 4 5 6
-```
-
-## Example: Running in parallel an algorithm
-Except from `example/parallel-postprocess/main.cxx`
-```cpp
-#include <dataframe/functional/geo/cartesian_grid.h>
-#include <dataframe/functional/partition_n.h>
-#include <dataframe/functional/parallel_execute.h>
-
-/**
- * Computes the 3D Green's function (elastic fundamental solution) for a
- * point force in an infinite elastic medium and return the stress tensor.
- */
-class Source {
-  public:
-    Source(const Array &pos, const Array force);
-    Stress stress(const Array &at);
-  private:
-    double xs{0}, ys{0}, zs{0};    // Source position
-    double fx{1000}, fy{0}, fz{0}; // Source force
-    double nu{0.25};               // poisson's ratio
-    double mu{1};                  // shear modulus
-};
-
-/**
- * Definition of the functor (which cumulate the stress due to each source
- * point) and which willbe run in parallel on multiple cores.
- */
-struct Model {
-    Model(u_int32_t nbSources = 1e4);
-
-    df::Serie operator()(const df::Serie &points) const; // <==========
-};
-
-int main() {
-    u_int32_t nbSources = 1e4;
-    u_int32_t nbFields = 1e6;
-    uint nbCores = 12;
-
-    Model model(nbSources);
-
-    // An observation grid around the model
-    df::Serie grid = df::grid::cartesian::from_points(
-        {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
-
-    // Parallelize the computation
-    auto strain = df::parallel_execute(model, df::partition_n(nbCores, grid));
-}
 ```
 
 ## Example: dot product 2 series
