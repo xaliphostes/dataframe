@@ -107,10 +107,10 @@ class Source {
     Source(const Array &pos, const Array force);
     Stress stress(const Array &at);
   private:
-    double xs{0}, ys{0}, zs{0};    // Source position
-    double fx{1000}, fy{0}, fz{0}; // Source force
-    double nu{0.25};               // poisson's ratio
-    double mu{1};                  // shear modulus
+    Array pos_{0, 0, 0}; // Source position
+    Array U_{1,0,0};     // Displ. discon.
+    double nu{0.25};     // Poisson's ratio
+    double mu{1};        // Shear modulus
 };
 
 /**

@@ -61,7 +61,7 @@ using Stress = Array;
  */
 class Source {
   public:
-    Source(const Array &pos, const Array &U = {1, 0, 0}) : pos_(pos) {}
+    Source(const Array &pos, const Array &U = {1, 0, 0}) : pos_(pos), U_(U) {}
     Stress stress(const Array &at) const {
         double x = at[0];
         double y = at[1];
@@ -103,6 +103,10 @@ class Source {
         const double D5 = -(3.0 / r5) * (dy * dz);
         const double D6 = -(3.0 / r5) * (dx * dz);
 
+        const double ux = U_[0];
+        const double uy = U_[1];
+        const double uz = U_[2];
+
         // First compute displacement gradients
         const double dux_dx = ux * D1 + uy * D4 + uz * D6;
         const double dux_dy = ux * D4 + uy * (-1.0 / r3) + uz * 0.0;
@@ -131,10 +135,10 @@ class Source {
     }
 
   private:
-    Array pos_{0, 0, 0};           // Source position
-    double ux{1000}, uy{0}, uz{0}; // Source force
-    double nu{0.25};               // poisson's ratio
-    double mu{1};                  // shear modulus
+    Array pos_{0, 0, 0}; // Source position
+    Array U_{1,0,0};     // displ. discon.
+    double nu{0.25};     // poisson's ratio
+    double mu{1};        // shear modulus
 };
 
 /**
