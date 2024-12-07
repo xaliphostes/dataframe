@@ -22,20 +22,52 @@
  */
 
 #pragma once
-#include "filter.h"
+#include <dataframe/Serie.h>
+#include <dataframe/utils.h>
+#include <stdexcept>
+#include <tuple>
 
-namespace df
-{
+namespace df {
+namespace utils {
 
-    /**
-     * Synomym of filter
-     */
-    template <typename F>
-    Serie cut(F &&predicate, const Serie &serie)
-    {
-        return filter(predicate, serie);
+/**
+ * Concatenate 2 or more series
+ */
+Serie concat(const std::vector<Serie> &series) {
+    if (series.empty()) {
+        throw std::invalid_argument("concat requires at least one Serie");
     }
 
-    MAKE_OP(cut);
+    uint32_t itemSize = series[0].itemSize();
+    uint32_t totalCount = 0;
 
+    auto counts = utils::countAndCheck();
+    for (const auto &s : series) {
+        if (!s.isValid() || s.itemSize() != itemSize) {
+            throw std::invalid_argument(
+                "All series must be valid and have same itemSize");
+        }
+        totalCount += s.count();
+    }
+
+    Serie result(itemSize, totalCount);
+    uint32_t currentIndex = 0;
+
+    for (const auto &s : series) {
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            result.set(currentIndex++, s.get<Array>(i));
+        }
+    }
+
+    return result;
 }
+
+template <typename... Series> Serie concat(const Series &...series) {
+    std::vector<Serie> vec{series...};
+    return concat(vec);
+}
+
+MAKE_OP(concat);
+
+} // namespace utils
+} // namespace df

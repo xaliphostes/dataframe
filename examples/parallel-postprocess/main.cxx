@@ -28,142 +28,148 @@
 #include <thread>
 
 #include <dataframe/Serie.h>
-#include <dataframe/functional/concat.h>
 #include <dataframe/functional/geo/cartesian_grid.h>
 #include <dataframe/functional/math/add.h>
-#include <dataframe/functional/parallel_execute.h>
-#include <dataframe/functional/partition_n.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/functional/utils/concat.h>
+#include <dataframe/functional/utils/parallel_execute.h>
+#include <dataframe/functional/utils/partition_n.h>
+#include <dataframe/functional/utils/print.h>
 
 using Stress = Array;
 
 /**
- * Computes the 3D Green's function (elastic fundamental solution) for a
- * point force in an infinite elastic medium and return the stress tensor.
+ * Computes the 3D Green's function (elastic fundamental solution) using the
+ * fundamental solution for a displacement discontinuity (or dislocation) rather
+ * than a point force.
+ * Implementation Approach:
+ * - First computes displacement gradients using the fundamental solution
+ * - Then uses Hooke's law to compute the resulting stresses
+ * - Includes both Lamé parameters (μ and λ) for the full elastic response
  *
- * Uses the fundamental solution for an infinite elastic medium
- * - Handles the singularity at r=0
- * - Includes all stress components considering the symmetry of the stress
- *   tensor
- * - Uses efficient computation of common factors
+ * Mathematical Details:
+ * - Uses a different set of fundamental solutions based on displacement
+ *   discontinuities
+ * - Includes terms up to r⁻⁵ for the displacement gradients
+ * - Properly handles both deviatoric and volumetric deformation through Lamé
+ *   parameters
  *
- *The solution is based on the classical elasticity theory and includes:
- *
- * - Distance-dependent terms (1/r³, 1/r⁵)
- * - Angular dependencies through direction cosines
- * - Material property influences through μ and ν
+ * This implementation is particularly useful for:
+ * - Dislocation problems
+ * - Crack problems
+ * - Problems involving prescribed boundary displacements
+ * - Material inclusion problems
  */
 class Source {
   public:
-    Source(const Array &pos, const Array force = {1000, 0, 0})
-        : fx(force[0]), fy(force[1]), fz(force[2]) {}
-    Stress stress(const Array &at) {
-        Stress result{0, 0, 0, 0, 0, 0};
+    Source(const Array &pos, const Array &U = {1, 0, 0}) : pos_(pos) {}
+    Stress stress(const Array &at) const {
         double x = at[0];
         double y = at[1];
         double z = at[2];
 
         // Compute relative position
-        const double dx = x - xs;
-        const double dy = y - ys;
-        const double dz = z - zs;
-
-        // Compute distance and its powers
+        const double dx = x - pos_[0];
+        const double dy = y - pos_[1];
+        const double dz = z - pos_[2];
         const double r = std::sqrt(dx * dx + dy * dy + dz * dz);
-        if (r < 1e-10)
-            return result; // Avoid singularity at source point
 
-        const double r3 = r * r * r;
-        const double r5 = r3 * r * r;
+        if (r < 1e-10) {
+            // Avoid singularity at source point
+            return Stress{0, 0, 0, 0, 0, 0};
+        }
+
+        const double r2 = r * r;
+        const double r3 = r2 * r;
+        const double r4 = r2 * r2;
+        const double r5 = r3 * r2;
 
         // Compute common factors
+        double a = 2.0 * mu;
+        // Lamé's first parameter
+        const double lambda = a * nu / (1.0 - 2.0 * nu);
         const double c1 = mu / (4.0 * M_PI * (1.0 - nu));
-        const double c2 = (1.0 - 2.0 * nu);
+        const double c2 = 3.0 - 4.0 * nu;
 
         // Unit vector components of relative position
         const double nx = dx / r;
         const double ny = dy / r;
         const double nz = dz / r;
 
-        // Compute stress components using Mindlin's solution
-        // σxx
-        result[0] =
-            c1 * (3.0 * (fx * nx * nx + fy * nx * ny + fz * nx * nz) * nx / r3 -
-                  (c2 * (fx / r3 - 3.0 * fx * nx * nx / r5)));
+        // Auxiliary terms for displacement gradient
+        const double D1 = (c2 / r3) - (3.0 / r5) * (dx * dx);
+        const double D2 = (c2 / r3) - (3.0 / r5) * (dy * dy);
+        const double D3 = (c2 / r3) - (3.0 / r5) * (dz * dz);
+        const double D4 = -(3.0 / r5) * (dx * dy);
+        const double D5 = -(3.0 / r5) * (dy * dz);
+        const double D6 = -(3.0 / r5) * (dx * dz);
 
-        // σxy (xy shear)
-        result[1] =
-            c1 * (3.0 * (fx * nx * nx + fy * nx * ny + fz * nx * nz) * ny / r3 -
-                  (c2 * (fx * ny + fy * nx) / r3));
+        // First compute displacement gradients
+        const double dux_dx = ux * D1 + uy * D4 + uz * D6;
+        const double dux_dy = ux * D4 + uy * (-1.0 / r3) + uz * 0.0;
+        const double dux_dz = ux * D6 + uy * 0.0 + uz * (-1.0 / r3);
 
-        // σxz (xz shear)
-        result[2] =
-            c1 * (3.0 * (fx * nz * nx + fy * nz * ny + fz * nz * nz) * nx / r3 -
-                  (c2 * (fx * nz + fz * nx) / r3));
+        const double duy_dx = uy * D4 + ux * (-1.0 / r3) + uz * 0.0;
+        const double duy_dy = uy * D2 + ux * D4 + uz * D5;
+        const double duy_dz = uy * D5 + ux * 0.0 + uz * (-1.0 / r3);
 
-        // σyy
-        result[3] =
-            c1 * (3.0 * (fx * ny * nx + fy * ny * ny + fz * ny * nz) * ny / r3 -
-                  (c2 * (fy / r3 - 3.0 * fy * ny * ny / r5)));
+        const double duz_dx = uz * D6 + ux * (-1.0 / r3) + uy * 0.0;
+        const double duz_dy = uz * D5 + ux * 0.0 + uy * (-1.0 / r3);
+        const double duz_dz = uz * D3 + ux * D6 + uy * D5;
 
-        // σyz (yz shear)
-        result[4] =
-            c1 * (3.0 * (fx * ny * nx + fy * ny * ny + fz * ny * nz) * nz / r3 -
-                  (c2 * (fy * nz + fz * ny) / r3));
+        // Then compute stresses using Hooke's law
 
-        // σzz
-        result[5] =
-            c1 * (3.0 * (fx * nz * nx + fy * nz * ny + fz * nz * nz) * nz / r3 -
-                  (c2 * (fz / r3 - 3.0 * fz * nz * nz / r5)));
+        double b = lambda * (dux_dx + duy_dy + duz_dz);
+        Stress stress(6);
+        stress[0] = a * dux_dx + b;         // σxx
+        stress[1] = mu * (dux_dy + duy_dx); // σxy
+        stress[2] = mu * (dux_dz + duz_dx); // σxz
+        stress[3] = a * duy_dy + b;         // σyy
+        stress[4] = mu * (duy_dz + duz_dy); // σyz
+        stress[5] = a * duz_dz + b;         // σzz
 
-        return result;
+        return stress;
     }
 
   private:
-    double xs{0}, ys{0}, zs{0};    // Source position
-    double fx{1000}, fy{0}, fz{0}; // Source force
+    Array pos_{0, 0, 0};           // Source position
+    double ux{1000}, uy{0}, uz{0}; // Source force
     double nu{0.25};               // poisson's ratio
-    double mu{1};               // shear modulus
+    double mu{1};                  // shear modulus
 };
 
 /**
- * Definition of the functor (which cumulate the stress due to each source
- * point)
+ * Definition of the functor (which cumulate the stress due to each source)
  */
 struct Model {
     Model(u_int32_t nbSources = 1e4) {
         df::grid::cartesian::from_points({100, 100}, {-1, -1, -1}, {1, 1, 1})
             .forEach([=](const Array &pos, uint32_t) {
-                sources_.push_back(new Source(pos));
+                sources_.push_back(Source(pos));
             });
     }
 
     df::Serie operator()(const df::Serie &points) const {
         return points.map([=](const Array &at, uint32_t) {
             Stress s({0, 0, 0, 0, 0, 0});
-            for (auto source : sources_) {
-                auto stress = source->stress(at);
-                // Cumul the stresses
+            for (const auto &source : sources_) {
+                auto stress = source.stress(at);
                 for (auto i = 0; i < 6; ++i) {
-                    s[i] += stress[i];
+                    s[i] += stress[i]; // cumul the stresses
                 }
             }
             return s;
         });
     }
-    std::vector<Source *> sources_;
+    std::vector<Source> sources_;
 };
 
 int main() {
-    u_int32_t nbSources = 1e4;
-    u_int32_t nbFields = 1e6;
-    uint nbCores = 12; // for parallelization
-
-    Model model(nbSources);
+    Model model(10000);
 
     // An observation grid around the sources (the model)
     df::Serie grid = df::grid::cartesian::from_points(
         {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
 
-    auto strain = df::parallel_execute(model, df::partition_n(nbCores, grid));
+    uint nbCores = 12;
+    auto stress = df::utils::parallel_execute(model, grid, nbCores);
 }

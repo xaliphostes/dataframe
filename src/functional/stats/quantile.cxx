@@ -23,8 +23,8 @@
 
 #include <cmath>
 #include <dataframe/functional/conditional/check.h>
-#include <dataframe/functional/cut.h>
-#include <dataframe/functional/sort.h>
+#include <dataframe/functional/utils/cut.h>
+#include <dataframe/functional/utils/sort.h>
 #include <dataframe/functional/stats/quantile.h>
 
 namespace df {
@@ -43,7 +43,7 @@ double quantile(const Serie &s, double q) {
         throw std::invalid_argument("quantile must be in [0,1]");
     }
 
-    auto newSerie = sort(s);
+    auto newSerie = df::utils::sort(s);
     const Array &sorted = newSerie.asArray();
     double pos = (sorted.size() - 1) * q;
     double base = std::floor(pos);
@@ -66,7 +66,7 @@ double IQR(const Serie &s) { return quantile(s, 0.75) - quantile(s, 0.25); }
 
 Serie outliers(const Serie &serie, double mustache) {
     auto o = __ouliers__(serie, mustache);
-    return cut(
+    return df::utils::cut(
         [o](double v, uint32_t) {
             return v < std::get<0>(o) || v > std::get<1>(o);
         },
@@ -94,7 +94,7 @@ Serie isOutliers(const Serie &serie, double mustache) {
  */
 Serie notOutliers(const Serie &serie, double mustache) {
     auto o = __ouliers__(serie, mustache);
-    return cut(
+    return df::utils::cut(
         [o](double v, uint32_t) {
             return v >= std::get<0>(o) && v <= std::get<1>(o);
         },

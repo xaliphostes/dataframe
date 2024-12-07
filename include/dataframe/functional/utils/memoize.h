@@ -21,12 +21,13 @@
  *
  */
 #pragma once
-#include "../Serie.h"
+#include <dataframe/Serie.h>
 #include <map>
 #include <utility>
 #include <vector>
 
 namespace df {
+namespace utils {
 
 template <typename F> class Memoized {
   public:
@@ -185,4 +186,5 @@ template <typename F> auto memoize(F &&f) {
     return Memoized<std::decay_t<F>>(std::forward<F>(f));
 }
 
+} // namespace utils
 } // namespace df

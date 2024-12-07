@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/functional/zip.h>
+#include <dataframe/functional/utils/zip.h>
 #include <dataframe/Serie.h>
 
 int main() {
@@ -31,13 +31,13 @@ int main() {
     df::Serie s3(1, {10, 11, 12});             // scalar serie
     
     // Using variadic zip
-    auto result1 = df::zip(s1, s2, s3);
+    auto result1 = df::utils::zip(s1, s2, s3);
     // result1.dump();  // Will show the combined values
     std::cerr << result1 << std::endl ;
     
     // Using vector zip
     std::vector<df::Serie> series = {s1, s2, s3};
-    auto result2 = df::zipVector(series);
+    auto result2 = df::utils::zipVector(series);
     result2.dump();  // Will show the same combined values
     
     // The results can be used in further operations

@@ -27,6 +27,7 @@
 #include <tuple>
 
 namespace df {
+namespace utils {
 
 /**
  * @brief Unzips a Serie into multiple Series based on provided itemSizes
@@ -71,4 +72,5 @@ Series unzip(const Serie &zipped, const std::vector<uint32_t> &itemSizes) {
     return results;
 }
 
+} // namespace utils
 } // namespace df

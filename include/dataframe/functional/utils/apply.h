@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-now fmaerten@gmail.com
+ * Copyright (c) 2023 fmaerten@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,20 @@
  */
 
 #pragma once
-#include "../Serie.h"
+#include <dataframe/functional/map.h>
 
 namespace df {
+namespace utils {
 
-// Single Serie print implementation
-void print(const Serie &serie);
-
-// Multiple Series print implementation
-template <typename... Series>
-void print(const Serie &first, const Series &...rest) {
-    static_assert(std::conjunction<details::is_serie<Series>...>::value,
-                  "All arguments must be Series");
-    std::cout << "Series 1:" << std::endl;
-    print(first);
-
-    if constexpr (sizeof...(rest) > 0) {
-        size_t index = 2;
-        ((std::cout << "Series " << index++ << ":" << std::endl, print(rest)),
-         ...);
-    }
+/**
+ * Synonym for map
+ */
+template <typename F, typename... Args>
+auto apply(F &&callback, const Args &...args) {
+    return map(callback, args...);
 }
 
+MAKE_OP(apply);
+
+} // namespace utils
 } // namespace df

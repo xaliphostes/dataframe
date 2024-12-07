@@ -28,7 +28,7 @@
 #include <dataframe/functional/map.h>
 #include <dataframe/functional/pipe.h>
 #include <dataframe/functional/stats/mean.h>
-#include <dataframe/functional/zip.h>
+#include <dataframe/functional/utils/zip.h>
 #include <cmath>
 
 using namespace df;

@@ -23,21 +23,19 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/partition_n.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/functional/utils/partition_n.h>
+#include <dataframe/functional/utils/print.h>
 #include <tuple>
 
-using namespace df;
-
 START_TEST(partition_n) {
-    Serie s1(1, {1, 2, 3, 4});                            // scalars
-    Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}); // 4 3D vectors
-    Serie s3(1, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});         // scalars
+    df::Serie s1(1, {1, 2, 3, 4});                            // scalars
+    df::Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}); // 4 3D vectors
+    df::Serie s3(1, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});         // scalars
 
     // Partition single Serie into 2 parts
     message("Partition single Serie into 2 parts (1)");
     {
-        auto parts = partition_n(2, s1);
+        auto parts = df::utils::partition_n(2, s1);
         assertEqual<size_t>(parts.size(), 2);
         assertEqual<size_t>(parts[0].size(), 2);
         assertArrayEqual(parts[0].asArray(), {1, 2});
@@ -46,7 +44,7 @@ START_TEST(partition_n) {
 
     message("Partition single Serie into 2 parts (2)");
     {
-        auto parts = partition_n(2, s3);
+        auto parts = df::utils::partition_n(2, s3);
         assertEqual<size_t>(parts.size(), 2);
         assertEqual<size_t>(parts[0].size(), 5);
         assertEqual<size_t>(parts[1].size(), 5);
@@ -57,7 +55,7 @@ START_TEST(partition_n) {
     // Partition multiple Series
     message("Partition multiple Serie into 2 parts");
     {
-        auto parts = partition_n(2, s1, s2);
+        auto parts = df::utils::partition_n(2, s1, s2);
         assertEqual<size_t>(parts.size(), 2);
         assertEqual<size_t>(parts[0].size(), 2);
         assertEqual<size_t>(parts[1].size(), 2);
@@ -70,7 +68,7 @@ START_TEST(partition_n) {
     // with remainder
     message("Partition single Serie into 3 parts with remainder");
     {
-        auto parts = partition_n(3, s3);
+        auto parts = df::utils::partition_n(3, s3);
         assertEqual<size_t>(parts.size(), 3);
         assertEqual<size_t>(parts[0].size(), 4);
         assertEqual<size_t>(parts[1].size(), 3);

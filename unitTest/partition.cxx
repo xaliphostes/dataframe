@@ -23,14 +23,14 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/partition.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/functional/utils/partition.h>
+#include <dataframe/functional/utils/print.h>
 
 START_TEST(partition) {
     df::Serie stress(6,
                      {2, 4, 6, 3, 6, 9, -1, 2, 3, 4, 5, 6, -9, 8, 7, 6, 5, 4});
 
-    auto [compressive, tensile] = partition(
+    auto [compressive, tensile] = df::utils::partition(
         [](const Array &s, uint32_t) {
             return s[0] < 0; // Separate compressive from tensile states (xx
                              // component of stress)

@@ -24,14 +24,14 @@
 #include "assertions.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/algebra/eigen.h>
-#include <dataframe/functional/apply.h>
+#include <dataframe/functional/utils/apply.h>
 #include <dataframe/functional/math/equals.h>
 #include <dataframe/functional/pipe.h>
-#include <dataframe/functional/print.h>
-#include <dataframe/functional/zip.h>
+#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/zip.h>
 
 df::Serie someOperation(const df::Serie &s1, const df::Serie &s2) {
-    return df::zip(s1, s2);
+    return df::utils::zip(s1, s2);
 };
 
 int main() {
@@ -80,7 +80,7 @@ int main() {
 
             df::Serie s2(2, {5, 6, 7, 8});
             auto result3 = doubleAndFilter(s2);
-            df::print(result3);
+            df::utils::print(result3);
         }
     }
 

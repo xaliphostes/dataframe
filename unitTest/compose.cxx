@@ -25,7 +25,7 @@
 #include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/map.h>
-#include <dataframe/functional/compose.h>
+#include <dataframe/functional/utils/compose.h>
 #include <dataframe/functional/algebra/eigen.h>
 #include <dataframe/functional/math/normalize.h>
 #include <iostream>
@@ -35,7 +35,7 @@ START_TEST(compose1) {
     auto g = [](double x) { return x + 1; };
     auto h = [](double x) { return x * x; };
 
-    auto composed = df::compose(f, g, h);
+    auto composed = df::utils::compose(f, g, h);
     auto result = composed(3.0); // equivalent to f(g(h(3.0)))
 
     assertDoubleEqual(result, 20);
@@ -60,7 +60,7 @@ START_TEST(compose2) {
     // This matches the mathematical composition order (f∘g∘h)(x) = f(g(h(x))),
     // where functions are applied right to left.
     auto pipeline =
-        df::compose(normalizeVectors, filterCompressive, computeEigenvalues);
+        df::utils::compose(normalizeVectors, filterCompressive, computeEigenvalues);
 
     // 4 stress tensors (xx,xy,xz,yy,yz,zz)
     df::Serie stress(6, {

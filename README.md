@@ -48,7 +48,7 @@ forEach()  // Process each item without modifying
 ```
 Series enable vector/tensor operations to be expressed naturally as transformations on collections of mathematical objects, maintaining their algebraic properties throughout the computations.
 
-Example workflow:
+**Example workflow**:
 ```cpp
 auto stresses = Serie(6, {...});  // Symmetric stress tensors
 auto [values, vectors] = eigenSystem(stresses);  // Decompose into principal values/directions
@@ -57,7 +57,7 @@ auto critical = filter(values, [](const Array& v) {
 });
 ```
 
-A more complete workflow using the `pipe` function is given below:
+**A more complete workflow using the `pipe` function**:
 ```cpp
 /**
  * Pipeline to:
@@ -88,7 +88,11 @@ auto stresses = Serie(6, {...}); // stresses at n points in 3D-space
 auto critical_stress = critical_stress_pipeline(stresses);
 ```
 
-How to run an algorithm in parallel (excerpt from `example/parallel-postprocess/main.cxx`)
+**Example showing how to run an algorithm in parallel**
+(excerpt from `example/parallel-postprocess/main.cxx`)
+
+<img src="media/cores.png" alt="drawing" width="300"/>
+
 ```cpp
 #include <dataframe/functional/geo/cartesian_grid.h>
 #include <dataframe/functional/partition_n.h>
@@ -128,10 +132,11 @@ int main() {
 
     // An observation grid around the model
     df::Serie grid = df::grid::cartesian::from_points(
-        {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
+        {100, 100, 100}, {-10, -10, -10}, {10, 10, 10}
+    );
 
     // Parallelize the computation
-    auto strain = df::parallel_execute(model, df::partition_n(nbCores, grid));
+    auto strain = df::parallel_execute(model, grid, nbCores);
 }
 ```
 ___

@@ -28,12 +28,12 @@
 #include <thread>
 
 #include <dataframe/Serie.h>
-#include <dataframe/functional/concat.h>
+#include <dataframe/functional/utils/concat.h>
 #include <dataframe/functional/geo/cartesian_grid.h>
 #include <dataframe/functional/math/add.h>
-#include <dataframe/functional/parallel_execute.h>
-#include <dataframe/functional/partition_n.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/functional/utils/parallel_execute.h>
+#include <dataframe/functional/utils/partition_n.h>
+#include <dataframe/functional/utils/print.h>
 
 int main() {
     

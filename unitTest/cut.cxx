@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/cut.h>
+#include <dataframe/functional/utils/cut.h>
 #include "assertions.h"
 
 int main()

@@ -23,38 +23,37 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/print.h>
-#include <dataframe/functional/reject.h>
+#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/reject.h>
 #include <iostream>
-
-using namespace df;
 
 int main() {
 
     // Single Serie reject
-    Serie s1(1, {1, 2, 3, 4, 5});
-    auto noEvens = reject([](double v, uint32_t) { return (int)v % 2 == 0; },
+    df::Serie s1(1, {1, 2, 3, 4, 5});
+    auto noEvens =
+        df::utils::reject([](double v, uint32_t) { return (int)v % 2 == 0; },
                           s1); // Keep odd numbers
-    print(noEvens);
+    df::utils::print(noEvens);
 
     // Multiple Series reject
-    Serie stress(6, {1,2,3,4,5,6, 6,5,4,3,2,1});
-    Serie positions(3, {1,2,3, 3,2,1});
-    auto rejected = rejectAll(
+    df::Serie stress(6, {1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1});
+    df::Serie positions(3, {1, 2, 3, 3, 2, 1});
+    auto rejected = df::utils::rejectAll(
         [](const Array &s, const Array &p) {
             return s[0] < 0 &&
                    p[2] > 0; // Remove where both conditions are true
         },
         stress, positions);
-    
-    print(rejected[0]);
-    print(rejected[1]);
+
+    df::utils::print(rejected[0]);
+    df::utils::print(rejected[1]);
 
     // Using make_reject
     auto removeNegatives =
-        make_reject([](double v, uint32_t) { return v < 0; });
+        df::utils::make_reject([](double v, uint32_t) { return v < 0; });
     auto positives = removeNegatives(s1);
-    print(positives);
+    df::utils::print(positives);
 
     return 0;
 }

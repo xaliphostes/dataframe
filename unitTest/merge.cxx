@@ -24,7 +24,7 @@
 #include "assertions.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/merge.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/functional/utils/print.h>
 
 START_TEST(merge) {
     df::Serie s1(2, {1, 2, 3, 4});

@@ -23,13 +23,13 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/print.h>
-#include <dataframe/functional/memoize.h>
+#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/memoize.h>
 #include <dataframe/functional/math/random.h>
 #include <dataframe/functional/algebra/eigen.h>
 
 int main() {
-    auto expensive_eigenvals = df::memoize([](const df::Serie &s) {
+    auto expensive_eigenvals = df::utils::memoize([](const df::Serie &s) {
         return df::algebra::eigenValues(s); // Expensive computation
     });
 

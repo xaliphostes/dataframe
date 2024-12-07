@@ -25,6 +25,7 @@
 #include <dataframe/Serie.h>
 
 namespace df {
+namespace utils {
 
 /**
  * @example
@@ -91,4 +92,5 @@ template <typename F> auto partition(F &&predicate, const Serie &serie) {
     }
 }
 
+} // namespace utils
 } // namespace df

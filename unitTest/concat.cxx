@@ -23,14 +23,14 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/concat.h>
+#include <dataframe/functional/utils/concat.h>
 
 int main() {
     df::Serie s1(2, {1, 2, 3, 4, 5, 6});
     df::Serie s2(2, {4, 5, 6, 7, 8, 9});
     df::Serie s3(2, {10, 11, 12, 13, 10, 10});
 
-    auto result = df::concat(s1, s2, s3);
+    auto result = df::utils::concat(s1, s2, s3);
     assertArrayEqual(result.asArray(), {1, 2, 3, 4, 5, 6, 4, 5, 6, 7, 8, 9, 10,
                                         11, 12, 13, 10, 10});
 }

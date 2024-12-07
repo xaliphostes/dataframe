@@ -24,9 +24,9 @@
 #include "assertions.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/map.h>
-#include <dataframe/functional/print.h>
 #include <dataframe/functional/pipe.h>
-#include <dataframe/functional/zip.h>
+#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/zip.h>
 
 // These functions can be combined with the pipe and zip functions:
 void doPipe() {
@@ -35,7 +35,7 @@ void doPipe() {
 
     // Combine multiple operations
     auto result =
-        df::pipe(df::zip(s1, s2), df::make_map([](const Array &v, uint32_t) {
+        df::pipe(df::utils::zip(s1, s2), df::make_map([](const Array &v, uint32_t) {
                      Array out(v.size());
                      for (size_t j = 0; j < v.size(); ++j) {
                          out[j] = v[j] * 2;
@@ -115,7 +115,7 @@ int main() {
         
         auto result1 = df::map([](double v, uint32_t) { return v * 2; }, s1);
         std::cerr << "Single Serie mapping\n";
-        df::print(result1);
+        df::utils::print(result1);
     }
 
     // Multiple Series mapping
@@ -134,7 +134,7 @@ int main() {
             },
             s1, s2, s3);
         std::cerr << "Multiple Serie mapping\n";
-        df::print(result2);
+        df::utils::print(result2);
     }
 
 }

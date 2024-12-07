@@ -22,7 +22,7 @@
  */
 
 #include <dataframe/Serie.h>
-#include <dataframe/functional/sort.h>
+#include <dataframe/functional/utils/sort.h>
 #include "assertions.h"
 
 using namespace df;
@@ -30,13 +30,13 @@ using namespace df;
 int main()
 {
     Serie s1(1, {3, 1, 4, 1, 5});
-    assertSerieEqual(sort(s1), {1, 1, 3, 4, 5});
+    assertSerieEqual(utils::sort(s1), {1, 1, 3, 4, 5});
 
     Serie s2(2, {3, 1,   1, 2,   2, 2});
-    assertSerieEqual(sort(s2), {1, 2, 2, 2, 3, 1}); // Lexicographic sort
+    assertSerieEqual(utils::sort(s2), {1, 2, 2, 2, 3, 1}); // Lexicographic sort
 
     // Custom comparator
-    auto sorted3 = sort(s2, [](const Array &a, const Array &b) {
+    auto sorted3 = utils::sort(s2, [](const Array &a, const Array &b) {
         return a[1] < b[1];
     });
     assertSerieEqual(sorted3, {3, 1, 1, 2, 2, 2});

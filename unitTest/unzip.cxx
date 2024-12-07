@@ -23,8 +23,8 @@
 
 #include "assertions.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/unzip.h>
-#include <dataframe/functional/zip.h>
+#include <dataframe/functional/utils/unzip.h>
+#include <dataframe/functional/utils/zip.h>
 
 int main() {
     // Original Series
@@ -33,11 +33,11 @@ int main() {
     df::Serie s3(3, {7, 8, 9, 10, 11, 12}); // 3D
 
     // Zip them
-    auto zipped = df::zip(s1, s2, s3);
+    auto zipped = df::utils::zip(s1, s2, s3);
     assertSerieEqual(zipped, Array{1, 3, 4, 7, 8, 9, 2, 5, 6, 10, 11, 12});
 
     // Unzip them
-    auto series = df::unzip(zipped, {1, 2, 3});
+    auto series = df::utils::unzip(zipped, {1, 2, 3});
 
     // Check results
     assertEqual<uint>(series.size(), 3);

@@ -26,6 +26,7 @@
 #include <dataframe/utils.h>
 
 namespace df {
+namespace utils {
 
 /**
  * @brief Partition a Serie into n sub-series of equal size
@@ -61,7 +62,7 @@ Series partition_n(uint32_t n, const Serie &serie) {
             break;
         }
     }
-    
+
     return partitions;
 }
 
@@ -113,4 +114,5 @@ auto partition_n(uint32_t n, const Series &...series) {
     return result;
 }
 
+} // namespace utils
 } // namespace df

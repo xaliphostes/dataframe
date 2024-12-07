@@ -21,12 +21,14 @@
  *
  */
 
-#include <dataframe/functional/print.h>
+#pragma once
+#include <dataframe/Serie.h>
 
 namespace df {
+namespace utils {
 
 // Single Serie print implementation
-void print(const Serie &serie) {
+inline void print(const Serie &serie) {
     std::cout << "Serie:" << std::endl
               << "  itemSize : " << serie.itemSize() << std::endl
               << "  count    : " << serie.count() << std::endl
@@ -61,4 +63,20 @@ void print(const Serie &serie) {
     std::cout << "]" << std::endl;
 }
 
+// Multiple Series print implementation
+template <typename... Series>
+void print(const Serie &first, const Series &...rest) {
+    static_assert(std::conjunction<df::details::is_serie<Series>...>::value,
+                  "All arguments must be Series");
+    std::cout << "Series 1:" << std::endl;
+    print(first);
+
+    if constexpr (sizeof...(rest) > 0) {
+        size_t index = 2;
+        ((std::cout << "Series " << index++ << ":" << std::endl, print(rest)),
+         ...);
+    }
+}
+
+} // namespace utils
 } // namespace df

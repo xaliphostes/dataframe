@@ -24,13 +24,13 @@
 #include "assertions.h"
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/apply.h>
+#include <dataframe/functional/utils/apply.h>
 #include <iostream>
 
 START_TEST(apply1) {
     df::Serie a(1, {1, 2, 3, 4});
 
-    auto s = df::apply([](const Array &a, uint32_t i) {
+    auto s = df::utils::apply([](const Array &a, uint32_t i) {
         Array r = a;
         for (auto &v : r) {
             v = std::sqrt(v);
@@ -45,7 +45,7 @@ END_TEST()
 START_TEST(apply2) {
     df::Serie a(1, {1, 2, 3, 4});
 
-    auto sqrt = df::make_apply([](const Array &a, uint32_t i) {
+    auto sqrt = df::utils::make_apply([](const Array &a, uint32_t i) {
         Array r = a;
         for (auto &v : r) {
             v = std::sqrt(v);

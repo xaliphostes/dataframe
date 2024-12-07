@@ -22,31 +22,10 @@
  */
 
 #pragma once
-#include <dataframe/utils.h>
-#include <dataframe/functional/filter.h>
-#include <functional>
 #include <array>
-
-namespace df {
-// /**
-//  * @brief Rejects elements from Series based on a predicate, i.e., **remove
-//  * elements matching predicate** This is the opposite of filter.
-//  */
-// template <typename F, typename... Args>
-// auto reject(F &&predicate, const Args &...args) {
-//     return filter(std::not_fn(std::forward<F>(predicate)), args...);
-// }
-// /**
-//  * @brief Creates a reusable reject function
-//  */
-// template <typename F> auto make_reject(F &&cb) {
-//     static_assert(details::callback_filter_traits<F>::returns_bool,
-//                   "Reject predicate must return bool");
-//     return [cb = std::forward<F>(cb)](const auto &serie) {
-//         return reject(cb, serie);
-//     };
-// }
-} // namespace df
+#include <dataframe/functional/filter.h>
+#include <dataframe/utils.h>
+#include <functional>
 
 namespace df {
 
@@ -94,6 +73,7 @@ auto __reject__(F &&cb, const Serie &serie)
     return result;
 }
 
+namespace utils {
 
 template <typename F, typename... Args>
 auto reject(F &&predicate, const Args &...args) {
@@ -182,4 +162,5 @@ template <typename F> auto make_rejectAll(F &&cb) {
     };
 }
 
+} // namespace utils
 } // namespace df

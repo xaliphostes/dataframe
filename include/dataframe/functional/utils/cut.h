@@ -22,41 +22,19 @@
  */
 
 #pragma once
-#include "../Serie.h"
+#include <dataframe/functional/filter.h>
 
 namespace df {
+namespace utils {
 
-// Helper type to deduce return type of composed functions
-template <typename F, typename G> struct ComposedType {
-    template <typename... Args> auto operator()(Args &&...args) const {
-        return f(g(std::forward<Args>(args)...));
-    }
-    F f;
-    G g;
-};
-
-// Binary compose
-template <typename F, typename G> auto compose(F &&f, G &&g) {
-    return ComposedType<std::decay_t<F>, std::decay_t<G>>{std::forward<F>(f),
-                                                          std::forward<G>(g)};
-}
-
-// Variadic compose
 /**
- * @example
- * ```cpp
- * auto f = [](double x) { return x * 2; };
- * auto g = [](double x) { return x + 1; };
- * auto h = [](double x) { return x * x; };
- * 
- * auto composed = df::compose(f, g, h);
- * auto result = composed(3.0); // f(g(h(3.0)))
- * ```
+ * Synomym of filter
  */
-template <typename F, typename G, typename... Fs>
-auto compose(F &&f, G &&g, Fs &&...fs) {
-    return compose(std::forward<F>(f),
-                   compose(std::forward<G>(g), std::forward<Fs>(fs)...));
+template <typename F> Serie cut(F &&predicate, const Serie &serie) {
+    return filter(predicate, serie);
 }
 
+MAKE_OP(cut);
+
+} // namespace utils
 } // namespace df
