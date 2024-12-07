@@ -99,8 +99,8 @@ auto critical_stress = critical_stress_pipeline(stresses);
 #include <dataframe/functional/parallel_execute.h>
 
 /**
- * Computes the 3D Green's function (elastic fundamental solution) for a
- * point force in an infinite elastic medium and return the stress tensor.
+ * Computes the 3D Green's function (elastic fundamental solution) using the
+ * fundamental solution for a displacement discontinuity (or dislocation)
  */
 class Source {
   public:
