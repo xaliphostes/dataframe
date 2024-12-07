@@ -124,19 +124,17 @@ struct Model {
 };
 
 int main() {
-    u_int32_t nbSources = 1e4;
-    u_int32_t nbFields = 1e6;
     uint nbCores = 12;
 
-    Model model(nbSources);
+    Model model(10000);
 
-    // An observation grid around the model
+    // An observation grid around the model (1M points)
     df::Serie grid = df::grid::cartesian::from_points(
         {100, 100, 100}, {-10, -10, -10}, {10, 10, 10}
     );
 
-    // Parallelize the computation
-    auto strain = df::parallel_execute(model, grid, nbCores);
+    // Parallelize the stress computation at 1M points
+    auto stress = df::parallel_execute(model, grid, nbCores);
 }
 ```
 ___
