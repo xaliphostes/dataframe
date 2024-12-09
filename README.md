@@ -133,7 +133,7 @@ int main() {
         {100, 100, 100}, {-10, -10, -10}, {10, 10, 10}
     );
 
-    // Parallelize the stress computation at 1M points
+    // Parallelize the stress computation for 1M points
     auto stress = df::parallel_execute(model, grid, nbCores);
 }
 ```

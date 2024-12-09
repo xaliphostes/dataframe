@@ -127,5 +127,40 @@ Serie parallel_execute(Functor &&fct, const Serie &serie, uint nbCores) {
     return concat(results);
 }
 
+// ------------------------------------
+//          A simpler method
+// ------------------------------------
+/*
+template <typename Functor>
+Serie parallel_execute(Functor&& fct, const Series& partitions) {
+   auto nbJobs = partitions.size();
+   
+   // Vector to store future results
+   std::vector<std::future<Serie>> futures;
+   futures.reserve(nbJobs);
+
+   // Launch each job in a separate thread and get future Serie
+   for (const auto& job : partitions) {
+       futures.push_back(std::async(std::launch::async, [fct, job]() {
+           try {
+               return fct(job);
+           } catch (const std::exception& e) {
+               throw std::invalid_argument("error, job failed: " + std::string(e.what()));
+           }
+       }));
+   }
+
+   // Collect results in order and concat them
+   std::vector<Serie> results;
+   results.reserve(nbJobs);
+   
+   for (auto& future : futures) {
+       results.push_back(future.get());
+   }
+
+   return concat(results);
+}
+*/
+
 } // namespace utils
 } // namespace df

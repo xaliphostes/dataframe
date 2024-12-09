@@ -36,5 +36,18 @@
 #include <dataframe/functional/utils/print.h>
 
 int main() {
+
+    /**
+     * Parallelize a Jacobi solver.
+     * 
+     * - Decompose the N equations into n groups of equations
+     * - Allocate and build the n sub-matrices in n threads
+     * - then
+     * - Resolve iteratively:
+     *      - Solve the n groups of equations independently in n threads
+     *      - then
+     *      - collect the n results
+     * - Until convergence
+     */
     
 }

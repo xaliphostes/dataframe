@@ -136,7 +136,7 @@ class Source {
 
   private:
     Array pos_{0, 0, 0}; // Source position
-    Array U_{1,0,0};     // displ. discon.
+    Array U_{1, 0, 0};   // displ. discon.
     double nu{0.25};     // poisson's ratio
     double mu{1};        // shear modulus
 };
@@ -167,13 +167,31 @@ struct Model {
     std::vector<Source> sources_;
 };
 
-int main() {
+int main(int argc, char **argv) {
     Model model(10000);
 
     // An observation grid around the sources (the model)
     df::Serie grid = df::grid::cartesian::from_points(
         {100, 100, 100}, {-10, -10, -10}, {10, 10, 10});
 
+    // Set number of cores: from args or default to 12
     uint nbCores = 12;
+    if (argc > 1) {
+        try {
+            nbCores = std::stoul(argv[1]);
+            if (nbCores < 1) {
+                std::cerr << "Number of cores must be >= 1. Using default (12)."
+                          << std::endl;
+                nbCores = 12;
+            }
+        } catch (const std::exception &e) {
+            std::cerr
+                << "Invalid argument for number of cores. Using default (12)."
+                << std::endl;
+        }
+    }
+
+    std::cout << "Using " << nbCores << " cores.\n";
+
     auto stress = df::utils::parallel_execute(model, grid, nbCores);
 }
