@@ -9,4 +9,3 @@ Apple M2 Pro, 16 Go, running **Sonoma 14.2**
 
 
 # Linux Ubuntu
-

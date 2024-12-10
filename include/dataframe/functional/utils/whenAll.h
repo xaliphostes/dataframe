@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 fmaerten@gmail.com
+ * Copyright (c) 2024-now fmaerten@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -69,11 +69,11 @@ auto whenAll(F &&transform, const std::vector<Serie> &series) {
     Serie s3(3, {...});
 
     // Parallel execution with transformation
-    auto result1 = whenAll_parallel([](const Serie &s) { return eigenValues(s); },
+    auto result1 = whenAll([](const Serie &s) { return eigenValues(s); },
                                     {s1, s2, s3});
 
     // Parallel execution of different Series
-    auto [r1, r2, r3] = whenAll_parallel(s1, s2, s3);
+    auto [r1, r2, r3] = whenAll(s1, s2, s3);
     ```
  */
 template <typename... Series> auto whenAll(const Series &...series) {
