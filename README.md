@@ -14,7 +14,7 @@
 
 Minimalist [Panda](https://pandas.pydata.org/)-like library in C++ which allows you to create and manage series and dataframes. It also provides math functions to play with Series.
 
-Compared to Panda, we have some differences since our main consern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra).
+Compared to Panda, we have some differences since our main concern is [**linear algebra**](https://en.wikipedia.org/wiki/Linear_algebra).
 
 ## Core concepts
 A Serie is a fundamental concept in linear algebra and numerical computation that represents a collection of mathematical objects that share the same structure. Each item in a Serie can be:
