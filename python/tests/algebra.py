@@ -18,19 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
- 
+
+import pytest
 from dataframe.algebra import eigenVectors, eigenValues, eigenSystem
 from dataframe import Serie, forEach
-import pytest
-
-def assert_double_equal(a, b, tolerance=1e-4):
-    print('args: ', a, b)
-    assert abs(a - b) <= tolerance
-    
-def assert_array_equal(arr1, arr2, tolerance=1e-4):
-    assert len(arr1) == len(arr2), f"Arrays have different lengths: {len(arr1)} != {len(arr2)}"
-    for a, b in zip(arr1, arr2):
-        assert abs(a - b) <= tolerance, f"Array elements differ: {a} != {b}"
+from common import assert_array_equal
 
 serie = Serie(6, [
     2, 4, 6, 3, 6, 9,

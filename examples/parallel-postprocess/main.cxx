@@ -146,7 +146,7 @@ class Source {
  */
 struct Model {
     Model(u_int32_t nbSources = 1e4) {
-        df::grid::cartesian::from_points({100, 100}, {-1, -1, -1}, {1, 1, 1})
+        df::grid::cartesian::from_points({100, 100}, {-1, -1, -1}, {1, 1, -1})
             .forEach([=](const Array &pos, uint32_t) {
                 sources_.push_back(Source(pos));
             });

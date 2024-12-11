@@ -37,7 +37,9 @@ pybind11_add_module(dataframe
     src/serie.cxx
     src/forEach.cxx
     src/grid.cxx
+
     src/algebra.cxx
+    src/utils.cxx
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DATAFRAME}) # The PRIVATE keyword is important

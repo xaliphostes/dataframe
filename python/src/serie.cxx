@@ -58,7 +58,76 @@ void init_serie(pybind11::module &m) {
         .def("forEachScalar",
              [](df::Serie &self, const pybind11::function &func) {
                  self.forEach([func](double v, uint32_t idx) { func(v, idx); });
-             });
+             })
+        // Bind get method that automatically handles both scalar and vector
+        // returns
+        // Bind get method with explicit return type as pybind11::object
+        .def(
+            "get",
+            [](const df::Serie &self, uint32_t index) -> pybind11::object {
+                if (self.itemSize() == 1) {
+                    return pybind11::cast(self.get<double>(index));
+                } else {
+                    return pybind11::cast(self.get<Array>(index));
+                }
+            },
+            "Get value at index (returns scalar for itemSize=1, Array "
+            "otherwise)")
+
+        // Optional: Add explicit scalar and vector versions if needed
+        .def(
+            "getScalar",
+            [](const df::Serie &self, uint32_t index) {
+                if (self.itemSize() != 1) {
+                    throw std::runtime_error(
+                        "Cannot use getScalar on non-scalar Serie");
+                }
+                return self.get<double>(index);
+            },
+            "Get scalar value at index")
+
+        .def(
+            "getArray",
+            [](const df::Serie &self, uint32_t index) {
+                if (self.itemSize() == 1) {
+                    throw std::runtime_error(
+                        "Cannot use getArray on scalar Serie");
+                }
+                return self.get<Array>(index);
+            },
+            "Get Array value at index")
+
+        // Bind set method that handles both scalar and vector inputs
+        .def(
+            "set",
+            [](df::Serie &self, uint32_t index, const pybind11::object &value) {
+                if (self.itemSize() == 1) {
+                    // For scalar Serie, accept number types
+                    if (pybind11::isinstance<pybind11::float_>(value) ||
+                        pybind11::isinstance<pybind11::int_>(value)) {
+                        self.set(index, value.cast<double>());
+                    } else {
+                        throw std::runtime_error(
+                            "Scalar Serie requires numeric value");
+                    }
+                } else {
+                    // For vector Serie, accept sequence types
+                    if (pybind11::isinstance<pybind11::sequence>(value)) {
+                        auto seq = value.cast<std::vector<double>>();
+                        if (seq.size() != self.itemSize()) {
+                            throw std::runtime_error(
+                                "Input array size must match Serie itemSize");
+                        }
+                        self.set(index, seq);
+                    } else {
+                        throw std::runtime_error(
+                            "Vector Serie requires sequence value");
+                    }
+                }
+            },
+            "Set value at index (accepts scalar for itemSize=1, sequence for "
+            "itemSize>1)");
+
     // OTHER IMPLEMENTATION OF FUNCTOR
     // -------------------------------
     // .def("forEach",

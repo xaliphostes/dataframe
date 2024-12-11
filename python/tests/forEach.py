@@ -20,16 +20,7 @@
 #
 
 from dataframe import Serie, forEach
-import pytest
-
-def assert_equal(a, b):
-    assert abs(a - b) == 0
-    
-def assert_array_equal(arr1, arr2):
-    assert len(arr1) == len(arr2), f"Arrays have different lengths: {len(arr1)} != {len(arr2)}"
-    for a, b in zip(arr1, arr2):
-        assert abs(a - b) == 0, f"Array elements differ: {a} != {b}"
-
+from common import assert_array_equal, assert_equal
 
 # For 1 Serie
 s1Vals = [1, 2, 3]
