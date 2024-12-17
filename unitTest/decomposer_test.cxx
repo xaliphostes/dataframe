@@ -31,7 +31,7 @@
 #include <dataframe/attributes/Areas.h>
 #include <dataframe/attributes/Valence.h>
 #include <dataframe/attributes/UserDefinedDecomposer.h>
-#include "assertions.h"
+#include "TEST.h"
 
 namespace df {
 
@@ -85,7 +85,7 @@ namespace df {
 
 }
 
-void test() {
+TEST(decomposer, test) {
     df::Dataframe dataframe;
     dataframe.add("positions", df::Serie(3, {2,4,6, 3,6,9, 1,2,3})); // vector 3
     dataframe.add("indices", df::Serie(3, {0,1,2})); // vector 3
@@ -105,7 +105,7 @@ void test() {
     std::cerr << "Available series of matrix33:\n" << mng.names(6) << std::endl;
 }
 
-void basic() {
+TEST(decomposer, basic) {
     df::Dataframe dataframe;
     dataframe.add("a", df::Serie(1, {1, 2})); // scalar
     dataframe.add("positions", df::Serie(3, {2,4,6, 3,6,9, 1,2,3})); // vector 3
@@ -136,7 +136,7 @@ void basic() {
     }
 }
 
-void namesExist() {
+TEST(decomposer, name_exist) {
     df::Dataframe dataframe;
     dataframe.add("a", df::Serie(1, {1, 2})); // scalar
     dataframe.add("U", df::Serie(3, {2, 4, 6, 3, 6, 9})); // vector 3
@@ -189,7 +189,7 @@ void namesExist() {
     assertCondition(mng.contains(3, "S3"));
 }
 
-void coordinates() {
+TEST(decomposer, coordinates) {
     df::Dataframe dataframe;
     dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
     dataframe.add("indices", df::Serie(3, {0,1,2}));
@@ -217,7 +217,7 @@ void coordinates() {
     assertArrayEqual(z.asArray(), Array{0, 0, 0});
 }
 
-void normals() {
+TEST(decomposer, normals) {
     df::Dataframe dataframe;
     dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
     dataframe.add("indices", df::Serie(3, {0,1,2}));
@@ -236,7 +236,7 @@ void normals() {
     assertArrayEqual(normals.asArray(), Array{0, 0, 1});
 }
 
-void area() {
+TEST(decomposer, area) {
     df::Dataframe dataframe;
     dataframe.add("positions", df::Serie(3, {0,0,0, 1,0,0, 1,1,0}));
     dataframe.add("indices", df::Serie(3, {0,1,2}));
@@ -255,7 +255,7 @@ void area() {
     assertEqual(normals.asArray()[0], 0.5);
 }
 
-START_TEST(userDefined) {
+TEST(decomposer, userDefined) {
     df::Dataframe dataframe;
     dataframe.add("S", df::Serie(6, {2,4,6,3,6,9, 1,2,3,4,5,6, 9,8,7,6,5,4})); // sym matrix 3x3
 
@@ -275,20 +275,6 @@ START_TEST(userDefined) {
 
     assertArrayEqual(s.asArray(), Array{2, 1, 9});
     
-} END_TEST()
-
-
-int main()
-{
-    // test();
-
-
-    basic();
-    namesExist();
-    coordinates();
-    normals();
-    area();
-    userDefined();
-    
-    return 0;
 }
+
+RUN_TESTS()

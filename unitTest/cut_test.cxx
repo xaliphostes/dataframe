@@ -21,46 +21,13 @@
  *
  */
 
-#include "assertions.h"
-#include <dataframe/Serie.h>
-#include <dataframe/functional/math/div.h>
-#include <dataframe/functional/pipe.h>
 #include <iostream>
+#include <dataframe/Serie.h>
+#include <dataframe/functional/utils/cut.h>
+#include "TEST.h"
 
-int main()
-{
-    df::Serie a(3, { 2, 4, 6, 3, 6, 9 });
-
-    {
-        df::Serie divider(1, { 2, 3 });
-        df::Serie sol(3, { 1, 2, 3, 1, 2, 3 });
-        
-        df::Serie r1 = df::math::div(divider, a);
-        assertSerieEqual(r1, sol);
-
-        auto diver = df::math::make_div(divider);
-        assertSerieEqual(diver(a), sol);
-
-        df::Serie r2 = df::pipe(
-            a,
-            df::math::make_div(divider)
-        );
-        assertSerieEqual(r2, sol);
-    }
-
-    {
-        df::Serie divider = df::Serie(2, { 1, 3, 2, 9 });
-        shouldThrowError([a, divider]() {
-            df::math::div(divider, a);
-        });
-    }
-
-    {
-        df::Serie divider = df::Serie(1, { 1, 3, 2 });
-        shouldThrowError([a, divider]() {
-            df::math::div(a, divider);
-        });
-    }
-
-    return 0;
+TEST(cut, _1) {
+    // Same as filter !
 }
+
+RUN_TESTS()

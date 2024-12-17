@@ -21,16 +21,33 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/utils/concat.h>
+#include <dataframe/functional/conditional/check.h>
+#include <dataframe/functional/math/normalize.h>
+#include <iostream>
 
-int main() {
-    df::Serie s1(2, {1, 2, 3, 4, 5, 6});
-    df::Serie s2(2, {4, 5, 6, 7, 8, 9});
-    df::Serie s3(2, {10, 11, 12, 13, 10, 10});
+using namespace df;
 
-    auto result = df::utils::concat(s1, s2, s3);
-    assertArrayEqual(result.asArray(), {1, 2, 3, 4, 5, 6, 4, 5, 6, 7, 8, 9, 10,
-                                        11, 12, 13, 10, 10});
+TEST(check, _1) {
+    Serie s1(1, {1, -2, 3});
+    auto isNegative =
+        df::cond::check(s1, [](double v, uint32_t) { return v < 0; });
+    assertSerieEqual(isNegative, Array{0, 1, 0});
+
+    // Pour une Serie vectorielle
+    Serie s2(3, {1, 2, 3, -4, 5, 6});
+    auto firstIsNegative =
+        df::cond::check(s2, [](const Array &v, uint32_t) { return v[0] < 0; });
+    assertSerieEqual(firstIsNegative, Array{0, 1});
+
+    auto checkFirstNegative = df::cond::make_check([](const auto &v, uint32_t) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
+            return v < 0;
+        } else {
+            return v[0] < 0;
+        }
+    });
 }
+
+RUN_TESTS()

@@ -21,45 +21,39 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
+#include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/math/add.h>
-#include <dataframe/functional/algebra/dot.h>
-#include <dataframe/functional/math/negate.h>
-#include "assertions.h"
+#include <dataframe/functional/utils/apply.h>
+#include <iostream>
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1});
-    df::Serie c(2, {2, 2, 1, 1});
-    df::Serie d(3, {2, 2, 1, 1, 0, 0});
-    df::Serie e(2, {2, 2, 1, 1, 0, 0});
+TEST(apply, _1) {
+    df::Serie a(1, {1, 2, 3, 4});
 
-    {
-        auto s = df::math::add({a,b,c});
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
+    auto s = df::utils::apply([](const Array &a, uint32_t i) {
+        Array r = a;
+        for (auto &v : r) {
+            v = std::sqrt(v);
+        }
+        return r;
+    }, a);
 
-    {
-        auto s = df::math::add(a,b,c);
-        assertArrayEqual(s.asArray(), Array{7,7,6,6});
-    }
-
-    {
-        auto s = df::algebra::dot(a, b);
-        assertArrayEqual(s.asArray(), Array{10, 10});
-    }
-
-    {
-        auto s = df::math::negate(a);
-        assertArrayEqual(s.asArray(), Array{-1, -2, -3, -4});
-    }
-
-    {
-        auto s = df::math::add({a, df::math::negate(a)});
-        assertArrayEqual(s.asArray(), Array{0,0,0,0});
-    }
-
-    return 0;
+    assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
 }
+
+TEST(apply, _2) {
+    df::Serie a(1, {1, 2, 3, 4});
+
+    auto sqrt = df::utils::make_apply([](const Array &a, uint32_t i) {
+        Array r = a;
+        for (auto &v : r) {
+            v = std::sqrt(v);
+        }
+        return r;
+    });
+
+    auto s = sqrt(a);
+    assertArrayEqual(s.asArray(), Array{1, std::sqrt(2), std::sqrt(3), 2});
+}
+
+RUN_TESTS()

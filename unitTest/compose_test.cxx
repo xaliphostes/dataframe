@@ -21,7 +21,7 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/map.h>
@@ -30,7 +30,7 @@
 #include <dataframe/functional/math/normalize.h>
 #include <iostream>
 
-START_TEST(compose1) {
+TEST(compose, _1) {
     auto f = [](double x) { return x * 2; };
     auto g = [](double x) { return x + 1; };
     auto h = [](double x) { return x * x; };
@@ -40,9 +40,8 @@ START_TEST(compose1) {
 
     assertDoubleEqual(result, 20);
 }
-END_TEST()
 
-START_TEST(compose2) {
+TEST(compose, _2) {
     // Example Series operations to compose
     auto computeEigenvalues = [](const df::Serie &s) {
         return df::algebra::eigenValues(s);
@@ -73,12 +72,5 @@ START_TEST(compose2) {
 
     std::cout << result << std::endl;
 }
-END_TEST()
 
-int main() {
-
-    compose1();
-    compose2();
-
-    return 0;
-}
+RUN_TESTS()

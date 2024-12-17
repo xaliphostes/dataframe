@@ -58,18 +58,33 @@ endif()
 
 include_directories(include)
 
-add_subdirectory(src)
+# add_subdirectory(src)
+file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/include/geophysics/*.h" "${PROJECT_SOURCE_DIR}/src/*.cxx")
+add_library(dataframe SHARED ${SRC})
 
-set_target_properties(dataframe-shared PROPERTIES OUTPUT_NAME Dataframe)
+set_target_properties(dataframe PROPERTIES OUTPUT_NAME Dataframe)
 
-set_target_properties(dataframe-shared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DIST_DIR})
-set_target_properties(dataframe-shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DIST_DIR})
-set_target_properties(dataframe-shared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIST_DIR})
-set_target_properties(dataframe-shared PROPERTIES PDB_OUTPUT_DIRECTORY ${DIST_DIR})
+set_target_properties(dataframe PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${DIST_DIR})
+set_target_properties(dataframe PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${DIST_DIR})
+set_target_properties(dataframe PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${DIST_DIR})
+set_target_properties(dataframe PROPERTIES PDB_OUTPUT_DIRECTORY ${DIST_DIR})
 
 # examples
 add_subdirectory(examples)
 
 # Testing...
+function(auto_discover_tests)
+    file(GLOB_RECURSE TEST_FILES "*_test.cxx")
+    foreach(TEST_FILE ${TEST_FILES})
+        get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+        add_executable(${TEST_NAME} ${TEST_FILE})
+        target_link_libraries(${TEST_NAME} PRIVATE dataframe)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endforeach()
+endfunction()
+
+
 enable_testing()
-add_subdirectory(unitTest)
+auto_discover_tests()
+
+# add_subdirectory(unitTest)

@@ -21,22 +21,44 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/cross.h>
-#include "assertions.h"
+#include <dataframe/functional/math/div.h>
+#include <dataframe/functional/pipe.h>
+#include <iostream>
 
-void crossTest(const Array &A, const Array &B, const Array &sol)
-{
-    assertArrayEqual(df::algebra::cross(df::Serie(3, A), df::Serie(3, B)).asArray(), sol);
+TEST(div, _1) {
+    df::Serie a(3, { 2, 4, 6, 3, 6, 9 });
+    df::Serie divider(1, { 2, 3 });
+    df::Serie sol(3, { 1, 2, 3, 1, 2, 3 });
+    
+    df::Serie r1 = df::math::div(divider, a);
+    assertSerieEqual(r1, sol);
+
+    auto diver = df::math::make_div(divider);
+    assertSerieEqual(diver(a), sol);
+
+    df::Serie r2 = df::pipe(
+        a,
+        df::math::make_div(divider)
+    );
+    assertSerieEqual(r2, sol);
 }
 
-int main()
-{
-    crossTest(
-        {2, 3, 4, 5, 6, 7},
-        {5, 6, 7, -1, 4, 2},
-        {-3, 6, -3, -16, -17, 26});
-
-    return 0;
+TEST(div, _2) {
+    df::Serie a(3, { 2, 4, 6, 3, 6, 9 });
+    df::Serie divider = df::Serie(2, { 1, 3, 2, 9 });
+    shouldThrowError([a, divider]() {
+        df::math::div(divider, a);
+    });
 }
+
+TEST(div, _3) {
+    df::Serie a(3, { 2, 4, 6, 3, 6, 9 });
+    df::Serie divider = df::Serie(1, { 1, 3, 2 });
+    shouldThrowError([a, divider]() {
+        df::math::div(a, divider);
+    });
+}
+
+RUN_TESTS()

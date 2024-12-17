@@ -21,30 +21,21 @@
  *
  */
 
-#include "assertions.h"
-#include <dataframe/Serie.h>
-#include <dataframe/functional/conditional/check.h>
-#include <dataframe/functional/math/normalize.h>
 #include <iostream>
+#include <dataframe/Serie.h>
+#include <dataframe/functional/algebra/cross.h>
+#include "TEST.h"
 
-using namespace df;
-
-int main()
+void crossTest(const Array &A, const Array &B, const Array &sol)
 {
-    Serie s1(1, { 1, -2, 3 });
-    auto isNegative = df::cond::check(s1, [](double v, uint32_t) { return v < 0; });
-    assertSerieEqual(isNegative, Array{0, 1, 0});
-
-    // Pour une Serie vectorielle
-    Serie s2(3, { 1, 2, 3, -4, 5, 6 });
-    auto firstIsNegative = df::cond::check(s2, [](const Array& v, uint32_t) { return v[0] < 0; });
-    assertSerieEqual(firstIsNegative, Array{0, 1});
-
-    auto checkFirstNegative = df::cond::make_check([](const auto& v, uint32_t) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
-            return v < 0;
-        } else {
-            return v[0] < 0;
-        }
-    });
+    assertArrayEqual(df::algebra::cross(df::Serie(3, A), df::Serie(3, B)).asArray(), sol);
 }
+
+TEST(cross, _1) {
+    crossTest(
+        {2, 3, 4, 5, 6, 7},
+        {5, 6, 7, -1, 4, 2},
+        {-3, 6, -3, -16, -17, 26});
+}
+
+RUN_TESTS()

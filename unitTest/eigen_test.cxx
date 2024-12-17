@@ -21,7 +21,7 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
 #include <dataframe/attributes/EigenValues.h>
 #include <dataframe/attributes/EigenVectors.h>
@@ -29,7 +29,7 @@
 #include <dataframe/functional/algebra/eigen.h>
 #include <iostream>
 
-void basic() {
+TEST(eigen, basic) {
     // sym matrix 3x3 => itemSize=6
     // 3 items
     df::Serie serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4});
@@ -69,7 +69,7 @@ void basic() {
     }
 }
 
-void attributes() {
+TEST(eigen, attributes) {
     // Serie stress is:
     //   sym matrix 3x3 => itemSize = 6
     //   3 items
@@ -107,9 +107,4 @@ void attributes() {
     }
 }
 
-int main() {
-    basic();
-    attributes();
-
-    return 0;
-}
+RUN_TESTS()
