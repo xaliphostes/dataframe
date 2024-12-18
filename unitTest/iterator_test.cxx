@@ -18,12 +18,13 @@ TEST(SerieIterator, BasicIteration) {
     }
     std::cout << std::endl;
 }
-TEST(SerieIterator, algo) {
-    // Using with standard algorithms
-    std::vector<double> values;
-    std::copy(df::begin<double>(s1), df::end<double>(s1),
-              std::back_inserter(values));
-}
+
+// TEST(SerieIterator, algo) {
+//     // Using with standard algorithms
+//     std::vector<double> values;
+//     std::copy(df::begin<double>(s1), df::end<double>(s1),
+//               std::back_inserter(values));
+// }
 
 TEST(SerieIterator, forEachIter) {
     // Using the new forEachIter

@@ -23,46 +23,46 @@
 
 #include <dataframe/functional/math/equals.h>
 #include <dataframe/Serie.h>
+#include "TEST.h"
 
 using namespace df;
 
-int main()
-{
-    {
-        Serie s1(1, {1, 2, 3});
-        Serie s2(1, {1, 2, 3});
-        bool equal = df::math::equals(s1, s2); // true
-    }
 
-    {
-        Serie s1(1, {1.0, 2.0, 3.0});
-        Serie s2(1, {1.0000001, 2.0, 3.0});
-        bool equal = df::math::approximatelyEquals(s1, s2, 1e-6); // true
-    }
-
-    {
-        Serie s1(1, {1, 2, 3});
-        Serie s2(1, {1, 2, 3});
-        Serie s3(1, {1, 2, 3});
-        bool allEqual = df::math::equalsAll(s1, s2, s3); // true
-    }
-
-    // {
-    //     Serie s1(1, {1.0, 2.0, 3.0});
-    //     Serie s2(1, {1.0000001, 2.0, 3.0});
-    //     Serie s3(1, {1.0000002, 2.0, 3.0});
-    //     bool allEqual = approximatelyEqualsAll(s1, s2, s3); // true
-    // }
-
-    {
-        Serie s1(1, {1, 2, 3});
-        Serie s2(1, {1, 4, 3});
-        auto mask = df::math::equalityMask(s1, s2); // Serie(1, {1, 0, 1})
-    }
-
-    {
-        Serie s1(1, {1.0, 2.0, 3.0});
-        Serie s2(1, {1.0000001, 4.0, 3.0});
-        auto mask = df::math::approximateEqualityMask(s1, s2, 1e-6); // Serie(1, {1, 0, 1})
-    }
+TEST(equals, equals1) {
+    Serie s1(1, {1, 2, 3});
+    Serie s2(1, {1, 2, 3});
+    bool equal = df::math::equals(s1, s2); // true
 }
+
+TEST(equals, equals2) {
+    Serie s1(1, {1, 2, 3});
+    Serie s2(1, {1, 2, 3});
+    bool equal = df::math::equals(s1, s2); // true
+}
+
+TEST(equals, approximatelyEquals) {
+    Serie s1(1, {1.0, 2.0, 3.0});
+    Serie s2(1, {1.0000001, 2.0, 3.0});
+    bool equal = df::math::approximatelyEquals(s1, s2, 1e-6); // true
+}
+
+TEST(equals, equalsAll) {
+    Serie s1(1, {1, 2, 3});
+    Serie s2(1, {1, 2, 3});
+    Serie s3(1, {1, 2, 3});
+    bool allEqual = df::math::equalsAll(s1, s2, s3); // true
+}
+
+TEST(equals, equalityMask) {
+    Serie s1(1, {1, 2, 3});
+    Serie s2(1, {1, 4, 3});
+    auto mask = df::math::equalityMask(s1, s2); // Serie(1, {1, 0, 1})
+}
+
+TEST(equals, approximateEqualityMask) {
+    Serie s1(1, {1.0, 2.0, 3.0});
+    Serie s2(1, {1.0000001, 4.0, 3.0});
+    auto mask = df::math::approximateEqualityMask(s1, s2, 1e-6); // Serie(1, {1, 0, 1})
+}
+
+RUN_TESTS()
