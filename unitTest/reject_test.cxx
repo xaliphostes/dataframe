@@ -21,26 +21,39 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/math/minMax.h>
-#include "assertions.h"
+#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/reject.h>
+#include <iostream>
 
-int main()
-{
-    // For scalar Serie
-    {
-        df::Serie s1(1, {1, 5, 2, 4, 3});
-        auto [min, max] = df::math::minMax(s1);
-        assertArrayEqual(min, {1});
-        assertArrayEqual(max, {5});
-    }
+TEST(reject, basic) {
 
-    // For vector Serie
-    {
-        df::Serie s2(3, {1, 2, 3, 4, 1, 6, 2, 5, 0});
-        auto [min, max] = df::math::minMax(s2);
-        assertArrayEqual(min, {1, 1, 0});
-        assertArrayEqual(max, {4, 5, 6});
-    }
+    // Single Serie reject
+    df::Serie s1(1, {1, 2, 3, 4, 5});
+    auto noEvens =
+        df::utils::reject([](double v, uint32_t) { return (int)v % 2 == 0; },
+                          s1); // Keep odd numbers
+    df::utils::print(noEvens);
+
+    // Multiple Series reject
+    df::Serie stress(6, {1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1});
+    df::Serie positions(3, {1, 2, 3, 3, 2, 1});
+    auto rejected = df::utils::rejectAll(
+        [](const Array &s, const Array &p) {
+            return s[0] < 0 &&
+                   p[2] > 0; // Remove where both conditions are true
+        },
+        stress, positions);
+
+    df::utils::print(rejected[0]);
+    df::utils::print(rejected[1]);
+
+    // Using make_reject
+    auto removeNegatives =
+        df::utils::make_reject([](double v, uint32_t) { return v < 0; });
+    auto positives = removeNegatives(s1);
+    df::utils::print(positives);
 }
+
+RUN_TESTS()

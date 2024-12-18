@@ -21,31 +21,29 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/utils/partition.h>
-#include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/unzip.h>
+#include <dataframe/functional/utils/zip.h>
 
-START_TEST(partition) {
-    df::Serie stress(6,
-                     {2, 4, 6, 3, 6, 9, -1, 2, 3, 4, 5, 6, -9, 8, 7, 6, 5, 4});
+TEST(unzip, basic) {
+    // Original Series
+    df::Serie s1(1, {1, 2});                // Scalar
+    df::Serie s2(2, {3, 4, 5, 6});          // 2D
+    df::Serie s3(3, {7, 8, 9, 10, 11, 12}); // 3D
 
-    auto [compressive, tensile] = df::utils::partition(
-        [](const Array &s, uint32_t) {
-            return s[0] < 0; // Separate compressive from tensile states (xx
-                             // component of stress)
-        },
-        stress);
+    // Zip them
+    auto zipped = df::utils::zip(s1, s2, s3);
+    assertSerieEqual(zipped, Array{1, 3, 4, 7, 8, 9, 2, 5, 6, 10, 11, 12});
 
-    assertSerieEqual(compressive,
-                     df::Serie(6, {-1, 2, 3, 4, 5, 6, -9, 8, 7, 6, 5, 4}));
-    assertSerieEqual(tensile, df::Serie(6, {2, 4, 6, 3, 6, 9}));
+    // Unzip them
+    auto series = df::utils::unzip(zipped, {1, 2, 3});
+
+    // Check results
+    assertEqual<uint>(series.size(), 3);
+    assertSerieEqual(series[0], s1);
+    assertSerieEqual(series[1], s2);
+    assertSerieEqual(series[2], s3);
 }
-END_TEST()
 
-int main() {
-
-    partition();
-
-    return 0;
-}
+RUN_TESTS()

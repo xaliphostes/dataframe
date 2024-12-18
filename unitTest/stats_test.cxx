@@ -21,15 +21,15 @@
  *
  */
 
+#include "TEST.h"
 #include <iostream>
 #include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/stats/bins.h>
 #include <dataframe/functional/stats/mean.h>
 #include <dataframe/functional/stats/covariance.h>
-#include "assertions.h"
 
-START_TEST(bins) {
+TEST(stats, bins) {
     df::Serie s(1, {57, 57, 57, 58, 63, 66, 66, 67, 67, 68, 69, 70, 70, 70, 70, 72, 73, 75, 75, 76, 76, 78, 79, 81});
 
     {
@@ -52,23 +52,23 @@ START_TEST(bins) {
         auto nb2 = std::reduce(sol.begin(), sol.end());
         assertEqual(nb1, (uint32_t)nb2);
     }
-} END_TEST()
+}
 
-START_TEST(mean1) {
+TEST(stats, mean1) {
     df::Serie serie(1, {0,1,2,3,4,5,6,7,8});
     double a = df::stats::mean(serie).number;
     double sol = (9 * (9 - 1)) / 2 / 9;
     assertDoubleEqual(a, sol);
-} END_TEST()
+}
 
-START_TEST(mean3) {
+TEST(stats, mean3) {
     df::Serie serie(3, {0,1,2, 3,4,5, 6,7,8});
     Array a = df::stats::mean(serie).array;
     Array sol{3, 4, 5};
     assertArrayEqual(a, sol);
-} END_TEST()
+}
 
-START_TEST(cov) {
+TEST(stats, cov) {
     df::Serie x, y;
     double cov, mx, my;
 
@@ -95,14 +95,6 @@ START_TEST(cov) {
     assertDoubleEqual(mx, 0.5518, 1e-3);
     assertDoubleEqual(my, 0.302, 1e-3);
     assertDoubleEqual(cov, -0.011238, 1e-3);
-} END_TEST()
-
-int main()
-{
-    bins();
-    mean1();
-    mean3();
-    cov();
-
-    return 0;
 }
+
+RUN_TESTS()

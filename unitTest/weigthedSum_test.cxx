@@ -21,47 +21,47 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/math/weightedSum.h>
 #include <iostream>
 
-int main() {
-  df::Serie a(2, {1, 2, 3, 4});
-  df::Serie b(2, {4, 3, 2, 1});
-  df::Serie c(2, {2, 2, 1, 1});
-  df::Serie d(3, {2, 2, 1, 1, 0, 0});
-  df::Serie e(2, {2, 2, 1, 1, 0, 0});
-
-  Array weights{2, 3, 4};
-  {
-    df::Serie s = df::math::weigthedSum({a, b, c}, weights);
-    assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
-  }
-
-  {
-    auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
-    assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
-  }
-
-  shouldThrowError(
-      [a, b, weights]() { auto s = df::math::weigthedSum({a, b}, weights); });
-
-  shouldThrowError(
-      [a, b, d, weights]() { df::math::weigthedSum({a, b, d}, weights); });
-
-  shouldThrowError(
-      [a, b, e, weights]() { df::math::weigthedSum({a, b, e}, weights); });
-
-  {
+TEST(weightedSum, basic) {
     df::Serie a(2, {1, 2, 3, 4});
     df::Serie b(2, {4, 3, 2, 1});
     df::Serie c(2, {2, 2, 1, 1});
+    df::Serie d(3, {2, 2, 1, 1, 0, 0});
+    df::Serie e(2, {2, 2, 1, 1, 0, 0});
 
-    // Performs s = 2*a + 3*b + 4*c
-    auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
-    std::cout << s << std::endl;
-  }
+    Array weights{2, 3, 4};
+    {
+        df::Serie s = df::math::weigthedSum({a, b, c}, weights);
+        assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
+    }
 
-  return 0;
+    {
+        auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
+        assertArrayEqual(s.asArray(), Array{22, 21, 16, 15});
+    }
+
+    shouldThrowError(
+        [a, b, weights]() { auto s = df::math::weigthedSum({a, b}, weights); });
+
+    shouldThrowError(
+        [a, b, d, weights]() { df::math::weigthedSum({a, b, d}, weights); });
+
+    shouldThrowError(
+        [a, b, e, weights]() { df::math::weigthedSum({a, b, e}, weights); });
+
+    {
+        df::Serie a(2, {1, 2, 3, 4});
+        df::Serie b(2, {4, 3, 2, 1});
+        df::Serie c(2, {2, 2, 1, 1});
+
+        // Performs s = 2*a + 3*b + 4*c
+        auto s = df::math::weigthedSum({a, b, c}, {2, 3, 4});
+        std::cout << s << std::endl;
+    }
 }
+
+RUN_TESTS()

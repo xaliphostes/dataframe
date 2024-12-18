@@ -21,39 +21,24 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
+#include <dataframe/functional/merge.h>
 #include <dataframe/functional/utils/print.h>
-#include <dataframe/functional/utils/reject.h>
-#include <iostream>
 
-int main() {
+TEST(merge, basic) {
+    df::Serie s1(2, {1, 2, 3, 4});
+    df::Serie s2(2, {3, 4, 5, 6});
+    df::Serie s3(2, {7, 8, 9, 10});
 
-    // Single Serie reject
-    df::Serie s1(1, {1, 2, 3, 4, 5});
-    auto noEvens =
-        df::utils::reject([](double v, uint32_t) { return (int)v % 2 == 0; },
-                          s1); // Keep odd numbers
-    df::utils::print(noEvens);
+    auto concatenated = df::merge(s1, s2);
+    auto interleaved = df::merge(s1, s2, false);
+    auto multi = merge(true, s1, s2, s3);
 
-    // Multiple Series reject
-    df::Serie stress(6, {1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1});
-    df::Serie positions(3, {1, 2, 3, 3, 2, 1});
-    auto rejected = df::utils::rejectAll(
-        [](const Array &s, const Array &p) {
-            return s[0] < 0 &&
-                   p[2] > 0; // Remove where both conditions are true
-        },
-        stress, positions);
-
-    df::utils::print(rejected[0]);
-    df::utils::print(rejected[1]);
-
-    // Using make_reject
-    auto removeNegatives =
-        df::utils::make_reject([](double v, uint32_t) { return v < 0; });
-    auto positives = removeNegatives(s1);
-    df::utils::print(positives);
-
-    return 0;
+    assertSerieEqual(concatenated, df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}));
+    assertSerieEqual(interleaved, df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}));
+    assertSerieEqual(multi,
+                     df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6, 7, 8, 9, 10}));
 }
+
+RUN_TESTS()

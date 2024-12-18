@@ -21,42 +21,21 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/functional/math/add.h>
-#include "assertions.h"
+#include <dataframe/functional/math/normalize.h>
 
 
-int main()
-{
-    df::Serie a(2, {1, 2, 3, 4});
-    df::Serie b(2, {4, 3, 2, 1, 3, 3});
-    df::Serie c(3, {4, 3, 2, 1, 3, 3}); // different itemSize from previous
+TEST(normalize, basic) {
+    // Normalisation d'une Serie scalaire
+    df::Serie s1(1, {1, 2, 3, 4, 5});
+    auto normalized1 = df::math::normalize(s1); // Normalise entre 0 et 1
+    assertSerieEqual(normalized1, {0, 0.25, 0.5, 0.75, 1});
 
-    /**
-     * @brief Different count
-     */
-    shouldThrowError([a, b]() {
-        df::math::add({a, b});
-    });
-
-    /**
-     * @brief Different itemSize
-     */
-    shouldThrowError([a, c]() {
-        df::math::add({a, c});
-    });
-
-    /**
-     * @brief Add in a dataframe with different count
-     */
-    shouldNotThrowError([a, b]() {
-        // Not same count
-        df::Dataframe dataframe ;
-        dataframe.add("pos", a);
-        dataframe.add("idx", b);
-    });
-
-    return 0;
+    // Normalisation d'une Serie vectorielle
+    df::Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+    auto normalized2 = df::math::normalize(s2); // Normalise chaque vecteur à une longueur de 1
+    assertSerieEqual(normalized2, {0.267261, 0.534522, 0.801784, 0.455842, 0.569803, 0.683763, 0.502571, 0.574367, 0.646162}, 1e-6);
 }
+
+RUN_TESTS()

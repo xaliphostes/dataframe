@@ -21,15 +21,14 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
 #include <cmath>
-#include <dataframe/Serie.h>
 #include <dataframe/Dataframe.h>
+#include <dataframe/Serie.h>
 #include <dataframe/utils/nameOfSerie.h>
-#include "assertions.h"
+#include <iostream>
 
-int main()
-{
+TEST(serie, basic) {
     df::Dataframe dataframe;
     dataframe.add("toto", df::Serie(1, {1, 2, 3, 4}));
 
@@ -42,17 +41,19 @@ int main()
     name = df::nameOfSerie(dataframe, serie);
     assertEqual(name, String(""));
 
-    serie.forEach([](double a, uint32_t index)
-                  {
-                      std::cerr << index << "  " << a << std::endl;
-                  });
-
-    // We know the serie is made of scalar values, so use it for performance reasons...
-    //
-    serie.forEach([](double a, uint32_t index)
-                        {
+    serie.forEach([](double a, uint32_t index) {
         std::cerr << index << "  " << a << std::endl;
-        assertCondition(a==index+1, "value should be " + std::to_string(index+1) + ". Got " + std::to_string(a) + "!"); });
+    });
+
+    // We know the serie is made of scalar values, so use it for performance
+    // reasons...
+    //
+    serie.forEach([](double a, uint32_t index) {
+        std::cerr << index << "  " << a << std::endl;
+        assertCondition(a == index + 1, "value should be " +
+                                            std::to_string(index + 1) +
+                                            ". Got " + std::to_string(a) + "!");
+    });
 
     {
         // Pour une Serie scalaire
@@ -85,18 +86,18 @@ int main()
             std::cout << "Item " << i << ": " << v << std::endl;
         });
 
-        auto doubled = s2.map([](const auto &v, uint32_t)
-                              {
-        if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
-            return v * 2;
-        } else {
-            Array result(v.size());
-            for(size_t i = 0; i < v.size(); ++i) {
-                result[i] = v[i] * 2;
+        auto doubled = s2.map([](const auto &v, uint32_t) {
+            if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
+                return v * 2;
+            } else {
+                Array result(v.size());
+                for (size_t i = 0; i < v.size(); ++i) {
+                    result[i] = v[i] * 2;
+                }
+                return result;
             }
-            return result;
-        } });
+        });
     }
-
-    return 0;
 }
+
+RUN_TESTS()

@@ -21,27 +21,25 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/utils/unzip.h>
-#include <dataframe/functional/utils/zip.h>
+#include <dataframe/functional/math/minMax.h>
+#include <iostream>
 
-int main() {
-    // Original Series
-    df::Serie s1(1, {1, 2});                // Scalar
-    df::Serie s2(2, {3, 4, 5, 6});          // 2D
-    df::Serie s3(3, {7, 8, 9, 10, 11, 12}); // 3D
-
-    // Zip them
-    auto zipped = df::utils::zip(s1, s2, s3);
-    assertSerieEqual(zipped, Array{1, 3, 4, 7, 8, 9, 2, 5, 6, 10, 11, 12});
-
-    // Unzip them
-    auto series = df::utils::unzip(zipped, {1, 2, 3});
-
-    // Check results
-    assertEqual<uint>(series.size(), 3);
-    assertSerieEqual(series[0], s1);
-    assertSerieEqual(series[1], s2);
-    assertSerieEqual(series[2], s3);
+// For scalar Serie
+TEST(minmax, scalar) {
+    df::Serie s1(1, {1, 5, 2, 4, 3});
+    auto [min, max] = df::math::minMax(s1);
+    assertArrayEqual(min, {1});
+    assertArrayEqual(max, {5});
 }
+
+// For vector Serie
+TEST(minmax, array) {
+    df::Serie s2(3, {1, 2, 3, 4, 1, 6, 2, 5, 0});
+    auto [min, max] = df::math::minMax(s2);
+    assertArrayEqual(min, {1, 1, 0});
+    assertArrayEqual(max, {4, 5, 6});
+}
+
+RUN_TESTS()

@@ -21,12 +21,12 @@
  *
  */
 
+#include "TEST.h"
 #include <iostream>
 #include <dataframe/Serie.h>
 #include <dataframe/functional/map.h>
-#include "assertions.h"
 
-void test_scalar() {
+TEST(scalar, basic1) {
     df::Serie serie(1, {1,2,3,4});
 
     serie.forEach([](double v, uint32_t) {
@@ -50,7 +50,7 @@ void test_scalar() {
     std::cerr << d << std::endl ;
 }
 
-void other_test() {
+TEST(scalar, basic2) {
     Array sol{1, 3, 2, 9};
     
     df::Serie a(1, {1, 3, 2, 9});
@@ -82,10 +82,4 @@ void other_test() {
     });
 }
 
-int main()
-{
-    test_scalar();
-    other_test();
-
-    return 0;
-}
+RUN_TESTS()

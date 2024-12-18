@@ -21,33 +21,36 @@
  *
  */
 
-#include <iostream>
+#include "TEST.h"
+#include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/inv.h>
-#include "assertions.h"
+#include <dataframe/functional/math/add.h>
+#include <iostream>
 
-int main()
-{
-    {
-        std::cerr << "TO CHECK !!!" << std::endl ;
-        df::Serie s(6, {1, 2, 3, 4, 5, 6});
-        auto result = df::algebra::inv(s);
-        assertSerieEqual(result, {
-            1, -3, 2,
-                3, -1,
-                    0
-        });
-    }
+TEST(excpt, _1) {
+    df::Serie a(2, {1, 2, 3, 4});
+    df::Serie b(2, {4, 3, 2, 1, 3, 3});
+    df::Serie c(3, {4, 3, 2, 1, 3, 3}); // different itemSize from previous
 
-    {
-        std::cerr << "TO CHECK !!!" << std::endl ;
-        df::Serie s(9, {2, 3, 1, 6, 5, 4, 7, 9, 8});
-        auto result = df::algebra::inv(s);
-        std::cerr << result << std::endl;
-        assertSerieEqual(result, {
-            -0.121212, 0.454545, -0.212121,
-            0.606061, -0.272727, -0.0909091,
-            -0.575758, -0.0909091, 0.242424},
-        1e5);
-    }
+    /**
+     * @brief Different count
+     */
+    shouldThrowError([a, b]() { df::math::add({a, b}); });
+
+    /**
+     * @brief Different itemSize
+     */
+    shouldThrowError([a, c]() { df::math::add({a, c}); });
+
+    /**
+     * @brief Add in a dataframe with different count
+     */
+    shouldNotThrowError([a, b]() {
+        // Not same count
+        df::Dataframe dataframe;
+        dataframe.add("pos", a);
+        dataframe.add("idx", b);
+    });
 }
+
+RUN_TESTS();

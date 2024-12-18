@@ -21,18 +21,52 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
+#include <iostream>
+#include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/functional/utils/print.h>
-#include <dataframe/functional/utils/memoize.h>
-#include <dataframe/functional/math/random.h>
-#include <dataframe/functional/algebra/eigen.h>
+#include <dataframe/functional/algebra/transpose.h>
 
-int main() {
-    auto expensive_eigenvals = df::utils::memoize([](const df::Serie &s) {
-        return df::algebra::eigenValues(s); // Expensive computation
+TEST(transpose, _2d) {
+    /*
+        1, 2
+        3, 4
+    */
+    df::Serie a(4, {1, 2, 3, 4});
+
+    /*
+        1, 3,
+        2, 4
+    */
+    auto s = df::algebra::transpose(a);
+    assertArrayEqual(s.asArray(), Array{1, 3, 2, 4});
+
+    a = df::Serie(5, {1, 2, 3, 4, 5});
+    shouldThrowError([a]() {
+        auto s = df::algebra::transpose(a);
     });
-
-    df::Serie stress = df::math::random(1000000, 6, -1e5, 1e5); // 1 million stresses
-    auto result = expensive_eigenvals(stress);
 }
+
+TEST(transpose, _3d) {
+    /*
+        1, 2, 3
+        4, 5, 6
+        7, 8, 9
+    */
+    df::Serie a(9, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+    /*
+        1, 4, 7
+        2, 5, 8
+        3, 6, 9
+    */
+    auto s = df::algebra::transpose(a);
+    assertArrayEqual(s.asArray(), Array{1, 4, 7, 2, 5, 8, 3, 6, 9});
+
+    a = df::Serie(8, {1, 2, 3, 4, 5, 6, 7, 8});
+    shouldThrowError([a]() {
+        auto s = df::algebra::transpose(a);
+    });
+}
+
+RUN_TESTS()

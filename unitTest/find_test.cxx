@@ -21,14 +21,14 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
 #include <dataframe/functional/find.h>
 #include <iostream>
 
 using namespace df;
 
-int main() {
+TEST(find, _1) {
     // Find first scalar matching condition
     Serie s1(1, {-1, 2, 3, -4, 5});
     auto result1 = find([](double v, uint32_t) { return v > 3; }, s1);
@@ -74,6 +74,6 @@ int main() {
 
     auto result4 = findPositive(s1);
     std::cout << result4 << std::endl;
-
-    return 0;
 }
+
+RUN_TESTS()

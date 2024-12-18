@@ -21,59 +21,27 @@
  *
  */
 
-#include <iostream>
-#include <cmath>
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/transpose.h>
-#include "assertions.h"
+#include <dataframe/functional/algebra/inv.h>
+#include <iostream>
 
-void m2() {
-    /*
-        1, 2
-        3, 4
-    */
-    df::Serie a(4, {1, 2, 3, 4});
-
-    /*
-        1, 3,
-        2, 4
-    */
-    auto s = df::algebra::transpose(a);
-    assertArrayEqual(s.asArray(), Array{1, 3, 2, 4});
-
-    a = df::Serie(5, {1, 2, 3, 4, 5});
-    shouldThrowError([a]() {
-        auto s = df::algebra::transpose(a);
-    });
+TEST(inv, sym) {
+    std::cerr << "TO CHECK !!!" << std::endl;
+    df::Serie s(6, {1, 2, 3, 4, 5, 6});
+    auto result = df::algebra::inv(s);
+    assertSerieEqual(result, {1, -3, 2, 3, -1, 0});
 }
 
-void m3() {
-    /*
-        1, 2, 3
-        4, 5, 6
-        7, 8, 9
-    */
-    df::Serie a(9, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-
-    /*
-        1, 4, 7
-        2, 5, 8
-        3, 6, 9
-    */
-    auto s = df::algebra::transpose(a);
-    assertArrayEqual(s.asArray(), Array{1, 4, 7, 2, 5, 8, 3, 6, 9});
-
-    a = df::Serie(8, {1, 2, 3, 4, 5, 6, 7, 8});
-    shouldThrowError([a]() {
-        auto s = df::algebra::transpose(a);
-    });
+TEST(inv, full) {
+    std::cerr << "TO CHECK !!!" << std::endl;
+    df::Serie s(9, {2, 3, 1, 6, 5, 4, 7, 9, 8});
+    auto result = df::algebra::inv(s);
+    std::cerr << result << std::endl;
+    assertSerieEqual(result,
+                     {-0.121212, 0.454545, -0.212121, 0.606061, -0.272727,
+                      -0.0909091, -0.575758, -0.0909091, 0.242424},
+                     1e5);
 }
 
-int main()
-{
-    
-    m2();
-    m3();
-    
-    return 0;
-}
+RUN_TESTS()

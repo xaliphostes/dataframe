@@ -21,30 +21,20 @@
  *
  */
 
-#include "assertions.h"
+#include "TEST.h"
 #include <dataframe/Serie.h>
-#include <dataframe/functional/merge.h>
 #include <dataframe/functional/utils/print.h>
+#include <dataframe/functional/utils/memoize.h>
+#include <dataframe/functional/math/random.h>
+#include <dataframe/functional/algebra/eigen.h>
 
-START_TEST(merge) {
-    df::Serie s1(2, {1, 2, 3, 4});
-    df::Serie s2(2, {3, 4, 5, 6});
-    df::Serie s3(2, {7, 8, 9, 10});
+TEST(memoize, basic) {
+    auto expensive_eigenvals = df::utils::memoize([](const df::Serie &s) {
+        return df::algebra::eigenValues(s); // Expensive computation
+    });
 
-    auto concatenated = df::merge(s1, s2);
-    auto interleaved = df::merge(s1, s2, false);
-    auto multi = merge(true, s1, s2, s3);
-
-    assertSerieEqual(concatenated, df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}));
-    assertSerieEqual(interleaved, df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}));
-    assertSerieEqual(multi,
-                     df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6, 7, 8, 9, 10}));
+    df::Serie stress = df::math::random(1000000, 6, -1e5, 1e5); // 1 million stresses
+    auto result = expensive_eigenvals(stress);
 }
-END_TEST()
 
-int main() {
-
-    merge();
-
-    return 0;
-}
+RUN_TESTS()

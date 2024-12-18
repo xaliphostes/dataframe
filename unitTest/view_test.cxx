@@ -21,17 +21,16 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/Dataframe.h>
-#include <dataframe/utils/nameOfSerie.h>
+#include "TEST.h"
 #include <cmath>
-#include <tuple>
+#include <dataframe/Dataframe.h>
+#include <dataframe/Serie.h>
+#include <dataframe/utils/nameOfSerie.h>
+#include <iostream>
 #include <ranges>
-#include "assertions.h"
+#include <tuple>
 
-int main()
-{
+TEST(view, todo) {
     Array m(27);
     std::iota(std::begin(m), std::end(m), 0);
     df::Serie M(9, m);
@@ -50,7 +49,6 @@ int main()
     //               << std::get<1>(elem) << '\n';
     // }
     // --------------------------------
-
 
     // -----------------------------------------------
     // TODO... (like in TypeScript)
@@ -74,6 +72,6 @@ int main()
     //     expect(v).toEqual(sol[i])
     // })
     // -----------------------------------------------
-
-    return 0;
 }
+
+RUN_TESTS()
