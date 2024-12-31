@@ -23,6 +23,7 @@
 #include <dataframe/view/Vector.h>
 #include <cmath>
 #include <numeric>
+#include <algorithm>
 
 namespace df
 {
