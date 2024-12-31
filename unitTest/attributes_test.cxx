@@ -110,7 +110,7 @@ TEST(decomposer, name_exist) {
     dataframe.add("E", df::Serie(9, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 7, 8,
                                      9, 1, 2, 3})); // full matrix 3x3
 
-    df::attributes::Manager mng(dataframe, {"Components", "EigenValues"}, 3);
+    df::attributes::Manager mng(dataframe, Strings{"Components", "EigenValues"}, 3);
 
     // Gather scalar attributes
     // ------------------------
