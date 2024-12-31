@@ -428,22 +428,28 @@ df::attributes::Manager mng(dataframe, {
     df::attributes::EigenValues(),
     df::attributes::EigenVectors(),
     df::attributes::Normals("n")
-])
+});
+
+// SAME AS:
+df::attributes::Manager mng(dataframe, {
+    "Coordinates", "Components", "EigenValues",
+    "EigenVectors", "Normals"
+});
 
 // Gather all possible scalar serie names
-console.log( mng.names(1) )
+console.log( mng.names(1) );
 // Will display: Sxx, Sxy, Sxz, Syy, Syz, Szz, S1, S2, S3, x, y, z, nx, ny, nz
 
 // Gather all possible vector serie names
-console.log( mng.names(3) )
+console.log( mng.names(3) );
 // Will display: S1, S2, S3, n
 
 // Gather all possible symmetric matrix serie names
-console.log( mng.names(6) )
+console.log( mng.names(6) );
 // Will display: S
 
-Serie scalarS1 = mng.serie(1, 'S1') // eigen value S1 for all items
-Serie vectorS1 = mng.serie(3, 'S1') // eigen vector S1 for all items
+Serie scalarS1 = mng.serie(1, 'S1'); // eigen value S1 for all items
+Serie vectorS1 = mng.serie(3, 'S1'); // eigen vector S1 for all items
 ```
 
 ## Example: piping

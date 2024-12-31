@@ -25,6 +25,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 using Array = std::vector<double>;
 using String = std::string;
