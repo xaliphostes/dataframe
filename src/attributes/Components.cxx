@@ -40,6 +40,7 @@ template <typename T, typename F> auto _map(const std::vector<T> &vec, F &&f) {
 }
 
 namespace df {
+namespace attributes {
 
 static Strings vector2Names{"x", "y"};
 static Strings smatrix2Names{"xx", "xy", "yy"};
@@ -72,10 +73,11 @@ Strings Components::names(const Dataframe &dataframe, uint32_t itemSize,
             return _map(vector2Names,
                         [name](const String &n) { return name + n; });
         case 3:
-            return _map(smatrix2Names, [name](const String &n) { return name + n; });
+            return _map(smatrix2Names,
+                        [name](const String &n) { return name + n; });
         case 4:
-            return _map(matrix2Names, [name](const String &n) { return name + n; }
-                       );
+            return _map(matrix2Names,
+                        [name](const String &n) { return name + n; });
         }
     } else {
         Strings result;
@@ -83,13 +85,13 @@ Strings Components::names(const Dataframe &dataframe, uint32_t itemSize,
         switch (serie.itemSize()) {
         case 3:
             return _map(vector3Names,
-                       [name](const String &n) { return name + n; });
+                        [name](const String &n) { return name + n; });
         case 6:
             return _map(smatrix3Names,
-                       [name](const String &n) { return name + n; });
+                        [name](const String &n) { return name + n; });
         case 9:
             return _map(matrix3Names,
-                       [name](const String &n) { return name + n; });
+                        [name](const String &n) { return name + n; });
         }
     }
 
@@ -184,4 +186,5 @@ Serie Components::serie(const Dataframe &dataframe, uint32_t itemSize,
     return Serie();
 }
 
+} // namespace attributes
 } // namespace df

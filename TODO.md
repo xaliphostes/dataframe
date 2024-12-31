@@ -1,5 +1,8 @@
 # TODO list
 
+1. Testing problems (deactivated):
+    1. attribute_test.cxx, `userDefined` fixture: `assertArrayEqual(mng.names(3), {""});`
+
 1. Optimization?
 
 1. Make this lib only one header, no cpp!

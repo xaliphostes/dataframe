@@ -34,6 +34,7 @@ namespace cartesian {
  * @param center Center position of the grid [x,y,z]
  * @param dimensions Size of the grid in each dimension [dx,dy,dz]
  * @return Serie with itemSize=3 containing point coordinates
+ * @ingroup Geo
  *
  * @example
  * ```cpp
@@ -98,6 +99,7 @@ inline Serie from_dims(const std::vector<uint32_t> &npts,
  * @param p1 First point [x1,y1,z1]
  * @param p2 Opposite point [x2,y2,z2]
  * @return Serie with itemSize=3 containing point coordinates
+ * @ingroup Geo
  * @example
  * ```cpp
  * // 1D line from (0,0,0) to (1,0,0)

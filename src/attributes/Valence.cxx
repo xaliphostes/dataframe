@@ -21,52 +21,51 @@
  *
  */
 
-#include <dataframe/attributes/Valence.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
 #include <algorithm>
+#include <dataframe/attributes/Valence.h>
+#include <dataframe/types.h>
+#include <dataframe/utils/utils.h>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    Valence::Valence(const String &name): name_(name)
-    {
+Valence::Valence(const String &name) : name_(name) {}
+
+Strings Valence::names(const Dataframe &dataframe, uint32_t itemSize,
+                       const Serie &serie, const String &name) const {
+    if (itemSize != 1) {
+        return Strings();
+    }
+    if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+        return Strings();
     }
 
-    Strings Valence::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
-
-        return Strings{name_};
-    }
-
-    Serie Valence::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-
-        if (name != name_) {
-            return Serie();
-        }
-
-        const Serie& positions = dataframe["positions"];
-        const Serie& indices = dataframe["indices"];
-        if (!positions.isValid() || !indices.isValid()) {
-            return Serie();
-        }
-
-        Array ids = createArray(positions.count(), 0);
-
-        indices.forEach( [&](const Array& t, uint32_t) {
-            ids[t[0]]++;
-            ids[t[1]]++;
-            ids[t[2]]++;
-        });
-
-        return Serie(1, ids);
-    }
-
+    return Strings{name_};
 }
+
+Serie Valence::serie(const Dataframe &dataframe, uint32_t itemSize,
+                     const String &name) const {
+
+    if (name != name_) {
+        return Serie();
+    }
+
+    const Serie &positions = dataframe["positions"];
+    const Serie &indices = dataframe["indices"];
+    if (!positions.isValid() || !indices.isValid()) {
+        return Serie();
+    }
+
+    Array ids = createArray(positions.count(), 0);
+
+    indices.forEach([&](const Array &t, uint32_t) {
+        ids[t[0]]++;
+        ids[t[1]]++;
+        ids[t[2]]++;
+    });
+
+    return Serie(1, ids);
+}
+
+} // namespace attributes
+} // namespace df

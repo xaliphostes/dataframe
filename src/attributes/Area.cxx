@@ -21,19 +21,46 @@
  *
  */
 
-#pragma once
-#include "Decomposer.h"
+#include <algorithm>
+#include <dataframe/attributes/Area.h>
+#include <dataframe/attributes/Normals.h>
+#include <dataframe/functional/algebra/norm.h>
+#include <dataframe/functional/math/div.h>
+#include <dataframe/types.h>
+#include <dataframe/utils/utils.h>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    class Area: public Decomposer {
-    public:
-        Area(const String& name = "area");
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    private:
-        String name_;
-    };
+Area::Area(const String &name) : name_(name) {}
 
+Strings Area::names(const Dataframe &dataframe, uint32_t itemSize,
+                    const Serie &serie, const String &name) const {
+    if (itemSize != 1) {
+        return Strings();
+    }
+    if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
+        return Strings();
+    }
+
+    return Strings{name_};
 }
+
+Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize,
+                  const String &name) const {
+    if (name != name_) {
+        return Serie();
+    }
+
+    Normals n("n");
+
+    Serie normals = n.serie(dataframe, 3, "n");
+    if (normals.isValid()) {
+        return math::div(2, algebra::norm(normals));
+    }
+
+    return Serie();
+}
+
+} // namespace attributes
+} // namespace df

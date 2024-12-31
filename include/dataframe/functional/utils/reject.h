@@ -33,6 +33,9 @@ namespace details {
 // Same as in filter.h...
 }
 
+/**
+ * @ingroup Utils
+ */
 template <typename F>
 auto __reject__(F &&cb, const Serie &serie)
     -> std::enable_if_t<details::is_filter_scalar_callback_v<F>, Serie> {
@@ -53,6 +56,9 @@ auto __reject__(F &&cb, const Serie &serie)
     return result;
 }
 
+/**
+ * @ingroup Utils
+ */
 template <typename F>
 auto __reject__(F &&cb, const Serie &serie)
     -> std::enable_if_t<!details::is_filter_scalar_callback_v<F>, Serie> {
@@ -75,6 +81,9 @@ auto __reject__(F &&cb, const Serie &serie)
 
 namespace utils {
 
+/**
+ * @ingroup Utils
+ */
 template <typename F, typename... Args>
 auto reject(F &&predicate, const Args &...args) {
     if constexpr (details::is_multi_series_call<Args...>::value) {
@@ -113,6 +122,9 @@ auto reject(F &&predicate, const Args &...args) {
     }
 }
 
+/**
+ * @ingroup Utils
+ */
 template <typename F> auto make_reject(F &&cb) {
     return [cb = std::forward<F>(cb)](const auto &...args) {
         return reject(cb, args...);
@@ -121,6 +133,9 @@ template <typename F> auto make_reject(F &&cb) {
 
 // ----------------------------------------
 
+/**
+ * @ingroup Utils
+ */
 template <typename Pred, typename... TheSeries>
 Series rejectAll(Pred &&predicate, const TheSeries &...series) {
     static_assert(details::all_are_series<TheSeries...>::value,
@@ -152,6 +167,7 @@ Series rejectAll(Pred &&predicate, const TheSeries &...series) {
 
 /**
  * @brief Creates a reusable filter function
+ * @ingroup Utils
  */
 template <typename F> auto make_rejectAll(F &&cb) {
     static_assert(details::callback_filter_traits<F>::returns_bool,

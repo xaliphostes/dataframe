@@ -38,6 +38,7 @@ namespace utils {
         stress
     );
  * ```
+ * @ingroup Utils
  */
 template <typename F> auto partition(F &&predicate, const Serie &serie) {
     if constexpr (details::is_scalar_callback_v<F>) {

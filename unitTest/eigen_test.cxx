@@ -78,8 +78,9 @@ TEST(eigen, attributes) {
     dataframe.add("S", df::Serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8,
                                      7, 6, 5, 4}));
 
-    df::Manager mng(dataframe, {new df::EigenValues(), new df::EigenVectors()},
-                    3);
+    df::attributes::Manager mng(
+        dataframe,
+        {new df::attributes::EigenValues(), new df::attributes::EigenVectors()}, 3);
 
     // Eigen values: itemSize = 1 = scalar
     {

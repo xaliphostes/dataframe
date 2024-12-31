@@ -36,6 +36,7 @@ namespace utils {
  * @return Serie A new Serie containing combined values from input Series
  * @throws std::invalid_argument if input Series have different counts or are
  * invalid
+ * @ingroup Utils
  *
  * @example
  * ```cpp
@@ -97,6 +98,7 @@ MAKE_OP(zip);
  * @return Serie A new Serie containing combined values from input Series
  * @throws std::invalid_argument if input Series have different counts or are
  * invalid
+ * @ingroup Utils
  *
  * @example
  * ```cpp

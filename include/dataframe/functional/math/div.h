@@ -28,7 +28,14 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie div(double, const Serie &serie);
+
+/**
+ * @ingroup Math
+ */
 Serie div(const Serie &divider, const Serie &serie);
 
 // To be use with pipe

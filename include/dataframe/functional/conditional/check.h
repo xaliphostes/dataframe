@@ -29,6 +29,7 @@ namespace cond {
 
 /**
  * @brief Check condition on each element of a Serie
+ * @ingroup Conditional
  */
 template <typename F> auto check(const Serie &serie, F &&cb) {
     if constexpr (details::has_scalar_input_v<F>) {

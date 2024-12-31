@@ -30,6 +30,7 @@ void init_grid(py::module &);
 void init_forEach(py::module &);
 void init_algebra(py::module &);
 void init_utils(py::module &);
+void init_attributes(py::module &);
 
 PYBIND11_MODULE(dataframe, m) {
     init_serie(m);
@@ -37,4 +38,5 @@ PYBIND11_MODULE(dataframe, m) {
     init_forEach(m);
     init_algebra(m);
     init_utils(m);
+    init_attributes(m);
 }

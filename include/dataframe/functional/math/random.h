@@ -28,6 +28,9 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie random(uint32_t count, uint32_t itemSize, double min = 0, double max = 1,
              unsigned seed = std::random_device{}());
              

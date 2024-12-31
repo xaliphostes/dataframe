@@ -25,11 +25,19 @@
 #include "Decomposer.h"
 
 namespace df {
+namespace attributes {
 
-    class Components: public Decomposer {
-    public:
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    };
+/**
+ * @ingroup Attributes
+ */
+class Components : public GenDecomposer<Components> {
+  public:
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
 
-}
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
+};
+
+} // namespace attributes
+} // namespace df

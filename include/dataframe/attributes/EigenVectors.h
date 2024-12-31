@@ -24,13 +24,20 @@
 #pragma once
 #include "Decomposer.h"
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    class EigenVectors: public Decomposer {
-    public:
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    };
+/**
+ * @ingroup Attributes
+ */
+class EigenVectors : public GenDecomposer<EigenVectors> {
+  public:
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
 
-}
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
+};
+
+} // namespace attributes
+} // namespace df

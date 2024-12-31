@@ -27,7 +27,10 @@
 namespace df {
 namespace utils {
 
-// Single Serie print implementation
+/**
+ * @brief Single Serie print implementation
+ * @ingroup Utils
+ */
 inline void print(const Serie &serie) {
     std::cout << "Serie:" << std::endl
               << "  itemSize : " << serie.itemSize() << std::endl
@@ -63,7 +66,10 @@ inline void print(const Serie &serie) {
     std::cout << "]" << std::endl;
 }
 
-// Multiple Series print implementation
+/**
+ * @brief Multiple Series print implementation
+ * @ingroup Utils
+ */
 template <typename... Series>
 void print(const Serie &first, const Series &...rest) {
     static_assert(std::conjunction<df::details::is_serie<Series>...>::value,

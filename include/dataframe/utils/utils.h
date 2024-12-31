@@ -31,17 +31,17 @@ namespace df
 
     inline void info(const std::string &msg)
     {
-        std::cout << "\033[1;32mInfo : \033[0m" << msg << std::endl;
+        std::cout << "Info: " << msg << std::endl;
     }
 
     inline void warning(const std::string &msg)
     {
-        std::cerr << "\033[1;34mWarn : \033[0m" << msg << std::endl;
+        std::cerr << "Warn: " << msg << std::endl;
     }
 
     inline void error(const std::string &msg)
     {
-        std::cerr << "\033[1;31mError: \033[0m" << msg << std::endl;
+        std::cerr << "Error: " << msg << std::endl;
     }
 
     template <typename Arg, typename... Args>

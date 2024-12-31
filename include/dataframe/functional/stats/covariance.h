@@ -30,6 +30,7 @@ namespace stats {
 /**
  * @brief For two series, x and y and for which itemSize = 1, compute the
  * covariance.
+ * @ingroup Stats
  */
 double covariance(const Serie &x, const Serie &y);
 

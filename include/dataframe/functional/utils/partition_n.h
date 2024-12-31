@@ -40,6 +40,7 @@ namespace utils {
  *  // parts[1]: {5,6,7}
  *  // parts[2]: {8,9,10}
  * ```
+ * @ingroup Utils
  */
 Series partition_n(uint32_t n, const Serie &serie) {
     uint32_t total = serie.count();
@@ -80,6 +81,7 @@ Series partition_n(uint32_t n, const Serie &serie) {
  * // parts[1][0]: {1, 2, 3, 4, 5, 6}
  * // parts[1][1]: {7, 8, 9, 10, 11, 12}
  * ```
+ * @ingroup Utils
  */
 template <typename... Series>
 auto partition_n(uint32_t n, const Series &...series) {

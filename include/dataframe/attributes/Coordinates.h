@@ -24,16 +24,25 @@
 #pragma once
 #include "Decomposer.h"
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    class Coordinates: public Decomposer {
-    public:
-        Coordinates(const Strings& names = Strings{"x", "y", "z"});
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    private:
-        Strings names_{"x", "y", "z"};
-    };
+/**
+ * @ingroup Attributes
+ */
+class Coordinates : public GenDecomposer<Coordinates> {
+  public:
+    Coordinates(const Strings &names = Strings{"x", "y", "z"});
 
-}
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
+
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
+
+  private:
+    Strings names_{"x", "y", "z"};
+};
+
+} // namespace attributes
+} // namespace df

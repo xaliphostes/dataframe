@@ -27,8 +27,19 @@
 namespace df {
 namespace algebra {
 
+/**
+ * Compute the determinent of each item in a {@link Serie}.
+ * 
+ * itemSize is either
+ *  - 3 or 4 (in dim=2)
+ *  - 6 or 9 (in dim=3)
+ * @ingroup Algebra
+ */
 Serie det(const Serie &a);
 
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(det);
 
 } // namespace algebra

@@ -30,7 +30,10 @@
 namespace df {
 namespace utils {
 
-// Helper to run transformation in parallel and collect results
+/**
+ * @brief Helper to run transformation in parallel and collect results
+ * @ingroup Utils
+ */
 template <typename F>
 auto whenAll(F &&transform, const std::vector<Serie> &series) {
     std::vector<std::future<Serie>> futures;
@@ -75,6 +78,7 @@ auto whenAll(F &&transform, const std::vector<Serie> &series) {
     // Parallel execution of different Series
     auto [r1, r2, r3] = whenAll(s1, s2, s3);
     ```
+    @ingroup Utils
  */
 template <typename... Series> auto whenAll(const Series &...series) {
     std::vector<std::future<Serie>> futures;

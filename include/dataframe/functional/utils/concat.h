@@ -32,6 +32,7 @@ namespace utils {
 
 /**
  * Concatenate 2 or more series
+ * @ingroup Utils
  */
 Serie concat(const std::vector<Serie> &series) {
     if (series.empty()) {
@@ -62,6 +63,9 @@ Serie concat(const std::vector<Serie> &series) {
     return result;
 }
 
+/**
+ * @ingroup Utils
+ */
 template <typename... Series> Serie concat(const Series &...series) {
     std::vector<Serie> vec{series...};
     return concat(vec);

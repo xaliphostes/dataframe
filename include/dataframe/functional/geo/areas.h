@@ -27,6 +27,9 @@
 namespace df {
 namespace geo {
 
+/**
+ * @ingroup Geo
+ */
 Serie areas(const Serie &positions, const Serie &indices);
 
 MAKE_OP(areas);

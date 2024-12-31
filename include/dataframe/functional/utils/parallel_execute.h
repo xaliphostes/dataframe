@@ -59,6 +59,7 @@ inline constexpr bool returns_serie_v = returns_serie<F>::value;
  * Execute in parallel the fct on n = partitions.size() cores.
  * Each Functor should return a Serie. After the parallel computation, all
  * series are concatenated.
+ * @ingroup Utils
  */
 template <typename Functor>
 Serie parallel_execute(Functor &&fct, const Serie &serie, uint nbCores) {

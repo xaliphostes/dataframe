@@ -21,40 +21,39 @@
  *
  */
 
-#include <dataframe/attributes/Coordinates.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
 #include <algorithm>
+#include <dataframe/attributes/Coordinates.h>
+#include <dataframe/types.h>
+#include <dataframe/utils/utils.h>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    Coordinates::Coordinates(const Strings &names): names_(names)
-    {
+Coordinates::Coordinates(const Strings &names) : names_(names) {}
+
+Strings Coordinates::names(const Dataframe &dataframe, uint32_t itemSize,
+                           const Serie &serie, const String &name) const {
+    if (itemSize != 1 || name != "positions") {
+        return Strings();
     }
+    return names_;
+}
 
-    Strings Coordinates::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1 || name != "positions") {
-            return Strings();
-        }
-        return names_;
-    }
+Serie Coordinates::serie(const Dataframe &dataframe, uint32_t itemSize,
+                         const String &name) const {
 
-    Serie Coordinates::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-
-        if (itemSize == 1) {
-            const Serie& serie = dataframe["positions"];
-            for (uint i=0; i<3; ++i) {
-                if (name == names_[i]) {
-                    return serie.map( [i](const Array& item, uint32_t) {
-                        return Array{item[i]};
-                    });
-                }
+    if (itemSize == 1) {
+        const Serie &serie = dataframe["positions"];
+        for (uint i = 0; i < 3; ++i) {
+            if (name == names_[i]) {
+                return serie.map([i](const Array &item, uint32_t) {
+                    return Array{item[i]};
+                });
             }
         }
-        return Serie();
     }
-
+    return Serie();
 }
+
+} // namespace attributes
+} // namespace df

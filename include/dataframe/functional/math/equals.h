@@ -30,8 +30,14 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 constexpr double DEFAULT_EPSILON = std::numeric_limits<double>::epsilon() * 100;
 
+/**
+ * @ingroup Math
+ */
 inline bool equals(const Serie &s1, const Serie &s2) {
     // Check basic properties
     if (!s1.isValid() || !s2.isValid())
@@ -49,6 +55,9 @@ inline bool equals(const Serie &s1, const Serie &s2) {
 
 MAKE_OP(equals);
 
+/**
+ * @ingroup Math
+ */
 inline bool approximatelyEquals(const Serie &s1, const Serie &s2,
                                 double epsilon = DEFAULT_EPSILON) {
     // Check basic properties
@@ -73,11 +82,13 @@ MAKE_OP(approximatelyEquals);
 
 /**
  * @brief Base case for equalsAll recursion
+ * @ingroup Math
  */
 inline bool equalsAll(const Serie &serie) { return true; }
 
 /**
  * @brief Recursive case for equalsAll
+ * @ingroup Math
  */
 template <typename... Series>
 bool equalsAll(const Serie &first, const Serie &second, const Series &...rest) {
@@ -88,6 +99,7 @@ bool equalsAll(const Serie &first, const Serie &second, const Series &...rest) {
 
 /**
  * @brief Base case for approximatelyEqualsAll recursion
+ * @ingroup Math
  */
 inline bool approximatelyEqualsAll(const Serie &serie,
                                    double epsilon = DEFAULT_EPSILON) {
@@ -96,6 +108,7 @@ inline bool approximatelyEqualsAll(const Serie &serie,
 
 /**
  * @brief Recursive case for approximatelyEqualsAll
+ * @ingroup Math
  */
 template <typename... Series>
 bool approximatelyEqualsAll(const Serie &first, const Serie &second,
@@ -111,6 +124,7 @@ bool approximatelyEqualsAll(const Serie &first, const Serie &second,
  * @param s1 First Serie
  * @param s2 Second Serie
  * @return Serie A new Serie with 1.0 where values are equal, 0.0 otherwise
+ * @ingroup Math
  *
  * @example
  * ```cpp
@@ -146,6 +160,7 @@ inline Serie equalityMask(const Serie &s1, const Serie &s2) {
  * @param epsilon Maximum allowed difference between values
  * @return Serie A new Serie with 1.0 where values are approximately equal, 0.0
  * otherwise
+ * @ingroup Math
  *
  * @example
  * ```cpp

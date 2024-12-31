@@ -21,47 +21,30 @@
  *
  */
 
-#include <dataframe/attributes/Areas.h>
-#include <dataframe/attributes/Normals.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/functional/math/div.h>
-#include <dataframe/functional/algebra/norm.h>
-#include <algorithm>
+#pragma once
+#include "Decomposer.h"
 
-namespace df
-{
+namespace df {
 
-    Area::Area(const String &name): name_(name)
-    {
-    }
+namespace attributes {
 
-    Strings Area::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Strings();
-        }
-        if (!dataframe.contains("positions") && !dataframe.contains("indices")) {
-            return Strings();
-        }
+/**
+ * @ingroup Attributes
+ */
+class Area : public GenDecomposer<Area> {
+  public:
+    Area(const String &name = "area");
 
-        return Strings{name_};
-    }
+    // std::shared_ptr<Decomposer> clone() const override;
 
-    Serie Area::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (name != name_) {
-            return Serie();
-        }
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
 
-        Normals n("n");
+  private:
+    String name_;
+};
 
-        Serie normals = n.serie(dataframe, 3, "n");
-        if (normals.isValid()) {
-            return math::div(2, algebra::norm(normals));
-        }
-
-        return Serie();
-    }
-
-}
+} // namespace attributes
+} // namespace df

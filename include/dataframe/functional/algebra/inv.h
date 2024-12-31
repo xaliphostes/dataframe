@@ -27,8 +27,14 @@
 namespace df {
 namespace algebra {
 
+/**
+ * @ingroup Algebra
+ */
 Serie inv(const Serie &serie);
 
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(inv);
 
 } // namespace algebra

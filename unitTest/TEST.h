@@ -31,14 +31,6 @@
 #include <string>
 #include <vector>
 
-// #define START_TEST(name)                                                       \
-//     void name() {                                                              \
-//         std::cerr << "=======> Start " << #name                                \
-//                   << " test <=======" << std::endl;
-// #define END_TEST()                                                             \
-//     std::cerr << "=======> test OK <=======\n" << std::endl;                   \
-//     }
-
 void message(const String &msg) { std::cerr << msg << std::endl; }
 
 void assertCondition(bool cond, const String &msg = "") {
@@ -85,6 +77,22 @@ void assertArrayEqual(const Array &serie, const Array &array,
     }
 }
 
+void assertArrayEqual(const Strings &a, const Strings &b) {
+    if (a.size() != b.size()) {
+        std::cerr << "not same size: a=" << a.size() << ", b=" << b.size()
+                  << std::endl;
+        exit(-1);
+    }
+
+    for (uint32_t i = 0; i < a.size(); ++i) {
+        if (a[i] != b[i]) {
+            std::cerr << "not same values: " << a[i] << " " << b[i]
+                      << std::endl;
+            exit(-1);
+        }
+    }
+}
+
 void assertSerieEqual(const df::Serie &s1, const Array &s2, double tol = 1e-7) {
     assertArrayEqual(s1.asArray(), s2, tol);
 }
@@ -121,23 +129,6 @@ template <typename CB> void shouldNotThrowError(CB &&cb) {
 // -----------------------------------------------------------------------------------------------
 //                          A la Google test framework: gtest using cmake
 // -----------------------------------------------------------------------------------------------
-// class Test {
-//   public:
-//     virtual void testBody() = 0;
-// };
-// #define TEST(test_suite_name, test_name) \
-//     class test_suite_name##_##test_name##_Test : public Test { \
-//       public: \
-//         void testBody() override; \
-//     }; \
-//     int main() { \
-//         test_suite_name##_##test_name##_Test t; \
-//         t.testBody(); \
-//     } \ void test_suite_name##_##test_name##_Test::testBody()
-
-#include <functional>
-#include <string>
-#include <vector>
 
 namespace test {
 
@@ -168,6 +159,14 @@ inline void register_test(const char *name, const char *fixture,
 #define RUN_TESTS()                                                            \
     int main() {                                                               \
         for (const auto &test : test::tests) {                                 \
+            std::cout << "***************************************************" \
+                         "*******"                                             \
+                      << std::endl;                                            \
+            std::cout << "Running test [" << test.name << "/" << test.fixture  \
+                      << "]" << std::endl;                                     \
+            std::cout << "***************************************************" \
+                         "*******"                                             \
+                      << std::endl;                                            \
             test.fn();                                                         \
         }                                                                      \
         return 0;                                                              \

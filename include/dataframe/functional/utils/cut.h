@@ -29,6 +29,7 @@ namespace utils {
 
 /**
  * Synomym of filter
+ * @ingroup Utils
  */
 template <typename F> Serie cut(F &&predicate, const Serie &serie) {
     return filter(predicate, serie);

@@ -28,6 +28,9 @@ namespace df {
 namespace utils {
 
 // Helper type to deduce return type of composed functions
+/**
+ * @ingroup Utils
+ */
 template <typename F, typename G> struct ComposedType {
     template <typename... Args> auto operator()(Args &&...args) const {
         return f(g(std::forward<Args>(args)...));
@@ -37,6 +40,9 @@ template <typename F, typename G> struct ComposedType {
 };
 
 // Binary compose
+/**
+ * @ingroup Utils
+ */
 template <typename F, typename G> auto compose(F &&f, G &&g) {
     return ComposedType<std::decay_t<F>, std::decay_t<G>>{std::forward<F>(f),
                                                           std::forward<G>(g)};
@@ -53,6 +59,7 @@ template <typename F, typename G> auto compose(F &&f, G &&g) {
  * auto composed = df::compose(f, g, h);
  * auto result = composed(3.0); // f(g(h(3.0)))
  * ```
+ * @ingroup Utils
  */
 template <typename F, typename G, typename... Fs>
 auto compose(F &&f, G &&g, Fs &&...fs) {

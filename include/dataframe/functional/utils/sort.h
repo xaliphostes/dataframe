@@ -28,6 +28,9 @@
 namespace df {
 namespace utils {
 
+/**
+ * @ingroup Utils
+ */
 template <typename Comparator>
 Serie sort(const Serie &serie, Comparator &&comp) {
     if (!serie.isValid())
@@ -60,6 +63,9 @@ Serie sort(const Serie &serie, Comparator &&comp) {
     }
 }
 
+/**
+ * @ingroup Utils
+ */
 inline Serie sort(const Serie &serie) {
     if (serie.itemSize() == 1) {
         return sort(serie, std::less<>{});

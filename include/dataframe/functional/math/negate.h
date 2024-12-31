@@ -27,6 +27,9 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie negate(const Serie &serie);
 
 MAKE_OP(negate);

@@ -28,10 +28,19 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie add(const Serie &serie, double v);
 
+/**
+ * @ingroup Math
+ */
 Serie add(const std::initializer_list<Serie> &list);
 
+/**
+ * @ingroup Math
+ */
 inline Serie add(const Serie &s1, const Serie &s2) {
     if (s1.itemSize() != s2.itemSize() || s1.count() != s2.count()) {
         throw std::invalid_argument("Series must have same itemSize and count");
@@ -55,6 +64,9 @@ inline Serie add(const Serie &s1, const Serie &s2) {
     return result;
 }
 
+/**
+ * @ingroup Math
+ */
 template <typename... Series> Serie add(const Series &...series) {
     if constexpr (sizeof...(series) < 1) {
         throw std::invalid_argument(

@@ -21,65 +21,65 @@
  *
  */
 
-#include <dataframe/attributes/EigenValues.h>
-#include <dataframe/utils/utils.h>
-#include <dataframe/types.h>
-#include <dataframe/functional/algebra/eigen.h>
 #include <algorithm>
+#include <dataframe/attributes/EigenValues.h>
+#include <dataframe/functional/algebra/eigen.h>
+#include <dataframe/types.h>
+#include <dataframe/utils/utils.h>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    Strings EigenValues::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (name == "positions" || name == "indices") {
-            return Strings();
-        }
-        if (serie.dimension() == 2 && (serie.itemSize() != 3 || itemSize != 1)) {
-            return Strings();
-        }
-        if (serie.dimension() == 3 && (serie.itemSize() != 6 || itemSize != 1)) {
-            return Strings();
-        }
-
-        if (serie.dimension() == 2) {
-            return Strings{name + "1", name + "2"};
-        }
-        return Strings{name + "1", name + "2", name + "3"};
+Strings EigenValues::names(const Dataframe &dataframe, uint32_t itemSize,
+                           const Serie &serie, const String &name) const {
+    if (name == "positions" || name == "indices") {
+        return Strings();
+    }
+    if (serie.dimension() == 2 && (serie.itemSize() != 3 || itemSize != 1)) {
+        return Strings();
+    }
+    if (serie.dimension() == 3 && (serie.itemSize() != 6 || itemSize != 1)) {
+        return Strings();
     }
 
-    Serie EigenValues::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (itemSize != 1) {
-            return Serie();
-        }
-        String newName = name.substr(0, name.size() - 1);
-        const Serie& serie = dataframe[newName];
-        uint id = name[name.size() - 1];
-
-        if (serie.isValid() == false) {
-            return Serie();
-        }
-
-        if (serie.dimension() == 2) {
-            if (serie.itemSize() != 3) {
-                return Serie();
-            }
-            if (id < 1 || id > 2) {
-                return Serie();
-            }
-        } else {
-            if (serie.itemSize() != 6) {
-                return Serie();
-            }
-            if (id < 1 || id > 3) {
-                return Serie();
-            }
-        }
-
-        return algebra::eigenValues(serie).map( [id](const Array& item, uint32_t) {
-            return Array{item[id-1]};
-        });
+    if (serie.dimension() == 2) {
+        return Strings{name + "1", name + "2"};
     }
-
+    return Strings{name + "1", name + "2", name + "3"};
 }
+
+Serie EigenValues::serie(const Dataframe &dataframe, uint32_t itemSize,
+                         const String &name) const {
+    if (itemSize != 1) {
+        return Serie();
+    }
+    String newName = name.substr(0, name.size() - 1);
+    const Serie &serie = dataframe[newName];
+    uint id = name[name.size() - 1];
+
+    if (serie.isValid() == false) {
+        return Serie();
+    }
+
+    if (serie.dimension() == 2) {
+        if (serie.itemSize() != 3) {
+            return Serie();
+        }
+        if (id < 1 || id > 2) {
+            return Serie();
+        }
+    } else {
+        if (serie.itemSize() != 6) {
+            return Serie();
+        }
+        if (id < 1 || id > 3) {
+            return Serie();
+        }
+    }
+
+    return algebra::eigenValues(serie).map(
+        [id](const Array &item, uint32_t) { return Array{item[id - 1]}; });
+}
+
+} // namespace attributes
+} // namespace df

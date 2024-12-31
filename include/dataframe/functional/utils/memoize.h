@@ -29,6 +29,9 @@
 namespace df {
 namespace utils {
 
+/**
+ * @ingroup Utils
+ */
 template <typename F> class Memoized {
   public:
     Memoized(F f) : func(std::move(f)) {}
@@ -83,6 +86,7 @@ frequently
  * - Finite Element Analysis
  * - Eigenvalue Decomposition
  *
+ * @ingroup Utils
  *
  * Real-world Examples:
  * @example

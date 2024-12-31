@@ -26,38 +26,70 @@
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 #include <dataframe/types.h>
+#include <memory>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    class Decomposer;
+class Decomposer;
+using Decomposers = std::vector<Decomposer *>;
 
-    /**
-     * @brief Manager of decomposers
-     */
-    class Manager
-    {
-    public:
-        /**
-         * By default, no decomposer...
-         */
-        Manager(const Dataframe &dataframe, const std::vector<Decomposer*> &decomposers = {}, uint dimension=3);
-        ~Manager();
+/**
+ * @brief Manager of decomposers
+ * @ingroup Attributes
+ */
+class Manager {
+  public:
+    Manager(const Manager &);
+    Manager(const Dataframe &, const Decomposers & = {}, uint = 3);
+    Manager(const Dataframe &, const Strings & = {}, uint = 3);
+    ~Manager();
 
-        void add(Decomposer* decomposer);
-        void clear();
+    void add(Decomposer *);
+    void add(const String &);
 
-        uint nbDecomposers() const {return ds_.size();}
+    void clear();
 
-        Serie serie(uint32_t itemSize, const String &name) const;
-        Strings names(uint32_t itemSize) const;
-        bool contains(uint32_t itemSize, const String &name) const;
+    uint nbDecomposers() const { return ds_.size(); }
+    Serie serie(uint32_t itemSize, const String &name) const;
+    Strings names(uint32_t itemSize) const;
+    bool contains(uint32_t itemSize, const String &name) const;
 
-    private:
-        const Dataframe &df_;
-        std::vector<Decomposer*> ds_;
-        uint8_t dim_{3};
-        uint dimension_{3};
-    };
+  private:
+    const Dataframe &df_;
+    std::vector<std::unique_ptr<Decomposer>> ds_;
+    uint8_t dim_{3};
+    uint dimension_{3};
+};
 
-}
+/**
+ * @brief Useful function to create a manager given a list of series and
+ * decomposers
+ * @code
+ * df::Serie s1(3, {1,2,3, 4,5,6});
+ * df::Serie s2(1, {1, 3});
+ *
+ * Manager mng = df::attributes::createManager({s1, s2}, {"U", "a"}, {
+ *      new df::attributes::Coordinates(), // x,y,z if applicable
+ *      new df::attributes::Components()   // for vectors and matrices
+ * }, 3);
+ * @endcode
+ *
+ * The same code using directly a dataframe:
+ * @code
+ * df::Dataframe dataframe;
+ * dataframe.add("U", df::Serie(3, {1,2,3, 4,5,6}));
+ * dataframe.add("a", df::Serie(1, {1, 3}));
+ *
+ * Manager mng(dataframe, {
+ *      new df::attributes::Coordinates(), // x,y,z if applicable
+ *      new df::attributes::Components()   // for vectors and matrices
+ * }, 3);
+ * @endcode
+ * @ingroup Attributes
+ */
+Manager createManager(const Series &, const Strings &, const Decomposers & = {},
+                      uint = 3);
+
+} // namespace attributes
+} // namespace df

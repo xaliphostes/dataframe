@@ -29,6 +29,7 @@ namespace utils {
 
 /**
  * Synonym for map
+ * @ingroup Utils
  */
 template <typename F, typename... Args>
 auto apply(F &&callback, const Args &...args) {

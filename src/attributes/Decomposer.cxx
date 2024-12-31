@@ -23,15 +23,20 @@
 
 #include <dataframe/attributes/Decomposer.h>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    Strings Decomposer::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const {
-        return Strings();
-    };
+Decomposer::~Decomposer() {}
 
-    Serie Decomposer::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const {
-        return Serie();
-    }
+// Strings Decomposer::names(const Dataframe &dataframe, uint32_t itemSize,
+//                           const Serie &serie, const String &name) const {
+//     return Strings();
+// };
 
-}
+// Serie Decomposer::serie(const Dataframe &dataframe, uint32_t itemSize,
+//                         const String &name) const {
+//     return Serie();
+// }
+
+} // namespace attributes
+} // namespace df

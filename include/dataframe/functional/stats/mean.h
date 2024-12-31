@@ -31,6 +31,7 @@ namespace stats {
  * @brief Get the mean of a Serie. If the itemSize of the serie is 1, then
  * the Tuple.number is set accordingly and Tuple.isNumber is set to true.
  * Otherwize, Tuple.array is set.
+ * @ingroup Stats
  * @see Tuple
  */
 Tuple mean(const Serie &serie);

@@ -24,21 +24,28 @@
 #pragma once
 #include "Decomposer.h"
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    /**
-     * @brief Compute the normals of a triangulated mesh (for now).
-     * Series `positions` and `indices`, with `itemSize=3` for both, must be
-     * part of the `Dataframe`.
-     */
-    class Normals: public Decomposer {
-    public:
-        Normals(const String& name = "normals");
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    private:
-        String name_;
-    };
+/**
+ * @brief Compute the normals of a triangulated mesh (for now).
+ * Series `positions` and `indices`, with `itemSize=3` for both, must be
+ * part of the `Dataframe`.
+ * @ingroup Attributes
+ */
+class Normals : public GenDecomposer<Normals> {
+  public:
+    Normals(const String &name = "normals");
 
-}
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
+
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
+
+  private:
+    String name_;
+};
+
+} // namespace attributes
+} // namespace df

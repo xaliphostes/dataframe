@@ -27,6 +27,57 @@ set(CMAKE_CXX_EXTENSIONS on)
 
 set(DIST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
+# ---------------------------------------------------------------------
+#              T E S T I N G
+# ---------------------------------------------------------------------
+function (auto_discover_tests)
+    file(GLOB_RECURSE TEST_FILES "*_test.cxx")
+    foreach(TEST_FILE ${TEST_FILES})
+        get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+        add_executable(${TEST_NAME} ${TEST_FILE})
+        target_link_libraries(${TEST_NAME} PRIVATE dataframe)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endforeach()
+endfunction()
+# ---------------------------------------------------------------------
+
+# ---------------------------------------------------------------------
+#              D O C U M E N T A T I O N
+# To automatically build documentation with your project:
+#     add_dependencies(your_target docs)
+#
+# To generate the documentation, build the docs target:
+#     cmake -B build
+#     cmake --build build --target docs
+# ---------------------------------------------------------------------
+# Find Doxygen package
+find_package(Doxygen)
+
+if(DOXYGEN_FOUND)
+    # Set Doxygen configuration variables
+    set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/include)
+    set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
+    set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
+    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/Doxyfile.in)
+    set(DOXYFILE ${CMAKE_BINARY_DIR}/Doxyfile)
+
+    # Configure the Doxyfile
+    configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
+
+    # Add custom target for documentation
+    add_custom_target(docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating documentation with Doxygen"
+        VERBATIM)
+else()
+    message(STATUS "Doxygen not found, documentation will not be generated")
+endif()
+# ---------------------------------------------------------------------
+
+# ---------------------------------------------------------------------
+#              C O V E R A G E
+# ---------------------------------------------------------------------
 if(ENABLE_COVERAGE)
   # set compiler flags
   set(CMAKE_CXX_FLAGS "-O0 -coverage")
@@ -44,6 +95,7 @@ if(ENABLE_COVERAGE)
     COMMAND ${GENHTML}--demangle-cpp -o coverage coverage.info
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
+# ---------------------------------------------------------------------
 
 IF (WIN32)
     add_definitions( -DATAFRAME_EXPORTS=TRUE )
@@ -58,7 +110,6 @@ endif()
 
 include_directories(include)
 
-# add_subdirectory(src)
 file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/include/geophysics/*.h" "${PROJECT_SOURCE_DIR}/src/*.cxx")
 add_library(dataframe SHARED ${SRC})
 
@@ -73,18 +124,5 @@ set_target_properties(dataframe PROPERTIES PDB_OUTPUT_DIRECTORY ${DIST_DIR})
 add_subdirectory(examples)
 
 # Testing...
-function(auto_discover_tests)
-    file(GLOB_RECURSE TEST_FILES "*_test.cxx")
-    foreach(TEST_FILE ${TEST_FILES})
-        get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
-        add_executable(${TEST_NAME} ${TEST_FILE})
-        target_link_libraries(${TEST_NAME} PRIVATE dataframe)
-        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-    endforeach()
-endfunction()
-
-
 enable_testing()
 auto_discover_tests()
-
-# add_subdirectory(unitTest)

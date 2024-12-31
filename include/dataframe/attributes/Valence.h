@@ -24,21 +24,28 @@
 #pragma once
 #include "Decomposer.h"
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    /**
-     * @brief Get the valence of each node of a triangulate mesh (number of adjacent triangles).
-     * Series `positions` and `indices`, with `itemSize=3` for both, must be
-     * part of the `Dataframe`.
-     */
-    class Valence: public Decomposer {
-    public:
-        Valence(const String& name = "val");
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override ;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
-    private:
-        String name_;
-    };
+/**
+ * @brief Get the valence of each node of a triangulate mesh (number of adjacent
+ * triangles). Series `positions` and `indices`, with `itemSize=3` for both,
+ * must be part of the `Dataframe`.
+ * @ingroup Attributes
+ */
+class Valence : public GenDecomposer<Valence> {
+  public:
+    Valence(const String &name = "val");
 
-}
+    Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                  const Serie &serie, const String &name) const override;
+
+    Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                const String &name) const override;
+
+  private:
+    String name_;
+};
+
+} // namespace attributes
+} // namespace df

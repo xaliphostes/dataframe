@@ -19,30 +19,9 @@
 # SOFTWARE.
 #
 
-project(dataframe)
+from dataframe.attributes import Manager, Coordinates
+from dataframe import Serie
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-set(CMAKE_CXX_EXTENSIONS on)
+s1 = Serie(3, [1,2,3, 4,5,6])
 
-find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
-
-include_directories(../include/)
-
-find_library(DATAFRAME dataframe PATHS ../bin/ REQUIRED)
-
-add_subdirectory(pybind11)
-pybind11_add_module(dataframe
-    src/binder.cxx
-    src/serie.cxx
-    src/forEach.cxx
-    src/grid.cxx
-
-    src/algebra.cxx
-    src/utils.cxx
-    src/attributes.cxx
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${DATAFRAME}) # The PRIVATE keyword is important
-
-install(TARGETS dataframe DESTINATION .)
+m = Manager(s1, [Coordinates()], 3)

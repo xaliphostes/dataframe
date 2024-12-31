@@ -27,6 +27,9 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie normalize(const Serie &serie);
 
 MAKE_OP(normalize);

@@ -27,7 +27,14 @@
 namespace df {
 namespace geo {
 
+/**
+ * @ingroup Geo
+ */
 Serie insar(const Serie &u, const Array &los);
+
+/**
+ * @ingroup Geo
+ */
 Serie fringes(const Serie &insar, double spacing);
 
 MAKE_OP(insar);

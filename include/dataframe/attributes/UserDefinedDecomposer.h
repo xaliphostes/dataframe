@@ -24,56 +24,67 @@
 #pragma once
 #include "Decomposer.h"
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    /**
-     * @brief User defined decomposer using a lambda function
-     */
-    template <typename F>
-    class UserDefinedDecomposer : public Decomposer
-    {
-    public:
-        UserDefinedDecomposer(uint itemSize, const String &name, F &&cb);
-        Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const override;
-        Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const override;
+/**
+ * @brief User defined decomposer using a lambda function
+ * @ingroup Attributes
+ */
+template <typename F> class UserDefinedDecomposer : public Decomposer {
+    using _type_ = UserDefinedDecomposer<F>;
 
-    private:
-        uint itemSize_{0};
-        String name_;
-        F &&cb_;
-    };
+  public:
+    UserDefinedDecomposer(uint, const String &, F);
 
-    // ------------------------------------------------------------
-
-    template <typename F>
-    inline UserDefinedDecomposer<F>::UserDefinedDecomposer(uint itemSize, const String &name, F &&cb) : itemSize_(itemSize), name_(name), cb_(std::move(cb))
-    {
+    std::unique_ptr<Decomposer> clone() const override {
+        return std::make_unique<_type_>(itemSize_, name_, cb_);
     }
 
-    template <typename F>
-    inline Strings UserDefinedDecomposer<F>::names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const
-    {
-        if (itemSize != itemSize_) {
-            return Strings();
-        }
-        
-        Serie s = cb_(dataframe);
-        if (s.isValid() == false) {
-            return Strings();
-        }
+    Strings names(const Dataframe &, uint32_t, const Serie &,
+                  const String &) const override;
 
-        return Strings{name_};
+    Serie serie(const Dataframe &, uint32_t, const String &) const override;
+
+  private:
+    uint itemSize_{0};
+    String name_;
+    F cb_;
+};
+
+// ------------------------------------------------------------
+
+template <typename F>
+inline UserDefinedDecomposer<F>::UserDefinedDecomposer(uint itemSize,
+                                                       const String &name, F cb)
+    : itemSize_(itemSize), name_(name), cb_(std::move(cb)) {}
+
+template <typename F>
+inline Strings
+UserDefinedDecomposer<F>::names(const Dataframe &dataframe, uint32_t itemSize,
+                                const Serie &serie, const String &name) const {
+    if (itemSize != itemSize_) {
+        return Strings();
     }
 
-    template <typename F>
-    inline Serie UserDefinedDecomposer<F>::serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const
-    {
-        if (itemSize != itemSize_ || name_ != name) {
-            return Serie();
-        }
-
-        return cb_(dataframe);
+    Serie s = cb_(dataframe);
+    if (s.isValid() == false) {
+        return Strings();
     }
 
+    return Strings{name_};
 }
+
+template <typename F>
+inline Serie UserDefinedDecomposer<F>::serie(const Dataframe &dataframe,
+                                             uint32_t itemSize,
+                                             const String &name) const {
+    if (itemSize != itemSize_ || name_ != name) {
+        return Serie();
+    }
+
+    return cb_(dataframe);
+}
+
+} // namespace attributes
+} // namespace df

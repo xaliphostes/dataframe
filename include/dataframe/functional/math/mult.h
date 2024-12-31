@@ -28,7 +28,14 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie mult(const Serie &serie, double);
+
+/**
+ * @ingroup Math
+ */
 Serie mult(const Serie &serie, const Serie &divider);
 
 MAKE_OP(mult);

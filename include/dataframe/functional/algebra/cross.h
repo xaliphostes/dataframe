@@ -30,9 +30,13 @@ namespace algebra {
  * @brief Given two linearly independent vectors a and b, the cross product,
  * a × b (read "a cross b"), is a vector that is perpendicular to both a and b,
  * and thus normal to the plane containing them (wikipedia.
+ * @ingroup Algebra
  */
 Serie cross(const Serie &a, const Serie &b);
 
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(cross);
 
 } // namespace algebra

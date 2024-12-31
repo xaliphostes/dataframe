@@ -27,7 +27,14 @@
 namespace df {
 namespace algebra {
 
+/**
+ * @ingroup Algebra
+ */
 Serie dot(const Serie &a, const Serie &b);
+
+/**
+ * @ingroup Algebra
+ */
 Serie dot(const Serie &a, const Array &b);
 
 MAKE_OP(det);

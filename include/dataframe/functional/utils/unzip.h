@@ -34,6 +34,7 @@ namespace utils {
  * @param zipped The zipped Serie
  * @param itemSizes Vector containing the itemSize for each output Serie
  * @return Series The unzipped Series
+ * @ingroup Utils
  */
 Series unzip(const Serie &zipped, const std::vector<uint32_t> &itemSizes) {
     if (itemSizes.empty()) {

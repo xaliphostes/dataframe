@@ -28,11 +28,17 @@ namespace df {
 namespace math {
 
 // Helper struct to hold min/max results
+/**
+ * @ingroup Math
+ */
 struct MinMax {
     Array min;
     Array max;
 };
 
+/**
+ * @ingroup Math
+ */
 MinMax minMax(const Serie &serie);
 
 MAKE_OP(minMax);

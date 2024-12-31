@@ -34,6 +34,7 @@ namespace cond {
  * @param true_fn Function called when check returns true
  * @param false_fn Function called when check returns false
  * @return Serie
+ * @ingroup Conditional
  *
  * @example
  * ```cpp

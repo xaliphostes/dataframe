@@ -27,10 +27,24 @@
 namespace df {
 namespace algebra {
 
+/**
+ * @ingroup Algebra
+ */
 Serie norm(const Serie &s);
+
+/**
+ * @ingroup Algebra
+ */
 Serie norm2(const Serie &s);
 
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(norm);
+
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(norm2);
 
 } // namespace algebra

@@ -422,12 +422,12 @@ dataframe.add("positions", Serie(3, {...})); // geometry
 dataframe.add("indices", Serie(3, {...})); // topology (triangles)
 dataframe.add("S", Serie(6, {...})); // Stresses (sym 3x3 matrices)
 
-df::Manager mng(dataframe, {
-    Coordinates(),
-    Components(),
-    EigenValues(),
-    EigenVectors(),
-    Normals("n")
+df::attributes::Manager mng(dataframe, {
+    df::attributes::Coordinates(),
+    df::attributes::Components(),
+    df::attributes::EigenValues(),
+    df::attributes::EigenVectors(),
+    df::attributes::Normals("n")
 ])
 
 // Gather all possible scalar serie names

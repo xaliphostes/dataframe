@@ -29,6 +29,7 @@ namespace math {
 
 /**
  * Performs a weighted sum of series.
+ * @ingroup Math
  *
  * Example:
  * @code
@@ -40,6 +41,10 @@ namespace math {
  */
 Serie weigthedSum(const std::initializer_list<Serie> &list,
                   const Array &weights);
+
+/**
+ * @ingroup Math
+ */
 Serie weigthedSum(const std::initializer_list<Serie> &list,
                   const std::initializer_list<double> &weights);
 

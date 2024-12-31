@@ -27,17 +27,40 @@
 namespace df {
 namespace algebra {
 
+/**
+ * @ingroup Algebra
+ */
 Serie eigenValues(const Serie &serie);
+
+/**
+ * @ingroup Algebra
+ */
 Serie eigenVectors(const Serie &serie);
 
+/**
+ * @ingroup Algebra
+ */
 using EigenSystem = std::tuple<Serie, Serie>;
+
 /**
  * Return both the principal values and vectors as a tuple
+ * @ingroup Algebra
  */
 EigenSystem eigenSystem(const Serie &serie);
 
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(eigenValues);
+
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(eigenVectors);
+
+/**
+ * @ingroup Algebra
+ */
 MAKE_OP(eigenSystem);
 
 } // namespace algebra

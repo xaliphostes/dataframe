@@ -27,7 +27,14 @@
 namespace df {
 namespace math {
 
+/**
+ * @ingroup Math
+ */
 Serie scale(const Serie &s, double scale);
+
+/**
+ * @ingroup Math
+ */
 Serie scale(const Serie &s, const Array &scales);
 
 MAKE_OP(scale);

@@ -28,6 +28,34 @@
 #include <numeric>
 #include <variant>
 
+/** @defgroup Algebra Math-algebra functionalities
+ *  @brief Algebra operations and utilities
+ */
+
+/** @defgroup Conditional Conditional functionalities
+ *  @brief Conditional features
+ */
+
+/** @defgroup Geo Geo functionalities
+ *  @brief Geo features, i.e., geophysics, geology, geometry...
+ */
+
+/** @defgroup Math Math functionalities
+ *  @brief Math features
+ */
+
+/** @defgroup Stats Statistic functionalities
+ *  @brief Stats features
+ */
+
+/** @defgroup Utils Utils functionalities
+ *  @brief Utils features
+ */
+
+/** @defgroup Attributes Attributes functionalities
+ *  @brief Attributes features
+ */
+
 namespace df {
 
 namespace details {

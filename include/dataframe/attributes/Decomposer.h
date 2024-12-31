@@ -26,20 +26,36 @@
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 #include <dataframe/types.h>
+#include <memory>
 
-namespace df
-{
+namespace df {
+namespace attributes {
 
-    /**
-     * @brief Interface for a decomposer
-     */
-    class Decomposer
-    {
-    public:
-        virtual Strings names(const Dataframe &dataframe, uint32_t itemSize, const Serie &serie, const String &name) const ;
-        virtual Serie serie(const Dataframe &dataframe, uint32_t itemSize, const String &name) const ;
-    };
+/**
+ * @brief Interface for a decomposer
+ * @ingroup Attributes
+ */
+class Decomposer {
+  public:
+    virtual ~Decomposer();
 
-    using Decomposers = std::vector<Decomposer*>;
+    virtual std::unique_ptr<Decomposer> clone() const = 0;
 
-}
+    virtual Strings names(const Dataframe &dataframe, uint32_t itemSize,
+                          const Serie &serie, const String &name) const = 0;
+
+    virtual Serie serie(const Dataframe &dataframe, uint32_t itemSize,
+                        const String &name) const = 0;
+};
+
+template <typename T>
+class GenDecomposer : public Decomposer {
+  public:
+    std::unique_ptr<Decomposer> clone() const override{
+      return std::make_unique<T>();
+    }
+};
+
+
+} // namespace attributes
+} // namespace df
