@@ -72,8 +72,9 @@ TEST(decomposer, basic) {
                                      7, 6, 5, 4})); // sym matrix 3x3
 
     df::attributes::Manager mng(dataframe,
-                                {"Components", "EigenValues", "EigenVectors",
-                                 "Normals", "Coordinates", "Area", "Valence"},
+                                Strings{"Components", "EigenValues",
+                                        "EigenVectors", "Normals",
+                                        "Coordinates", "Area", "Valence"},
                                 3);
 
     assertArrayEqual(mng.names(1),
@@ -88,7 +89,8 @@ TEST(decomposer, factory) {
     dataframe.add("a", df::Serie(1, {1, 2}));
     dataframe.add("positions", df::Serie(3, {2, 4, 6, 3, 6, 9, 1, 2, 3}));
 
-    df::attributes::Manager mng(dataframe, {"Components", "Coordinates"}, 3);
+    df::attributes::Manager mng(dataframe, Strings{"Components", "Coordinates"},
+                                3);
 
     {
         Strings names = mng.names(1);
@@ -110,7 +112,8 @@ TEST(decomposer, name_exist) {
     dataframe.add("E", df::Serie(9, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 7, 8,
                                      9, 1, 2, 3})); // full matrix 3x3
 
-    df::attributes::Manager mng(dataframe, Strings{"Components", "EigenValues"}, 3);
+    df::attributes::Manager mng(dataframe, Strings{"Components", "EigenValues"},
+                                3);
 
     // Gather scalar attributes
     // ------------------------
