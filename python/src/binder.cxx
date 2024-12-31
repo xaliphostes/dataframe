@@ -31,9 +31,11 @@ void init_forEach(py::module &);
 void init_algebra(py::module &);
 void init_utils(py::module &);
 void init_attributes(py::module &);
+void init_dataframe(py::module &);
 
 PYBIND11_MODULE(dataframe, m) {
     init_serie(m);
+    init_dataframe(m);
     init_grid(m);
     init_forEach(m);
     init_algebra(m);

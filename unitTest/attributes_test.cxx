@@ -62,6 +62,30 @@ TEST(decomposer, test) {
     std::cerr << "Available series of matrix33:\n" << mng.names(6) << std::endl;
 }
 
+TEST(decomposer, createManager_function) {
+    auto s1 = df::Serie(3, {2, 4, 6, 3, 6, 9, 1, 2, 3});
+    auto s2 = df::Serie(3, {0, 1, 2});
+    auto s3 =
+        df::Serie(6, {2, 4, 6, 3, 6, 9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5, 4});
+
+    auto mng = df::attributes::createManager(
+        {s1, s2, s3}, {"positions", "indices", "S"},
+        {
+            new df::attributes::Coordinates(),  // x,y,z if applicable
+            new df::attributes::Components(),   // vectors and matrices are
+                                                // decomposed
+            new df::attributes::EigenValues(),  // eigen values if applicable
+            new df::attributes::EigenVectors(), // eigen vectors if applicable
+            new df::attributes::Normals(),      // normal vectors if applicable
+            new df::attributes::Area()          // polygon areas if applicable
+        },
+        3);
+
+    std::cerr << "Available series of scalars :\n" << mng.names(1) << std::endl;
+    std::cerr << "Available series of vector3 :\n" << mng.names(3) << std::endl;
+    std::cerr << "Available series of matrix33:\n" << mng.names(6) << std::endl;
+}
+
 TEST(decomposer, basic) {
     df::Dataframe dataframe;
     dataframe.add("a", df::Serie(1, {1, 2})); // scalar

@@ -35,9 +35,10 @@ add_subdirectory(pybind11)
 pybind11_add_module(dataframe
     src/binder.cxx
     src/serie.cxx
+    src/dataframe.cxx
     src/forEach.cxx
-    src/grid.cxx
 
+    src/grid.cxx
     src/algebra.cxx
     src/utils.cxx
     src/attributes.cxx

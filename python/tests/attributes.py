@@ -19,9 +19,20 @@
 # SOFTWARE.
 #
 
-from dataframe.attributes import Manager, Coordinates
-from dataframe import Serie
+from dataframe.attributes import Manager
+from dataframe import Serie, Dataframe
 
-s1 = Serie(3, [1,2,3, 4,5,6])
+dataframe = Dataframe()
+dataframe.add("a", Serie(1, [1,2]))
+dataframe.add("U", Serie(3, [1,2,3, 4,5,6]))
+dataframe.add("S", Serie(6, [1,2,3,4,5,6, 7,8,9,0,1,2]))
 
-m = Manager(s1, [Coordinates()], 3)
+manager = Manager(dataframe, [
+    "Coordinates", 
+    "Components", 
+    "EigenValues", 
+    "EigenVectors"
+], 3)
+print(manager.names(1))
+print(manager.names(3))
+print(manager.names(6))

@@ -110,7 +110,7 @@ endif()
 
 include_directories(include)
 
-file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/include/geophysics/*.h" "${PROJECT_SOURCE_DIR}/src/*.cxx")
+file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/include/*.h" "${PROJECT_SOURCE_DIR}/src/*.cxx")
 add_library(dataframe SHARED ${SRC})
 
 set_target_properties(dataframe PROPERTIES OUTPUT_NAME Dataframe)

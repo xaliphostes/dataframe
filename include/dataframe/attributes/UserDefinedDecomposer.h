@@ -32,13 +32,13 @@ namespace attributes {
  * @ingroup Attributes
  */
 template <typename F> class UserDefinedDecomposer : public Decomposer {
-    using _type_ = UserDefinedDecomposer<F>;
+    using UDD = UserDefinedDecomposer<F>;
 
   public:
     UserDefinedDecomposer(uint, const String &, F);
 
     std::unique_ptr<Decomposer> clone() const override {
-        return std::make_unique<_type_>(itemSize_, name_, cb_);
+        return std::make_unique<UDD>(itemSize_, name_, cb_);
     }
 
     Strings names(const Dataframe &, uint32_t, const Serie &,

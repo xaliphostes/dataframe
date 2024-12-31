@@ -33,7 +33,7 @@ namespace attributes {
 
 // -----------------------------------------
 
-Manager createManager(const Series &series, const Strings names,
+Manager createManager(const Series &series, const Strings &names,
                       const Decomposers &decomposers, uint dim) {
     // Create the dataframe
     Dataframe df;
@@ -72,7 +72,7 @@ Manager::Manager(const Dataframe &dataframe, const Strings &decomposers,
 
 Manager::Manager(const Manager &mng)
     : df_(mng.df_), dimension_(mng.dimension_) {
-    for (const auto& d : mng.ds_) {
+    for (const auto &d : mng.ds_) {
         ds_.push_back(d->clone());
     }
 }
@@ -81,6 +81,12 @@ Manager::~Manager() { clear(); }
 
 void Manager::add(Decomposer *decomposer) {
     ds_.push_back(decomposer->clone());
+}
+
+void Manager::add(const String &name) {
+    if (DecomposerFactory::isRegistered(name)) {
+        ds_.push_back(DecomposerFactory::create(name));
+    }
 }
 
 void Manager::clear() { ds_.clear(); }
@@ -97,7 +103,7 @@ Serie Manager::serie(uint32_t itemSize, const String &name) const {
         }
     }
 
-    for (const auto& d : ds_) {
+    for (const auto &d : ds_) {
         Serie serie = d->serie(df_, itemSize, name);
         if (serie.isValid()) {
             return serie;
@@ -120,7 +126,7 @@ Strings Manager::names(uint32_t itemSize) const {
         }
 
         // Add names from decomposers
-        for (const auto& d : ds_) {
+        for (const auto &d : ds_) {
             Strings otherNames = d->names(df_, itemSize, serie, name);
             for (const auto &s : otherNames) {
                 names.insert(s);

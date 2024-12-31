@@ -88,8 +88,8 @@ class Manager {
  * @endcode
  * @ingroup Attributes
  */
-Manager createManager(const Series &, const Strings &, const Decomposers & = {},
-                      uint = 3);
+Manager createManager(const Series &, const Strings &,
+                             const Decomposers & = {}, uint = 3);
 
 } // namespace attributes
 } // namespace df
