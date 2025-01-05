@@ -23,4 +23,12 @@ build
 node_modules
 pybind11
 project_env
-*.whl
+
+dataframe/*.so
+dataframe/*.dylib
+dataframe/*.dll
+dataframe/__pycache__
+dataframe.egg-info
+dist
+
+tests/__pycache__

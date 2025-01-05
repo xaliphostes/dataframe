@@ -28,7 +28,9 @@ namespace py = pybind11;
 void init_serie(py::module &);
 void init_grid(py::module &);
 void init_forEach(py::module &);
+// void init_map(py::module &);
 void init_algebra(py::module &);
+void init_math(py::module &);
 void init_utils(py::module &);
 void init_attributes(py::module &);
 void init_dataframe(py::module &);
@@ -38,7 +40,9 @@ PYBIND11_MODULE(dataframe, m) {
     init_dataframe(m);
     init_grid(m);
     init_forEach(m);
+    // init_map(m);
     init_algebra(m);
+    init_math(m);
     init_utils(m);
     init_attributes(m);
 }

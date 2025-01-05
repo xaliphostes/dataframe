@@ -32,17 +32,9 @@ include_directories(../include/)
 find_library(DATAFRAME dataframe PATHS ../bin/ REQUIRED)
 
 add_subdirectory(pybind11)
-pybind11_add_module(dataframe
-    src/binder.cxx
-    src/serie.cxx
-    src/dataframe.cxx
-    src/forEach.cxx
 
-    src/grid.cxx
-    src/algebra.cxx
-    src/utils.cxx
-    src/attributes.cxx
-)
+file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/src/*.cxx")
+pybind11_add_module(dataframe ${SRC})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${DATAFRAME}) # The PRIVATE keyword is important
 

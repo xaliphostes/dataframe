@@ -71,27 +71,13 @@ void init_attributes(pybind11::module &m) {
             "names",
             [](df::attributes::Manager &self, uint32_t itemSize) {
                 try {
-                    std::cout
-                        << "Starting names() call with itemSize: " << itemSize
-                        << std::endl;
-
                     auto names = self.names(itemSize);
-                    std::cout << "Got names vector with size: " << names.size()
-                              << std::endl;
 
                     // Check each string in the vector
-                    for (size_t i = 0; i < names.size(); i++) {
-                        try {
-                            std::cout << "Checking name at index " << i << ": ";
-                            if (names[i].empty()) {
-                                std::cout << "(empty string)" << std::endl;
-                            } else {
-                                std::cout << "'" << names[i] << "'"
-                                          << std::endl;
-                            }
-                        } catch (const std::exception &e) {
-                            std::cout << "Error processing string at index "
-                                      << i << ": " << e.what() << std::endl;
+                    for (const auto &name : names) {
+                        if (name.empty()) {
+                            throw std::runtime_error(
+                                "Empty string found in names");
                         }
                     }
 
@@ -105,9 +91,7 @@ void init_attributes(pybind11::module &m) {
 
                     return validated_names;
                 } catch (const std::exception &e) {
-                    std::cout << "Top level error in names(): " << e.what()
-                              << std::endl;
-                    throw;
+                    throw std::runtime_error("Top level error in names(): " + std::string(e.what()));
                 }
             },
             pybind11::return_value_policy::copy)

@@ -66,7 +66,7 @@ inline Serie sub(const Serie &s1, const Serie &s2) {
 /**
  * @ingroup Math
  */
-template <typename... Series> Serie add(const Series &...series) {
+template <typename... Series> Serie sub(const Series &...series) {
     if constexpr (sizeof...(series) < 1) {
         throw std::invalid_argument(
             "Number of arguments (Serie) must be greater than 1. Got " +

@@ -21,6 +21,7 @@
 
 from dataframe.attributes import Manager
 from dataframe import Serie, Dataframe
+from common import assert_array_equal
 
 dataframe = Dataframe()
 dataframe.add("a", Serie(1, [1,2]))
@@ -33,6 +34,7 @@ manager = Manager(dataframe, [
     "EigenValues", 
     "EigenVectors"
 ], 3)
-print(manager.names(1))
-print(manager.names(3))
-print(manager.names(6))
+
+assert_array_equal(manager.names(1), ["S1", "S2", "S3", "Sxx", "Sxy", "Sxz", "Syy", "Syz", "Szz", "Ux", "Uy", "Uz", "a"])
+assert_array_equal(manager.names(3), ["S1", "S2", "S3", "U"])
+assert_array_equal(manager.names(6), ["S"])

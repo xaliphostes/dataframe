@@ -23,8 +23,8 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
 #include <dataframe/functional/macros.h>
+#include <dataframe/utils.h>
 
 #include <type_traits>
 
@@ -35,7 +35,7 @@ namespace df {
  *          - (const Array& value, uint32_t index) for non-scalar
  *          - (double value, uint32_t index) for scalar
  * @param args The list of Serie arguments or just one Serie
- 
+
  *
  * @example
  * ```cpp
@@ -51,7 +51,7 @@ namespace df {
  *     std::cout << "Vector at " << i << ": " << v << "\n";
  * }, s2);
  *
- * // Using mulitple series 
+ * // Using mulitple series
  * df::forEach(
  *     [=](const Array &v1, const Array &v2, uint32_t i) {
  *         std::cout << "Index " << i << ":\n"
