@@ -102,7 +102,11 @@ template <typename T> class GenSerie {
     int itemSize_{1};
 };
 
+// ==============================================================
+// Define a Serie for double as we are using it a lot!
 using Serie = GenSerie<double>;
+// ==============================================================
+
 
 template <typename T>
 std::ostream &operator<<(std::ostream &o, const GenSerie<T> &s);
