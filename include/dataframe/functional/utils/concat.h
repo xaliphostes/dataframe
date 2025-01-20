@@ -23,55 +23,82 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
+#include <dataframe/functional/utils/concat.h>
 #include <stdexcept>
 #include <tuple>
 
 namespace df {
 namespace utils {
 
-/**
- * Concatenate 2 or more series
- * @ingroup Utils
- */
-Serie concat(const std::vector<Serie> &series) {
+template <typename T>
+GenSerie<T> concat(const std::vector<GenSerie<T>> &series) {
     if (series.empty()) {
-        throw std::invalid_argument("concat requires at least one Serie");
+        return GenSerie<T>();
     }
 
+    // Check that all series have the same itemSize
     uint32_t itemSize = series[0].itemSize();
-    uint32_t totalCount = 0;
-
-    auto counts = utils::countAndCheck();
     for (const auto &s : series) {
-        if (!s.isValid() || s.itemSize() != itemSize) {
+        if (s.itemSize() != itemSize) {
             throw std::invalid_argument(
-                "All series must be valid and have same itemSize");
+                "All series must have the same itemSize");
         }
+    }
+
+    // Calculate total count
+    uint32_t totalCount = 0;
+    for (const auto &s : series) {
         totalCount += s.count();
     }
 
-    Serie result(itemSize, totalCount);
-    uint32_t currentIndex = 0;
+    // Create result series
+    GenSerie<T> result(itemSize, totalCount);
 
+    // Copy data from all series
+    uint32_t currentIndex = 0;
     for (const auto &s : series) {
         for (uint32_t i = 0; i < s.count(); ++i) {
-            result.set(currentIndex++, s.get<Array>(i));
+            if (itemSize == 1) {
+                result.setValue(currentIndex, s.value(i));
+            } else {
+                result.setArray(currentIndex, s.array(i));
+            }
+            currentIndex++;
         }
     }
 
     return result;
 }
 
-/**
- * @ingroup Utils
- */
-template <typename... Series> Serie concat(const Series &...series) {
-    std::vector<Serie> vec{series...};
+// Variadic template version
+template <typename T, typename... Series>
+GenSerie<T> concat(const Series &...series) {
+    static_assert((std::is_same_v<Series, GenSerie<T>> && ...),
+                  "All series must be of the same type GenSerie<T>");
+    std::vector<GenSerie<T>> vec{series...};
     return concat(vec);
 }
 
-MAKE_OP(concat);
+// make_concat for a vector of series
+template <typename T> auto make_concat(const std::vector<GenSerie<T>> &others) {
+    return [&others](const GenSerie<T> &first) -> GenSerie<T> {
+        std::vector<GenSerie<T>> all;
+        all.reserve(others.size() + 1);
+        all.push_back(first);
+        all.insert(all.end(), others.begin(), others.end());
+        return concat(all);
+    };
+}
+
+// make_concat for variadic series
+template <typename T, typename... Series>
+auto make_concat(const Series &...others) {
+    static_assert((std::is_same_v<Series, GenSerie<T>> && ...),
+                  "All series must be of the same type GenSerie<T>");
+    return [&others...](const GenSerie<T> &first) -> GenSerie<T> {
+        return concat<T>(first, others...);
+    };
+}
 
 } // namespace utils
 } // namespace df

@@ -31,12 +31,22 @@ namespace utils {
  * Synonym for map
  * @ingroup Utils
  */
-template <typename F, typename... Args>
-auto apply(F &&callback, const Args &...args) {
-    return map(callback, args...);
+// Single série version
+template <typename F, typename T>
+auto apply(F &&callback, const GenSerie<T> &serie) {
+    return df::map(std::forward<F>(callback), serie);
 }
 
-MAKE_OP(apply);
+// Multi séries version
+template <typename F, typename T, typename... Args>
+auto apply(F &&callback, const GenSerie<T> &first, const Args &...args) {
+    return df::map(std::forward<F>(callback), first, args...);
+}
+
+// Make operator version (comme MAKE_OP(map))
+template <typename F> auto make_apply(F &&callback) {
+    return df::make_map(std::forward<F>(callback));
+}
 
 } // namespace utils
 } // namespace df

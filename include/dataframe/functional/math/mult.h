@@ -23,25 +23,26 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/functional/macros.h>
+#include <dataframe/functional/common.h>
+#include <dataframe/functional/map.h>
 
 namespace df {
 namespace math {
 
-/**
- * @ingroup Math
- */
-Serie mult(const Serie &serie, double);
+// Multiplication par un scalaire
+template <typename T>
+std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
+mult(const GenSerie<T> &serie, T d) ;
 
-/**
- * @ingroup Math
- */
-Serie mult(const Serie &serie, const Serie &divider);
+template <typename T>
+std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
+mult(const GenSerie<T> &serie, const GenSerie<T> &multiplier) ;
 
-MAKE_OP(mult);
+template <typename T> auto make_mult(T scalar) ;
 
-// TODO:
-// Serie mult(const Serie &serie, const Array &);
+template <typename T> auto make_mult(const GenSerie<T> &multiplier) ;
 
 } // namespace math
 } // namespace df
+
+#include "inline/mult.hxx"

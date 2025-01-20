@@ -22,131 +22,133 @@
  */
 
 #include "TEST.h"
-#include <dataframe/Serie.h>
+#include <dataframe/functional/forEach.h>
 #include <dataframe/functional/map.h>
-#include <dataframe/functional/pipe.h>
-#include <dataframe/functional/utils/print.h>
-#include <dataframe/functional/utils/zip.h>
-
-// These functions can be combined with the pipe and zip functions:
-TEST(map, pipe) {
-    df::Serie s1(1, {1, 2, 3});
-    df::Serie s2(2, {4, 5, 6, 7, 8, 9});
-
-    // Combine multiple operations
-    auto result = df::pipe(df::utils::zip(s1, s2),
-                           df::make_map([](const Array &v, uint32_t) {
-                               Array out(v.size());
-                               for (size_t j = 0; j < v.size(); ++j) {
-                                   out[j] = v[j] * 2;
-                               }
-                               return out;
-                           }));
-
-    // Create reusable transformations
-    auto pipeline =
-        df::make_pipe(df::make_map([](double v, uint32_t) { return v * 2; }),
-                      df::make_map([](double v, uint32_t) { return v + 1; }));
-
-    auto transformed = pipeline(s1);
-}
-
-TEST(map, make_with_scalar) {
-    auto doubler = df::make_map([](double v, uint32_t) { return v * 2; });
-    df::Serie s(1, {1, 2, 3, 4, 5});
-    auto result = doubler(s);
-    assertSerieEqual(result, {2, 4, 6, 8, 10});
-}
-
-TEST(map, make_with_array) {
-    auto norm = df::make_map([](const Array &v, uint32_t) {
-        return std::sqrt(v[0] * v[0] + v[1] * v[1]);
-    });
-    df::Serie s(2, {1, 2, 3, 4, 5, 6});
-    auto result = norm(s); // [2.24, 5, 7.81]
-    assertSerieEqual(result, Array{2.236, 5, 7.81025}, 1e-4);
-}
 
 TEST(map, scalar_scalar) {
-    df::Serie s1(1, {1, 2, 3, 4});
+    df::GenSerie<int> s1(1, {1, 2, 3, 4});
 
     // Scalar → Scalar
-    auto doubled = map(
-        [](double v, uint32_t) {
-            return v * 2; // Retourne un double
-        },
-        s1); // [2, 4, 6, 8]
-    assertSerieEqual(doubled, {2, 4, 6, 8});
+    auto doubled = df::map([](int v, uint32_t) { return v * 2; }, s1);
+
+    EXPECT_ARRAY_EQ(doubled.asArray(),
+                    df::GenSerie<int>(1, {2, 4, 6, 8}).asArray());
 }
 
 TEST(map, scalar_vector) {
-    df::Serie s1(1, {1, 2, 3, 4});
+    df::GenSerie<float> s1(1, {1, 2, 3, 4});
     // Scalar → Vector
-    auto expanded = map(
-        [](double v, uint32_t) {
-            return Array{v, v * v, v * v * v}; // Retourne un Array
+    auto expanded = df::map(
+        [](float v, uint32_t) {
+            return Array<float>{v, v * v, v * v * v}; // Retourne un Array
         },
-        s1); // [1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64]
-    assertSerieEqual(expanded, {1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64});
+        s1);
+
+    EXPECT_ARRAY_EQ(
+        expanded.asArray(),
+        df::GenSerie<float>(1, {1, 1, 1, 2, 4, 8, 3, 9, 27, 4, 16, 64})
+            .asArray());
 }
 
-TEST(map, vector_scalar) {
-    df::Serie s2(3, {1, 2, 3, 4, 5, 6});
+TEST(map, makeMap_1) {
+    df::GenSerie<float> s1(1, {1, 2, 3, 4});
 
-    // Vector → Scalar
-    auto norms = map(
-        [](const Array &v, uint32_t) {
-            double sum = 0;
-            for (double x : v)
-                sum += x * x;
-            return std::sqrt(sum); // Retourne un double
-        },
-        s2); // [3.74166, 8.77496]
-    assertSerieEqual(norms, Array{3.74166, 8.77496}, 1e-4);
+    auto makeDouble = df::make_map(
+        [](float v, uint32_t) { return Array<float>{v, v * v, v * v * v}; });
+    auto result = makeDouble(s1);
+    EXPECT_ARRAY_EQ(result.asArray(),
+                    df::GenSerie<float>(1, {1.0000, 1.0000, 1.0000, 2.0000,
+                                            4.0000, 8.0000, 3.0000, 9.0000,
+                                            27.0000, 4.0000, 16.0000, 64.0000})
+                        .asArray());
 }
 
-TEST(map, vector_vector) {
-    df::Serie s2(3, {1, 2, 3, 4, 5, 6});
-    // Vector → Vector
-    auto scaled = map(
-        [](const Array &v, uint32_t) {
-            Array result(v.size() * 2);
-            for (size_t i = 0; i < v.size(); ++i) {
-                result[i * 2] = v[i];
-                result[i * 2 + 1] = v[i] * 2;
-            }
-            return result; // Retourne un Array
-        },
-        s2); // [1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12]
-    assertSerieEqual(scaled, Array{1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12});
+TEST(map, makeMap_2) {
+    // Create a map operation that squares each value
+    auto square = df::make_map([](double x, uint32_t) { return x * x; });
+
+    // Use it on different series
+    df::GenSerie<double> s1(1, {1, 2, 3, 4});
+    auto squared = square(s1); // Returns a new series with squared values
+    EXPECT_ARRAY_EQ(squared.asArray(),
+                    df::GenSerie<double>(1, {1, 4, 9, 16}).asArray());
+
+    // Create a map operation that combines two series
+    auto add = df::make_map([](double x, double y, uint32_t) { return x + y; });
+    df::GenSerie<double> s2(1, {5, 6, 7, 8});
+    auto sum = add(s1, s2); // Returns a new series with sum of elements
+    EXPECT_ARRAY_EQ(sum.asArray(),
+                    df::GenSerie<double>(1, {6, 8, 10, 12}).asArray());
 }
 
-// Single Serie mapping
-TEST(map, oner_serie) {
-    df::Serie s1(1, {5, 2});
+TEST(map, makeMap_3) {
+    df::GenSerie<double> points(3, {1, 2, 3, 4, 5, 6});
 
-    auto result1 = df::map([](double v, uint32_t) { return v * 2; }, s1);
-    std::cerr << "Single Serie mapping\n";
-    df::utils::print(result1);
-}
+    MSG("Scalar operation on vector serie");
+    {
+        // Create a map operation that scales each component by 2
+        auto scale2 = df::make_map([](double x, uint32_t) { return x * 2; });
+        auto scaled = scale2(points);
 
-// Multiple Series mapping
-TEST(map, multiple_series) {
-    df::Serie s1(1, {5, 2});
-    df::Serie s2(2, {1, 2, 3, 4});
-    df::Serie s3(3, {1, 2, 3, 4, 5, 6});
+        CHECK(scaled.itemSize() == 3);
+        CHECK(scaled.count() == 2);
 
-    auto result2 = df::map(
-        [](const Array &v, const Array &v1, const Array &v2, uint32_t) {
-            df::print(v);
-            Array result(v1.size() + v2.size());
-            std::copy(v1.begin(), v1.end(), result.begin());
-            std::copy(v2.begin(), v2.end(), result.begin() + v1.size());
-            return result;
-        },
-        s1, s2, s3);
-    std::cerr << "Multiple Serie mapping\n";
-    df::utils::print(result2);
+        // First point should be [2,4,6]
+        auto p1 = scaled.array(0);
+        CHECK(p1[0] == 2);
+        CHECK(p1[1] == 4);
+        CHECK(p1[2] == 6);
+
+        // Second point should be [8,10,12]
+        auto p2 = scaled.array(1);
+        CHECK(p2[0] == 8);
+        CHECK(p2[1] == 10);
+        CHECK(p2[2] == 12);
+    }
+
+    MSG("Vector to vector operation");
+    {
+        // Create a map operation that computes the squared norm of each point and returns [x²,y²,z²]
+        auto squared_components = df::make_map([](const std::vector<double>& v, uint32_t) {
+            return std::vector<double>{v[0]*v[0], v[1]*v[1], v[2]*v[2]};
+        });
+        
+        auto result = squared_components(points);
+
+        CHECK(result.itemSize() == 3);
+        CHECK(result.count() == 2);
+
+        // First point [1,2,3] -> [1,4,9]
+        auto p1 = result.array(0);
+        CHECK(p1[0] == 1);
+        CHECK(p1[1] == 4);
+        CHECK(p1[2] == 9);
+
+        // Second point [4,5,6] -> [16,25,36]
+        auto p2 = result.array(1);
+        CHECK(p2[0] == 16);
+        CHECK(p2[1] == 25);
+        CHECK(p2[2] == 36);
+    }
+
+    MSG("Vector to scalar operation")
+    {
+        // Create a map operation that computes the magnitude of each 3D point
+        auto magnitude = df::make_map([](const std::vector<double>& v, uint32_t) {
+            return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        });
+        
+        auto result = magnitude(points);
+
+        CHECK(result.itemSize() == 1);
+        CHECK(result.count() == 2);
+
+        // First point [1,2,3] -> sqrt(14)
+        EXPECT_NEAR(result.value(0), std::sqrt(14), 1e-10);
+
+        // Second point [4,5,6] -> sqrt(77)
+        EXPECT_NEAR(result.value(1), std::sqrt(77), 1e-10);
+    }
 }
 
 RUN_TESTS()

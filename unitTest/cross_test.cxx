@@ -21,21 +21,55 @@
  *
  */
 
-#include <iostream>
-#include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/cross.h>
 #include "TEST.h"
+#include <dataframe/functional/algebra/cross.h>
 
-void crossTest(const Array &A, const Array &B, const Array &sol)
-{
-    assertArrayEqual(df::algebra::cross(df::Serie(3, A), df::Serie(3, B)).asArray(), sol);
+template <typename T>
+void crossTest(const Array<T> &A, const Array<T> &B, const Array<T> &sol) {
+    auto r = df::algebra::cross(df::GenSerie<T>(3, A), df::GenSerie<T>(3, B));
+    EXPECT_ARRAY_NEAR(r.asArray(), sol, 1e-10);
 }
 
 TEST(cross, _1) {
-    crossTest(
-        {2, 3, 4, 5, 6, 7},
-        {5, 6, 7, -1, 4, 2},
-        {-3, 6, -3, -16, -17, 26});
+    crossTest<float>({2, 3, 4, 5, 6, 7}, {5, 6, 7, -1, 4, 2},
+                     {-3, 6, -3, -16, -17, 26});
+
+    crossTest<double>({2, 3, 4, 5, 6, 7}, {5, 6, 7, -1, 4, 2},
+                      {-3, 6, -3, -16, -17, 26});
+
+    crossTest<long double>({2, 3, 4, 5, 6, 7}, {5, 6, 7, -1, 4, 2},
+                           {-3, 6, -3, -16, -17, 26});
+}
+
+TEST(cross, _2) {
+    {
+        // 2D cross product (retourne un scalaire)
+        df::GenSerie<double> s1(2, {1, 0, 0, 1, -1, 0}); // Vecteurs 2D
+        df::GenSerie<double> s2(2, {0, 1, -1, 0, 0, -1});
+        auto result = df::algebra::cross(s1, s2); // itemSize == 1
+        auto sol = Array<double>{1.0000, 1.0000, 1.0000};
+        EXPECT_ARRAY_NEAR(result.asArray(), sol, 1e-10);
+    }
+
+    {
+        // 3D cross product (retourne des vecteurs)
+        df::GenSerie<double> v1(3, {1, 0, 0, 0, 1, 0}); // Vecteurs 3D
+        df::GenSerie<double> v2(3, {0, 1, 0, -1, 0, 0});
+        auto result = df::algebra::cross(v1, v2); // itemSize == 3
+        auto sol =
+            Array<double>{0.0000, 0.0000, 1.0000, 0.0000, -0.0000, 1.0000};
+        EXPECT_ARRAY_NEAR(result.asArray(), sol, 1e-10);
+    }
+
+    {
+        // Cross product avec un vecteur constant
+        df::GenSerie<double> v1(3, {1, 0, 0, 0, 1, 0}); // Vecteurs 3D
+        std::vector<double> constant = {0, 0, 1};
+        auto result = df::algebra::cross(v1, constant);
+        auto sol =
+            Array<double>{0.0000, -1.0000, 0.0000, 1.0000, 0.0000, 0.0000};
+        EXPECT_ARRAY_NEAR(result.asArray(), sol, 1e-10);
+    }
 }
 
 RUN_TESTS()

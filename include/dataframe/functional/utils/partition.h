@@ -28,20 +28,22 @@ namespace df {
 namespace utils {
 
 /**
+ * @brief Partitions a GenSerie into two based on a predicate
  * @example
  * ```cpp
- *  Serie stress(6, {...});
-    auto [compressive, tensile] = partition(
-        [](const Array &s, uint32_t) {
-            return s[0] < 0; // Separate compressive from tensile states
-        },
-        stress
-    );
+ *  GenSerie<double> stress(6, {...});
+ *  auto [compressive, tensile] = partition(
+ *      [](const std::vector<double>& s, uint32_t) {
+ *          return s[0] < 0; // Separate compressive from tensile states
+ *      },
+ *      stress
+ *  );
  * ```
  * @ingroup Utils
  */
-template <typename F> auto partition(F &&predicate, const Serie &serie) {
-    if constexpr (details::is_scalar_callback_v<F>) {
+template <typename F, typename T>
+auto partition(F &&predicate, const GenSerie<T> &serie) {
+    if constexpr (std::is_invocable_r_v<bool, F, T, uint32_t>) {
         // Scalar partition
         if (serie.itemSize() != 1) {
             throw std::invalid_argument(
@@ -50,21 +52,21 @@ template <typename F> auto partition(F &&predicate, const Serie &serie) {
 
         std::vector<uint32_t> matched_indices, unmatched_indices;
         for (uint32_t i = 0; i < serie.count(); ++i) {
-            if (predicate(serie.template get<double>(i), i)) {
+            if (predicate(serie.value(i), i)) {
                 matched_indices.push_back(i);
             } else {
                 unmatched_indices.push_back(i);
             }
         }
 
-        Serie matched(1, matched_indices.size());
-        Serie unmatched(1, unmatched_indices.size());
+        GenSerie<T> matched(1, matched_indices.size());
+        GenSerie<T> unmatched(1, unmatched_indices.size());
 
         for (uint32_t i = 0; i < matched_indices.size(); ++i) {
-            matched.set(i, serie.template get<double>(matched_indices[i]));
+            matched.setValue(i, serie.value(matched_indices[i]));
         }
         for (uint32_t i = 0; i < unmatched_indices.size(); ++i) {
-            unmatched.set(i, serie.template get<double>(unmatched_indices[i]));
+            unmatched.setValue(i, serie.value(unmatched_indices[i]));
         }
 
         return std::make_tuple(matched, unmatched);
@@ -72,21 +74,21 @@ template <typename F> auto partition(F &&predicate, const Serie &serie) {
         // Vector partition
         std::vector<uint32_t> matched_indices, unmatched_indices;
         for (uint32_t i = 0; i < serie.count(); ++i) {
-            if (predicate(serie.template get<Array>(i), i)) {
+            if (predicate(serie.array(i), i)) {
                 matched_indices.push_back(i);
             } else {
                 unmatched_indices.push_back(i);
             }
         }
 
-        Serie matched(serie.itemSize(), matched_indices.size());
-        Serie unmatched(serie.itemSize(), unmatched_indices.size());
+        GenSerie<T> matched(serie.itemSize(), matched_indices.size());
+        GenSerie<T> unmatched(serie.itemSize(), unmatched_indices.size());
 
         for (uint32_t i = 0; i < matched_indices.size(); ++i) {
-            matched.set(i, serie.template get<Array>(matched_indices[i]));
+            matched.setArray(i, serie.array(matched_indices[i]));
         }
         for (uint32_t i = 0; i < unmatched_indices.size(); ++i) {
-            unmatched.set(i, serie.template get<Array>(unmatched_indices[i]));
+            unmatched.setArray(i, serie.array(unmatched_indices[i]));
         }
 
         return std::make_tuple(matched, unmatched);

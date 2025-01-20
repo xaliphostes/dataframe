@@ -23,23 +23,39 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/functional/macros.h>
+#include <dataframe/functional/common.h>
+#include <dataframe/functional/map.h>
 
 namespace df {
 namespace math {
 
-/**
- * @ingroup Math
- */
-Serie div(double, const Serie &serie);
+template <typename T>
+std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
+div(const GenSerie<T> &serie, T d);
 
-/**
- * @ingroup Math
- */
-Serie div(const Serie &divider, const Serie &serie);
+template <typename T>
+std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
+div(const GenSerie<T> &serie, const GenSerie<T> &divider);
 
-// To be use with pipe
-MAKE_OP(div);
+template <typename T>
+inline std::enable_if_t<df::details::is_floating_v<T>,
+                        std::function<GenSerie<T>(const GenSerie<T> &)>>
+make_div(T scalar) {
+    return [scalar](const GenSerie<T> &serie) -> GenSerie<T> {
+        return div(serie, scalar);
+    };
+}
+
+template <typename T>
+inline std::enable_if_t<df::details::is_floating_v<T>,
+                        std::function<GenSerie<T>(const GenSerie<T> &)>>
+make_div(const GenSerie<T> &divider) {
+    return [&divider](const GenSerie<T> &serie) -> GenSerie<T> {
+        return div(serie, divider);
+    };
+}
 
 } // namespace math
 } // namespace df
+
+#include "inline/div.hxx"

@@ -23,7 +23,6 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
 #include <stdexcept>
 #include <tuple>
 
@@ -31,49 +30,86 @@ namespace df {
 namespace utils {
 
 /**
- * @brief Zips multiple Series together into a single Serie
- * @param series Variable number of input Series
- * @return Serie A new Serie containing combined values from input Series
- * @throws std::invalid_argument if input Series have different counts or are
- * invalid
- * @ingroup Utils
- *
- * @example
- * ```cpp
- * Serie s1(1, {1, 2, 3});       // scalar serie
- * Serie s2(2, {4,5, 6,7, 8,9}); // 2D serie
- * Serie s3(1, {10, 11, 12});    // scalar serie
- *
- * // Results in a Serie with itemSize 4 (1+2+1) and values {1,4,5,10, 2,6,7,11,
- * 3,8,9,12} auto result = zip(s1, s2, s3);
- * ```
+ * @brief Zips multiple GenSeries together into a single GenSerie
  */
-template <typename... Series> Serie zip(const Series &...series) {
-    static_assert(sizeof...(series) > 0, "zip requires at least one Serie");
+template <typename T, typename... Series>
+GenSerie<T> zip(const GenSerie<T> &first, const Series &...rest) {
+    static_assert((std::is_same_v<Series, GenSerie<T>> && ...),
+                  "All series must be of the same type GenSerie<T>");
 
-    // Helper to check if all series are valid
-    auto checkValid = [](const auto &...s) { return (... && s.isValid()); };
-
-    if (!checkValid(series...)) {
-        throw std::invalid_argument("All input Series must be valid");
+    // Check if all series have the same count
+    const uint32_t count = first.count();
+    if (!((rest.count() == count) && ...)) {
+        throw std::invalid_argument("All series must have the same count");
     }
 
-    auto count = utils::countAndCheck(series...)[0];
+    // Calculate total itemSize
+    const uint32_t totalItemSize = (first.itemSize() + ... + rest.itemSize());
+
+    // Create result serie
+    GenSerie<T> result(totalItemSize, count);
+
+    // Helper to copy values from input series to result
+    auto copyValues = [&result](uint32_t itemIndex, const GenSerie<T> &s) {
+        for (uint32_t i = 0; i < s.count(); ++i) {
+            if (s.itemSize() == 1) {
+                result.setValue(i * result.itemSize() + itemIndex, s.value(i));
+            } else {
+                auto values = s.array(i);
+                for (uint32_t j = 0; j < s.itemSize(); ++j) {
+                    result.setValue(i * result.itemSize() + itemIndex + j,
+                                     values[j]);
+                }
+            }
+        }
+        return itemIndex + s.itemSize();
+    };
+
+    // Copy all values from input series
+    uint32_t currentIndex = copyValues(0, first);
+    (..., (currentIndex = copyValues(currentIndex, rest)));
+
+    return result;
+}
+
+/**
+ * @brief Zips multiple GenSeries together into a single GenSerie
+ * @example
+ * ```cpp
+ * GenSerie<double> s1(1, {1, 2, 3});       // scalar serie
+ * GenSerie<double> s2(2, {4,5, 6,7, 8,9}); // 2D serie
+ * GenSerie<double> s3(1, {10, 11, 12});    // scalar serie
+ *
+ * // Results in a GenSerie with itemSize 4 (1+2+1)
+ * auto result = zip(s1, s2, s3);
+ * ```
+ */
+template <typename T, typename... Series>
+GenSerie<T> zip(const Series &...series) {
+    static_assert((std::is_same_v<Series, GenSerie<T>> && ...),
+                  "All series must be of the same type GenSerie<T>");
+    static_assert(sizeof...(series) > 0, "zip requires at least one serie");
+
+    // Check if all series have the same count
+    std::vector<uint32_t> counts = {series.count()...};
+    if (!std::equal(counts.begin() + 1, counts.end(), counts.begin())) {
+        throw std::invalid_argument("All series must have the same count");
+    }
 
     // Calculate total itemSize
     const uint32_t totalItemSize = (... + series.itemSize());
+    const uint32_t count = counts[0];
 
-    // Create result Serie
-    Serie result(totalItemSize, count);
+    // Create result serie
+    GenSerie<T> result(totalItemSize, count);
 
-    // Helper to copy values from input Series to result
-    auto copyValues = [&result](uint32_t itemIndex, const Serie &s) {
+    // Helper to copy values from input series to result
+    auto copyValues = [&result](uint32_t itemIndex, const GenSerie<T> &s) {
         for (uint32_t i = 0; i < s.count(); ++i) {
             if (s.itemSize() == 1) {
-                result.setScalar(i * result.itemSize() + itemIndex,
-                                 s.scalar(i));
+                result.setScalar(i * result.itemSize() + itemIndex, s.value(i));
             } else {
-                Array values = s.value(i);
+                auto values = s.array(i);
                 for (uint32_t j = 0; j < s.itemSize(); ++j) {
                     result.setScalar(i * result.itemSize() + itemIndex + j,
                                      values[j]);
@@ -83,46 +119,28 @@ template <typename... Series> Serie zip(const Series &...series) {
         return itemIndex + s.itemSize();
     };
 
-    // Copy all values from input Series
+    // Copy all values from input series
     uint32_t currentIndex = 0;
     (..., (currentIndex = copyValues(currentIndex, series)));
 
     return result;
 }
 
-MAKE_OP(zip);
-
 /**
- * @brief Zips a vector of Series together into a single Serie
- * @param series Vector of input Series
- * @return Serie A new Serie containing combined values from input Series
- * @throws std::invalid_argument if input Series have different counts or are
- * invalid
- * @ingroup Utils
- *
- * @example
- * ```cpp
- * std::vector<Serie> series = {
- *     Serie(1, {1, 2, 3}),
- *     Serie(2, {4,5, 6,7, 8,9}),
- *     Serie(1, {10, 11, 12})
- * };
- * auto result = zipVector(series);
- * ```
+ * @brief Zips a vector of GenSeries together
  */
-Serie zipVector(const std::vector<Serie> &series) {
+template <typename T> GenSerie<T> zip(const std::vector<GenSerie<T>> &series) {
     if (series.empty()) {
-        throw std::invalid_argument("zipVector requires at least one Serie");
+        throw std::invalid_argument("zip requires at least one serie");
     }
 
-    // Check if all series are valid
+    // Check if all series have the same count
+    const uint32_t count = series[0].count();
     for (const auto &s : series) {
-        if (!s.isValid()) {
-            throw std::invalid_argument("All input Series must be valid");
+        if (s.count() != count) {
+            throw std::invalid_argument("All series must have the same count");
         }
     }
-
-    size_t count = utils::countAndCheck(series)[0];
 
     // Calculate total itemSize
     uint32_t totalItemSize = 0;
@@ -130,20 +148,20 @@ Serie zipVector(const std::vector<Serie> &series) {
         totalItemSize += s.itemSize();
     }
 
-    // Create result Serie
-    Serie result(totalItemSize, count);
+    // Create result serie
+    GenSerie<T> result(totalItemSize, count);
 
-    // Copy values from all input Series
+    // Copy values from all input series
     uint32_t currentIndex = 0;
     for (const auto &s : series) {
         for (uint32_t i = 0; i < count; ++i) {
             if (s.itemSize() == 1) {
-                result.setScalar(i * result.itemSize() + currentIndex,
-                                 s.scalar(i));
+                result.setValue(i * result.itemSize() + currentIndex,
+                                 s.value(i));
             } else {
-                Array values = s.value(i);
+                auto values = s.array(i);
                 for (uint32_t j = 0; j < s.itemSize(); ++j) {
-                    result.setScalar(i * result.itemSize() + currentIndex + j,
+                    result.setValue(i * result.itemSize() + currentIndex + j,
                                      values[j]);
                 }
             }
@@ -153,8 +171,6 @@ Serie zipVector(const std::vector<Serie> &series) {
 
     return result;
 }
-
-MAKE_OP(zipVector);
 
 } // namespace utils
 } // namespace df

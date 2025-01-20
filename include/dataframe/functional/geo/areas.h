@@ -22,7 +22,8 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
+#include <dataframe/functional/geo/types.h>
+#include <dataframe/functional/macros.h>
 
 namespace df {
 namespace geo {
@@ -30,9 +31,14 @@ namespace geo {
 /**
  * @ingroup Geo
  */
-Serie areas(const Serie &positions, const Serie &indices);
+Attribute areas(const Positions &positions, const Indices &indices);
 
+/**
+ * @ingroup Geo
+ */
 MAKE_OP(areas);
 
 } // namespace geo
 } // namespace df
+
+#include "inline/areas.hxx"

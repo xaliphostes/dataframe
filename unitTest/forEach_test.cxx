@@ -22,108 +22,70 @@
  */
 
 #include "TEST.h"
-#include <dataframe/Serie.h>
 #include <dataframe/functional/forEach.h>
-#include <dataframe/functional/math/div.h>
-#include <iostream>
 
-TEST(forEach, simple) {
-    // Pour Serie scalaire
-    df::Serie s1(1, {1, 2, 3});
+TEST(forEach, value) {
+
+    df::GenSerie<int> s1(1, {1, 2, 3});
+    df::GenSerie<int> s2(1, {10, 20, 30});
+
+    // Callback scalar
     df::forEach(
-        [](double v, uint32_t i) {
-            // std::cout << "Value " << i << ": " << v << "\n";
+        [](int v, uint32_t i) {
+            std::cout << "Value " << i << ": " << v << "\n";
         },
         s1);
 
-    // Pour Serie non-scalaire
-    df::Serie s2(3, {1, 2, 3, 4, 5, 6});
     df::forEach(
-        [](const Array &v, uint32_t i) {
-            // std::cout << "Vector " << i << ": " << v << "\n";
+        [](int v1, int v2, uint32_t i) {
+            std::cout << "Value " << i << ": " << v1 << " " << v2 << "\n";
         },
-        s2);
+        s1, s2);
 
-    // Avec déduction automatique du type
+    // Lambda avec auto
     df::forEach(
         [](const auto &v, uint32_t i) {
-            // std::cout << "Item " << i << ": " << v << "\n";
-        },
-        s2);
-}
-
-// make_forEach pour créer des fonctions réutilisables
-TEST(forEach, make) {
-    auto printer = df::make_forEach([](const auto &v, uint32_t i) {
-        std::cout << "Item " << i << ": " << v << "\n";
-    });
-
-    df::Serie s1(1, {1, 2, 3});
-    df::Serie s2(3, {1, 2, 3, 4, 5, 6});
-
-    printer(s1); // Fonctionne avec Serie scalaire
-    printer(s2); // Fonctionne avec Serie non-scalaire
-}
-
-// Multiple series...
-TEST(forEach, multiple_series) {
-    df::Serie s1(1, {10, 20});           // scalars
-    df::Serie s2(2, {1, 2, 3, 4});       // 2D vectors
-    df::Serie s3(3, {1, 2, 3, 4, 5, 6}); // vectors
-
-    // Print all values together
-    df::forEach(
-        [=](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
-            std::cout << "Index " << i << ":\n"
-                      << "  v1 = " << v1 << "  v2 = " << v2 << "  v3 = " << v3
-                      << std::endl;
-
-            assertArrayEqual(v1, s1.get<Array>(i));
-            assertArrayEqual(v2, s2.get<Array>(i));
-            assertArrayEqual(v3, s3.get<Array>(i));
-        },
-        s1, s2, s3);
-}
-
-TEST(forEach, complex) {
-    // Single Serie
-    df::Serie s1(1, {1, 2});
-    df::forEach(
-        [](double v, uint32_t i) {
-            std::cout << "itemSize=1: " << v << " at " << i << "\n";
+            std::cout << "Item " << i << ": " << v << "\n";
         },
         s1);
 
-    df::Serie s2(2, {1, 2, 3, 4});
     df::forEach(
-        [](const Array &v, uint32_t i) {
-            std::cout << "itemSize=2: " << v << " at " << i << "\n";
+        [](const auto &v1, const auto &v2, uint32_t i) {
+            std::cout << "Item " << i << ": " << v1 << " " << v2 << "\n";
         },
-        s2);
-
-    // Multiple Series
-    df::Serie s3(3, {1, 2, 3, 4, 5, 6});
-    df::forEach(
-        [](const Array &v1, const Array &v2, const Array &v3, uint32_t i) {
-            std::cout << "At " << i << ": " << v1 << ", " << v2 << " and " << v3
-                      << "\n";
-        },
-        s1, s2, s3);
+        s1, s2);
 }
 
-TEST(forEach, parallel) {
-    std::cout << "Deactivated test for __APPLE__\n";
-    
-    // #ifndef __APPLE__
-    //     // forEachParallel pour le traitement parallèle
-    //     {
-    //         df::Serie s(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-    //         df::forEachParallel(s, [](const auto &v, uint32_t i) {
-    //             // Sera exécuté en parallèle
-    //             heavyComputation(v);
-    //         );
-    //     }
-    // #endif
+TEST(forEach, array) {
+
+    df::GenSerie<double> v1(3, {4, 5, 6, 7, 8, 9});
+    df::GenSerie<double> v2(3, {40, 50, 60, 70, 80, 90});
+
+    // Callback array
+    df::forEach(
+        [](const std::vector<double> &v, uint32_t i) {
+            std::cout << "Vector " << i << ": " << v << "\n";
+        },
+        v1);
+
+    df::forEach(
+        [](const auto &v, uint32_t i) {
+            std::cout << "Item " << i << ": " << v << "\n";
+        },
+        v1);
+
+    // df::forEach(
+    //     [](const std::vector<double> &v1, const std::vector<double> &v2,
+    //        uint32_t i) {
+    //         std::cout << "Vector " << i << ": " << v1 << " " << v2 << "\n";
+    //     },
+    //     v1, v2);
+
+    // df::forEach(
+    //     [](const auto &v1, const auto &v2, uint32_t i) {
+    //         std::cout << "Item " << i << ": " << v1 << " " << v2 << "\n";
+    //     },
+    //     v1, v2);
 }
 
 RUN_TESTS()

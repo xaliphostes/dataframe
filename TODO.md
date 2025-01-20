@@ -1,48 +1,52 @@
 # TODO list
 
-1. Testing problems (deactivated):
-    1. attribute_test.cxx, `userDefined` fixture: `assertArrayEqual(mng.names(3), {""});`
+## Classical
 
-1. Optimization?
+- **chunks(size)** - Similar to split but divides the series into chunks of a specified size rather than a specified number of chunks
+- **take(n)** - Takes the first n elements
+- **skip(n)** - Skips the first n elements
+- **slice(start, end)** - Takes a slice from start to end indices
+- **interleave** - Combines multiple series by alternating elements
+- **groupBy**: Group elements based on a key function
 
-1. Make this lib only one header, no cpp!
 
-2. Iterators?: See https://github.com/VinGarcia/Simple-Iterator-Template
-for an implementation of iterators using some macros
+## Vector Field Operations:
 
-4. Code coverage
-See [this link](https://github.com/pyarmak/cmake-gtest-coverage-example/blob/master/cmake/modules/CodeCoverage.cmake)
-See also [this link](https://www.danielsieger.com/blog/2022/03/06/code-coverage-for-cpp.html#:~:text=What's%20Code%20Coverage%3F,blocks%2C%20or%20lines%20being%20covered.)
+- curl - Compute curl of a vector field
+- divergence - Compute divergence of a vector field
 
-6. Check the `inv` unittest !!!
 
-7. In `map`, we have a problem when the itemSize=1. We have to use `const Array&` instead of `double`. See `unitTest/map.cxx` at the end of the test.
+## Surface/Mesh Operations:
 
-7. `make_filterAll` test as it seems not to compile with multiple series
+- curvature - Compute surface curvature
+- smoothing - Smooth mesh vertices or field values
+- decimate - Reduce mesh complexity
+- centerline - Extract centerline from surface
+- tangents - Compute tangent vectors
 
-7. `filterAll` to be merged with `filter`
 
-7. `rejectAll` to be merged with `reject`
+## Point Cloud Operations:
 
-7. Make sur the return type for `filterAll` and `rejectAll` can be decomposed:
-    > 
-    ```cpp
-    auto [r1, r2] = filterAll([](){...}, s1, s2)
-    ```
-    and better
-    ```cpp
-    auto [r1, r2] = filter([](){...}, s1, s2)
-    ```
-    Same thing for `reject`
+- kdtree - Build KD-tree for point queries
+- nearest_neighbors - Find nearest neighbors for points
+- distance_field - Compute distance field from points
+- cluster - Cluster points based on distance
+- outliers - Detect and remove outlier points
 
-7. `reduce` for multiple series?
 
-# Other operations to implement
-These operations help create expressive and composable code by:
-- Avoiding mutation and side effects
-- Breaking problems into smaller pieces
-- Making data transformations explicit
-- Supporting composition of operations
+## Field Interpolation:
+
+- interpolate - Interpolate field values at arbitrary points
+- extrapolate - Extend field values beyond data points
+- resample - Resample field onto new grid
+- contours - Generate contour lines from scalar field for REGULAR SAMPLING
+
+
+
+
+
+
+# OTHERS
 
 ## Filter/Find/Reject
 ```cpp

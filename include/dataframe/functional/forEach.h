@@ -23,114 +23,89 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/common.h>
 #include <dataframe/functional/macros.h>
-#include <dataframe/utils.h>
 
 #include <type_traits>
 
 namespace df {
+namespace details {
 
-/** @brief Generic forEach function for Series
- * @param cb Callback function with signature either:
- *          - (const Array& value, uint32_t index) for non-scalar
- *          - (double value, uint32_t index) for scalar
- * @param args The list of Serie arguments or just one Serie
+    // Helper pour vérifier les itemSize == 1
+    template<typename T, typename... Args>
+    inline bool check_item_size_one(const GenSerie<T>& first, const Args&... args) {
+        return first.itemSize() == 1 && (... && (args.itemSize() == 1));
+    }
 
- *
- * @example
- * ```cpp
- * // For scalar Serie
- * Serie s1(1, {1, 2, 3});
- * forEach([](double v, uint32_t i) {
- *     std::cout << "Value at " << i << ": " << v << "\n";
- * }, s1);
- *
- * // For non-scalar Serie
- * Serie s2(3, {1,2,3, 4,5,6});
- * forEach([](const Array& v, uint32_t i) {
- *     std::cout << "Vector at " << i << ": " << v << "\n";
- * }, s2);
- *
- * // Using mulitple series
- * df::forEach(
- *     [=](const Array &v1, const Array &v2, uint32_t i) {
- *         std::cout << "Index " << i << ":\n"
- *         << "  v1 = " << v1 << ", v2 = " << v2 << std::endl;
- *     },
- *     s1, s2);
- * ```
- */
-template <typename F, typename... Args>
-void forEach(F &&callback, const Args &...args) {
-    if constexpr (details::is_multi_series_call<Args...>::value) {
-        // Multiple Series case (forEachAll)
-        static_assert(std::conjunction<details::is_serie<Args>...>::value,
-                      "All arguments after callback must be Series");
+    template<typename F, typename T>
+    inline constexpr bool is_array_callback_v = is_array_callback<F, T>::value;
+}
 
-        auto counts = utils::countAndCheck(args...);
+// Single série - version scalaire
+template<typename F, typename T>
+auto forEach(F&& callback, const GenSerie<T>& serie) 
+    -> std::enable_if_t<!details::accepts_vector<F, T>::value, void>
+{
+    if (serie.itemSize() != 1) {
+        throw std::invalid_argument("Scalar callback can only be used with Serie of itemSize 1");
+    }
 
-        // Iterate over all series simultaneously
-        for (uint32_t i = 0; i < counts[0]; ++i) {
-            callback(args.template get<Array>(i)..., i);
-        }
-    } else {
-        // Single Serie case (original forEach)
-        static_assert(sizeof...(args) == 1,
-                      "Single Serie forEach requires exactly one Serie");
-        static_assert(details::is_scalar_callback_v<F> ||
-                          details::is_array_callback_v<F> ||
-                          details::is_generic_callback_v<F>,
-                      "Callback must accept either (double, uint32_t), (const "
-                      "Array&, uint32_t), or be generic");
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        callback(serie.value(i), i);
+    }
+}
 
-        const auto &serie = std::get<0>(std::forward_as_tuple(args...));
-
-        if constexpr (details::is_generic_callback_v<F>) {
-            for (uint32_t i = 0; i < serie.count(); ++i) {
-                if (serie.itemSize() == 1) {
-                    callback(serie.template get<double>(i), i);
-                } else {
-                    callback(serie.template get<Array>(i), i);
-                }
-            }
-        } else if constexpr (details::is_scalar_callback_v<F>) {
-            if (serie.itemSize() != 1) {
-                throw std::invalid_argument(
-                    "Cannot use scalar callback for Serie with itemSize > 1");
-            }
-            for (uint32_t i = 0; i < serie.count(); ++i) {
-                callback(serie.template get<double>(i), i);
-            }
+// Single série - version array
+template<typename F, typename T>
+auto forEach(F&& callback, const GenSerie<T>& serie) 
+    -> std::enable_if_t<details::accepts_vector<F, T>::value, void>
+{
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        if (serie.itemSize() > 1) {
+            callback(serie.array(i), i);
         } else {
-            if (serie.itemSize() == 1) {
-                throw std::invalid_argument(
-                    "Cannot use array callback for Serie with itemSize == 1");
-            }
-            for (uint32_t i = 0; i < serie.count(); ++i) {
-                callback(serie.template get<Array>(i), i);
-            }
+            callback(std::vector<T>{serie.value(i)}, i);
         }
     }
 }
 
-/**
- * @brief Creates a reusable forEach function
- * @param cb Callback function
- * @return Function that takes a Serie and applies the callback
- *
- * @example
- * ```cpp
- * auto printer = make_forEach([](const auto& v, uint32_t i) {
- *     std::cout << "Item " << i << ": " << v << "\n";
- * });
- *
- * Serie s1(1, {1, 2, 3});
- * Serie s2(3, {1,2,3, 4,5,6});
- *
- * printer(s1); // Works with scalar Serie
- * printer(s2); // Works with non-scalar Serie
- * ```
- */
+// Multi séries - version scalaire
+template<typename F, typename T, typename... Args>
+auto forEach(F&& callback, const GenSerie<T>& first, const GenSerie<T>& second, const Args&... args) 
+    -> std::enable_if_t<!details::is_array_callback<F, T, T, decltype(args.value(0))...>::value, void>
+{
+    if (!details::check_item_size_one(first, second, args...)) {
+        throw std::invalid_argument("Scalar callback can only be used with Series of itemSize 1");
+    }
+
+    if (!details::check_counts(first, second, args...)) {
+        throw std::invalid_argument("All series must have the same count");
+    }
+
+    for (uint32_t i = 0; i < first.count(); ++i) {
+        callback(first.value(i), second.value(i), args.value(i)..., i);
+    }
+}
+
+// Multi séries - version array
+template<typename F, typename T, typename... Args>
+auto forEach(F&& callback, const GenSerie<T>& first, const GenSerie<T>& second, const Args&... args) 
+    -> std::enable_if_t<details::is_array_callback<F, T, T, decltype(args.value(0))...>::value, void>
+{
+    if (!details::check_counts(first, second, args...)) {
+        throw std::invalid_argument("All series must have the same count");
+    }
+
+    for (uint32_t i = 0; i < first.count(); ++i) {
+        callback(
+            first.itemSize() > 1 ? first.array(i) : std::vector<T>{first.value(i)},
+            second.itemSize() > 1 ? second.array(i) : std::vector<T>{second.value(i)},
+            (args.itemSize() > 1 ? args.array(i) : std::vector<T>{args.value(i)})...,
+            i
+        );
+    }
+}
+
 MAKE_OP(forEach);
 
 } // namespace df

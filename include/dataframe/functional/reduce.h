@@ -23,9 +23,12 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/common.h>
+#include <dataframe/functional/macros.h>
 
 namespace df {
 namespace detail {
+
 // Helper pour detecter le type de retour d'une fonction
 template <typename F>
 struct function_reduce_traits
@@ -38,114 +41,111 @@ struct function_reduce_traits<R (C::*)(Args...) const> {
 };
 
 // Type trait pour détecter les callbacks scalaires
-template <typename F> struct callback_reduce_traits {
+template <typename F, typename T> struct callback_reduce_traits {
     using clean_type = std::remove_cv_t<std::remove_reference_t<F>>;
     using traits = function_reduce_traits<clean_type>;
     using first_arg = std::tuple_element_t<0, typename traits::args_tuple>;
 
     static constexpr bool is_scalar =
-        std::is_same_v<std::remove_cv_t<std::remove_reference_t<first_arg>>,
-                       double>;
+        std::is_same_v<std::remove_cv_t<std::remove_reference_t<first_arg>>, T>;
 };
 
-template <typename F>
+template <typename F, typename T>
 inline constexpr bool is_reduce_scalar_callback_v =
-    callback_reduce_traits<F>::is_scalar;
+    callback_reduce_traits<F, T>::is_scalar;
+
 } // namespace detail
 
 /**
- * @brief Reduces a Serie to either a double or a Serie
- * @param serie Input Serie
- * @param cb Reducer function
- * @param init Initial value (double or Array)
- * @return double for scalar reduction, Serie for vector reduction
- *
- * @example
- * ```cpp
- * // Scalar reduction (returns double)
- * Serie s1(1, {1, 2, 3, 4, 5});
- * double sum = reduce(s1, [](double acc, double v, uint32_t) {
- *     return acc + v;
- * }, 0.0);
- *
- * // Vector reduction (returns Serie)
- * Serie s2(3, {1,2,3, 4,5,6});
- * Serie sum = reduce(s2, [](const Array& acc, const Array& v, uint32_t) {
- *     Array result(acc.size());
- *     for(size_t i = 0; i < acc.size(); ++i) result[i] = acc[i] + v[i];
- *     return result;
- * }, Array(3, 0.0));
- * ```
+ * @brief Reduces a GenSerie to either a T or a GenSerie<T>
  */
-template <typename F>
-auto reduce(F &&cb, const Serie &serie, double init)
-    -> std::enable_if_t<detail::is_reduce_scalar_callback_v<F>, double> {
-    double result = init;
+template <typename F, typename T>
+auto reduce(F &&cb, const GenSerie<T> &serie, T init)
+    -> std::enable_if_t<detail::is_reduce_scalar_callback_v<F, T>, T> {
+    if (serie.itemSize() != 1) {
+        throw std::invalid_argument(
+            "Scalar reduce can only be used with Serie of itemSize 1");
+    }
+
+    T result = init;
     for (uint32_t i = 0; i < serie.count(); ++i) {
-        result = cb(result, serie.template get<double>(i), i);
+        result = cb(result, serie.value(i), i);
     }
     return result;
 }
 
-template <typename F>
-auto reduce(F &&cb, const Serie &serie, const Array &init)
-    -> std::enable_if_t<!detail::is_reduce_scalar_callback_v<F>, Serie> {
-    Array result = init;
-    for (uint32_t i = 0; i < serie.count(); ++i) {
-        result = cb(result, serie.template get<Array>(i), i);
+template <typename F, typename T>
+auto reduce(F &&cb, const GenSerie<T> &serie, const std::vector<T> &init)
+    -> std::enable_if_t<!detail::is_reduce_scalar_callback_v<F, T>,
+                        GenSerie<T>> {
+    if (init.size() != serie.itemSize()) {
+        throw std::invalid_argument(
+            "Initial vector size must match serie itemSize");
     }
-    return Serie(result.size(), {result.begin(), result.end()});
+
+    std::vector<T> result = init;
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        result = cb(result, serie.array(i), i);
+    }
+    return GenSerie<T>(result.size(), result);
 }
 
 /**
  * @brief Creates a reusable reduce function
  */
-template <typename F> auto make_reduce(F &&cb, double init) {
-    static_assert(detail::is_reduce_scalar_callback_v<F>,
-                  "Scalar reduce requires a callback taking doubles");
+template <typename F, typename T> auto make_reduce(F &&cb, T init) {
+    static_assert(detail::is_reduce_scalar_callback_v<F, T>,
+                  "Scalar reduce requires a callback taking scalar values");
     return [cb = std::forward<F>(cb), init](const auto &serie) {
         return reduce(cb, serie, init);
     };
 }
 
-template <typename F> auto make_reduce(F &&cb, const Array &init) {
-    static_assert(!detail::is_reduce_scalar_callback_v<F>,
-                  "Vector reduce requires a callback taking Arrays");
+template <typename F, typename T>
+auto make_reduce(F &&cb, const std::vector<T> &init) {
+    static_assert(!detail::is_reduce_scalar_callback_v<F, T>,
+                  "Vector reduce requires a callback taking vectors");
     return [cb = std::forward<F>(cb), init](const auto &serie) {
         return reduce(cb, serie, init);
     };
 }
 
-// -------------------------------------------------------
 
-// template <typename F, typename Init, typename... Args>
-// auto _reduce(F &&callback, Init &&init, const Args &...args) {
-//     if constexpr (details::is_multi_series_call<Args...>::value) {
-//         static_assert(std::conjunction<details::is_serie<Args>...>::value,
-//                       "All arguments after callback must be Series");
+/*
+// Somme des valeurs
+template<typename T>
+T sum(const GenSerie<T>& serie) {
+    return reduce([](T acc, T val) {
+        return acc + val;
+    }, serie, T{});
+}
 
-//         // Check counts match
-//         std::array<size_t, sizeof...(args)> counts = {
-//             details::get_count(args)...};
-//         for (size_t i = 1; i < counts.size(); ++i) {
-//             if (counts[i] != counts[0]) {
-//                 throw std::invalid_argument(
-//                     "All Series must have the same count");
-//             }
-//         }
+// Produit des valeurs
+template<typename T>
+T product(const GenSerie<T>& serie) {
+    return reduce([](T acc, T val) {
+        return acc * val;
+    }, serie, T{1});
+}
 
-//         auto result = init;
-//         for (uint32_t i = 0; i < counts[0]; ++i) {
-//             result = callback(result, details::get_value(args, i)..., i);
-//         }
-//         return result;
-//     } else {
-//         // Single Serie case...
-//         static_assert(sizeof...(args) == 1,
-//                       "Single Serie reduce requires exactly one Serie");
-//         const auto &serie = std::get<0>(std::forward_as_tuple(args...));
-//         return reduce(serie, callback);
-//     }
-// }
+// Min (version scalaire)
+template<typename T>
+T min(const GenSerie<T>& serie) {
+    if (serie.count() == 0) throw std::invalid_argument("Empty serie");
+    return reduce([](T acc, T val) {
+        return std::min(acc, val);
+    }, serie, serie.value(0));
+}
+
+// Max (version scalaire)
+template<typename T>
+T max(const GenSerie<T>& serie) {
+    if (serie.count() == 0) throw std::invalid_argument("Empty serie");
+    return reduce([](T acc, T val) {
+        return std::max(acc, val);
+    }, serie, serie.value(0));
+}
+*/
 
 } // namespace df
+

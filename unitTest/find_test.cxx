@@ -22,58 +22,82 @@
  */
 
 #include "TEST.h"
-#include <dataframe/Serie.h>
 #include <dataframe/functional/find.h>
-#include <iostream>
 
-using namespace df;
+template <typename T>
+void display(const df::FindResult<T> &result, const std::string &name = "") {
+    std::cerr << name << std::endl;
+    std::cerr << "  indices: " << result.indices << std::endl;
+    std::cerr << "  values : " << result.values << std::endl << std::endl;
+}
 
-TEST(find, _1) {
-    // Find first scalar matching condition
-    Serie s1(1, {-1, 2, 3, -4, 5});
-    auto result1 = find([](double v, uint32_t) { return v > 3; }, s1);
-    if (result1) {
-        std::cout << "Found " << result1.value << " at index " << result1.index
-                  << "\n";
-    }
+TEST(find, basic) {
+    // Scalar
+    df::GenSerie<double> s1(1, {1.0, 2.0, 3.0, 2.0, 4.0});
 
-    // Find first vector matching condition
-    Serie s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-    auto result2 = find([](const Array &v, uint32_t) { return v[0] > 3; }, s2);
-    if (result2) {
-        std::cout << "Found vector at index " << result2.index << "\n";
-    }
+    auto result1 = df::find([](double v, uint32_t) { return v > 2.0; }, s1);
+    // indices [2, 4]
+    // values  [3.0, 4.0]
+    display(result1, "find scalar");
 
-    // Find all matching elements
-    auto matches1 = findAll([](double v, uint32_t) { return v > 3; }, s1);
-    std::cout << matches1 << std::endl;
+    // Using helpers
+    auto equal_2 = df::find_equal(s1, 2.0);
+    display(equal_2, "find_equal scalar");
 
-    auto matches2 = findAll([](const Array& v, uint32_t) { return v[0] > 3; }, s2);
-    std::cout << matches2 << std::endl;
+    auto in_range = df::find_range(s1, 2.0, 3.0);
+    display(in_range, "find_range scalar");
 
-    // Using makeFind
-    auto findPositiveFirst = makeFind([](const auto &v, uint32_t) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
-            return v > 0;
-        } else {
-            return v[0] > 0;
-        }
-    });
+    // Array
+    df::GenSerie<double> v1(3, {1, 2, 3, 0, 2, 0, 0, 0, 3});
 
-    auto result3 = findPositiveFirst(s1);
-    std::cout << result3 << std::endl;
+    auto result2 = df::find(
+        [](const std::vector<double> &v, uint32_t) { return v[0] > 0; }, v1);
+    display(result2, "find array");
 
-    // Using makeFind
-    auto findPositive = makeFindAll([](const auto &v, uint32_t) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(v)>, double>) {
-            return v > 0;
-        } else {
-            return v[0] > 0;
-        }
-    });
+    // Utilisation du helper pour la norme
+    auto big_vectors = df::find_norm_greater(v1, 2.0);
+    display(big_vectors, "find_norm_greater array");
+}
 
-    auto result4 = findPositive(s1);
-    std::cout << result4 << std::endl;
+TEST(find, all_scalar) {
+    // Scalar
+    df::GenSerie<double> s1(1, {1.0, 2.0, 3.0, 2.0, 4.0});
+
+    // Trouver toutes les valeurs > 2
+    auto result1 = df::findAll([](double v, uint32_t) { return v > 2.0; }, s1);
+    // result1 contient {3.0, 4.0}
+    df::print(result1);
+
+    // Utilisation de makeFindAll
+    auto finder =
+        df::makeFindAll<double>([](double v, uint32_t) { return v > 2.0; });
+
+    auto result2 = finder(s1);
+    df::print(result2);
+}
+
+TEST(find, all_array) {
+    // Array
+    df::GenSerie<double> v1(3, {1, 0, 0, 0, 2, 0, 0, 0, 3});
+
+    // Trouver tous les vecteurs dont la norme est > 1
+    auto result1 = df::findAll(
+        [](const std::vector<double> &v, uint32_t) {
+            double norm = 0;
+            for (auto x : v)
+                norm += x * x;
+            return std::sqrt(norm) > 1.0;
+        },
+        v1);
+    df::print(result1);
+
+    // -----------------------------------------------
+
+    auto finderV = df::makeFindAll<double>(
+        [](const std::vector<double> v, uint32_t) { return v[2] == 0.0; });
+
+    auto result2 = finderV(v1);
+    df::print(result2);
 }
 
 RUN_TESTS()

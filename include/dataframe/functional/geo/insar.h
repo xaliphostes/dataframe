@@ -27,18 +27,16 @@
 namespace df {
 namespace geo {
 
-/**
- * @ingroup Geo
- */
-Serie insar(const Serie &u, const Array &los);
+template <typename T>
+GenSerie<T> insar(const GenSerie<T> &u, const std::vector<T> &los);
 
-/**
- * @ingroup Geo
- */
-Serie fringes(const Serie &insar, double spacing);
+template <typename T>
+GenSerie<T> fringes(const GenSerie<T> &insar_data, T fringe_spacing);
 
-MAKE_OP(insar);
-MAKE_OP(fringes);
+template <typename T> auto make_insar(const std::vector<T> &los);
+template <typename T> auto make_fringes(T fringe_spacing);
 
 } // namespace geo
 } // namespace df
+
+#include "inline/insar.hxx"

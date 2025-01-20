@@ -23,32 +23,44 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
+#include <dataframe/types.h>
+#include <dataframe/functional/utils/concat.h>
 #include <future>
 #include <thread>
 
 namespace df {
 namespace utils {
 
+    // Helper to create tuple from results
+template<typename T, std::size_t N, std::size_t... I>
+auto make_tuple_from_results_impl(std::vector<std::future<GenSerie<T>>>& futures, std::index_sequence<I...>) {
+    return std::make_tuple((futures[I].get())...);
+}
+
+template<typename T, std::size_t N>
+auto make_tuple_from_results(std::vector<std::future<GenSerie<T>>>& futures) {
+    return make_tuple_from_results_impl<T, N>(futures, std::make_index_sequence<N>{});
+}
+
 /**
  * @brief Helper to run transformation in parallel and collect results
  * @ingroup Utils
  */
-template <typename F>
-auto whenAll(F &&transform, const std::vector<Serie> &series) {
-    std::vector<std::future<Serie>> futures;
+template <typename T, typename F>
+auto whenAll(F&& transform, const std::vector<GenSerie<T>>& series) {
+    std::vector<std::future<GenSerie<T>>> futures;
     futures.reserve(series.size());
 
     // Launch parallel transformations
-    for (const auto &s : series) {
+    for (const auto& s : series) {
         futures.push_back(std::async(
             std::launch::async, [transform, s]() { return transform(s); }));
     }
 
     // Collect results in order
-    std::vector<Serie> results;
+    std::vector<GenSerie<T>> results;
     results.reserve(series.size());
-    for (auto &f : futures) {
+    for (auto& f : futures) {
         results.push_back(f.get());
     }
 
@@ -56,8 +68,8 @@ auto whenAll(F &&transform, const std::vector<Serie> &series) {
 }
 
 /**
- * Parallel execution of multiple Series
- * 
+ * Parallel execution of multiple GenSeries
+ *
  * Key features:
  * - Parallel execution of transformations
  * - Preserves order of results
@@ -67,36 +79,34 @@ auto whenAll(F &&transform, const std::vector<Serie> &series) {
  * @example
  * ```cpp
  * // Usage:
-    Serie s1(3, {...});
-    Serie s2(3, {...});
-    Serie s3(3, {...});
+    GenSerie<double> s1(3, {...});
+    GenSerie<double> s2(3, {...});
+    GenSerie<double> s3(3, {...});
 
     // Parallel execution with transformation
-    auto result1 = whenAll([](const Serie &s) { return eigenValues(s); },
-                                    {s1, s2, s3});
+    auto result1 = whenAll([](const GenSerie<double>& s) { return
+        eigenValues(s); }, {s1, s2, s3});
 
     // Parallel execution of different Series
     auto [r1, r2, r3] = whenAll(s1, s2, s3);
     ```
     @ingroup Utils
  */
-template <typename... Series> auto whenAll(const Series &...series) {
-    std::vector<std::future<Serie>> futures;
+template <typename T, typename... Series>
+auto whenAll(const Series&... series) {
+    static_assert((std::is_same_v<Series, GenSerie<T>> && ...),
+                 "All series must be of the same type GenSerie<T>");
+
+    std::vector<std::future<GenSerie<T>>> futures;
     futures.reserve(sizeof...(series));
 
-    // Launch each Serie in parallel
+    // Launch each GenSerie in parallel
     (futures.push_back(std::async(
-         std::launch::async, [](const Serie &s) { return s.clone(); }, series)),
+         std::launch::async, [](const GenSerie<T>& s) { return s.clone(); }, series)),
      ...);
 
-    // Collect results in order
-    std::vector<Serie> results;
-    results.reserve(sizeof...(series));
-    for (auto &f : futures) {
-        results.push_back(f.get());
-    }
-
-    return std::make_tuple(results...);
+    // Create a tuple of indices for expansion
+    return make_tuple_from_results<T, sizeof...(Series)>(futures);
 }
 
 } // namespace utils

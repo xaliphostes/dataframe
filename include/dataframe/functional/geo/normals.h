@@ -22,7 +22,11 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
+#include <dataframe/functional/forEach.h>
+#include <dataframe/functional/geo/types.h>
+#include <dataframe/functional/macros.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/types.h>
 
 namespace df {
 namespace geo {
@@ -30,9 +34,15 @@ namespace geo {
 /**
  * @ingroup Geo
  */
-Serie normals(const Serie &positions, const Serie &indices);
+Attribute normals(const Positions &positions, const Indices &indices);
 
-MAKE_OP(normals);
+auto make_normals(const Indices &indices) {
+    return [&indices](const Attribute &positions) -> Attribute {
+        return normals(positions, indices);
+    };
+}
 
 } // namespace geo
 } // namespace df
+
+#include "inline/normals.hxx"

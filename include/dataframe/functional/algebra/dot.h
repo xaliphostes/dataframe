@@ -35,9 +35,15 @@ Serie dot(const Serie &a, const Serie &b);
 /**
  * @ingroup Algebra
  */
-Serie dot(const Serie &a, const Array &b);
+Serie dot(const Serie &a, const Serie::Array &b);
 
-MAKE_OP(det);
+template<typename T>
+auto make_dot(const std::vector<T>& vec) ;
+
+template<typename T>
+auto make_dot(const GenSerie<T>& serie) ;
 
 } // namespace algebra
 } // namespace df
+
+#include "inline/dot.hxx"

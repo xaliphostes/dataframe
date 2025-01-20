@@ -24,94 +24,145 @@
 #pragma once
 #include <array>
 #include <dataframe/Serie.h>
+#include <dataframe/functional/common.h>
 #include <tuple>
 
 namespace df {
+namespace details {
 
-/**
- * @brief Result of a find operation, containing both value and index
- */
+// // Type trait pour détecter les prédicats scalaires
+// template <typename F, typename T, typename Enable = void>
+// struct accepts_scalar : std::false_type {};
+
+// template <typename F, typename T>
+// struct accepts_scalar<F, T,
+//                       std::void_t<decltype(std::declval<F>()(
+//                           std::declval<T>(), std::declval<uint32_t>()))>>
+//     : std::true_type {};
+
+// // Type trait pour détecter les prédicats vectoriels
+// template <typename F, typename T, typename Enable = void>
+// struct accepts_vector : std::false_type {};
+
+// template <typename F, typename T>
+// struct accepts_vector<
+//     F, T,
+//     std::void_t<decltype(std::declval<F>()(
+//         std::declval<const std::vector<T> &>(), std::declval<uint32_t>()))>>
+//     : std::true_type {};
+
+} // namespace details
+
+// ----------------------------------------------------------------
+
+// Structure pour stocker les résultats de recherche
 template <typename T> struct FindResult {
-    T value;        // The found value (double or Array)
-    uint32_t index; // Index in the Serie
-    bool found;     // Whether a value was found
+    std::vector<uint32_t> indices;      // indices des éléments trouvés
+    std::vector<T> values;              // valeurs trouvées (pour scalaires)
+    std::vector<std::vector<T>> arrays; // valeurs trouvées (pour vecteurs)
+    bool isScalar;                      // true si recherche scalaire
 
-    // Conversion to bool for simple tests
-    operator bool() const { return found; }
+    // Helper pour obtenir le nombre de résultats
+    size_t size() const { return indices.size(); }
+    bool empty() const { return indices.empty(); }
+
+    // Accesseurs pour les valeurs
+    const T &getValue(size_t i = 0) const {
+        if (!isScalar)
+            throw std::runtime_error("Not a scalar result");
+        return values.at(i);
+    }
+
+    const std::vector<T> &getArray(size_t i = 0) const {
+        if (isScalar)
+            throw std::runtime_error("Not a vector result");
+        return arrays.at(i);
+    }
 };
 
-/**
- * @brief Finds first element matching a predicate
- */
-template <typename F> auto find(F &&predicate, const Serie &serie) {
-    if constexpr (details::is_scalar_callback_v<F>) {
-        // Scalar version
-        if (serie.itemSize() != 1) {
-            throw std::invalid_argument(
-                "Cannot use scalar callback for Serie with itemSize > 1");
-        }
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            double value = serie.template get<double>(i);
-            if (predicate(value, i)) {
-                return FindResult<double>{value, i, true};
-            }
-        }
-        return FindResult<double>{0.0, 0, false};
-    } else {
-        // Vector version
-        if (serie.itemSize() == 1) {
-            throw std::invalid_argument(
-                "Cannot use vector callback for Serie with itemSize == 1");
-        }
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            Array value = serie.template get<Array>(i);
-            if (predicate(value, i)) {
-                return FindResult<Array>{value, i, true};
-            }
-        }
-        return FindResult<Array>{Array(), 0, false};
+// Version scalaire de find
+template <typename F, typename T>
+auto find(F &&predicate, const GenSerie<T> &serie)
+    -> std::enable_if_t<details::accepts_scalar<F, T>::value, FindResult<T>> {
+    if (serie.itemSize() != 1) {
+        throw std::invalid_argument(
+            "Scalar predicate can only be used with Serie of itemSize 1");
     }
+
+    FindResult<T> result;
+    result.isScalar = true;
+
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        if (predicate(serie.value(i), i)) {
+            result.indices.push_back(i);
+            result.values.push_back(serie.value(i));
+        }
+    }
+
+    return result;
 }
 
-/**
- * @brief Creates a reusable find function
- */
-template <typename F> auto makeFind(F &&predicate) {
-    return [pred = std::forward<F>(predicate)](const Serie &serie) {
-        return find(pred, serie);
-    };
+// Version vectorielle de find
+template <typename F, typename T>
+auto find(F &&predicate, const GenSerie<T> &serie)
+    -> std::enable_if_t<details::accepts_vector<F, T>::value, FindResult<T>> {
+    FindResult<T> result;
+    result.isScalar = false;
+
+    for (uint32_t i = 0; i < serie.count(); ++i) {
+        auto values = serie.itemSize() > 1 ? serie.array(i)
+                                           : std::vector<T>{serie.value(i)};
+
+        if (predicate(values, i)) {
+            result.indices.push_back(i);
+            result.arrays.push_back(values);
+        }
+    }
+
+    return result;
 }
 
-// --------------------------------------------------------------
+// ----------------------------------------------------------------
 
 /**
  * @brief Finds all elements matching a predicate
- * @return Serie containing only matching elements
+ * @return GenSerie containing only matching elements
  */
-template <typename F> Serie findAll(F &&predicate, const Serie &serie) {
+template<typename F, typename T>
+GenSerie<T> findAll(F&& predicate, const GenSerie<T>& serie) {
     std::vector<uint32_t> indices;
 
-    if constexpr (details::is_scalar_callback_v<F>) {
+    if constexpr (details::is_scalar_callback_v<F, T>) {
+        // Version scalaire
+        if (serie.itemSize() != 1) {
+            throw std::invalid_argument("Cannot use scalar callback for Serie with itemSize > 1");
+        }
+
         for (uint32_t i = 0; i < serie.count(); ++i) {
-            if (predicate(serie.template get<double>(i), i)) {
+            if (predicate(serie.value(i), i)) {
                 indices.push_back(i);
             }
         }
     } else {
+        // Version vectorielle
         for (uint32_t i = 0; i < serie.count(); ++i) {
-            if (predicate(serie.template get<Array>(i), i)) {
+            auto values = serie.itemSize() > 1 ? 
+                         serie.array(i) : 
+                         std::vector<T>{serie.value(i)};
+
+            if (predicate(values, i)) {
                 indices.push_back(i);
             }
         }
     }
 
-    // Create result Serie
-    Serie result(serie.itemSize(), indices.size());
+    // Création de la série résultat
+    GenSerie<T> result(serie.itemSize(), indices.size());
     for (uint32_t i = 0; i < indices.size(); ++i) {
         if (serie.itemSize() == 1) {
-            result.template set(i, serie.template get<double>(indices[i]));
+            result.setValue(i, serie.value(indices[i]));
         } else {
-            result.template set(i, serie.template get<Array>(indices[i]));
+            result.setArray(i, serie.array(indices[i]));
         }
     }
 
@@ -119,13 +170,43 @@ template <typename F> Serie findAll(F &&predicate, const Serie &serie) {
 }
 
 /**
- * @brief Creates a reusable find function
+ * @brief Creates a reusable findAll function
  */
-template<typename F>
-auto makeFindAll(F&& predicate) {
-    return [pred = std::forward<F>(predicate)](const Serie& serie) {
+template<typename T>
+auto makeFindAll(auto&& predicate) {
+    return [pred = std::forward<decltype(predicate)>(predicate)](const GenSerie<T>& serie) {
         return findAll(pred, serie);
     };
+}
+
+// ----------------------------------------------------------------
+
+// Helpers for current cases
+
+// Trouve les valeurs égales à une valeur donnée (scalaire)
+template <typename T>
+FindResult<T> find_equal(const GenSerie<T> &serie, T value) {
+    return find([value](T v, uint32_t) { return v == value; }, serie);
+}
+
+// Trouve les valeurs dans un intervalle (scalaire)
+template <typename T>
+FindResult<T> find_range(const GenSerie<T> &serie, T min, T max) {
+    return find([min, max](T v, uint32_t) { return v >= min && v <= max; },
+                serie);
+}
+
+// Trouve les vecteurs dont la norme est supérieure à une valeur
+template <typename T>
+FindResult<T> find_norm_greater(const GenSerie<T> &serie, T threshold) {
+    return find(
+        [threshold](const std::vector<T> &v, uint32_t) {
+            T norm = 0;
+            for (const auto &x : v)
+                norm += x * x;
+            return std::sqrt(norm) > threshold;
+        },
+        serie);
 }
 
 } // namespace df

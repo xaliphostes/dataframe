@@ -30,13 +30,16 @@ namespace df {
 namespace utils {
 
 /**
- * @brief Unzips a Serie into multiple Series based on provided itemSizes
- * @param zipped The zipped Serie
- * @param itemSizes Vector containing the itemSize for each output Serie
- * @return Series The unzipped Series
- * @ingroup Utils
+ * @brief Unzips a GenSerie into multiple GenSeries based on provided itemSizes
+ * @example
+ * ```cpp
+ * GenSerie<double> zipped = ...;  // itemSize = 4
+ * auto parts = unzip(zipped, {1, 2, 1}); // Split into sizes 1, 2, and 1
+ * ```
  */
-Series unzip(const Serie &zipped, const std::vector<uint32_t> &itemSizes) {
+template <typename T>
+std::vector<GenSerie<T>> unzip(const GenSerie<T> &zipped,
+                               const std::vector<uint32_t> &itemSizes) {
     if (itemSizes.empty()) {
         throw std::invalid_argument("itemSizes cannot be empty");
     }
@@ -47,26 +50,27 @@ Series unzip(const Serie &zipped, const std::vector<uint32_t> &itemSizes) {
         throw std::invalid_argument("Total itemSize mismatch");
     }
 
-    std::vector<Serie> results;
+    std::vector<GenSerie<T>> results;
     results.reserve(itemSizes.size());
 
     uint32_t currentIndex = 0;
     for (uint32_t itemSize : itemSizes) {
-        Serie s(itemSize, zipped.count());
+        GenSerie<T> s(itemSize, zipped.count());
+
         for (uint32_t i = 0; i < zipped.count(); ++i) {
             if (itemSize == 1) {
-                s.setScalar(
-                    i, zipped.scalar(i * zipped.itemSize() + currentIndex));
+                s.setValue(i,
+                           zipped.value(i * zipped.itemSize() + currentIndex));
             } else {
-                Array values(itemSize);
+                std::vector<T> values(itemSize);
                 for (uint32_t j = 0; j < itemSize; ++j) {
                     values[j] =
-                        zipped.scalar(i * zipped.itemSize() + currentIndex + j);
+                        zipped.value(i * zipped.itemSize() + currentIndex + j);
                 }
-                s.setValue(i, values);
+                s.setArray(i, values);
             }
         }
-        results.push_back(s);
+        results.push_back(std::move(s));
         currentIndex += itemSize;
     }
 

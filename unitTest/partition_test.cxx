@@ -22,24 +22,64 @@
  */
 
 #include "TEST.h"
-#include <dataframe/Serie.h>
 #include <dataframe/functional/utils/partition.h>
-#include <dataframe/functional/utils/print.h>
 
-TEST(partition, basic) {
-    df::Serie stress(6,
-                     {2, 4, 6, 3, 6, 9, -1, 2, 3, 4, 5, 6, -9, 8, 7, 6, 5, 4});
+TEST(partition, test1) {
+    // Test scalar partitioning
+    df::GenSerie<double> s1(1, {-2, 1, -3, 4, -5, 6});
 
-    auto [compressive, tensile] = df::utils::partition(
-        [](const Array &s, uint32_t) {
-            return s[0] < 0; // Separate compressive from tensile states (xx
-                             // component of stress)
-        },
-        stress);
+    auto [negative, positive] =
+        df::utils::partition([](double val, uint32_t) { return val < 0; }, s1);
 
-    assertSerieEqual(compressive,
-                     df::Serie(6, {-1, 2, 3, 4, 5, 6, -9, 8, 7, 6, 5, 4}));
-    assertSerieEqual(tensile, df::Serie(6, {2, 4, 6, 3, 6, 9}));
+    EXPECT_EQ(negative.count(), 3);
+    EXPECT_EQ(positive.count(), 3);
+    EXPECT_EQ(negative.itemSize(), 1);
+    EXPECT_EQ(positive.itemSize(), 1);
+
+    EXPECT_NEAR(negative.value(0), -2.0, 1e-10);
+    EXPECT_NEAR(negative.value(1), -3.0, 1e-10);
+    EXPECT_NEAR(negative.value(2), -5.0, 1e-10);
+
+    EXPECT_NEAR(positive.value(0), 1.0, 1e-10);
+    EXPECT_NEAR(positive.value(1), 4.0, 1e-10);
+    EXPECT_NEAR(positive.value(2), 6.0, 1e-10);
 }
 
-RUN_TESTS()
+TEST(partition, test2) {
+    // Test vector partitioning
+    df::GenSerie<double> s2(3, {
+                                   -1, 0, 0, // vec1 starts negative
+                                   1, 0, 0,  // vec2 starts positive
+                                   -2, 0, 0, // vec3 starts negative
+                                   2, 0, 0   // vec4 starts positive
+                               });
+
+    auto [negative, positive] = df::utils::partition(
+        [](const std::vector<double> &vec, uint32_t) { return vec[0] < 0; },
+        s2);
+
+    EXPECT_EQ(negative.count(), 2);
+    EXPECT_EQ(positive.count(), 2);
+    EXPECT_EQ(negative.itemSize(), 3);
+    EXPECT_EQ(positive.itemSize(), 3);
+
+    auto neg1 = negative.array(0);
+    EXPECT_NEAR(neg1[0], -1.0, 1e-10);
+    EXPECT_NEAR(neg1[1], 0.0, 1e-10);
+    EXPECT_NEAR(neg1[2], 0.0, 1e-10);
+
+    auto pos1 = positive.array(0);
+    EXPECT_NEAR(pos1[0], 1.0, 1e-10);
+    EXPECT_NEAR(pos1[1], 0.0, 1e-10);
+    EXPECT_NEAR(pos1[2], 0.0, 1e-10);
+}
+
+TEST(partition, errors) {
+    // Test error when using scalar predicate with vector serie
+    df::GenSerie<double> s(3, {1, 2, 3, 4, 5, 6});
+    EXPECT_THROW(
+        df::utils::partition([](double v, uint32_t) { return v > 0; }, s),
+        std::invalid_argument);
+}
+
+RUN_TESTS();

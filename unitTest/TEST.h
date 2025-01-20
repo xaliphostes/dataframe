@@ -22,122 +22,33 @@
  */
 
 #pragma once
-#include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/print.h>
 #include <dataframe/types.h>
-#include <dataframe/utils/utils.h>
+
 #include <functional>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
-void message(const String &msg) { std::cerr << msg << std::endl; }
-
-void assertCondition(bool cond, const String &msg = "") {
-    if (!cond) {
-        if (msg.size() > 0) {
-            std::cout << "Condition failed (msg = " << msg << ")!" << std::endl;
-        } else {
-            std::cout << "Condition failed!" << std::endl;
-        }
-        exit(-1);
-    }
-}
-
-template <typename T> void assertEqual(const T &a, const T &b) {
-    if (a != b) {
-        std::cout << "Value " << a << " is NOT EQUAL to value " << b
-                  << std::endl;
-        exit(-1);
-    }
-}
-
-void assertDoubleEqual(double a, double b, double tol = 1e-7) {
-    if (std::fabs(a - b) > tol) {
-        std::cout << "Value " << a << " is NOT EQUAL to value " << b
-                  << std::endl;
-        exit(-1);
-    }
-}
-
-void assertArrayEqual(const Array &serie, const Array &array,
-                      double tol = 1e-7) {
-    if (serie.size() != array.size()) {
-        std::cerr << "not same size: a=" << serie.size()
-                  << ", b=" << array.size() << std::endl;
-        exit(-1);
-    }
-    const auto &a = serie;
-    for (uint32_t i = 0; i < a.size(); ++i) {
-        if (std::fabs(a[i] - array[i]) > tol) {
-            std::cerr << "not same values: " << a[i] << " " << array[i]
-                      << ", diff=" << std::fabs(a[i] - array[i]) << std::endl;
-            exit(-1);
-        }
-    }
-}
-
-void assertArrayEqual(const Strings &a, const Strings &b) {
-    if (a.size() != b.size()) {
-        std::cerr << "not same size: a=" << a.size() << ", b=" << b.size()
-                  << std::endl;
-        exit(-1);
-    }
-
-    for (uint32_t i = 0; i < a.size(); ++i) {
-        if (a[i] != b[i]) {
-            std::cerr << "not same values: " << a[i] << " " << b[i]
-                      << std::endl;
-            exit(-1);
-        }
-    }
-}
-
-void assertSerieEqual(const df::Serie &s1, const Array &s2, double tol = 1e-7) {
-    assertArrayEqual(s1.asArray(), s2, tol);
-}
-
-void assertSerieEqual(const df::Serie &s1, const df::Serie &s2,
-                      double tol = 1e-7) {
-    assertEqual<int>(s1.itemSize(), s2.itemSize());
-    assertEqual<int>(s1.dimension(), s2.dimension());
-    assertEqual<uint32_t>(s1.count(), s2.count());
-    assertEqual<uint32_t>(s1.size(), s2.size()); // we never know ;-)
-    assertArrayEqual(s1.asArray(), s2.asArray(), tol);
-}
-
-template <typename CB> void shouldThrowError(CB &&cb) {
-    try {
-        cb();
-        std::cerr << "not throwing an error!\n";
-        exit(-1);
-    } catch (std::invalid_argument &e) {
-        // ok
-        df::error(e.what());
-    }
-}
-
-template <typename CB> void shouldNotThrowError(CB &&cb) {
-    try {
-        cb();
-    } catch (std::invalid_argument &e) {
-        df::error(e.what());
-        exit(-1);
-    }
-}
-
 // -----------------------------------------------------------------------------------------------
-//                          A la Google test framework: gtest using cmake
+//                     A la Google test framework: that is to say, GEST using
+//                     CMAKE
 // -----------------------------------------------------------------------------------------------
 
 namespace test {
 
 using TestFunction = std::function<void()>;
+
 struct TestInfo {
     const char *name;
     const char *fixture;
     TestFunction fn;
 };
+
 inline std::vector<TestInfo> tests;
 
 inline void register_test(const char *name, const char *fixture,
@@ -172,11 +83,237 @@ inline void register_test(const char *name, const char *fixture,
         return 0;                                                              \
     }
 
-#define EXPECT_EQ(a, b) assertEqual(a, b)
-#define EXPECT_DOUBLE_EQ(a, b) assertDoubleEqual(a, b)
-#define EXPECT_STREQ(a, b) assertEqual<String>(a, b)
-#define EXPECT_TRUE(cond) assertCondition(cond)
-#define EXPECT_FALSE(cond) assertCondition(!(cond))
-#define EXPECT_THROW(stmt) shouldThrowError([&]() { stmt; })
-#define EXPECT_NO_THROW(stmt) shouldNotThrowError([&]() { stmt; })
-// -----------------------------------------------------------------------------------------------
+#define EXPECT_EQ(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 != v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to equal " << v2 << " but |" << v1    \
+               << " != " << v2 << "|";                                         \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+#define EXPECT_NEAR(val1, val2, tol)                                           \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (std::abs(v1 - v2) > tol) {                                         \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to be near " << v2                    \
+               << " (tolerance=" << tol << ")"                                 \
+               << " but |" << v1 << " - " << v2 << "| = " << std::abs(v1 - v2) \
+               << " > " << tol;                                                \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+#define EXPECT_THROW(statement, exception_type)                                \
+    {                                                                          \
+        bool caught_expected = false;                                          \
+        try {                                                                  \
+            statement;                                                         \
+        } catch (const exception_type &) {                                     \
+            caught_expected = true;                                            \
+        } catch (const std::exception &e) {                                    \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #statement << " to throw " << #exception_type \
+               << " but it threw a different exception: " << e.what();         \
+            throw std::runtime_error(ss.str());                                \
+        } catch (...) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #statement << " to throw " << #exception_type \
+               << " but it threw an unknown exception";                        \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+        if (!caught_expected) {                                                \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #statement << " to throw " << #exception_type \
+               << " but it didn't throw";                                      \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+// String comparison
+#define EXPECT_STREQ(str1, str2)                                               \
+    {                                                                          \
+        std::string s1 = (str1);                                               \
+        std::string s2 = (str2);                                               \
+        if (s1 != s2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected strings to be equal\n"                             \
+               << "    Got     : '" << s1 << "'\n"                             \
+               << "    Expected: '" << s2 << "'";                              \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+// Boolean condition true
+#define EXPECT_TRUE(condition)                                                 \
+    {                                                                          \
+        if (!(condition)) {                                                    \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #condition << " to be true";                  \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+// Boolean condition false
+#define EXPECT_FALSE(condition)                                                \
+    {                                                                          \
+        if (condition) {                                                       \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #condition << " to be false";                 \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+// No exception thrown
+#define EXPECT_NO_THROW(statement)                                             \
+    {                                                                          \
+        try {                                                                  \
+            statement;                                                         \
+        } catch (const std::exception &e) {                                    \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #statement << " not to throw, but it threw "  \
+               << "exception: " << e.what();                                   \
+            throw std::runtime_error(ss.str());                                \
+        } catch (...) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << #statement << " not to throw, but it threw "  \
+               << "an unknown exception";                                      \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+#define EXPECT_ARRAY_NEAR(arr1, arr2, tol)                                     \
+    {                                                                          \
+        auto a1 = (arr1);                                                      \
+        auto a2 = (arr2);                                                      \
+        if (a1.size() != a2.size()) {                                          \
+            std::stringstream ss;                                              \
+            ss << "Array sizes differ: " << a1.size() << " != " << a2.size();  \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+        for (size_t i = 0; i < a1.size(); ++i) {                               \
+            if (std::abs(a1[i] - a2[i]) > tol) {                               \
+                std::stringstream ss;                                          \
+                ss << "Arrays differ at index " << i << ": " << a1[i]          \
+                   << " != " << a2[i]                                          \
+                   << " (diff = " << std::abs(a1[i] - a2[i])                   \
+                   << ", tolerance = " << tol << ")";                          \
+                throw std::runtime_error(ss.str());                            \
+            }                                                                  \
+        }                                                                      \
+    }
+
+#define EXPECT_ARRAY_EQ(arr1, arr2)                                            \
+    {                                                                          \
+        auto a1 = (arr1);                                                      \
+        auto a2 = (arr2);                                                      \
+        if (a1.size() != a2.size()) {                                          \
+            std::stringstream ss;                                              \
+            ss << "Array sizes differ: " << a1.size() << " != " << a2.size();  \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+        for (size_t i = 0; i < a1.size(); ++i) {                               \
+            if (a1[i] != a2[i]) {                                              \
+                std::stringstream ss;                                          \
+                ss << "Arrays differ at index " << i << ": " << a1[i]          \
+                   << " != " << a2[i]                                          \
+                   << " (diff = " << std::abs(a1[i] - a2[i]) << ")";           \
+                throw std::runtime_error(ss.str());                            \
+            }                                                                  \
+        }                                                                      \
+    }
+
+template <typename T> struct ParsedSerie {
+    std::string type;
+    uint32_t itemSize;
+    uint32_t count;
+    uint32_t dimension;
+    std::vector<T> values;
+};
+
+#define EXPECT_SERIE_EQ(serie, expected)                                       \
+    {                                                                          \
+        EXPECT_EQ(serie.count(), expected.count);                              \
+        EXPECT_EQ(serie.itemSize(), expected.itemSize);                        \
+        EXPECT_EQ(serie.dimension(), expected.dimension);                      \
+        EXPECT_STREQ(serie.type(), expected.type);                             \
+        EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
+    }
+
+class TestException : public std::runtime_error {
+  public:
+    TestException(const std::string &message) : std::runtime_error(message) {}
+};
+
+#define CHECK(condition)                                                       \
+    do {                                                                       \
+        if (!(condition)) {                                                    \
+            std::stringstream ss;                                              \
+            ss << "Check failed: " << #condition << "\n";                      \
+            ss << "File: " << __FILE__ << "\n";                                \
+            ss << "Line: " << __LINE__ << "\n";                                \
+            throw TestException(ss.str());                                     \
+        }                                                                      \
+    } while (0)
+
+#define MSG(msg) std::cout << "---> " << msg << std::endl;
+
+
+
+
+// ====================================================================
+
+// Using TEST_CASE and SUB_CASE
+
+
+// // Helper class for approximate floating point comparisons
+// class Approx {
+//   public:
+//     explicit Approx(double value, double epsilon = 1e-6)
+//         : value_(value), epsilon_(epsilon) {}
+
+//     bool compare(double other) const {
+//         return std::abs(value_ - other) <= epsilon_;
+//     }
+
+//     friend bool operator==(double lhs, const Approx &rhs) {
+//         return rhs.compare(lhs);
+//     }
+
+//     friend bool operator==(const Approx &lhs, double rhs) {
+//         return lhs.compare(rhs);
+//     }
+
+//   private:
+//     double value_;
+//     double epsilon_;
+// };
+
+// Main CHECK macro
+
+
+// Test case macro
+// #define TEST_CASE(name) \
+//     void test_case_##name(); \
+//     struct TestRunner##name { \
+//         TestRunner##name() { \
+//             std::cout << "Running test case: " << #name << std::endl; \
+//             try { \
+//                 test_case_##name(); \
+//                 std::cout << "Test passed: " << #name << std::endl; \
+//             } catch (const TestException &e) { \
+//                 std::cerr << "Test failed: " << #name << "\n" \
+//                           << e.what() << std::endl; \
+//                 throw; \
+//             } \
+//         } \
+//     } test_runner_##name; \ void test_case_##name()
+
+// // Subcase macro
+// #define SUBCASE(name) \
+//     std::cout << "  Subcase: " << name << std::endl; \ if (true)

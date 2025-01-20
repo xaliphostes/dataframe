@@ -23,29 +23,39 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/common.h>
+#include <dataframe/functional/map.h>
 
 namespace df {
 namespace algebra {
 
-/**
- * @ingroup Algebra
- */
-Serie norm(const Serie &s);
+template <typename T> using IsSerieFloating = df::details::IsSerieFloating<T>;
+
+// -----------------------------------------------
 
 /**
- * @ingroup Algebra
+ * @ingroup Geo
  */
-Serie norm2(const Serie &s);
+template <typename T> IsSerieFloating<T> norm2(const GenSerie<T> &serie);
+template <typename T> IsSerieFloating<T> norm(const GenSerie<T> &serie);
 
 /**
- * @ingroup Algebra
+ * Creates a functor for calculating norms
+ * Can be used with pipes: serie | make_norm()
  */
-MAKE_OP(norm);
+template <typename T> auto make_norm() {
+    return [](const GenSerie<T> &serie) -> IsSerieFloating<T> {
+        return norm(serie);
+    };
+}
 
-/**
- * @ingroup Algebra
- */
-MAKE_OP(norm2);
+// Optional: non-templated version if you want to deduce T from usage
+inline auto make_norm() {
+    return
+        [](const auto &serie) -> decltype(norm(serie)) { return norm(serie); };
+}
 
 } // namespace algebra
 } // namespace df
+
+#include "inline/norm.hxx"

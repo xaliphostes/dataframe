@@ -22,54 +22,21 @@
  */
 
 #pragma once
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cstdint>
 
-using Array = std::vector<double>;
+template <typename T> using Array = std::vector<T>;
+
 using String = std::string;
 using Strings = std::vector<String>;
 
-// --------------------------------------------------------------------------------
-/**
- * @brief In this context of `dataframe`, a `Tuple` represents either
- * a number (if `Serie.itemSize() == 1`), or an array (if `Serie.itemSize() >
- * 1`). If `Serie.itemSize() == 1`, then (of course) `isNumber` is set to true.
- */
-struct Tuple {
-    bool isNumber{false};
-    double number;
-    Array array;
-};
-// --------------------------------------------------------------------------------
+template <typename T> Array<T> createArray(uint32_t size, T initValue);
 
-inline Array createArray(uint32_t size, double initValue) {
-    Array a(size);
-    std::fill(a.begin(), a.end(), initValue);
-    return a;
-}
+template <typename T>
+std::ostream &operator<<(std::ostream &o, const Array<T> &a);
 
-inline std::ostream &operator<<(std::ostream &o, const Array &a) {
+std::ostream &operator<<(std::ostream &o, const Strings &a);
 
-    std::cout << "[";
-    if (a.size() > 0) {
-        for (size_t j = 0; j < a.size() - 1; ++j) {
-            std::cout << a[j] << ", ";
-        }
-        std::cout << a.back() << "]";
-    }
-    else {
-        std::cout << "[]";
-    }
-
-    return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const Strings &a) {
-    for (const String &v : a) {
-        std::cerr << "  " << v << std::endl;
-    }
-    std::cerr << std::endl;
-    return o;
-}
+#include "inline/types.hxx"

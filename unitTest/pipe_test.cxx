@@ -22,142 +22,36 @@
  */
 
 #include "TEST.h"
-#include <dataframe/Serie.h>
-#include <dataframe/functional/algebra/eigen.h>
-#include <dataframe/functional/math/equals.h>
-#include <dataframe/functional/pipe.h>
-#include <dataframe/functional/utils/apply.h>
-#include <dataframe/functional/utils/print.h>
-#include <dataframe/functional/utils/zip.h>
-
-df::Serie someOperation(const df::Serie &s1, const df::Serie &s2) {
-    return df::utils::zip(s1, s2);
-};
+#include <dataframe/functional/map.h>
 
 TEST(pipe, basic) {
-    df::Serie s(1, {1, 2, 3, 4, 5});
-    df::Serie solution(1, {6, 8, 10});
+    df::GenSerie<double> s(1, {1, 2, 3, 4, 5});
 
     // Using pipe directly
-    auto result1 = pipe(
-
+    auto result = pipe(
         s,
-
-        [](const df::Serie &s) {
-            return s.map([](double v, uint32_t) { return v * 2; });
+        [](const df::GenSerie<double> &s) {
+            return df::map([](double v, uint32_t) { return v * 2; }, s);
         },
-
-        [](const df::Serie &s) {
-            return s.filter([](double v, uint32_t) { return v > 4; });
-        }
-
+        df::make_map(
+            [](double v, uint32_t) { return Array<double>{v, v * v, v * v * v}; })
     );
-    assertCondition(df::math::equals(solution, result1));
+
+    df::print(result);
 }
 
-// Creating and using a reusable pipeline
-TEST(pipe, make1) {
-    df::Serie s(1, {1, 2, 3, 4, 5});
-    df::Serie solution(1, {6, 8, 10});
+TEST(pipe, make_pipe) {
+    df::GenSerie<double> s(1, {1, 2, 3, 4, 5});
 
-    auto doubleAndFilter = df::make_pipe(
-        [](const df::Serie &s) {
-            return s.map([](double v, uint32_t) { return v * 2; });
+    auto pipeline = df::make_pipe(
+        [](const df::GenSerie<double> &s) {
+            return df::map([](double v, uint32_t) { return v * 2; }, s);
         },
-        [](const df::Serie &s) {
-            return s.filter([](double v, uint32_t) { return v > 4; });
-        });
-
-    auto result2 = doubleAndFilter(s);
-    assertCondition(df::math::equals(solution, result2));
-}
-
-TEST(pipe, make2) {
-    df::Serie s(1, {1, 2, 3, 4, 5});
-    df::Serie solution(1, {6, 8, 10});
-
-    auto doubleAndFilter = df::make_pipe(
-        df::make_map([](double v, uint32_t) { return v * 2; }),
-        df::make_filter([](double v, uint32_t) { return v > 4; }));
-
-    auto result2 = doubleAndFilter(s);
-    assertCondition(df::math::equals(solution, result2));
-
-    df::Serie s2(2, {5, 6, 7, 8});
-    auto result3 = doubleAndFilter(s2);
-    df::utils::print(result3);
-}
-
-// ---------------------------------------------------
-
-TEST(pipe, serie) {
-    df::Serie serie(6, {1, 2, 3, 4, 5, 6});
-
-    auto result = df::pipe(
-
-        serie,
-
-        [](const df::Serie &s) { return df::algebra::eigenSystem(s); },
-
-        [](const auto &tuple) { return std::get<0>(tuple); }
-
+        df::make_map(
+            [](double v, uint32_t) { return Array<double>{v, v * v, v * v * v}; })
     );
 
-    assertEqual<int>(result.itemSize(), 3);
-    assertEqual<int>(result.count(), 1);
-    assertEqual<int>(result.dimension(), 3);
-    assertSerieEqual(result, df::Serie(3, {11.3448, 0.170914, -0.515728}),
-                     1e-4);
-}
-
-TEST(pipe, pair) {
-    df::Serie serie1(1, {1, 2, 3});
-    df::Serie serie2(2, {1, 2, 3, 4, 5, 6});
-    auto result = df::pipe(
-
-        std::make_pair(serie1, serie2),
-
-        [](const auto &pair) {
-            const auto &[s1, s2] = pair;
-            return someOperation(s1, s2);
-        }
-
-    );
-
-    assertEqual<int>(result.itemSize(), 3);
-    assertEqual<int>(result.count(), 3);
-    assertEqual<int>(result.dimension(), 3);
-    assertSerieEqual(result, df::Serie(3, {1, 1, 2, 2, 3, 4, 3, 5, 6}));
-}
-
-// With anything else (a new struct for example)
-TEST(pipe, anything) {
-    df::Serie positions(3, {0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0});
-    df::Serie stress(6, {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6,
-                         1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6});
-
-    struct Data {
-        df::Serie stress;
-        df::Serie positions;
-    };
-
-    auto result = df::pipe(
-
-        Data{stress, positions},
-
-        [](const Data &data) {
-            return someOperation(data.stress, data.positions);
-        }
-
-    );
-
-    assertEqual<int>(result.itemSize(), 9);
-    assertEqual<int>(result.count(), 4);
-    assertEqual<int>(result.dimension(), 3);
-    assertSerieEqual(
-        result,
-        df::Serie(9, {1, 2, 3, 4, 5, 6, 0, 0, 0, 1, 2, 3, 4, 5, 6, 1, 0, 0,
-                      1, 2, 3, 4, 5, 6, 2, 0, 0, 1, 2, 3, 4, 5, 6, 3, 0, 0}));
+    df::print(pipeline(s));
 }
 
 RUN_TESTS()

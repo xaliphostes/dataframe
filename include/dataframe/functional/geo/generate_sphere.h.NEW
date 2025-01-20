@@ -1,0 +1,15 @@
+#pragma once
+#include "../../Serie.h"
+
+namespace df {
+namespace geo {
+
+struct SphereData {
+    Serie positions;
+    Serie indices;
+};
+
+SphereData generateSphere(int subdivision, bool shared = true);
+
+} // namespace geo
+} // namespace df

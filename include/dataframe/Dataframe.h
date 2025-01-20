@@ -1,74 +1,68 @@
-/*
- * Copyright (c) 2024-now fmaerten@gmail.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
-
 #pragma once
 #include <dataframe/Serie.h>
 #include <map>
 #include <string>
 
-/**
- * @brief Create a Dataframe containing several Series with same count.
- * @example
- * ```c++
- * Dataframe d ;
- * d.add("positions", Serie(3, 20)) ;
- * d.add("indices", Serie(2, 20)) ;
- * std::cout << d["positions"].array() << std::endl ;
- * d["positions"].dump() ;
- * ```
- */
+namespace df {
 
-namespace df
-{
+// -----------------------------------------------------
 
-    class Dataframe
-    {
-    public:
-        Dataframe(uint32_t count = 0);
-        void setCount(uint32_t count);
+// Interface for the erasure type
+class SerieBase {
+  public:
+    virtual ~SerieBase() = default;
+    virtual uint32_t count() const = 0;
+    virtual uint32_t itemSize() const = 0;
+    virtual uint dimension() const = 0;
+    virtual void print(uint32_t precision = 4) const = 0;
+    virtual bool isValid() const = 0;
+    virtual std::string type_name() const = 0;
+    virtual std::unique_ptr<SerieBase> clone() const = 0;
+};
 
-        void create(const std::string &name, uint32_t itemSize, uint32_t count = 0); // convenience
-        void add(const std::string &name, const Serie &serie);
-        void set(const std::string &name, const Serie &serie);
-        void del(const std::string &name);
-        void clear() ;
+// -----------------------------------------------------
 
-        bool contains(const Serie &) const;
-        bool contains(const String &) const;
+// Wrapper
+template <typename T> class SerieWrapper : public SerieBase {
+  public:
+    SerieWrapper(const GenSerie<T> &serie);
 
-        Serie &operator[](const std::string &name);
-        const Serie &operator[](const std::string &name) const;
-        Serie &get(const std::string &name);
-        const Serie &get(const std::string &name) const;
+    uint32_t count() const override;
+    uint32_t itemSize() const override;
+    uint dimension() const override;
+    bool isValid() const override;
 
-        
-        const std::map<std::string, Serie> &series() const { return series_; }
+    void print(uint32_t precision = 4) const override;
+    std::string type_name() const override;
+    std::unique_ptr<SerieBase> clone() const override;
+    const GenSerie<T> &get() const;
+    GenSerie<T> &get();
 
-        void dump() const;
+  private:
+    GenSerie<T> serie_;
+};
 
-    private:
-        uint32_t count_{0};
-        std::map<std::string, Serie> series_;
-    };
+// -----------------------------------------------------
 
-}
+class DataFrame {
+  public:
+    template <typename T> void add(const std::string &, const GenSerie<T> &);
+    template <typename T> const GenSerie<T> &get(const std::string &) const;
+    template <typename T> GenSerie<T> &get(const std::string &);
+
+    bool has(const std::string &) const;
+    void remove(const std::string &);
+    std::vector<std::string> names() const;
+    std::string get_type(const std::string &) const;
+    size_t size() const;
+    void print(uint32_t precision = 4) const;
+
+  private:
+    std::map<std::string, std::unique_ptr<SerieBase>> series_;
+};
+
+// -----------------------------------------------------
+
+} // namespace df
+
+#include <dataframe/inline/Dataframe.hxx>
