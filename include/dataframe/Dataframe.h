@@ -44,8 +44,12 @@ template <typename T> class SerieWrapper : public SerieBase {
 
 // -----------------------------------------------------
 
-class DataFrame {
+class Dataframe {
   public:
+    Dataframe() = default;
+    Dataframe(const Dataframe &other);
+    Dataframe &operator=(const Dataframe &other);
+
     template <typename T> void add(const std::string &, const GenSerie<T> &);
     template <typename T> const GenSerie<T> &get(const std::string &) const;
     template <typename T> GenSerie<T> &get(const std::string &);

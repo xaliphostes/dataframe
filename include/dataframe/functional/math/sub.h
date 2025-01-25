@@ -27,62 +27,36 @@
 namespace df {
 namespace math {
 
-/**
- * @ingroup Math
- */
-Serie sub(const std::initializer_list<Serie> &list);
-
-/**
- * @ingroup Math
- */
-Serie sub(const Serie &serie, double v);
-
-/**
- * @ingroup Math
- */
-inline Serie sub(const Serie &s1, const Serie &s2) {
-    if (s1.itemSize() != s2.itemSize() || s1.count() != s2.count()) {
-        throw std::invalid_argument("Series must have same itemSize and count");
+template <typename T>
+details::IsSerieFloating<T> sub(const GenSerie<T> &s1, const GenSerie<T> &s2) {
+    if (s1.count() != s2.count()) {
+        throw std::invalid_argument("Series must have same count");
     }
 
-    Serie result(s1.itemSize(), s1.count());
+    auto result = GenSerie<T>(s1.itemSize(), s1.count());
 
     for (uint32_t i = 0; i < s1.count(); ++i) {
-        if (s1.itemSize() == 1) {
-            result.set(i, s1.get<double>(i) - s2.get<double>(i));
-        } else {
-            Array sum(s1.itemSize());
-            auto v1 = s1.get<Array>(i);
-            auto v2 = s2.get<Array>(i);
-            for (size_t j = 0; j < s1.itemSize(); ++j) {
-                sum[j] = v1[j] - v2[j];
+        if (s1.itemSize() > 1) {
+            auto arr1 = s1.array(i);
+            auto arr2 = s2.array(i);
+            std::vector<T> diff(arr1.size());
+            for (size_t j = 0; j < arr1.size(); ++j) {
+                diff[j] = arr1[j] - arr2[j];
             }
-            result.set(i, sum);
+            result.setArray(i, diff);
+        } else {
+            result.setValue(i, s1.value(i) - s2.value(i));
         }
     }
+
     return result;
 }
-
-/**
- * @ingroup Math
- */
-template <typename... Series> Serie sub(const Series &...series) {
-    if constexpr (sizeof...(series) < 1) {
-        throw std::invalid_argument(
-            "Number of arguments (Serie) must be greater than 1. Got " +
-            std::to_string(sizeof...(series)) + " arguments)");
-    }
-
-    utils::countAndCheck(series...);
-
-    auto first = std::get<0>(std::tuple<const Series &...>(series...));
-
-    Serie result = Serie(first.itemSize(), first.count());
-    ((result = sub(result, series)), ...);
-    return result;
-}
-
-MAKE_OP(sub);
 
 } // namespace math
 } // namespace df
+
+template <typename T>
+df::details::IsSerieFloating<T> operator-(const df::GenSerie<T> &s1,
+                                          const df::GenSerie<T> &s2) {
+    return df::math::sub(s1, s2);
+}

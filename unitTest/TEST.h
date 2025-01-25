@@ -35,8 +35,9 @@
 #include <vector>
 
 // -----------------------------------------------------------------------------------------------
-//                     A la Google test framework: that is to say, GEST using
-//                     CMAKE
+//                   A la Google test framework: that is to say, GEST using
+//                   CMAKE
+//                            Todo: Use TEST_CASE and SUB_CASE?
 // -----------------------------------------------------------------------------------------------
 
 namespace test {
@@ -83,6 +84,8 @@ inline void register_test(const char *name, const char *fixture,
         return 0;                                                              \
     }
 
+#define MSG(msg) std::cout << "---> " << msg << std::endl;
+
 #define EXPECT_EQ(val1, val2)                                                  \
     {                                                                          \
         auto v1 = (val1);                                                      \
@@ -91,6 +94,18 @@ inline void register_test(const char *name, const char *fixture,
             std::stringstream ss;                                              \
             ss << "Expected " << v1 << " to equal " << v2 << " but |" << v1    \
                << " != " << v2 << "|";                                         \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+// Expect not equal
+#define EXPECT_NOT_EQ(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 == v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to not equal " << v2;                 \
             throw std::runtime_error(ss.str());                                \
         }                                                                      \
     }
@@ -245,75 +260,13 @@ template <typename T> struct ParsedSerie {
         EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
     }
 
-class TestException : public std::runtime_error {
-  public:
-    TestException(const std::string &message) : std::runtime_error(message) {}
-};
-
 #define CHECK(condition)                                                       \
-    do {                                                                       \
+    {                                                                          \
         if (!(condition)) {                                                    \
             std::stringstream ss;                                              \
             ss << "Check failed: " << #condition << "\n";                      \
             ss << "File: " << __FILE__ << "\n";                                \
             ss << "Line: " << __LINE__ << "\n";                                \
-            throw TestException(ss.str());                                     \
+            throw std::runtime_error(ss.str());                                \
         }                                                                      \
-    } while (0)
-
-#define MSG(msg) std::cout << "---> " << msg << std::endl;
-
-
-
-
-// ====================================================================
-
-// Using TEST_CASE and SUB_CASE
-
-
-// // Helper class for approximate floating point comparisons
-// class Approx {
-//   public:
-//     explicit Approx(double value, double epsilon = 1e-6)
-//         : value_(value), epsilon_(epsilon) {}
-
-//     bool compare(double other) const {
-//         return std::abs(value_ - other) <= epsilon_;
-//     }
-
-//     friend bool operator==(double lhs, const Approx &rhs) {
-//         return rhs.compare(lhs);
-//     }
-
-//     friend bool operator==(const Approx &lhs, double rhs) {
-//         return lhs.compare(rhs);
-//     }
-
-//   private:
-//     double value_;
-//     double epsilon_;
-// };
-
-// Main CHECK macro
-
-
-// Test case macro
-// #define TEST_CASE(name) \
-//     void test_case_##name(); \
-//     struct TestRunner##name { \
-//         TestRunner##name() { \
-//             std::cout << "Running test case: " << #name << std::endl; \
-//             try { \
-//                 test_case_##name(); \
-//                 std::cout << "Test passed: " << #name << std::endl; \
-//             } catch (const TestException &e) { \
-//                 std::cerr << "Test failed: " << #name << "\n" \
-//                           << e.what() << std::endl; \
-//                 throw; \
-//             } \
-//         } \
-//     } test_runner_##name; \ void test_case_##name()
-
-// // Subcase macro
-// #define SUBCASE(name) \
-//     std::cout << "  Subcase: " << name << std::endl; \ if (true)
+    }

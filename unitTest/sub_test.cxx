@@ -21,31 +21,19 @@
  *
  */
 
-#pragma once
-#include <dataframe/functional/math/mult.h>
+#include "TEST.h"
+#include <dataframe/functional/math/sub.h>
 
-namespace df {
-namespace math {
+using FSerie = df::GenSerie<float>;
 
-template <typename T>
-auto scale(const GenSerie<T> &s, T val) -> decltype(mult(s, val)) {
-    return mult(s, val);
+TEST(sub, test1) {
+    FSerie s1(2, {1, 2, 3, 4});
+    FSerie s2(2, {6, 2, 4, 0});
+
+    auto sol = std::vector<float>({-5, 0, -1, 4});
+
+    EXPECT_ARRAY_EQ(df::math::sub(s1, s2).asArray(), sol);
+    EXPECT_ARRAY_EQ((s1 - s2).asArray(), sol);
 }
 
-template <typename T>
-auto scale(const GenSerie<T> &s1,
-           const GenSerie<T> &s2) -> decltype(mult(s1, s2)) {
-    return mult(s1, s2);
-}
-
-template <typename T> auto make_scale(T val) -> decltype(make_mult(val)) {
-    return make_mult(val);
-}
-
-template <typename T>
-auto make_scale(const GenSerie<T> &s) -> decltype(make_mult(s)) {
-    return make_mult(s);
-}
-
-} // namespace math
-} // namespace df
+RUN_TESTS()

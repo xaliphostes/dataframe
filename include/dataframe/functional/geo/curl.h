@@ -23,48 +23,25 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/functional/common.h>
 
 namespace df {
-namespace math {
+namespace geo {
 
 /**
- * @brief Negate values in a serie
- * @param serie Input serie to negate
- * @return GenSerie<T> Negated serie with same dimensions
+ * @brief Compute the curl of a vector field
+ * For 2D vector fields, returns scalar field (z component)
+ * For 3D vector fields, returns 3D vector field
+ * @param field Vector field (must have itemSize 2 or 3)
+ * @param coordinates Point coordinates (itemSize 2 for 2D, 3 for 3D)
+ * @return GenSerie<T> Curl of the vector field
  */
-template<typename T>
-GenSerie<T> negate(const GenSerie<T>& serie) {
-    GenSerie<T> result(serie.itemSize(), serie.count());
-    
-    if (serie.itemSize() == 1) {
-        // Scalar case
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            result.setValue(i, -serie.value(i));
-        }
-    } else {
-        // Vector case
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            auto vec = serie.array(i);
-            std::vector<T> negated(vec.size());
-            for (size_t j = 0; j < vec.size(); ++j) {
-                negated[j] = -vec[j];
-            }
-            result.setArray(i, negated);
-        }
-    }
-    
-    return result;
-}
+template <typename T>
+GenSerie<T> curl(const GenSerie<T> &field, const GenSerie<T> &coordinates);
 
-MAKE_OP(negate);
+template <typename T> auto make_curl(const GenSerie<T> &coordinates);
 
-} // namespace math
+} // namespace geo
 } // namespace df
 
-// --------------------------------------------------
-
-// Operator overload for unary minus
-template<typename T>
-df::GenSerie<T> operator-(const df::GenSerie<T>& serie) {
-    return df::math::negate(serie);
-}
+#include "inline/curl.hxx"

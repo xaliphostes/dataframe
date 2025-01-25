@@ -45,8 +45,7 @@ template <typename T> bool SerieWrapper<T>::isValid() const {
     return serie_.isValid();
 }
 
-template <typename T>
-void SerieWrapper<T>::print(uint32_t precision) const {
+template <typename T> void SerieWrapper<T>::print(uint32_t precision) const {
     df::print(serie_, precision);
 }
 
@@ -65,8 +64,24 @@ template <typename T> const GenSerie<T> &SerieWrapper<T>::get() const {
 
 template <typename T> GenSerie<T> &SerieWrapper<T>::get() { return serie_; }
 
+// -----------------------------------------------------
+
+Dataframe::Dataframe(const Dataframe &other) {
+    for (const auto &[name, serie] : other.series_) {
+        series_[name] = serie->clone();
+    }
+}
+
+Dataframe &Dataframe::operator=(const Dataframe &other) {
+    if (this != &other) {
+        Dataframe temp(other);
+        std::swap(series_, temp.series_);
+    }
+    return *this;
+}
+
 template <typename T>
-void DataFrame::add(const std::string &name, const GenSerie<T> &serie) {
+void Dataframe::add(const std::string &name, const GenSerie<T> &serie) {
     if (series_.find(name) != series_.end()) {
         throw std::invalid_argument("Serie name already exists: " + name);
     }
@@ -75,7 +90,7 @@ void DataFrame::add(const std::string &name, const GenSerie<T> &serie) {
 
 // Récupérer une série avec son type
 template <typename T>
-const GenSerie<T> &DataFrame::get(const std::string &name) const {
+const GenSerie<T> &Dataframe::get(const std::string &name) const {
     auto it = series_.find(name);
     if (it == series_.end()) {
         throw std::invalid_argument("Serie not found: " + name);
@@ -89,7 +104,7 @@ const GenSerie<T> &DataFrame::get(const std::string &name) const {
     return wrapper->get();
 }
 
-template <typename T> GenSerie<T> &DataFrame::get(const std::string &name) {
+template <typename T> GenSerie<T> &Dataframe::get(const std::string &name) {
     auto it = series_.find(name);
     if (it == series_.end()) {
         throw std::invalid_argument("Serie not found: " + name);
@@ -104,12 +119,12 @@ template <typename T> GenSerie<T> &DataFrame::get(const std::string &name) {
 }
 
 // Vérifier si une série existe
-bool DataFrame::has(const std::string &name) const {
+bool Dataframe::has(const std::string &name) const {
     return series_.find(name) != series_.end();
 }
 
 // Supprimer une série
-void DataFrame::remove(const std::string &name) {
+void Dataframe::remove(const std::string &name) {
     if (!has(name)) {
         throw std::invalid_argument("Serie not found: " + name);
     }
@@ -117,7 +132,7 @@ void DataFrame::remove(const std::string &name) {
 }
 
 // Obtenir les noms des séries
-std::vector<std::string> DataFrame::names() const {
+std::vector<std::string> Dataframe::names() const {
     std::vector<std::string> result;
     for (const auto &[name, _] : series_) {
         result.push_back(name);
@@ -126,7 +141,7 @@ std::vector<std::string> DataFrame::names() const {
 }
 
 // Obtenir le type d'une série
-std::string DataFrame::get_type(const std::string &name) const {
+std::string Dataframe::get_type(const std::string &name) const {
     auto it = series_.find(name);
     if (it == series_.end()) {
         throw std::invalid_argument("Serie not found: " + name);
@@ -135,11 +150,11 @@ std::string DataFrame::get_type(const std::string &name) const {
 }
 
 // Obtenir le nombre de séries
-size_t DataFrame::size() const { return series_.size(); }
+size_t Dataframe::size() const { return series_.size(); }
 
 // Afficher le contenu
-void DataFrame::print(uint32_t precision) const {
-    std::cout << "DataFrame with " << size() << " series:" << std::endl;
+void Dataframe::print(uint32_t precision) const {
+    std::cout << "Dataframe with " << size() << " series:" << std::endl;
     for (const auto &[name, serie] : series_) {
         std::cout << "\n"
                   << name << " (" << serie->type_name() << "):" << std::endl;

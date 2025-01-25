@@ -26,8 +26,7 @@ namespace math {
 
 // Multiplication par un scalaire
 template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-mult(const GenSerie<T> &serie, T d) {
+inline details::IsSerieFloating<T> mult(const GenSerie<T> &serie, T d) {
     return df::map(
         [d](const auto &a, uint32_t) -> std::decay_t<decltype(a)> {
             if constexpr (std::is_same_v<std::decay_t<decltype(a)>, T>) {
@@ -44,8 +43,8 @@ mult(const GenSerie<T> &serie, T d) {
 }
 
 template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-mult(const GenSerie<T> &serie, const GenSerie<T> &multiplier) {
+inline details::IsSerieFloating<T> mult(const GenSerie<T> &serie,
+                                const GenSerie<T> &multiplier) {
     // Verify counts match
     if (serie.count() != multiplier.count()) {
         throw std::invalid_argument("count of serie (" +

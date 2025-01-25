@@ -59,7 +59,6 @@
 
 namespace df {
 
-
 template <typename T> class GenSerie {
   public:
     using value_type = T;
@@ -73,7 +72,7 @@ template <typename T> class GenSerie {
     static GenSerie create(int itemSize, const Array &data, uint dimension = 3);
     bool isValid() const;
     bool isEmpty() const;
-    std::string type() const ;
+    std::string type() const;
     void reCount(uint32_t c);
     GenSerie &operator=(const GenSerie &s);
     GenSerie clone() const;
@@ -107,7 +106,6 @@ template <typename T> class GenSerie {
 using Serie = GenSerie<double>;
 // ==============================================================
 
-
 template <typename T>
 std::ostream &operator<<(std::ostream &o, const GenSerie<T> &s);
 
@@ -117,6 +115,11 @@ namespace details {
 template <typename T>
 using IsSerieFloating =
     std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>;
+
+template <typename T>
+using IsSerieFunction =
+    std::enable_if_t<is_floating_v<T>,
+                     std::function<GenSerie<T>(const GenSerie<T> &)>>;
 
 // Helper pour vérifier les counts
 template <typename T, typename... Args>

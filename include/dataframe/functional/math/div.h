@@ -30,26 +30,20 @@ namespace df {
 namespace math {
 
 template <typename T>
-std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-div(const GenSerie<T> &serie, T d);
+details::IsSerieFloating<T> div(const GenSerie<T> &serie, T d);
 
 template <typename T>
-std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-div(const GenSerie<T> &serie, const GenSerie<T> &divider);
+details::IsSerieFloating<T> div(const GenSerie<T> &serie,
+                                const GenSerie<T> &divider);
 
-template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>,
-                        std::function<GenSerie<T>(const GenSerie<T> &)>>
-make_div(T scalar) {
+template <typename T> inline details::IsSerieFunction<T> make_div(T scalar) {
     return [scalar](const GenSerie<T> &serie) -> GenSerie<T> {
         return div(serie, scalar);
     };
 }
 
 template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>,
-                        std::function<GenSerie<T>(const GenSerie<T> &)>>
-make_div(const GenSerie<T> &divider) {
+inline details::IsSerieFunction<T> make_div(const GenSerie<T> &divider) {
     return [&divider](const GenSerie<T> &serie) -> GenSerie<T> {
         return div(serie, divider);
     };

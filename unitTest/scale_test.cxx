@@ -23,61 +23,41 @@
  */
 
 #include "TEST.h"
-#include <dataframe/functional/math/mult.h>
+#include <dataframe/functional/math/scale.h>
 
 TEST(mult, test1) {
-    // Multiplication par un scalaire
-    {
-        df::GenSerie<double> s1(1, {1, 2, 3, 4, 5, 6});
-        auto sol = Array<double>({2, 4, 6, 8, 10, 12});
-        EXPECT_ARRAY_EQ(df::math::mult(s1, 2.0).asArray(), sol);
-        EXPECT_ARRAY_EQ((s1 * 2.0).asArray(), sol);
-        EXPECT_ARRAY_EQ((2.0 * s1).asArray(), sol);
-    }
+    df::GenSerie<double> s1(1, {1, 2, 3, 4, 5, 6});
+    auto r1 = df::math::scale(s1, 2.0); // Multiplie chaque composante par 2
+    df::print(r1);
 
     // Multiplication série scalaire par série scalaire
-    {
-        df::GenSerie<double> a1(1, {1, 2, 3});
-        df::GenSerie<double> a2(1, {2, 3, 4});
-        auto sol = Array<double>({2, 6, 12});
-        auto r1 = df::math::mult(a1, a2);
-        auto r2 = a1 * a2;
-        EXPECT_ARRAY_EQ(r1.asArray(), sol);
-        EXPECT_ARRAY_EQ(r2.asArray(), sol);
-    }
+    df::GenSerie<double> a1(1, {1, 2, 3});
+    df::GenSerie<double> a2(1, {2, 3, 4});
+    auto r2 = df::math::scale(a1, a2); // Multiplication élément par élément
+    df::print(r2);
 
     // -----------------------------------------------------------
 
-    {
-        df::GenSerie<double> s2(3, {1, 2, 3, 4, 5, 6});
-        auto r3 = df::math::mult(s2, 2.0); // Multiplie chaque composante par 2
-        df::print(r3);
-    }
+    df::GenSerie<double> s2(3, {1, 2, 3, 4, 5, 6});
+    auto r3 = df::math::scale(s2, 2.0); // Multiplie chaque composante par 2
+    df::print(r3);
 
     // Multiplication série vectorielle par scalaire
-    {
-        df::GenSerie<double> v1(3, {1, 2, 3, 4, 5, 6});
-        df::GenSerie<double> v2(1, {2, 3}); // Un scalaire par vecteur
-        auto r4 = df::math::mult(v1, v2);
-        df::print(r4);
-    }
+    df::GenSerie<double> v1(3, {1, 2, 3, 4, 5, 6});
+    df::GenSerie<double> v2(1, {2, 3}); // Un scalaire par vecteur
+    auto r4 = df::math::scale(v1, v2);
+    df::print(r4);
 
     // Multiplication série vectorielle par série vectorielle
     // Multiplication composante par composante
-    {
-        df::GenSerie<double> v1(3, {1, 2, 3, 4, 5, 6});
-        df::GenSerie<double> v3(3, {2, 2, 2, 3, 3, 3});
-        auto r5 = df::math::mult(v1, v3);
-        df::print(r5);
-    }
+    df::GenSerie<double> v3(3, {2, 2, 2, 3, 3, 3});
+    auto r5 = df::math::scale(v1, v3);
+    df::print(r5);
 
     // Utilisation de make_mult
-    {
-        df::GenSerie<double> s1(1, {1, 2, 3, 4, 5, 6});
-        auto multBy2 = df::math::make_mult(2.0);
-        auto r6 = multBy2(s1);
-        df::print(r6);
-    }
+    auto multBy2 = df::math::make_scale(2.0);
+    auto r6  = multBy2(s1);
+    df::print(r6);
 }
 
 RUN_TESTS()

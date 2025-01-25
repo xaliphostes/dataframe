@@ -27,28 +27,56 @@
 namespace df {
 namespace math {
 
-/**
- * Performs a weighted sum of series.
- * @ingroup Math
- *
- * Example:
- * @code
- * df::Serie a(2, {1, 2, 3, 4});
- * df::Serie b(2, {4, 3, 2, 1});
- * df::Serie c(2, {2, 2, 1, 1});
- * df::Serie s = df::weigthedSum({a, b, c}, {2, 3, 4});
- * @endcode
- */
-Serie weigthedSum(const std::initializer_list<Serie> &list,
-                  const Array &weights);
+template <typename T>
+details::IsSerieFloating<T>
+weigthedSum(const std::initializer_list<GenSerie<T>> &list,
+            const Array<T> &weights) {
+    if (list.size() != weights.size()) {
+        throw std::invalid_argument(
+            "Number of series must match number of weights");
+    }
 
-/**
- * @ingroup Math
- */
-Serie weigthedSum(const std::initializer_list<Serie> &list,
-                  const std::initializer_list<double> &weights);
+    if (list.size() == 0) {
+        return GenSerie<T>();
+    }
 
-MAKE_OP(weigthedSum);
+    const auto &first = *list.begin();
+    GenSerie<T> result(first.itemSize(), first.count());
+
+    for (const auto &serie : list) {
+        if (serie.count() != first.count() ||
+            serie.itemSize() != first.itemSize()) {
+            throw std::invalid_argument("All series must have same dimensions");
+        }
+    }
+
+    auto it_serie = list.begin();
+    auto it_weight = weights.begin();
+
+    for (uint32_t i = 0; i < first.count(); ++i) {
+        std::vector<T> sum(first.itemSize(), 0);
+        it_serie = list.begin();
+        it_weight = weights.begin();
+
+        while (it_serie != list.end()) {
+            auto arr = it_serie->array(i);
+            for (size_t j = 0; j < arr.size(); ++j) {
+                sum[j] += arr[j] * static_cast<T>(*it_weight);
+            }
+            ++it_serie;
+            ++it_weight;
+        }
+        result.setArray(i, sum);
+    }
+    return result;
+}
+
+template <typename T>
+details::IsSerieFloating<T>
+weigthedSum(const std::initializer_list<GenSerie<T>> &list,
+            const std::initializer_list<double> &weights) {
+    return weigthedSum(list, Array<T>(weights.begin(), weights.end()));
+}
 
 } // namespace math
 } // namespace df

@@ -25,8 +25,7 @@ namespace df {
 namespace math {
 
 template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-div(const GenSerie<T> &serie, T d) {
+inline details::IsSerieFloating<T> div(const GenSerie<T> &serie, T d) {
     return df::map(
         [d](const auto &a, uint32_t) -> std::decay_t<decltype(a)> {
             if constexpr (std::is_same_v<std::decay_t<decltype(a)>, T>) {
@@ -43,8 +42,8 @@ div(const GenSerie<T> &serie, T d) {
 }
 
 template <typename T>
-inline std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-div(const GenSerie<T> &serie, const GenSerie<T> &divider) {
+inline details::IsSerieFloating<T> div(const GenSerie<T> &serie,
+                                       const GenSerie<T> &divider) {
     // Verify counts match
     if (serie.count() != divider.count()) {
         throw std::invalid_argument("count of serie (" +

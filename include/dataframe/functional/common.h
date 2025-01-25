@@ -22,7 +22,6 @@
  */
 
 #pragma once
-// #include <dataframe/Serie.h>
 #include <type_traits>
 
 namespace df {
@@ -97,7 +96,6 @@ struct is_array_callback<F, T, Args...> {
     static constexpr bool value =
         accepts_vector<F, T>::value && is_array_callback<F, Args...>::value;
 };
-
 
 } // namespace details
 } // namespace df

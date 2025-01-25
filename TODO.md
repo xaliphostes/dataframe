@@ -12,9 +12,6 @@
 
 ## Vector Field Operations:
 
-- curl - Compute curl of a vector field
-- divergence - Compute divergence of a vector field
-
 
 ## Surface/Mesh Operations:
 
@@ -36,10 +33,9 @@
 
 ## Field Interpolation:
 
-- interpolate - Interpolate field values at arbitrary points
 - extrapolate - Extend field values beyond data points
 - resample - Resample field onto new grid
-- contours - Generate contour lines from scalar field for REGULAR SAMPLING
+- contours - Generate contour lines from scalar field for **REGULAR SAMPLING**
 
 
 

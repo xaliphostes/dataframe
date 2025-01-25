@@ -37,7 +37,7 @@ std::ostream &operator<<(std::ostream &o, const MyType &s) {
 
 TEST(dataframe, test1) {
 
-    df::DataFrame df;
+    df::Dataframe df;
 
     // Ajout de séries de différents types
     df.add("a", df::GenSerie<double>(1, {1.0, 2.0, 3.0}));
@@ -82,12 +82,75 @@ TEST(dataframe, test1) {
         auto &d = df.get<MyType>("d");
         auto expected =
             ParsedSerie<MyType>{.type = "int",
-                             .itemSize = 1,
-                             .count = 2,
-                             .dimension = 3,
-                             .values = {MyType(1, 2.0), MyType(3, 4.0)}};
+                                .itemSize = 1,
+                                .count = 2,
+                                .dimension = 3,
+                                .values = {MyType(1, 2.0), MyType(3, 4.0)}};
         // EXPECT_SERIE_EQ(d, expected);
     }
+}
+
+TEST(Dataframe, CopyConstructor) {
+    MSG("Testing Dataframe copy constructor");
+
+    df::Dataframe original;
+    original.add("doubles",
+                 df::GenSerie<double>(3, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0}));
+    original.add("ints", df::GenSerie<int>(2, {1, 2, 3, 4}));
+
+    // Test copy construction
+    df::Dataframe copy(original);
+
+    // Verify structure
+    EXPECT_EQ(copy.size(), original.size());
+    EXPECT_EQ(copy.names(), original.names());
+
+    // Verify data
+    auto &orig_doubles = original.get<double>("doubles");
+    auto &copy_doubles = copy.get<double>("doubles");
+    EXPECT_ARRAY_EQ(orig_doubles.asArray(), copy_doubles.asArray());
+
+    auto &orig_ints = original.get<int>("ints");
+    auto &copy_ints = copy.get<int>("ints");
+    EXPECT_ARRAY_EQ(orig_ints.asArray(), copy_ints.asArray());
+
+    // Verify independence
+    copy.get<double>("doubles").setValue(0, 99.0);
+    EXPECT_NOT_EQ(copy.get<double>("doubles").value(0),
+              original.get<double>("doubles").value(0));
+}
+
+TEST(Dataframe, AssignmentOperator) {
+    MSG("Testing Dataframe assignment operator");
+
+    df::Dataframe original;
+    original.add("values", df::GenSerie<float>(2, {1.0f, 2.0f, 3.0f, 4.0f}));
+
+    df::Dataframe assigned;
+    assigned.add("other", df::GenSerie<int>(1, {9, 8, 7}));
+
+    // Test assignment
+    assigned = original;
+
+    // Verify structure
+    EXPECT_EQ(assigned.size(), original.size());
+    EXPECT_EQ(assigned.names(), original.names());
+    EXPECT_FALSE(assigned.has("other"));
+
+    // Verify data
+    auto &orig_values = original.get<float>("values");
+    auto &assigned_values = assigned.get<float>("values");
+    EXPECT_ARRAY_EQ(orig_values.asArray(), assigned_values.asArray());
+
+    // Verify independence
+    assigned.get<float>("values").setValue(0, 99.0f);
+    EXPECT_NOT_EQ(assigned.get<float>("values").value(0),
+              original.get<float>("values").value(0));
+
+    // Test self-assignment
+    original = original;
+    EXPECT_EQ(original.size(), 1);
+    EXPECT_TRUE(original.has("values"));
 }
 
 RUN_TESTS()

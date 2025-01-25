@@ -30,19 +30,32 @@ namespace df {
 namespace math {
 
 // Multiplication par un scalaire
-template <typename T>
-std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-mult(const GenSerie<T> &serie, T d) ;
+template <typename T> details::IsSerieFloating<T> mult(const GenSerie<T> &, T);
 
 template <typename T>
-std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>
-mult(const GenSerie<T> &serie, const GenSerie<T> &multiplier) ;
+details::IsSerieFloating<T> mult(const GenSerie<T> &, const GenSerie<T> &);
 
-template <typename T> auto make_mult(T scalar) ;
+template <typename T> auto make_mult(T);
 
-template <typename T> auto make_mult(const GenSerie<T> &multiplier) ;
+template <typename T> auto make_mult(const GenSerie<T> &);
 
 } // namespace math
 } // namespace df
+
+template <typename T>
+df::details::IsSerieFloating<T> operator*(T t, const df::GenSerie<T> &s1) {
+    return df::math::mult(s1, t);
+}
+
+template <typename T>
+df::details::IsSerieFloating<T> operator*(const df::GenSerie<T> &s1, T t) {
+    return df::math::mult(s1, t);
+}
+
+template <typename T>
+df::details::IsSerieFloating<T> operator*(const df::GenSerie<T> &s1,
+                                          const df::GenSerie<T> &s2) {
+    return df::math::mult(s1, s2);
+}
 
 #include "inline/mult.hxx"
