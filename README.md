@@ -168,6 +168,43 @@ auto weightedSum = df::math::weightedSum({s1, s2, s3}, {0.5, 0.3, 0.2});
 auto normalized = df::math::normalize(s1);
 ```
 
+### Eigen Operations
+```cpp
+// Create a 3x3 symmetric matrix serie
+df::Serie serie(6, {
+    2, 4, 6, 3, 6, 9,
+    1, 2, 3, 4, 5, 6,
+    9, 8, 7, 6, 5, 4
+});
+
+auto [values, vectors] = df::algebra::eigenSystem(serie);
+df::print(values);
+df::print(vectors);
+```
+Will display:
+```
+GenSerie<double> {
+  itemSize : 3
+  count    : 3
+  dimension: 3
+  values   : [
+    [16.3328, -0.6580, -1.6748],
+    [11.3448, 0.1709, -0.5157],
+    [20.1911, -0.0431, -1.1480]
+  ]
+}
+GenSerie<double> {
+  itemSize : 9
+  count    : 3
+  dimension: 3
+  values   : [
+    [0.4493, 0.4752, 0.7565, 0.1945, 0.7745, -0.6020, 0.8720, -0.4176, -0.2556],
+    [0.3280, 0.5910, 0.7370, -0.5921, 0.7365, -0.3271, 0.7361, 0.3291, -0.5915],
+    [0.6888, 0.5534, 0.4683, 0.1594, -0.7457, 0.6469, -0.7072, 0.3709, 0.6019]
+  ]
+}
+```
+
 ## Type Safety and Error Handling
 
 The library provides comprehensive type checking and error handling:
@@ -235,6 +272,68 @@ auto customOp = df::make_map([](const std::vector<double>& v, uint32_t) {
 
 // Use it in a pipeline
 auto result = vectors | customOp | normalize;
+```
+
+## Full examples
+
+### Stress state
+```cpp
+#include <dataframe/Serie.h>
+#include <dataframe/functional/filter.h>
+#include <dataframe/functional/utils/reject.h>
+#include <dataframe/functional/pipe.h>
+#include <dataframe/functional/map.h>
+#include <map>
+
+using namespace df;
+
+int main() {
+    // Stress tensor components (xx,xy,xz,yy,yz,zz)
+    GenSerie<double> stress(6, {
+        1,  0,  0, 1,  0, 1,  // Point 1
+        2,  1,  0, 2,  0, 2,  // Point 2
+        -1, 0,  0, -1, 0, -1, // Point 3
+        -2, -1, 0, -2, 0, -2  // Point 4
+    });
+
+    GenSerie<double> distances(1, {5.0, 2.0, 1.0, 0.5});
+    GenSerie<int> rockTypes(1, {1, 1, 2, 2});
+
+    // Process data pipeline
+    auto filtered = pipe(
+        zip(stress, distances, rockTypes),
+
+        // Reject points far from faults
+        make_reject([](const std::vector<double>& data, uint32_t) {
+            return data[6] > 2.0;  // distance is after stress components
+        }),
+
+        // Keep only compressive states
+        make_filter([](const std::vector<double>& data, uint32_t) {
+            double trace = data[0] + data[3] + data[5];  // xx + yy + zz
+            return trace < 0;
+        })
+    );
+
+    // Compute average stress by rock type
+    std::map<int, std::pair<std::vector<double>, int>> averages;
+    
+    filtered.forEach([&averages](const std::vector<double>& data, uint32_t) {
+        int rockType = static_cast<int>(data[7]);
+        auto& [sum, count] = averages[rockType];
+
+        if (count == 0) {
+            sum = std::vector<double>(data.begin(), data.begin() + 6);
+        } else {
+            for (int i = 0; i < 6; i++) {
+                sum[i] = (sum[i] * count + data[i]) / (count + 1);
+            }
+        }
+        count++;
+    });
+
+    return 0;
+}
 ```
 
 ### Performance Considerations
