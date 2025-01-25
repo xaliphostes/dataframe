@@ -21,6 +21,8 @@
  *
  */
 
+#include <cmath>
+
 namespace df {
 namespace algebra {
 
