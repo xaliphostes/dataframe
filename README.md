@@ -96,9 +96,9 @@ auto square = df::make_map([](double x, uint32_t) { return x * x; });
 auto squared = square(s1);
 
 // Vector operation
-auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
+auto normalize = df::make_map([](const Array<double>& v, uint32_t) {
     double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
+    return Array<double>{v[0]/norm, v[1]/norm, v[2]/norm};
 });
 auto normalized = normalize(vectors);
 ```
@@ -110,7 +110,7 @@ auto normalized = normalize(vectors);
 auto result = df::filter([](double x, uint32_t) { return x > 2.0; }, s1);
 
 // Filter vectors with magnitude > 1
-auto longVectors = df::filter([](const std::vector<double>& v, uint32_t) {
+auto longVectors = df::filter([](const Array<double>& v, uint32_t) {
     double magSq = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
     return magSq > 1.0;
 }, vectors);
@@ -125,13 +125,13 @@ double sum = df::reduce([](double acc, double val, uint32_t) {
 }, s1, 0.0);
 
 // Find the vector with maximum magnitude
-auto maxVector = df::reduce([](const std::vector<double>& acc, 
-                              const std::vector<double>& val, 
+auto maxVector = df::reduce([](const Array<double>& acc, 
+                              const Array<double>& val, 
                               uint32_t) {
     double accMagSq = acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2];
     double valMagSq = val[0]*val[0] + val[1]*val[1] + val[2]*val[2];
     return (valMagSq > accMagSq) ? val : acc;
-}, vectors, std::vector<double>{0,0,0});
+}, vectors, Array<double>{0,0,0});
 ```
 
 ### Pipeline Operations
@@ -140,12 +140,12 @@ Combine operations using the pipe operator:
 
 ```cpp
 // Create operations
-auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
+auto normalize = df::make_map([](const Array<double>& v, uint32_t) {
     double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
+    return Array<double>{v[0]/norm, v[1]/norm, v[2]/norm};
 });
 
-auto filterNonZero = df::make_map([](const std::vector<double>& v, uint32_t) {
+auto filterNonZero = df::make_map([](const Array<double>& v, uint32_t) {
     return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) > 1e-10;
 });
 
@@ -195,9 +195,9 @@ Create custom operations that can be used in pipelines:
 
 ```cpp
 // Create a custom operation
-auto customOp = df::make_map([](const std::vector<double>& v, uint32_t) {
+auto customOp = df::make_map([](const Array<double>& v, uint32_t) {
     // Your custom computation here
-    return std::vector<double>{/*...*/};
+    return Array<double>{/*...*/};
 });
 
 // Use it in a pipeline
