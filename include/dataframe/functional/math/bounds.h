@@ -31,17 +31,35 @@ namespace math {
 /**
  * @ingroup Math
  */
-struct MinMax {
-    Array min;
-    Array max;
+template <typename T> struct Bounds {
+    Bounds() = default;
+    Bounds(const Array<T> &m, const Array<T> &M) : min(m), max(M) {}
+    Array<T> min;
+    Array<T> max;
 };
 
-/**
- * @ingroup Math
- */
-MinMax minMax(const Serie &serie);
+template <typename T> Bounds<T> bounds(const GenSerie<T> &serie) {
+    if (serie.isEmpty()) {
+        return Bounds<T>({}, {});
+    }
 
-MAKE_OP(minMax);
+    std::vector<T> min = serie.array(0);
+    std::vector<T> max = min;
+
+    for (uint32_t i = 1; i < serie.count(); ++i) {
+        auto arr = serie.array(i);
+        for (size_t j = 0; j < arr.size(); ++j) {
+            min[j] = std::min(min[j], arr[j]);
+            max[j] = std::max(max[j], arr[j]);
+        }
+    }
+
+    return Bounds{min, max};
+}
+
+template <typename T> inline auto make_bounds() {
+    return [](const auto &serie) { return bounds(serie); };
+}
 
 } // namespace math
 } // namespace df

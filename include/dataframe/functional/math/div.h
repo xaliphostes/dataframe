@@ -52,4 +52,15 @@ inline details::IsSerieFunction<T> make_div(const GenSerie<T> &divider) {
 } // namespace math
 } // namespace df
 
+template <typename T>
+df::details::IsSerieFloating<T> operator/(const df::GenSerie<T> &s1, T t) {
+    return df::math::div(s1, t);
+}
+
+template <typename T>
+df::details::IsSerieFloating<T> operator/(const df::GenSerie<T> &s1,
+                                          const df::GenSerie<T> &s2) {
+    return df::math::div(s1, s2);
+}
+
 #include "inline/div.hxx"

@@ -2,3 +2,5 @@
 - `cur_curvature_test` (one test commented out)
 - `kdtree_test` (some checks commented out)
 - `divergence_test` (one checks commented out)
+- `div_test` (some checks commented out)
+- 

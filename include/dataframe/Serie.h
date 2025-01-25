@@ -25,6 +25,7 @@
 #include "types.h"
 #include <dataframe/functional/common.h>
 
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <variant>
