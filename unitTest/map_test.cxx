@@ -24,6 +24,7 @@
 #include "TEST.h"
 #include <dataframe/functional/forEach.h>
 #include <dataframe/functional/map.h>
+#include <cmath>
 
 TEST(map, scalar_scalar) {
     df::GenSerie<int> s1(1, {1, 2, 3, 4});

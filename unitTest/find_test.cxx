@@ -23,6 +23,7 @@
 
 #include "TEST.h"
 #include <dataframe/functional/find.h>
+#include <cmath>
 
 template <typename T>
 void display(const df::FindResult<T> &result, const std::string &name = "") {

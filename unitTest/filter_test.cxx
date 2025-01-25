@@ -23,6 +23,7 @@
 
 #include "TEST.h"
 #include <dataframe/functional/filter.h>
+#include <cmath>
 
 TEST(filter, simple) {
     // Filtrage scalaire

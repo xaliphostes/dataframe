@@ -23,6 +23,7 @@
 
 #include "TEST.h"
 #include <dataframe/functional/geo/insar.h>
+#include <cmath>
 
 TEST(insar, basic) {
     // Create a displacement field (3D vectors)

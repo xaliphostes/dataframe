@@ -26,6 +26,7 @@
 #include <dataframe/Serie.h>
 #include <dataframe/functional/common.h>
 #include <tuple>
+#include <cmath>
 
 namespace df {
 namespace details {
