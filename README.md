@@ -30,19 +30,15 @@ Example memory layouts:
 
 ```cpp
 // Scalar serie (itemSize = 1)
-GenSerie<double> scalars(1, {1,2,3,4});  // count = 4
+GenSerie<double> scalars(1, 4);  // count = 4
 // Memory: [s1][s2][s3][s4]
 
 // 3D vector serie (itemSize = 3)
-GenSerie<double> vectors(3, {1,2,3, 1,2,3});  // count = 2
+GenSerie<double> vectors(3, 2);  // count = 2
 // Memory: [x1,y1,z1][x2,y2,z2]
 
-// Matrix (symmetric) serie (itemSize = 6)
-GenSerie<double> matrices(6, {1,2,3,4,5,6,  1,2,3,4,5,6});  // count = 2
-// Memory: [m11,m12,m13,m22,m23,m33][...]
-
-// Matrix (non symmetric) serie (itemSize = 9)
-GenSerie<double> matrices(9, {1,2,3,4,5,6,7,8,9,  1,2,3,4,5,6,7,8,9});  // count = 2
+// Matrix serie (itemSize = 9)
+GenSerie<double> matrices(9, 2);  // count = 2
 // Memory: [m11,m12,m13,m21,m22,m23,m31,m32,m33][...]
 ```
 
@@ -96,9 +92,9 @@ auto square = df::make_map([](double x, uint32_t) { return x * x; });
 auto squared = square(s1);
 
 // Vector operation
-auto normalize = df::make_map([](const Array<double>& v, uint32_t) {
+auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
     double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return Array<double>{v[0]/norm, v[1]/norm, v[2]/norm};
+    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
 });
 auto normalized = normalize(vectors);
 ```
@@ -110,7 +106,7 @@ auto normalized = normalize(vectors);
 auto result = df::filter([](double x, uint32_t) { return x > 2.0; }, s1);
 
 // Filter vectors with magnitude > 1
-auto longVectors = df::filter([](const Array<double>& v, uint32_t) {
+auto longVectors = df::filter([](const std::vector<double>& v, uint32_t) {
     double magSq = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
     return magSq > 1.0;
 }, vectors);
@@ -125,13 +121,13 @@ double sum = df::reduce([](double acc, double val, uint32_t) {
 }, s1, 0.0);
 
 // Find the vector with maximum magnitude
-auto maxVector = df::reduce([](const Array<double>& acc, 
-                              const Array<double>& val, 
+auto maxVector = df::reduce([](const std::vector<double>& acc, 
+                              const std::vector<double>& val, 
                               uint32_t) {
     double accMagSq = acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2];
     double valMagSq = val[0]*val[0] + val[1]*val[1] + val[2]*val[2];
     return (valMagSq > accMagSq) ? val : acc;
-}, vectors, Array<double>{0,0,0});
+}, vectors, std::vector<double>{0,0,0});
 ```
 
 ### Pipeline Operations
@@ -140,20 +136,17 @@ Combine operations using the pipe operator:
 
 ```cpp
 // Create operations
-auto normalize = df::make_map([](const Array<double>& v, uint32_t) {
+auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
     double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return Array<double>{v[0]/norm, v[1]/norm, v[2]/norm};
+    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
 });
 
-auto filterNonZero = df::make_map([](const Array<double>& v, uint32_t) {
+auto filterNonZero = df::make_map([](const std::vector<double>& v, uint32_t) {
     return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) > 1e-10;
 });
 
 // Chain operations
 auto result = vectors | normalize | filterNonZero;
-//               ^          ^             ^
-//               |          |             |
-//             series      op1           op2
 
 // Alternative using make_pipe
 auto pipeline = df::make_pipe(normalize, filterNonZero);
@@ -187,6 +180,46 @@ auto sum = df::math::add(s1, s2);
 auto invalid = df::make_map([](std::string x) { return x; })(s1); // Compilation error
 ```
 
+## Working with Custom Types
+
+```cpp
+// Define a custom type
+struct Position {
+    double x, y, z;
+    
+    // Optional: Operators for serie operations
+    Position operator+(const Position& other) const {
+        return {x + other.x, y + other.y, z + other.z};
+    }
+    
+    Position operator*(double scale) const {
+        return {x * scale, y * scale, z * scale};
+    }
+};
+
+std::ostream &operator<<(std::ostream &o, const Position &p) {
+    o << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+    return o;
+}
+
+// Direct instantiation with custom types
+df::GenSerie<Position> positions(1, {
+    Position{1, 0, 0},
+    Position{0, 2, 0},
+    Position{0, 0, 3}
+});
+
+// Operations work naturally with the custom type
+auto doubled = df::make_map([](const Position& p, uint32_t) {
+    return p * 2.0;
+})(positions);
+
+// Filter based on custom type properties
+auto filtered = df::filter([](const Position& p, uint32_t) {
+    return (p.x*p.x + p.y*p.y + p.z*p.z) < 2.0;
+}, positions);
+```
+
 ## Advanced Features
 
 ### Custom Operations
@@ -195,9 +228,9 @@ Create custom operations that can be used in pipelines:
 
 ```cpp
 // Create a custom operation
-auto customOp = df::make_map([](const Array<double>& v, uint32_t) {
+auto customOp = df::make_map([](const std::vector<double>& v, uint32_t) {
     // Your custom computation here
-    return Array<double>{/*...*/};
+    return std::vector<double>{/*...*/};
 });
 
 // Use it in a pipeline
@@ -220,7 +253,6 @@ The library is header-only and requires:
 ## License
 
 This library is distributed under the MIT License. See LICENSE file for details.
-
 
 ## Contact
 fmaerten@gmail.com

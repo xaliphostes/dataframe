@@ -24,6 +24,7 @@
 #include "TEST.h"
 #include <cmath>
 #include <dataframe/functional/geo/surface_curvature.h>
+
 // Test planar surface (zero curvature)
 TEST(SurfaceCurvature, PlanarSurface) {
     // Create a simple planar grid
