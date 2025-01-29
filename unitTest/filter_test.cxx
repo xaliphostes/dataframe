@@ -10,164 +10,152 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  */
 
 #include "TEST.h"
-#include <dataframe/functional/filter.h>
-#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/utils/filter.h>
+#include <dataframe/pipe.h>
+#include <dataframe/map.h>
 
-TEST(filter, simple) {
-    // Filtrage scalaire
-    df::GenSerie<uint> s1(1, {1, 2, 3, 4, 5});
+TEST(Filter, BasicFiltering) {
+    auto series = df::Serie<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    
+    // Filter even numbers
+    auto evens = df::filter([](int x, int) { return x % 2 == 0; }, series);
+    EXPECT_EQ(evens.size(), 5);
+    EXPECT_ARRAY_EQ(evens.data(), std::vector<int>({2, 4, 6, 8, 10}));
 
-    // Even
-    df::print(df::filter([](uint v, uint32_t) { return (int)v % 2 == 0; }, s1));
+    // -----------------------------------------
+    
+    // Filter odd numbers
+    auto odds = df::filter([](int x, int) { return x % 2 != 0; }, series);
+    EXPECT_EQ(odds.size(), 5);
+    EXPECT_ARRAY_EQ(odds.data(), std::vector<int>({1, 3, 5, 7, 9}));
 
-    // Odd
-    df::print(df::filter([](uint v, uint32_t) { return (int)v % 2 != 0; }, s1));
-
-    // Filtrage vectoriel
-    df::GenSerie<double> s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-    auto filtered = df::filter(
-        [](const Array<double> &v, uint32_t) { return v[0] == 4; }, s2);
-    df::print(filtered);
+    // -----------------------------------------
+    
+    // Filter numbers greater than 5
+    auto greater_than_5 = df::filter([](int x, int) { return x > 5; }, series);
+    EXPECT_EQ(greater_than_5.size(), 5);
+    EXPECT_ARRAY_EQ(greater_than_5.data(), std::vector<int>({6, 7, 8, 9, 10}));
 }
 
-TEST(filter, make_filter_for_scalar) {
-    // Pour une Serie scalaire
-    df::GenSerie<int> s1(1, {1, 2, 3, 4, 5});
-
-    // Création d'un filtre réutilisable pour les nombres pairs
-    auto evenFilter =
-        df::make_filter([](int v, uint32_t) { return v % 2 == 0; });
-
-    // Création d'un filtre pour les valeurs supérieures à une limite
-    auto greaterThan3 =
-        df::make_filter([](int v, uint32_t) { return v > 3; });
-
-    // Application des filtres
-    auto evens = evenFilter(s1); // Sera {2, 4}
-    df::print(evens);
-
-    auto above3 = greaterThan3(s1); // Sera {4, 5}
-    df::print(above3);
+TEST(Filter, EmptySeries) {
+    auto empty_series = df::Serie<int>{};
+    
+    // Filter on empty series should return empty series
+    auto filtered = df::filter([](int x, int) { return x > 0; }, empty_series);
+    EXPECT_EQ(filtered.size(), 0);
+    EXPECT_TRUE(filtered.empty());
 }
 
-// // ----------------------------------------------
+TEST(Filter, FilterAllOrNone) {
+    auto series = df::Serie<int>{1, 2, 3, 4, 5};
+    
+    // Filter that matches no elements
+    auto none = df::filter([](int x, int) { return x > 10; }, series);
+    EXPECT_EQ(none.size(), 0);
+    EXPECT_TRUE(none.empty());
 
-TEST(filter, make_array){
-    // Pour une Serie vectorielle
-    df::GenSerie<double> s2(3, {1, 2, 3, 4, 5, 6, 7, 8, 9}); // 3 vecteurs de dimension
-
-    // Filtre pour les vecteurs dont la norme est supérieure à une valeur
-    auto normFilter = df::make_filter([](const Array<double> &v, uint32_t) {
-        double normSquared = 0;
-        for (double x : v)
-            normSquared += x * x;
-        return std::sqrt(normSquared) > 10.0;
-    });
-
-    // Filtre pour les vecteurs dont la première composante est positive
-    auto xAbove =
-        df::make_filter([](const Array<double> &v, uint32_t) { return v[0] >= 4; });
-
-    // Application des filtres
-    auto highNorm = normFilter(s2); // [7, 8, 9]
-    df::print(highNorm);
-
-    auto posFirst = xAbove(s2); // [4, 5, 6,   7, 8, 9]
-    df::print(posFirst);
-
-    // Les filtres peuvent être utilisés sur différentes Series
-    df::GenSerie<double> s3(3, {10, 0, 0, 10, 11, 12, 13, 14, 15});
-    auto moreHighNorm = normFilter(s3); // [10, 11, 12, 13, 14, 15]
-    df::print(moreHighNorm);
+    // -----------------------------------------
+    
+    // Filter that matches all elements
+    auto all = df::filter([](int x, int) { return x > 0; }, series);
+    EXPECT_EQ(all.size(), 5);
+    EXPECT_ARRAY_EQ(all.data(), std::vector<int>({1, 2, 3, 4, 5}));
 }
 
-// TEST(filter, filterAll) {
-//     df::Serie stress(6, {1, 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1});
-//     df::Serie positions(3, {1, 2, 3, 3, 2, 1});
-//     // auto [filtered_stress, filtered_positions] = df::filter(
-//     auto filtered = df::filterAll(
-//         [](const Array &s, const Array &p) {
-//             return s[0] < 0 &&
-//                    p[2] > 0; // Remove where both conditions are true
-//         },
-//         stress, positions);
-// }
+TEST(Filter, UseIndex) {
+    auto series = df::Serie<int>{10, 20, 30, 40, 50};
+    
+    // Filter using index (even indices)
+    auto even_indices = df::filter([](int, int idx) { return idx % 2 == 0; }, series);
+    EXPECT_EQ(even_indices.size(), 3);
+    EXPECT_ARRAY_EQ(even_indices.data(), std::vector<int>({10, 30, 50}));
 
-// // Filtering multiple series at the same time
-// TEST(filter, multiple_series) {
-//     double cohesion = 0.1;
-//     double friction_angle = 30 * M_PI / 180;
+    // -----------------------------------------
+    
+    // Filter using both value and index
+    auto value_and_index = df::filter(
+        [](int x, int idx) { return x > 20 && idx % 2 == 0; }, 
+        series
+    );
+    EXPECT_EQ(value_and_index.size(), 2);
+    EXPECT_ARRAY_EQ(value_and_index.data(), std::vector<int>({30, 50}));
+}
 
-//     // Compute the critical stress state
-//     auto computeCriticalityIndex = [=](const df::Serie &stress,
-//                                        const df::Serie &positions) {
-//         df::Serie result(1, stress.count());
+TEST(Filter, MultiSeries) {
+    auto series1 = df::Serie<int>{1, 2, 3, 4, 5};
+    auto series2 = df::Serie<int>{10, 20, 30, 40, 50};
+    
+    // Filter based on sum of corresponding elements
+    auto sum_filter = df::filter(
+        [](int x, int y, int) { return x + y > 40; },
+        series1,
+        series2
+    );
+    EXPECT_EQ(sum_filter.size(), 2);
+    EXPECT_ARRAY_EQ(sum_filter.data(), std::vector<int>({4, 5}));
 
-//         for (uint32_t i = 0; i < stress.count(); ++i) {
-//             const Array &values = stress.get<Array>(i);
-//             const Array &pos = positions.get<Array>(i);
+    // -----------------------------------------
+    
+    // Filter based on product of corresponding elements
+    auto product_filter = df::filter(
+        [](int x, int y, int) { return x * y > 100; },
+        series1,
+        series2
+    );
+    EXPECT_EQ(product_filter.size(), 2);
+    EXPECT_ARRAY_EQ(product_filter.data(), std::vector<int>({4, 5}));
+}
 
-//             double sigma1 = values[0];
-//             double sigma3 = values[2];
-//             double deviatoric = sigma1 - sigma3;
+TEST(Filter, ComplexTypes) {
+    auto vectors = df::Serie<Vector3>{
+        {1, 0, 0},
+        {0, 2, 0},
+        {0, 0, 3},
+        {1, 1, 1},
+        {2, 2, 2}
+    };
+    
+    // Filter vectors with magnitude > 2
+    auto large_vectors = df::filter([](const Vector3& v, int) {
+        double magnitude = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        return magnitude > 2;
+    }, vectors);
+    EXPECT_EQ(large_vectors.size(), 2);
+    EXPECT_ARRAY_EQ(large_vectors[0], Vector3({0, 0, 3}));
+    EXPECT_ARRAY_EQ(large_vectors[1], Vector3({2, 2, 2}));
 
-//             double critical_stress = 2 * cohesion * std::cos(friction_angle)
-//             /
-//                                      (1 - std::sin(friction_angle));
+    // -----------------------------------------
+    
+    // Filter vectors with any component > 1
+    auto large_component = df::filter([](const Vector3& v, int) {
+        return v[0] > 1 || v[1] > 1 || v[2] > 1;
+    }, vectors);
+    EXPECT_EQ(large_component.size(), 3);
+    EXPECT_ARRAY_EQ(large_component[0], Vector3({0, 2, 0}));
+    EXPECT_ARRAY_EQ(large_component[1], Vector3({0, 0, 3}));
+    EXPECT_ARRAY_EQ(large_component[2], Vector3({2, 2, 2}));
+}
 
-//             double depth_factor = std::exp(-(-pos[2]) / 1000.0);
-//             result.set(i, (deviatoric / critical_stress) * depth_factor);
-//         }
-//         return result;
-//     };
+TEST(Filter, PipeUsage) {
+    auto series = df::Serie<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    
+    // Test filter in pipe
+    auto result = series | df::bind_filter([](int x, int) { return x % 2 == 0; });
+    EXPECT_EQ(result.size(), 5);
+    EXPECT_ARRAY_EQ(result.data(), std::vector<int>({2, 4, 6, 8, 10}));
 
-//     // Input data
-//     df::Serie stress(6,
-//                      {-2, 4, 6, -3, 6, -9, 1, 2, 3, 4, 5, 6, 9, 8, 7, 6, 5,
-//                      4});
-//     df::Serie positions(3, {10, 20, -30, 1, 0, 0, 2, 0, 0});
-//     df::Serie markers(1, {1, 2, 2});
-
-//     // Filter based on multiple conditions
-//     auto filtered = df::filterAll(
-//         [](const Array &s, const Array &p, const Array &m) {
-//             return s[0] < 0 && // compressive stress
-//                    p[2] < 0 && // depth condition
-//                    m[0] == 1;  // specific rock type
-//         },
-//         stress, positions, markers);
-
-//     // Access filtered Series
-//     auto filtered_stress = filtered[0];
-//     auto filtered_positions = filtered[1];
-//     auto filtered_markers = filtered[2];
-
-//     assertSerieEqual(filtered_stress, df::Serie(6, {-2, 4, 6, -3, 6, -9}));
-//     assertSerieEqual(filtered_positions, df::Serie(3, {10, 20, -30}));
-//     assertSerieEqual(filtered_markers, df::Serie(1, {1}));
-
-//     // Use in pipeline
-//     auto result1 = df::pipe(
-//         df::filterAll(
-//             [](const Array &s, const Array &p) { return s[0] < 0 && p[2] < 0;
-//             }, stress, positions),
-//         [=](const df::Series &fs) {
-//             return computeCriticalityIndex(fs[0], fs[1]);
-//         });
-
-//     assertSerieEqual(result1, df::Serie(1, {-22.4115}), 1e-4);
-// }
+    // -----------------------------------------
+    
+    // Test multiple filters in pipe
+    auto multi_filter = series 
+        | df::bind_filter([](int x, int) { return x % 2 == 0; })
+        | df::bind_filter([](int x, int) { return x > 5; });
+    EXPECT_EQ(multi_filter.size(), 3);
+    EXPECT_ARRAY_EQ(multi_filter.data(), std::vector<int>({6, 8, 10}));
+}
 
 RUN_TESTS()

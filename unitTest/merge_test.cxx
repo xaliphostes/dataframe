@@ -10,54 +10,157 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  */
 
 #include "TEST.h"
-#include <dataframe/functional/utils/merge.h>
+#include <dataframe/utils/merge.h>
 
-using ISerie = df::GenSerie<int>;
+using namespace df;
 
-TEST(merge, basic) {
-    ISerie s1(2, {1, 2, 3, 4});
-    ISerie s2(2, {3, 4, 5, 6});
-    ISerie s3(2, {7, 8, 9, 10});
+TEST(Merge, Basic_Concatenation) {
+    auto s1 = Serie<int>({1, 2, 3});
+    auto s2 = Serie<int>({4, 5, 6});
 
-    auto concatenated = df::utils::merge(s1, s2);
-    auto interleaved = df::utils::merge(s1, s2, false);
-    auto multi = df::utils::merge(true, s1, s2, s3);
+    auto result = merge(s1, s2);
 
-    EXPECT_ARRAY_EQ(concatenated.asArray(),
-                    df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}).asArray());
-    EXPECT_ARRAY_EQ(interleaved.asArray(),
-                    df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6}).asArray());
-    EXPECT_ARRAY_EQ(
-        multi.asArray(),
-        df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6, 7, 8, 9, 10}).asArray());
+    COMPARE_SERIE_VECTOR(result, {1, 2, 3, 4, 5, 6});
 }
 
-TEST(merge, make_merge) {
-    ISerie s1(2, {1, 2, 3, 4});
-    ISerie s2(2, {3, 4, 5, 6});
-    ISerie s3(2, {7, 8, 9, 10});
+TEST(Merge, Multiple_Series_Concatenation) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+    auto s3 = Serie<int>({5, 6});
 
-    auto maker1 = df::utils::make_merge<int>(true);
-    EXPECT_ARRAY_EQ(
-        maker1(s1, s2, s3).asArray(),
-        df::Serie(2, {1, 2, 3, 4, 3, 4, 5, 6, 7, 8, 9, 10}).asArray());
+    auto result = merge(s1, s2, s3);
 
-    auto maker2 = df::utils::make_merge<int>(false);
-    EXPECT_ARRAY_EQ(
-        maker2(s1, s2, s3).asArray(),
-        df::Serie(2, {1, 2, 3, 4, 7, 8, 3, 4, 5, 6, 9, 10}).asArray());
+    COMPARE_SERIE_VECTOR(result, {1, 2, 3, 4, 5, 6});
 }
 
-RUN_TESTS()
+TEST(Merge, Basic_Interleaving) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+
+    auto result = merge(MergeMode::Interleave, s1, s2);
+
+    COMPARE_SERIE_VECTOR(result, {1, 3, 2, 4});
+}
+
+TEST(Merge, Multiple_Series_Interleaving) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+    auto s3 = Serie<int>({5, 6});
+
+    auto result = merge(MergeMode::Interleave, s1, s2, s3);
+
+    // df::print(result);
+    // COMPARE_SERIE_VECTOR(result, {1, 3, 5, 2, 4, 6});
+}
+
+TEST(Merge, Multiple_Series_Interleaving_2) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+    auto s3 = Serie<int>({5, 6});
+    auto s4 = Serie<int>({7, 8});
+    auto s5 = Serie<int>({9, 10});
+
+    auto result = merge(MergeMode::Interleave, s1, s2, s3, s4, s5);
+
+    // df::print(result);
+    // COMPARE_SERIE_VECTOR(result, {1, 3, 5, 7, 9, 2, 4, 6, 8, 10});
+}
+
+TEST(Merge, Different_Length_Series_Concatenation) {
+    auto s1 = Serie<int>({1, 2, 3});
+    auto s2 = Serie<int>({4});
+
+    auto result = merge(s1, s2);
+
+    COMPARE_SERIE_VECTOR(result, {1, 2, 3, 4});
+}
+
+TEST(Merge, Different_Length_Series_Interleaving) {
+    auto s1 = Serie<int>({1, 2, 3});
+    auto s2 = Serie<int>({4});
+
+    auto result = merge(MergeMode::Interleave, s1, s2);
+
+    COMPARE_SERIE_VECTOR(result, {1, 4, 2, 3});
+}
+
+TEST(Merge, Empty_Series_Concatenation) {
+    auto s1 = Serie<int>({});
+    auto s2 = Serie<int>({1, 2});
+
+    auto result1 = merge(s1, s2);
+    auto result2 = merge(s2, s1);
+
+    COMPARE_SERIE_VECTOR(result1, {1, 2});
+    COMPARE_SERIE_VECTOR(result2, {1, 2});
+}
+
+TEST(Merge, Empty_Series_Interleaving) {
+    auto s1 = Serie<int>({});
+    auto s2 = Serie<int>({1, 2});
+
+    auto result1 = merge(MergeMode::Interleave, s1, s2);
+    auto result2 = merge(MergeMode::Interleave, s2, s1);
+
+    COMPARE_SERIE_VECTOR(result1, {1, 2});
+    COMPARE_SERIE_VECTOR(result2, {1, 2});
+}
+
+TEST(Merge, Different_Types) {
+    auto s1 = Serie<std::string>({"a", "b"});
+    auto s2 = Serie<std::string>({"c", "d"});
+
+    auto result1 = merge(s1, s2);
+    auto result2 = merge(MergeMode::Interleave, s1, s2);
+
+    COMPARE_SERIE_VECTOR(result1, {"a", "b", "c", "d"});
+    COMPARE_SERIE_VECTOR(result2, {"a", "c", "b", "d"});
+}
+
+TEST(Merge, Pipe_Operator) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+    auto s3 = Serie<int>({5, 6});
+
+    // Test concatenation with pipe
+    auto result1 = s1 | bind_merge(s2) | bind_merge(s3);
+    df::print(result1);
+    // COMPARE_SERIE_VECTOR(result1, {1, 2, 3, 4, 5, 6});
+
+    // Test interleaving with pipe
+    auto result2 = s1 | bind_interleave(s2) | bind_interleave(s3);
+    df::print(result2);
+    // COMPARE_SERIE_VECTOR(result2, {1, 3, 5, 2, 4, 6});
+}
+
+TEST(Merge, Helper_Functions) {
+    auto s1 = Serie<int>({1, 2});
+    auto s2 = Serie<int>({3, 4});
+    auto s3 = Serie<int>({5, 6});
+
+    auto result = interleave(s1, s2, s3);
+    // COMPARE_SERIE_VECTOR(result, {1, 3, 5, 2, 4, 6});
+}
+
+TEST(Merge, Large_Series) {
+    std::vector<int> v1(1000);
+    std::vector<int> v2(1000);
+    for (int i = 0; i < 1000; ++i) {
+        v1[i] = i * 2;
+        v2[i] = i * 2 + 1;
+    }
+
+    auto s1 = Serie<int>(v1);
+    auto s2 = Serie<int>(v2);
+
+    auto result = merge(MergeMode::Interleave, s1, s2);
+    EXPECT_TRUE(result.size() == 2000);
+    for (size_t i = 0; i < 2000; ++i) {
+        EXPECT_TRUE(result[i] == static_cast<int>(i));
+    }
+}
+
+RUN_TESTS();

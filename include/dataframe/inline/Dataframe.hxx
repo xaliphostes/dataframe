@@ -1,165 +1,72 @@
-/*
- * Copyright (c) 2024-now fmaerten@gmail.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- */
-
-#include <dataframe/functional/print.h>
+#include "../common.h"
 
 namespace df {
 
-// Wrapper pour le GenSerie concret
 template <typename T>
-SerieWrapper<T>::SerieWrapper(const GenSerie<T> &serie) : serie_(serie) {}
+void DataFrame::add(const std::string &name, const Serie<T> &serie) {
+    if (has(name)) {
+        throw std::runtime_error(
+            details::format("Serie with name '", name, "' already exists in DataFrame"));
+    }
 
-template <typename T> uint32_t SerieWrapper<T>::count() const {
-    return serie_.count();
-}
-
-template <typename T> uint32_t SerieWrapper<T>::itemSize() const {
-    return serie_.itemSize();
-}
-
-template <typename T> uint SerieWrapper<T>::dimension() const {
-    return serie_.dimension();
-}
-
-template <typename T> bool SerieWrapper<T>::isValid() const {
-    return serie_.isValid();
-}
-
-template <typename T> void SerieWrapper<T>::print(uint32_t precision) const {
-    df::print(serie_, precision);
-}
-
-template <typename T> std::string SerieWrapper<T>::type_name() const {
-    return df::type_name<T>();
+    // Store the serie as a shared_ptr to void, but internally it's typed
+    series_[name] = std::make_shared<Serie<T>>(serie);
 }
 
 template <typename T>
-std::unique_ptr<SerieBase> SerieWrapper<T>::clone() const {
-    return std::make_unique<SerieWrapper<T>>(serie_);
-}
-
-template <typename T> const GenSerie<T> &SerieWrapper<T>::get() const {
-    return serie_;
-}
-
-template <typename T> GenSerie<T> &SerieWrapper<T>::get() { return serie_; }
-
-// -----------------------------------------------------
-
-Dataframe::Dataframe(const Dataframe &other) {
-    for (const auto &[name, serie] : other.series_) {
-        series_[name] = serie->clone();
-    }
-}
-
-Dataframe &Dataframe::operator=(const Dataframe &other) {
-    if (this != &other) {
-        Dataframe temp(other);
-        std::swap(series_, temp.series_);
-    }
-    return *this;
-}
-
-template <typename T>
-void Dataframe::add(const std::string &name, const GenSerie<T> &serie) {
-    if (series_.find(name) != series_.end()) {
-        throw std::invalid_argument("Serie name already exists: " + name);
-    }
-    series_[name] = std::make_unique<SerieWrapper<T>>(serie);
-}
-
-// Récupérer une série avec son type
-template <typename T>
-const GenSerie<T> &Dataframe::get(const std::string &name) const {
-    auto it = series_.find(name);
-    if (it == series_.end()) {
-        throw std::invalid_argument("Serie not found: " + name);
+void DataFrame::add(const std::string &name, const ArrayType<T> &array) {
+    if (has(name)) {
+        throw std::runtime_error(
+            details::format("Serie with name '", name, "' already exists in DataFrame"));
     }
 
-    auto wrapper = dynamic_cast<const SerieWrapper<T> *>(it->second.get());
-    if (!wrapper) {
-        throw std::invalid_argument("Wrong serie type for: " + name);
-    }
-
-    return wrapper->get();
+    // Store the serie as a shared_ptr to void, but internally it's typed
+    series_[name] = std::make_shared<Serie<T>>(Serie<T>(array));
 }
 
-template <typename T> GenSerie<T> &Dataframe::get(const std::string &name) {
-    auto it = series_.find(name);
-    if (it == series_.end()) {
-        throw std::invalid_argument("Serie not found: " + name);
-    }
-
-    auto wrapper = dynamic_cast<SerieWrapper<T> *>(it->second.get());
-    if (!wrapper) {
-        throw std::invalid_argument("Wrong serie type for: " + name);
-    }
-
-    return wrapper->get();
-}
-
-// Vérifier si une série existe
-bool Dataframe::has(const std::string &name) const {
-    return series_.find(name) != series_.end();
-}
-
-// Supprimer une série
-void Dataframe::remove(const std::string &name) {
+inline void DataFrame::remove(const std::string &name) {
     if (!has(name)) {
-        throw std::invalid_argument("Serie not found: " + name);
+        throw std::runtime_error(
+            details::format("Serie '", name, "' does not exist in DataFrame"));
     }
     series_.erase(name);
 }
 
-// Obtenir les noms des séries
-std::vector<std::string> Dataframe::names() const {
+template <typename T>
+const Serie<T> &DataFrame::get(const std::string &name) const {
+    if (!has(name)) {
+        throw std::runtime_error(
+            details::format("Serie '", name, "' does not exist in DataFrame"));
+    }
+
+    auto serie_ptr = std::static_pointer_cast<Serie<T>>(series_.at(name));
+    if (!serie_ptr) {
+        throw std::runtime_error(details::format("Type mismatch: Serie '", name,
+                                        "' is not of type ", getTypeName<T>()));
+    }
+
+    return *serie_ptr;
+}
+
+inline bool DataFrame::has(const std::string &name) const {
+    return series_.find(name) != series_.end();
+}
+
+inline size_t DataFrame::size() const { return series_.size(); }
+
+inline std::vector<std::string> DataFrame::names() const {
     std::vector<std::string> result;
+    result.reserve(series_.size());
     for (const auto &[name, _] : series_) {
         result.push_back(name);
     }
     return result;
 }
 
-// Obtenir le type d'une série
-std::string Dataframe::get_type(const std::string &name) const {
-    auto it = series_.find(name);
-    if (it == series_.end()) {
-        throw std::invalid_argument("Serie not found: " + name);
-    }
-    return it->second->type_name();
-}
+inline void DataFrame::clear() { series_.clear(); }
 
-// Obtenir le nombre de séries
-size_t Dataframe::size() const { return series_.size(); }
-
-// Afficher le contenu
-void Dataframe::print(uint32_t precision) const {
-    std::cout << "Dataframe with " << size() << " series:" << std::endl;
-    for (const auto &[name, serie] : series_) {
-        std::cout << "\n"
-                  << name << " (" << serie->type_name() << "):" << std::endl;
-        serie->print(precision);
-    }
+template <typename T> std::string DataFrame::getTypeName() const {
+    return type_name<T>();
 }
 
 } // namespace df

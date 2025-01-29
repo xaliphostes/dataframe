@@ -1,0 +1,1 @@
+# Functions for algebraic operations on series

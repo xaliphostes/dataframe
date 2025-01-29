@@ -22,70 +22,49 @@
  */
 
 #include "TEST.h"
-#include <dataframe/functional/forEach.h>
+#include <dataframe/Serie.h>
+#include <dataframe/forEach.h>
+#include <dataframe/map.h>
+#include <dataframe/reduce.h>
 
-TEST(forEach, value) {
+// ------------------------------------------------
 
-    df::GenSerie<int> s1(1, {1, 2, 3});
-    df::GenSerie<int> s2(1, {10, 20, 30});
+df::Serie<int> scalars{1, 2, 3, 4, 5};
 
-    // Callback scalar
+df::Serie<Stress3D> stress{
+    {1, 2, 3, 4, 5, 6},       {7, 8, 9, 10, 11, 12},
+    {13, 14, 15, 16, 17, 18}, {19, 20, 21, 22, 23, 24},
+    {25, 26, 27, 28, 29, 30}, {31, 32, 33, 34, 35, 36},
+};
+
+// ------------------------------------------------
+
+TEST(forEach, forEach) {
     df::forEach(
-        [](int v, uint32_t i) {
-            std::cout << "Value " << i << ": " << v << "\n";
+        [](const Stress3D &s, size_t index) {
+            std::cerr << "stress " << index << ": " << s << std::endl;
         },
-        s1);
+        stress);
 
-    df::forEach(
-        [](int v1, int v2, uint32_t i) {
-            std::cout << "Value " << i << ": " << v1 << " " << v2 << "\n";
-        },
-        s1, s2);
-
-    // Lambda avec auto
-    df::forEach(
-        [](const auto &v, uint32_t i) {
-            std::cout << "Item " << i << ": " << v << "\n";
-        },
-        s1);
-
-    df::forEach(
-        [](const auto &v1, const auto &v2, uint32_t i) {
-            std::cout << "Item " << i << ": " << v1 << " " << v2 << "\n";
-        },
-        s1, s2);
+    stress.forEach([](const Stress3D &s, size_t index) {
+        std::cerr << "stress " << index << ": " << s << std::endl;
+    });
 }
 
-TEST(forEach, array) {
+TEST(forEach, make_forEach) {
+    auto display = df::bind_forEach([](const Stress3D &s, size_t index) {
+        std::cerr << "stress " << index << ": " << s << std::endl;
+    });
 
-    df::GenSerie<double> v1(3, {4, 5, 6, 7, 8, 9});
-    df::GenSerie<double> v2(3, {40, 50, 60, 70, 80, 90});
-
-    // Callback array
-    df::forEach(
-        [](const std::vector<double> &v, uint32_t i) {
-            std::cout << "Vector " << i << ": " << v << "\n";
-        },
-        v1);
-
-    df::forEach(
-        [](const auto &v, uint32_t i) {
-            std::cout << "Item " << i << ": " << v << "\n";
-        },
-        v1);
-
-    // df::forEach(
-    //     [](const std::vector<double> &v1, const std::vector<double> &v2,
-    //        uint32_t i) {
-    //         std::cout << "Vector " << i << ": " << v1 << " " << v2 << "\n";
-    //     },
-    //     v1, v2);
-
-    // df::forEach(
-    //     [](const auto &v1, const auto &v2, uint32_t i) {
-    //         std::cout << "Item " << i << ": " << v1 << " " << v2 << "\n";
-    //     },
-    //     v1, v2);
+    display(stress);
 }
 
-RUN_TESTS()
+// TEST(forEach, forEach_multiple_series) {
+//     df::forEach(
+//         [](const Stress3D &matrix, const int& scalar, size_t) {
+//             std::cerr << scalar << ": " << matrix << std::endl;
+//         },
+//         stress, scalars);
+// }
+
+RUN_TESTS();

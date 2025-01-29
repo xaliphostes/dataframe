@@ -23,8 +23,8 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/functional/pipe.h>
-#include <dataframe/functional/print.h>
+#include <dataframe/pipe.h>
+#include <dataframe/print.h>
 #include <dataframe/types.h>
 
 #include <functional>
@@ -35,7 +35,7 @@
 #include <vector>
 
 // -----------------------------------------------------------------------------------------------
-//                   A la Google test framework: that is to say, GEST using
+//                   A la Google test framework: that is to say, GTEST using
 //                   CMAKE
 //                            Todo: Use TEST_CASE and SUB_CASE?
 // -----------------------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ inline void register_test(const char *name, const char *fixture,
     }
 
 // Expect not equal
-#define EXPECT_NOT_EQ(val1, val2)                                                  \
+#define EXPECT_NOT_EQ(val1, val2)                                              \
     {                                                                          \
         auto v1 = (val1);                                                      \
         auto v2 = (val2);                                                      \
@@ -236,8 +236,7 @@ inline void register_test(const char *name, const char *fixture,
             if (a1[i] != a2[i]) {                                              \
                 std::stringstream ss;                                          \
                 ss << "Arrays differ at index " << i << ": " << a1[i]          \
-                   << " != " << a2[i]                                          \
-                   << " (diff = " << std::abs(a1[i] - a2[i]) << ")";           \
+                   << " != " << a2[i];                                         \
                 throw std::runtime_error(ss.str());                            \
             }                                                                  \
         }                                                                      \
@@ -245,20 +244,28 @@ inline void register_test(const char *name, const char *fixture,
 
 template <typename T> struct ParsedSerie {
     std::string type;
-    uint32_t itemSize;
-    uint32_t count;
-    uint32_t dimension;
+    size_t size;
     std::vector<T> values;
 };
 
 #define EXPECT_SERIE_EQ(serie, expected)                                       \
     {                                                                          \
-        EXPECT_EQ(serie.count(), expected.count);                              \
-        EXPECT_EQ(serie.itemSize(), expected.itemSize);                        \
-        EXPECT_EQ(serie.dimension(), expected.dimension);                      \
+        EXPECT_EQ(serie.size(), expected.size);                                \
         EXPECT_STREQ(serie.type(), expected.type);                             \
         EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
     }
+
+template <typename T>
+void COMPARE_SERIE_VECTOR(const df::Serie<T> &actual,
+                          const std::vector<T> &expected) {
+    EXPECT_ARRAY_EQ(actual.asArray(), expected);
+}
+
+template <typename T>
+void COMPARE_SERIES(const df::Serie<T> &actual,
+                    const df::Serie<T> &expected) {
+    EXPECT_ARRAY_EQ(actual.asArray(), expected.asArray());
+}
 
 #define CHECK(condition)                                                       \
     {                                                                          \

@@ -1,6 +1,2 @@
-- `surface_curvature_test` (some checks commented out)
-- `cur_curvature_test` (one test commented out)
-- `kdtree_test` (some checks commented out)
-- `divergence_test` (one check commented out)
-- `div_test` (some checks commented out)
-- `reje t_test` (one check commented out for throwing exception)
+- use `size_t` instead of `uint32_t`
+- 

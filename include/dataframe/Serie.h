@@ -23,114 +23,43 @@
 
 #pragma once
 #include "types.h"
-#include <dataframe/functional/common.h>
-
-#include <functional>
-#include <iostream>
-#include <numeric>
-#include <variant>
-
-/** @defgroup Algebra Math-algebra functionalities
- *  @brief Algebra operations and utilities
- */
-
-/** @defgroup Conditional Conditional functionalities
- *  @brief Conditional features
- */
-
-/** @defgroup Geo Geo functionalities
- *  @brief Geo features, i.e., geophysics, geology, geometry...
- */
-
-/** @defgroup Math Math functionalities
- *  @brief Math features
- */
-
-/** @defgroup Stats Statistic functionalities
- *  @brief Stats features
- */
-
-/** @defgroup Utils Utils functionalities
- *  @brief Utils features
- */
-
-/** @defgroup Attributes Attributes functionalities
- *  @brief Attributes features
- */
+#include <cstdint>
+#include <vector>
 
 namespace df {
 
-template <typename T> class GenSerie {
+template <typename T> class Serie {
   public:
     using value_type = T;
-    using Array = std::vector<T>;
+    using ArrayType = std::vector<T>;
+    using Self = Serie<T>;
 
-    GenSerie(int itemSize = 0, uint32_t count = 0, uint = 3);
-    GenSerie(int itemSize, const Array &values, uint = 3);
-    GenSerie(int itemSize, const std::initializer_list<T> &values, uint = 3);
-    GenSerie(const GenSerie &s);
+    Serie() = default;
 
-    static GenSerie create(int itemSize, const Array &data, uint dimension = 3);
-    bool isValid() const;
-    bool isEmpty() const;
+    Serie(const ArrayType &values);
+    Serie(const std::initializer_list<T> &values);
+
     std::string type() const;
-    void reCount(uint32_t c);
-    GenSerie &operator=(const GenSerie &s);
-    GenSerie clone() const;
-    uint32_t size() const;
-    uint32_t count() const;
-    uint32_t itemSize() const;
-    uint dimension() const;
-    Array array(uint32_t i) const;
-    T value(uint32_t i) const;
-    void setArray(uint32_t i, const Array &v);
-    void setValue(uint32_t i, T v);
-    const Array &asArray() const;
-    Array &asArray();
+    size_t size() const;
+    bool empty() const ;
 
-    template <typename U = Array>
-    auto get(uint32_t i) const
-        -> std::conditional_t<details::is_array_v<U>, Array, T>;
-    template <typename U> void set(uint32_t i, const U &value);
-    template <typename F> void forEach(F &&cb) const;
-    template <typename F> auto map(F &&cb) const;
+    T &operator[](size_t index);
+    const T &operator[](size_t index) const;
+
+    const ArrayType &data() const;
+    const ArrayType &asArray() const; // same as data()
+
+    template <typename F> void forEach(F &&callback) const;
+    template <typename F> auto map(F &&callback) const;
+    template <typename F, typename AccT> auto reduce(F &&, AccT);
 
   private:
-    Array s_;
-    uint32_t count_{0};
-    uint dimension_{3};
-    int itemSize_{1};
+    ArrayType data_;
 };
 
-// ==============================================================
-// Define a Serie for double as we are using it a lot!
-using Serie = GenSerie<double>;
-// ==============================================================
-
-template <typename T>
-std::ostream &operator<<(std::ostream &o, const GenSerie<T> &s);
-
-// ==============================================================
-namespace details {
-
-template <typename T>
-using IsSerieFloating =
-    std::enable_if_t<df::details::is_floating_v<T>, GenSerie<T>>;
-
-template <typename T>
-using IsSerieFunction =
-    std::enable_if_t<is_floating_v<T>,
-                     std::function<GenSerie<T>(const GenSerie<T> &)>>;
-
-// Helper pour vérifier les counts
-template <typename T, typename... Args>
-inline bool check_counts(const GenSerie<T> &first, const Args &...args) {
-    return (... && (first.count() == args.count()));
-}
-
-} // namespace details
-// ==============================================================
-
 } // namespace df
+
+template <typename T>
+std::ostream &operator<<(std::ostream &o, const df::Serie<T> &s);
 
 #include "inline/Serie.hxx"

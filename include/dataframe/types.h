@@ -22,21 +22,32 @@
  */
 
 #pragma once
-#include <cstdint>
+#include <array>
 #include <iostream>
 #include <string>
 #include <vector>
 
-template <typename T> using Array = std::vector<T>;
+template <typename T> using ArrayType = std::vector<T>;
 
 using String = std::string;
 using Strings = std::vector<String>;
 
-template <typename T> Array<T> createArray(uint32_t size, T initValue);
+using Vector2 = std::array<double, 2>;
+using Vector3 = std::array<double, 3>;
 
-template <typename T>
-std::ostream &operator<<(std::ostream &o, const Array<T> &a);
+using Stain2D = std::array<double, 2>;
+using Stress2D = std::array<double, 3>;
 
-std::ostream &operator<<(std::ostream &o, const Strings &a);
+using Strain3D = std::array<double, 6>;
+using Stress3D = std::array<double, 6>;
 
-#include "inline/types.hxx"
+template <class T, std::size_t N>
+std::ostream &operator<<(std::ostream &o, const std::array<T, N> &m) {
+    o << "[";
+    for (size_t i = 0; i < N - 1; ++i) {
+        o << m[i] << ",";
+    }
+    o << m[m.size() - 1] << "]";
+
+    return o;
+}

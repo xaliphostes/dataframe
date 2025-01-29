@@ -1,5 +1,6 @@
 # TODO list
 
+
 ## Classical
 
 - **chunks(size)** - Similar to split but divides the series into chunks of a specified size rather than a specified number of chunks
@@ -38,7 +39,44 @@
 - contours - Generate contour lines from scalar field for **REGULAR SAMPLING**
 
 
+## New architecture
+See if it is not judicious to have a base class for Serie which deals with any object type (e.g. a vector of any type, a int, a user defined type...), and we do not need to have the notion of itemSize.
+```cpp
+template <typename T>
+class Serie {
+public:
+    using value_type = T;
+    using ArrayType = std::vector<T>;
 
+    std::string type() const;
+    T& operator[](size_t index);
+    const T& operator[](size_t index) const;
+    uint32_t size() const;
+
+private:
+    ArrayType data;
+};
+
+// Using C++20
+template <typename T> requires std::is_arithmetic_v<T> using SMatrix2 = std::array<T, 3>;
+// Using C++17
+template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>> using SMatrix2 = std::array<T, 3>;
+// For floating point number, we can use
+// std::is_floating_point_v<T> instead of std::is_arithmetic_v<T>
+
+
+template <typename T> requires std::is_arithmetic_v<T> using FMatrix2 = std::array<T, 4>;
+template <typename T> requires std::is_arithmetic_v<T> using SMatrix3 = std::array<T, 6>;
+template <typename T> requires std::is_arithmetic_v<T> using FMatrix3 = std::array<T, 9>;
+
+// Then define some helpers for this kind of algebraic objects
+template <typename Matrix>
+class MatrixHelper {
+public:
+    MatrixHelper(const Matrix&);
+    const T& operator[](uint i, uint j) const;
+};
+```
 
 
 

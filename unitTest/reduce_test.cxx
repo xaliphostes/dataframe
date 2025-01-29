@@ -22,34 +22,55 @@
  */
 
 #include "TEST.h"
-#include <dataframe/functional/reduce.h>
+#include <dataframe/Serie.h>
+#include <dataframe/forEach.h>
+#include <dataframe/map.h>
+#include <dataframe/reduce.h>
 
-TEST(reduce, basic) {
+TEST(reduce, double) {
+    auto numbers = df::Serie<double>{1, 2, 3, 4, 5};
 
-    // Séries scalaires
-    df::GenSerie<double> s1(1, {1.0, 2.0, 3.0, 4.0, 5.0});
-
-    // Réduction personnalisée
     auto sum = df::reduce(
-        [](double acc, double val, uint32_t) { return acc + val; }, s1, 0.0);
-    std::cerr << sum << std::endl;
+        [](double acc, double value, double index) { return acc + value; },
+        numbers, 0); // 15
 
-    // Séries vectorielles
-    df::GenSerie<double> v1(3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-
-    // Réduction personnalisée de vecteurs
-    std::vector<double> init = {0, 0, 0};
-    auto vector_sum = df::reduce(
-        [](const std::vector<double> &acc, const std::vector<double> &val,
-           uint32_t) {
-            std::vector<double> result(acc.size());
-            for (size_t i = 0; i < acc.size(); ++i) {
-                result[i] = acc[i] + val[i];
-            }
-            return result;
-        },
-        v1, init);
-    df::print(vector_sum);
+    std::cerr << "sum = " << sum << std::endl;
 }
 
-RUN_TESTS()
+TEST(reduce, vector2) {
+    auto numbers =
+        df::Serie<Vector2>{Vector2{1, 2}, Vector2{3, 4}, Vector2{5, 6}};
+
+    auto sum1 = df::reduce(
+        [](const Vector2 &acc, const Vector2 &v, size_t) {
+            return Vector2{acc[0] + v[0], acc[1] + v[1]};
+        },
+        numbers, Vector2{0, 0}); // [9, 12]
+
+    // df::print(sum1);
+
+    // ---------------------
+
+    auto sum2 = df::reduce(
+        [](const Vector3 &acc, const Vector2 &v, size_t index) {
+            return Vector3{acc[0] + v[0], acc[1] + v[1],
+                           double(acc[2] + index)};
+        },
+        numbers, Vector3{0, 0, 0}); // [9, 12, 3]
+
+    df::print(sum2);
+}
+
+TEST(reduce, 2_series) {
+    auto number1 = df::Serie<double>{1, 2, 3};
+    auto number2 = df::Serie<double>{4, 5, 6};
+
+    auto sum =
+        df::reduce([](const Vector2 &acc, double v1, double v2,
+                      size_t) { return Vector2{acc[0] + v1, acc[1] + v2}; },
+                   number1, number2, Vector2{0, 0}); // [6, 15]
+
+    df::print(sum);
+}
+
+RUN_TESTS();

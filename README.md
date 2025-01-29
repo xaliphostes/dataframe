@@ -1,4 +1,4 @@
-# Dataframe
+# Dataframe Library
 
 <p align="center">
   <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
@@ -12,348 +12,168 @@
   
 </p>
 
-# DataFrame C++ Library
 
-A modern C++ library (a [Panda](https://pandas.pydata.org/)-like) for efficient data manipulation and analysis, focusing on linear algebra, geometric operations, statistics, and mathematical computations.
 
-## Core Concepts
+# 
+### ***<center>...Work in progress for linear algebra operations...</center>***
+#
 
-### Serie Structure
+<br>
 
-A `GenSerie` is the fundamental data structure in the library, defined by three key parameters:
-
-- `itemSize`: Number of components per item (e.g., 1 for scalars, 3 for 3D vectors)
-- `count`: Number of items in the serie
-- `dimension`: Space dimension (default is 3)
-
-Example memory layouts:
-
-```cpp
-// Scalar serie (itemSize = 1)
-GenSerie<double> scalars(1, 4);  // count = 4
-// Memory: [s1][s2][s3][s4]
-
-// 3D vector serie (itemSize = 3)
-GenSerie<double> vectors(3, 2);  // count = 2
-// Memory: [x1,y1,z1][x2,y2,z2]
-
-// Matrix serie (itemSize = 9)
-GenSerie<double> matrices(9, 2);  // count = 2
-// Memory: [m11,m12,m13,m21,m22,m23,m31,m32,m33][...]
-```
-
-The `itemSize` determines how values are interpreted and accessed:
-- `itemSize = 1`: Use `value(i)` to access single values
-- `itemSize > 1`: Use `array(i)` to access component arrays
-
-### Memory Layout
-
-Data is stored contiguously in a single array for optimal performance. For a serie with `count = n` and `itemSize = m`:
-- Total array size = `n * m`
-- Item `i` starts at index `i * itemSize`
-- Access item components with `array(i)[j]` where `j < itemSize`
+A modern C++ library for data manipulation with a focus on functional programming patterns and type safety.
 
 ## Features
 
-- **Generic Serie Type**: Handle arrays of any numeric type with flexible dimensions
-- **Functional Programming Style**: Support for map, reduce, filter, and forEach operations
-- **Pipeline Operations**: Chain operations using intuitive pipe syntax
-- **Mathematical Operations**: Built-in support for common mathematical operations
-- **Type Safety**: Strong type checking and compile-time validation
-- **Modern C++**: Leverages modern C++ features for clean, efficient code
+- Generic series container (`Serie<T>`) for any data type
+- DataFrame for managing multiple named series
+- Rich functional operations (map, reduce, filter, etc.)
+- Parallel processing capabilities
+- Type-safe operations with compile-time checks
+- Modern C++ design (C++20)
 
-## Getting Started
+## Core Concepts
 
-### Basic Usage
+### Serie<T>
+
+A type-safe container for sequences of data with functional operations:
+- Supports any data type
+- Provides functional operations (map, reduce, filter)
+- Enables chaining operations using pipe syntax
+
+### DataFrame
+
+A container for managing multiple named series:
+- Type-safe storage of different series types
+- Named access to series
+- Dynamic addition and removal of series
+
+## Examples
+
+### Basic Series Operations
 
 ```cpp
 #include <dataframe/Serie.h>
-#include <dataframe/functional/map.h>
-#include <dataframe/functional/reduce.h>
+#include <dataframe/map.h>
+#include <dataframe/filter.h>
 
-// Create a simple serie
-df::Serie s1(1, {1.0, 2.0, 3.0, 4.0}); // itemSize=1, 4 elements
+// Create a serie of numbers
+df::Serie<int> numbers{1, 2, 3, 4, 5};
 
-// Create a vector serie (3D vectors)
-df::Serie vectors(3, {
-    1.0, 0.0, 0.0,  // First vector
-    0.0, 1.0, 0.0,  // Second vector
-    0.0, 0.0, 1.0   // Third vector
-});
+// Map operation: double each number
+auto doubled = numbers.map([](int n, size_t) { return n * 2; });
+
+// Filter operation: keep only even numbers
+auto evens = numbers | df::bind_filter([](int n, size_t) { return n % 2 == 0; });
+
+// Create a reusable pipeline using chaining operations
+auto pipeline = df::bind_map([](int n, size_t) { return n * 2; }) |
+                df::bind_filter([](int n, size_t) { return n > 5; });
+
+// Apply the pipeline to the numbers serie
+auto result = pipeline(numbers);
 ```
 
-### Functional Operations
-
-#### Map Operation
+### Working with Custom Types
 
 ```cpp
-// Square each value
-auto square = df::make_map([](double x, uint32_t) { return x * x; });
-auto squared = square(s1);
-
-// Vector operation
-auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
-    double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
-});
-auto normalized = normalize(vectors);
-```
-
-#### Filter Operation
-
-```cpp
-// Filter values greater than 2
-auto result = df::filter([](double x, uint32_t) { return x > 2.0; }, s1);
-
-// Filter vectors with magnitude > 1
-auto longVectors = df::filter([](const std::vector<double>& v, uint32_t) {
-    double magSq = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-    return magSq > 1.0;
-}, vectors);
-```
-
-#### Reduce Operation
-
-```cpp
-// Sum all values
-double sum = df::reduce([](double acc, double val, uint32_t) {
-    return acc + val;
-}, s1, 0.0);
-
-// Find the vector with maximum magnitude
-auto maxVector = df::reduce([](const std::vector<double>& acc, 
-                              const std::vector<double>& val, 
-                              uint32_t) {
-    double accMagSq = acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2];
-    double valMagSq = val[0]*val[0] + val[1]*val[1] + val[2]*val[2];
-    return (valMagSq > accMagSq) ? val : acc;
-}, vectors, std::vector<double>{0,0,0});
-```
-
-### Pipeline Operations
-
-Combine operations using the pipe operator:
-
-```cpp
-// Create operations
-auto normalize = df::make_map([](const std::vector<double>& v, uint32_t) {
-    double norm = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    return std::vector<double>{v[0]/norm, v[1]/norm, v[2]/norm};
-});
-
-auto filterNonZero = df::make_map([](const std::vector<double>& v, uint32_t) {
-    return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) > 1e-10;
-});
-
-// Chain operations
-auto result = vectors | normalize | filterNonZero;
-
-// Alternative using make_pipe
-auto pipeline = df::make_pipe(normalize, filterNonZero);
-auto result2 = pipeline(vectors);
-```
-
-## Mathematical Operations
-
-The library includes various mathematical operations:
-
-```cpp
-// Add two series
-auto sum = s1 + s2;
-
-// Weighted sum of multiple series
-auto weightedSum = df::math::weightedSum({s1, s2, s3}, {0.5, 0.3, 0.2});
-
-// Normalize a serie
-auto normalized = df::math::normalize(s1);
-```
-
-### Eigen Operations
-```cpp
-// Create a 3x3 symmetric matrix serie
-// Order is (xx, xy, xz, yy, yz, zz)
-df::Serie serie(6, {
-    2, 4, 6, 3, 6, 9, // First stress 
-    1, 2, 3, 4, 5, 6, // Second stress
-    9, 8, 7, 6, 5, 4  // Third stress
-});
-
-auto [values, vectors] = df::algebra::eigenSystem(serie);
-df::print(values);
-df::print(vectors);
-```
-Will display:
-```
-GenSerie<double> {
-  itemSize : 3
-  count    : 3
-  dimension: 3
-  values   : [
-    [16.3328, -0.6580, -1.6748], // eigen values for the first stress
-    [11.3448, 0.1709, -0.5157],
-    [20.1911, -0.0431, -1.1480]
-  ]
-}
-GenSerie<double> {
-  itemSize : 9
-  count    : 3
-  dimension: 3
-  values   : [
-    // eigen vectors for the first stress (v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z)
-    [0.4493, 0.4752, 0.7565, 0.1945, 0.7745, -0.6020, 0.8720, -0.4176, -0.2556],
-    [0.3280, 0.5910, 0.7370, -0.5921, 0.7365, -0.3271, 0.7361, 0.3291, -0.5915],
-    [0.6888, 0.5534, 0.4683, 0.1594, -0.7457, 0.6469, -0.7072, 0.3709, 0.6019]
-  ]
-}
-```
-
-## Type Safety and Error Handling
-
-The library provides comprehensive type checking and error handling:
-
-```cpp
-// This will throw an exception if series have different counts
-auto sum = df::math::add(s1, s2);
-
-// This will fail to compile if callback types don't match serie types
-auto invalid = df::make_map([](std::string x) { return x; })(s1); // Compilation error
-```
-
-## Working with Custom Types
-
-```cpp
-// Define a custom type
-struct Position {
+struct Point3D {
     double x, y, z;
-    
-    // Optional: Operators for serie operations
-    Position operator+(const Position& other) const {
-        return {x + other.x, y + other.y, z + other.z};
-    }
-    
-    Position operator*(double scale) const {
-        return {x * scale, y * scale, z * scale};
-    }
 };
 
-std::ostream &operator<<(std::ostream &o, const Position &p) {
-    o << "(" << p.x << ", " << p.y << ", " << p.z << ")";
-    return o;
-}
+// Create a serie of 3D points
+df::Serie<Point3D> points{{0,0,0}, {1,1,1}, {2,2,2}};
 
-// Direct instantiation with custom types
-df::GenSerie<Position> positions(1, {
-    Position{1, 0, 0},
-    Position{0, 2, 0},
-    Position{0, 0, 3}
-});
+// Transform points
+auto translated = df::map(([](const Point3D& p, size_t) {
+    return Point3D{p.x + 1, p.y + 1, p.z + 1};
+}, points);
 
-// Operations work naturally with the custom type
-auto doubled = df::make_map([](const Position& p, uint32_t) {
-    return p * 2.0;
-})(positions);
-
-// Filter based on custom type properties
-auto filtered = df::filter([](const Position& p, uint32_t) {
-    return (p.x*p.x + p.y*p.y + p.z*p.z) < 2.0;
-}, positions);
+// Get the norms according to (0,0,0)
+auto norms = df::map(([](const Point3D& p, size_t) {
+    return std::sqrt{std::pow(p.x, 2), std::pow(p.y, 2), std::pow(p.z, 2)};
+}, points);
 ```
 
-## Advanced Features
-
-### Custom Operations
-
-Create custom operations that can be used in pipelines:
+### DataFrame Usage
 
 ```cpp
-// Create a custom operation
-auto customOp = df::make_map([](const std::vector<double>& v, uint32_t) {
-    // Your custom computation here
-    return std::vector<double>{/*...*/};
-});
+#include <dataframe/DataFrame.h>
 
-// Use it in a pipeline
-auto result = vectors | customOp | normalize;
+// Create a DataFrame
+df::DataFrame df;
+
+// Add different types of series
+df.add("integers", df::Serie<int>{1, 2, 3, 4, 5});
+df.add("doubles", df::Serie<double>{1.1, 2.2, 3.3, 4.4, 5.5});
+
+// Access series with type safety
+const auto& ints = df.get<int>("integers");
+const auto& dbls = df.get<double>("doubles");
+
+// Remove a series
+df.remove("integers");
 ```
 
-## Full examples
+### 3D Mesh Example
 
-### Stress state
 ```cpp
-#include <dataframe/Serie.h>
-#include <dataframe/functional/filter.h>
-#include <dataframe/functional/utils/reject.h>
-#include <dataframe/functional/pipe.h>
-#include <dataframe/functional/map.h>
-#include <map>
+// Define types for clarity
+using Point    = std::array<double, 3>;
+using Triangle = std::array<uint32_t, 3>;
 
-using namespace df;
+// Create a simple mesh
+df::DataFrame mesh;
 
-int main() {
-    // Stress tensor components (xx,xy,xz,yy,yz,zz)
-    GenSerie<double> stress(6, {
-        1,  0,  0, 1,  0, 1,  // Point 1
-        2,  1,  0, 2,  0, 2,  // Point 2
-        -1, 0,  0, -1, 0, -1, // Point 3
-        -2, -1, 0, -2, 0, -2  // Point 4
-    });
+// Create vertices
+df::Serie<Point> vertices{
+    {0.0, 0.0, 0.0},
+    {1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {0.0, 0.0, 1.0}
+};
 
-    GenSerie<double> distances(1, {5.0, 2.0, 1.0, 0.5});
-    GenSerie<int> rockTypes(1, {1, 1, 2, 2});
+// Create triangles
+df::Serie<Triangle> triangles{
+    {0, 1, 2},
+    {0, 2, 3},
+    {0, 3, 1},
+    {1, 3, 2}
+};
 
-    // Process data pipeline
-    auto filtered = pipe(
-        zip(stress, distances, rockTypes),
+// Add to DataFrame
+mesh.add("vertices", vertices);
+mesh.add("triangles", triangles);
 
-        // Reject points far from faults
-        make_reject([](const std::vector<double>& data, uint32_t) {
-            return data[6] > 2.0;  // distance is after stress components
-        }),
-
-        // Keep only compressive states
-        make_filter([](const std::vector<double>& data, uint32_t) {
-            double trace = data[0] + data[3] + data[5];  // xx + yy + zz
-            return trace < 0;
-        })
-    );
-
-    // Compute average stress by rock type
-    std::map<int, std::pair<std::vector<double>, int>> averages;
-    
-    filtered.forEach([&averages](const std::vector<double>& data, uint32_t) {
-        int rockType = static_cast<int>(data[7]);
-        auto& [sum, count] = averages[rockType];
-
-        if (count == 0) {
-            sum = std::vector<double>(data.begin(), data.begin() + 6);
-        } else {
-            for (int i = 0; i < 6; i++) {
-                sum[i] = (sum[i] * count + data[i]) / (count + 1);
-            }
-        }
-        count++;
-    });
-
-    return 0;
-}
+// Transform vertices
+auto transformed_vertices = vertices.map([](const Point& p, size_t) {
+    return Point{p[0] * 2.0, p[1] * 2.0, p[2] * 2.0};
+});
+mesh.add("transformed_vertices", transformed_vertices);
 ```
 
-### Performance Considerations
+### Parallel Processing
 
-- Series store data contiguously for cache-friendly access
-- Operations can be chained without creating intermediate copies
-- Template metaprogramming ensures compile-time optimizations
+```cpp
+#include <dataframe/parallel_map.h>
 
-## Building and Dependencies
+// Process large datasets in parallel
+auto result = df::parallel_map([](double x, size_t) {
+    return std::sqrt(x * x + 2 * x + 1);
+}, large_series);
+```
 
-The library is header-only and requires:
+## Installation
 
-- C++17 or later
-- Standard Template Library (STL)
+Header-only library. Simply include the headers that you need in your project.
+
+## Requirements
+
+- C++20 or later
+- Modern C++ compiler (GCC, Clang, MSVC)
 
 ## License
 
-This library is distributed under the MIT License. See LICENSE file for details.
+MIT License - See LICENSE file for details.
 
 ## Contact
 fmaerten@gmail.com

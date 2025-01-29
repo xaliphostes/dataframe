@@ -21,28 +21,34 @@
  *
  */
 
+#include "../common.h"
 #include <cxxabi.h>
 #include <memory>
+#include <ostream>
 #include <regex>
 
 namespace df {
 
+// ------------------------------------------
+
 inline std::string cleanup_type_name(const std::string &name) {
     std::string result = name;
 
-    // Liste des substitutions pour nettoyer le nom
+    // List of the substitutions to clean the name
     static const std::vector<std::pair<std::string, std::string>>
         substitutions = {
             {"std::__1::", "std::"}, // Enlève le __1 de l'espace de nom std
             {"std::vector<", "vector<"},       // Simplifie std::vector
+            {"std::array<", "array<"},         // Simplifie std::array
             {", std::allocator<[^>]+>>", ">"}, // Enlève l'allocator
             {", std::allocator<[^>]+>", ">"}, // Enlève l'allocator (cas simple)
+            {"ul", ""},
             {"std::basic_string<char>", "string"}, // Simplifie basic_string
             {"std::basic_string<char, std::char_traits<char>>",
              "string"}, // Autre forme de string
         };
 
-    // Applique chaque substitution
+    // Apply every substitution
     for (const auto &[pattern, replacement] : substitutions) {
         result = std::regex_replace(result, std::regex(pattern), replacement);
     }
@@ -58,212 +64,102 @@ template <typename T> std::string type_name() {
     return cleanup_type_name(status == 0 ? demangled.get() : mangled);
 }
 
-template <typename T> std::string GenSerie<T>::type() const {
+// ------------------------------------------------
+
+template <typename T> Serie<T>::Serie(const ArrayType &values) {
+    data_.reserve(values.size());
+    for (auto &v : values) {
+        data_.push_back(v);
+    }
+}
+
+template <typename T>
+Serie<T>::Serie(const std::initializer_list<T> &values) {
+    data_.reserve(values.size());
+    for (auto &v : values) {
+        data_.push_back(v);
+    }
+}
+
+template <typename T> const Serie<T>::ArrayType &Serie<T>::data() const {
+    return data_;
+}
+
+template <typename T> const Serie<T>::ArrayType &Serie<T>::asArray() const {
+    return data_;
+}
+
+template <typename T> bool Serie<T>::empty() const { return data_.empty(); }
+
+template <typename T> std::string Serie<T>::type() const {
     return type_name<T>();
 }
 
-template <typename T>
-GenSerie<T>::GenSerie(int itemSize, uint32_t count, uint dimension)
-    : itemSize_(itemSize), count_(count), dimension_(dimension) {
-    s_ = Array(count * itemSize);
-}
-
-template <typename T>
-GenSerie<T>::GenSerie(int itemSize, const Array &values, uint dimension)
-    : itemSize_(itemSize), dimension_(dimension) {
-    count_ = values.size() / itemSize;
-    s_ = values;
-}
-
-template <typename T>
-GenSerie<T>::GenSerie(int itemSize, const std::initializer_list<T> &values,
-                      uint dimension)
-    : itemSize_(itemSize), dimension_(dimension) {
-    count_ = values.size() / itemSize;
-    s_ = Array(values);
-}
-
-template <typename T>
-GenSerie<T>::GenSerie(const GenSerie &s)
-    : itemSize_(s.itemSize_), count_(s.count_), dimension_(s.dimension_) {
-    s_ = Array(s.s_.cbegin(), s.s_.cend());
-}
-
-template <typename T>
-GenSerie<T> GenSerie<T>::create(int itemSize, const Array &data,
-                                uint dimension) {
-    return GenSerie(itemSize, data, dimension);
-}
-
-template <typename T> bool GenSerie<T>::isValid() const {
-    return itemSize_ > 0;
-}
-
-template <typename T> bool GenSerie<T>::isEmpty() const { return count_ == 0; }
-
-template <typename T> void GenSerie<T>::reCount(uint32_t c) {
-    count_ = c;
-    s_ = Array(c * itemSize_);
-}
-
-template <typename T>
-GenSerie<T> &GenSerie<T>::operator=(const GenSerie<T> &s) {
-    count_ = s.count_;
-    itemSize_ = s.itemSize_;
-    s_ = Array(s.s_.cbegin(), s.s_.cend());
-    return *this;
-}
-
-template <typename T> GenSerie<T> GenSerie<T>::clone() const {
-    return GenSerie<T>(itemSize_, s_);
-}
-
-template <typename T> uint32_t GenSerie<T>::size() const {
-    return count_ * itemSize_;
-}
-
-template <typename T> uint32_t GenSerie<T>::count() const { return count_; }
-
-template <typename T> uint32_t GenSerie<T>::itemSize() const {
-    return itemSize_;
-}
-
-template <typename T> uint GenSerie<T>::dimension() const { return dimension_; }
-
-template <typename T> GenSerie<T>::Array GenSerie<T>::array(uint32_t i) const {
-    auto start = i * itemSize_;
-    Array r(itemSize_);
-    for (uint32_t j = 0; j < itemSize_; ++j) {
-        r[j] = s_[start + j];
+template <typename T> T &Serie<T>::operator[](size_t index) {
+    if (index >= data_.size()) {
+        throw std::out_of_range(
+            details::format("Index ", index, " is out of bounds (max is ", data_.size(),
+                   ") in Serie::operator[]"));
     }
-    return r;
+    return data_[index];
 }
 
-template <typename T> T GenSerie<T>::value(uint32_t i) const {
-    if (i > size()) {
-        throw std::invalid_argument("index out of bounds (" +
-                                    std::to_string(i) +
-                                    ">=" + std::to_string(size()));
+template <typename T> const T &Serie<T>::operator[](size_t index) const {
+    if (index >= data_.size()) {
+        throw std::out_of_range(
+            details::format("Index ", index, " is out of bounds (max is ", data_.size(),
+                   ") in Serie::operator[]"));
     }
-    return s_[i];
+    return data_[index];
 }
 
-template <typename T> void GenSerie<T>::setArray(uint32_t i, const Array &v) {
-    if (i >= count_) {
-        throw std::invalid_argument("index out of range (" + std::to_string(i) +
-                                    ">=" + std::to_string(count_) + ")");
-    }
-
-    auto size = itemSize_;
-    if (v.size() != size) {
-        throw std::invalid_argument(
-            "provided item size (" + std::to_string(v.size()) +
-            ") is different from itemSize (" + std::to_string(itemSize_) + ")");
-    }
-    for (int j = 0; j < size; ++j) {
-        s_[i * size + j] = v[j];
-    }
-}
-
-template <typename T> void GenSerie<T>::setValue(uint32_t i, T v) {
-    if (i >= s_.size()) {
-        throw std::invalid_argument("index out of range (" + std::to_string(i) +
-                                    ">=" + std::to_string(s_.size()) + ")");
-    }
-    s_[i] = v;
-}
-
-template <typename T> const GenSerie<T>::Array &GenSerie<T>::asArray() const {
-    return s_;
-}
-
-template <typename T> GenSerie<T>::Array &GenSerie<T>::asArray() { return s_; }
-
-template <typename T>
-template <typename U>
-auto GenSerie<T>::get(uint32_t i) const
-    -> std::conditional_t<details::is_array_v<U>, Array, T> {
-    if constexpr (details::is_array_v<U>) {
-        if (itemSize_ == 1) {
-            return Array{s_[i]};
-        }
-        Array r(itemSize_);
-        for (uint32_t j = 0; j < itemSize_; ++j) {
-            r[j] = s_[i * itemSize_ + j];
-        }
-        return r;
-    } else {
-        if (i >= s_.size()) {
-            throw std::invalid_argument("index out of bounds (" +
-                                        std::to_string(i) +
-                                        ">=" + std::to_string(s_.size()) + ")");
-        }
-        return s_[i];
-    }
+template <typename T> size_t Serie<T>::size() const {
+    return data_.size();
 }
 
 template <typename T>
-template <typename U>
-void GenSerie<T>::set(uint32_t i, const U &value) {
-    if constexpr (details::is_array_v<U>) {
-        if (i >= count_) {
-            throw std::invalid_argument("index out of range (" +
-                                        std::to_string(i) +
-                                        ">=" + std::to_string(count_) + ")");
-        }
-        if (value.size() != itemSize_) {
-            throw std::invalid_argument("provided item size (" +
-                                        std::to_string(value.size()) +
-                                        ") is different from itemSize (" +
-                                        std::to_string(itemSize_) + ")");
-        }
-        for (uint32_t j = 0; j < itemSize_; ++j) {
-            s_[i * itemSize_ + j] = value[j];
-        }
-    } else {
-        if (i >= s_.size()) {
-            throw std::invalid_argument("index out of bounds (" +
-                                        std::to_string(i) +
-                                        ">=" + std::to_string(s_.size()) + ")");
-        }
-        s_[i] = value;
+template <typename F>
+inline void Serie<T>::forEach(F &&callback) const {
+    for (size_t i = 0; i < data_.size(); ++i) {
+        callback(data_[i], i);
     }
 }
 
 template <typename T>
 template <typename F>
-void GenSerie<T>::forEach(F &&cb) const {
-    for (uint32_t i = 0; i < count_; ++i) {
-        cb(value(i), i);
+inline auto Serie<T>::map(F &&callback) const {
+    using ResultType = decltype(callback(data_[0], 0));
+    std::vector<ResultType> result(data_.size());
+
+    for (size_t i = 0; i < data_.size(); ++i) {
+        result[i] = callback(data_[i], i);
     }
+    return Serie<ResultType>(result);
 }
 
 template <typename T>
-template <typename F>
-auto GenSerie<T>::map(F &&cb) const {
-    // Return type deduction based on callback
-    using ReturnType =
-        std::decay_t<decltype(cb(std::declval<Array>(), uint32_t{}))>;
-    GenSerie<ReturnType> result(itemSize_, count_);
+template <typename F, typename AccT>
+auto Serie<T>::reduce(F &&callback, AccT initial) {
+    AccT result = initial;
 
-    for (uint32_t i = 0; i < count_; ++i) {
-        result.setValue(i, cb(value(i), i));
+    for (size_t i = 0; i < data_.size(); ++i) {
+        result = callback(result, data_[i], i);
     }
     return result;
 }
 
 } // namespace df
 
+// -----------------------------------------------
+
 template <typename T>
-std::ostream &operator<<(std::ostream &o, const df::GenSerie<T> &s) {
-    o << "GenSerie<" << typeid(T).name() << ">:" << std::endl;
-    o << "  itemSize : " << s.itemSize() << std::endl;
-    o << "  count    : " << s.count() << std::endl;
-    o << "  dimension: " << s.dimension() << std::endl;
-    if (s.count() > 0) {
+std::ostream &operator<<(std::ostream &o, const df::Serie<T> &s) {
+    o << "Serie<" << s.type() << ">" << std::endl;
+    o << "  size    : " << s.size() << std::endl;
+    if (s.size() > 0) {
         o << "  values   : [";
-        auto v = s.asArray();
-        for (uint32_t i = 0; i < v.size() - 1; ++i) {
+        const auto &v = s.data();
+        for (size_t i = 0; i < v.size() - 1; ++i) {
             o << v[i] << ", ";
         }
         o << v[v.size() - 1] << "]";

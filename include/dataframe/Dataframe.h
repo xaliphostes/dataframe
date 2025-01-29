@@ -1,72 +1,95 @@
+/*
+ * Copyright (c) 2024-now fmaerten@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ *
+ */
+
 #pragma once
-#include <dataframe/Serie.h>
+#include "Serie.h"
+#include "types.h"
 #include <map>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <typeinfo>
 
 namespace df {
 
-// -----------------------------------------------------
-
-// Interface for the erasure type
-class SerieBase {
+class DataFrame {
   public:
-    virtual ~SerieBase() = default;
-    virtual uint32_t count() const = 0;
-    virtual uint32_t itemSize() const = 0;
-    virtual uint dimension() const = 0;
-    virtual void print(uint32_t precision = 4) const = 0;
-    virtual bool isValid() const = 0;
-    virtual std::string type_name() const = 0;
-    virtual std::unique_ptr<SerieBase> clone() const = 0;
-};
+    DataFrame() = default;
+    ~DataFrame() = default;
 
-// -----------------------------------------------------
+    /**
+     * Add a serie to the DataFrame with the given name
+     * @throws std::runtime_error if a serie with this name already exists
+     */
+    template <typename T>
+    void add(const std::string &name, const Serie<T> &serie);
 
-// Wrapper
-template <typename T> class SerieWrapper : public SerieBase {
-  public:
-    SerieWrapper(const GenSerie<T> &serie);
+    template <typename T>
+    void add(const std::string &name, const ArrayType<T> &array);
 
-    uint32_t count() const override;
-    uint32_t itemSize() const override;
-    uint dimension() const override;
-    bool isValid() const override;
+    /**
+     * Remove a serie from the DataFrame
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    void remove(const std::string &name);
 
-    void print(uint32_t precision = 4) const override;
-    std::string type_name() const override;
-    std::unique_ptr<SerieBase> clone() const override;
-    const GenSerie<T> &get() const;
-    GenSerie<T> &get();
+    /**
+     * Get a serie by name and type
+     * @throws std::runtime_error if the serie doesn't exist or type mismatch
+     */
+    template <typename T> const Serie<T> &get(const std::string &name) const;
 
-  private:
-    GenSerie<T> serie_;
-};
+    /**
+     * Check if a serie exists with the given name
+     */
+    bool has(const std::string &name) const;
 
-// -----------------------------------------------------
-
-class Dataframe {
-  public:
-    Dataframe() = default;
-    Dataframe(const Dataframe &other);
-    Dataframe &operator=(const Dataframe &other);
-
-    template <typename T> void add(const std::string &, const GenSerie<T> &);
-    template <typename T> const GenSerie<T> &get(const std::string &) const;
-    template <typename T> GenSerie<T> &get(const std::string &);
-
-    bool has(const std::string &) const;
-    void remove(const std::string &);
-    std::vector<std::string> names() const;
-    std::string get_type(const std::string &) const;
+    /**
+     * Get the number of series in the DataFrame
+     */
     size_t size() const;
-    void print(uint32_t precision = 4) const;
+
+    /**
+     * Get all serie names in the DataFrame
+     */
+    std::vector<std::string> names() const;
+
+    /**
+     * Clear all series from the DataFrame
+     */
+    void clear();
 
   private:
-    std::map<std::string, std::unique_ptr<SerieBase>> series_;
-};
+    // Type aliases for clarity
+    using SeriePtr = std::shared_ptr<void>;
+    using SerieMap = std::map<std::string, SeriePtr>;
 
-// -----------------------------------------------------
+    SerieMap series_;
+
+    // Helper method to get type name for error messages
+    template <typename T> std::string getTypeName() const;
+};
 
 } // namespace df
 
-#include <dataframe/inline/Dataframe.hxx>
+#include "inline/Dataframe.hxx"

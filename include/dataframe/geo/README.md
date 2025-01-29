@@ -1,0 +1,1 @@
+# Functions for geo-metric, geo-logic... operations on series
