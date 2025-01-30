@@ -23,12 +23,13 @@
 #pragma once
 #include <array>
 #include <dataframe/Serie.h>
-#include <dataframe/common.h>
+#include <dataframe/meta.h>
 #include <type_traits>
 #include <vector>
 
 /**
- * @brief Meta programming for binary operations
+ * @brief Meta programming for binary operations.
+ * These functions and structures are used by add, sub, div and mult
  */
 
 namespace df {

@@ -25,7 +25,7 @@
 #include <array>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/common.h>
+#include <dataframe/meta.h>
 #include <dataframe/geo/kdtree.h>
 
 namespace df {

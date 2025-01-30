@@ -17,21 +17,22 @@
 #include <dataframe/Dataframe.h>
 
 /**
- * @brief Example showing how to create store a triangulated surface mesh using the Dataframe and 2 series.
- * 
+ * @brief Example showing how to create store a triangulated surface mesh using
+ * the Dataframe and 2 series.
+ *
  * @code
  * Copy// Create a mesh
  * auto mesh = createWavySurface(10, 10);
- * 
+ *
  * // Access vertex positions
  * const auto& positions = mesh.get<Position>("positions");
  * const auto& triangles = mesh.get<Triangle>("triangles");
- * 
+ *
  * // Example: Calculate the center of each triangle
  * positions.forEach([&](const Position& pos, uint32_t idx) {
  *     // Process each vertex
  * });
- * 
+ *
  * triangles.forEach([&](const Triangle& tri, uint32_t idx) {
  *     // Process each triangle
  *     const Position& v0 = positions[tri[0]];

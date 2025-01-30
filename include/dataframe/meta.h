@@ -147,6 +147,18 @@ template <typename T> void check_default_constructible() {
 
 // -------------------------------------------------
 
+/**
+ * @brief Helper to get tuple element types
+ */
+template <typename Tuple> struct tuple_element_types;
+
+template <typename... Types> struct tuple_element_types<std::tuple<Types...>> {
+    template <std::size_t I>
+    using type = typename std::tuple_element<I, std::tuple<Types...>>::type;
+};
+
+// -------------------------------------------------
+
 } // namespace details
 } // namespace df
 

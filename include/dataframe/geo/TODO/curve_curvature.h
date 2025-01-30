@@ -24,7 +24,7 @@
 #pragma once
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/common.h>
+#include <dataframe/meta.h>
 
 namespace df {
 namespace geo {

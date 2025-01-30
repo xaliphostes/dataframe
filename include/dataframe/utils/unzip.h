@@ -22,29 +22,32 @@
  */
 
 #pragma once
-#include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/meta.h>
+#include <tuple>
+#include <type_traits>
 
 namespace df {
-namespace geo {
 
-/**
- * @brief Interpolates field values at arbitrary points using linear
- * interpolation
- * @param field The field values serie (can be scalar or vector)
- * @param positions The positions serie where field values are known
- * @param query_points The points where we want to interpolate values
- * @return Serie<T> Interpolated values at query points
- */
-template <typename T>
-Serie<T> interpolate(const Serie<T> &field, const Serie<T> &positions,
-                        const Serie<T> &query_points);
+namespace details {
+// Helper to extract a component from a tuple Serie
+template <std::size_t I, typename Tuple>
+auto extract_component(const Serie<Tuple> &serie) {
+    return serie.map([](const Tuple &t, size_t) { return std::get<I>(t); });
+}
 
-// Helper function to create an interpolation operation
-template <typename T> auto make_interpolate(const Serie<T> &positions);
+// Helper to generate all component series
+template <typename Tuple, std::size_t... Is>
+auto unzip_impl(const Serie<Tuple> &serie, std::index_sequence<Is...>) {
+    return std::make_tuple(extract_component<Is>(serie)...);
+}
+} // namespace details
 
-} // namespace geo
+// Main unzip function
+template <typename Tuple> auto unzip(const Serie<Tuple> &serie) {
+    constexpr size_t tuple_size =
+        std::tuple_size_v<typename Serie<Tuple>::value_type>;
+    return details::unzip_impl(serie, std::make_index_sequence<tuple_size>{});
+}
+
 } // namespace df
-
-#include "inline/interpolate.hxx"

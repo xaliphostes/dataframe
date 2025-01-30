@@ -24,7 +24,7 @@
 #pragma once
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/common.h>
+#include <dataframe/meta.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
