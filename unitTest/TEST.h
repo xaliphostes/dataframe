@@ -98,6 +98,28 @@ inline void register_test(const char *name, const char *fixture,
         }                                                                      \
     }
 
+#define EXPECT_GT(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 <= v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to be greater than " << v2;           \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+#define EXPECT_LT(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 >= v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to be less than " << v2;              \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
 // Expect not equal
 #define EXPECT_NOT_EQ(val1, val2)                                              \
     {                                                                          \
@@ -262,8 +284,7 @@ void COMPARE_SERIE_VECTOR(const df::Serie<T> &actual,
 }
 
 template <typename T>
-void COMPARE_SERIES(const df::Serie<T> &actual,
-                    const df::Serie<T> &expected) {
+void COMPARE_SERIES(const df::Serie<T> &actual, const df::Serie<T> &expected) {
     EXPECT_ARRAY_EQ(actual.asArray(), expected.asArray());
 }
 

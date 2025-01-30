@@ -22,17 +22,17 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
-#include <random>
+#include <dataframe/math/operator_utils.h>
 
 namespace df {
-namespace math {
 
-/**
- * @ingroup Math
- */
-Serie random(uint32_t count, uint32_t itemSize, double min = 0, double max = 1,
-             unsigned seed = std::random_device{}());
-             
-} // namespace math
+template <typename T, typename U>
+inline auto mult(const Serie<T> &serie1, const Serie<U> &serie2) {
+    return details::operation<std::multiplies<>>{}(serie1, serie2);
+}
+
+template <typename U> inline auto bind_mult(const Serie<U> &serie2) {
+    return details::make_binary_binder<details::operation<std::multiplies<>>>(serie2);
+}
+
 } // namespace df

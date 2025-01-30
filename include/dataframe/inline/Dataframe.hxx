@@ -6,7 +6,7 @@ template <typename T>
 void DataFrame::add(const std::string &name, const Serie<T> &serie) {
     if (has(name)) {
         throw std::runtime_error(
-            details::format("Serie with name '", name, "' already exists in DataFrame"));
+            format("Serie with name '", name, "' already exists in DataFrame"));
     }
 
     // Store the serie as a shared_ptr to void, but internally it's typed
@@ -17,7 +17,7 @@ template <typename T>
 void DataFrame::add(const std::string &name, const ArrayType<T> &array) {
     if (has(name)) {
         throw std::runtime_error(
-            details::format("Serie with name '", name, "' already exists in DataFrame"));
+            format("Serie with name '", name, "' already exists in DataFrame"));
     }
 
     // Store the serie as a shared_ptr to void, but internally it's typed
@@ -27,7 +27,7 @@ void DataFrame::add(const std::string &name, const ArrayType<T> &array) {
 inline void DataFrame::remove(const std::string &name) {
     if (!has(name)) {
         throw std::runtime_error(
-            details::format("Serie '", name, "' does not exist in DataFrame"));
+            format("Serie '", name, "' does not exist in DataFrame"));
     }
     series_.erase(name);
 }
@@ -36,12 +36,12 @@ template <typename T>
 const Serie<T> &DataFrame::get(const std::string &name) const {
     if (!has(name)) {
         throw std::runtime_error(
-            details::format("Serie '", name, "' does not exist in DataFrame"));
+            format("Serie '", name, "' does not exist in DataFrame"));
     }
 
     auto serie_ptr = std::static_pointer_cast<Serie<T>>(series_.at(name));
     if (!serie_ptr) {
-        throw std::runtime_error(details::format("Type mismatch: Serie '", name,
+        throw std::runtime_error(format("Type mismatch: Serie '", name,
                                         "' is not of type ", getTypeName<T>()));
     }
 

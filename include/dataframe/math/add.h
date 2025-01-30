@@ -22,40 +22,17 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
-#include <dataframe/common.h>
-#include <dataframe/map.h>
+#include <dataframe/math/operator_utils.h>
 
 namespace df {
-namespace math {
 
-// Multiplication par un scalaire
-template <typename T> details::IsSerieFloating<T> mult(const Serie<T> &, T);
+template <typename T, typename U>
+inline auto add(const Serie<T> &serie1, const Serie<U> &serie2) {
+    return details::operation<std::plus<>>{}(serie1, serie2);
+}
 
-template <typename T>
-details::IsSerieFloating<T> mult(const Serie<T> &, const Serie<T> &);
+template <typename U> inline auto bind_add(const Serie<U> &serie2) {
+    return details::make_binary_binder<details::operation<std::plus<>>>(serie2);
+}
 
-template <typename T> auto make_mult(T);
-
-template <typename T> auto make_mult(const Serie<T> &);
-
-} // namespace math
 } // namespace df
-
-template <typename T>
-df::details::IsSerieFloating<T> operator*(T t, const df::Serie<T> &s1) {
-    return df::math::mult(s1, t);
-}
-
-template <typename T>
-df::details::IsSerieFloating<T> operator*(const df::Serie<T> &s1, T t) {
-    return df::math::mult(s1, t);
-}
-
-template <typename T>
-df::details::IsSerieFloating<T> operator*(const df::Serie<T> &s1,
-                                          const df::Serie<T> &s2) {
-    return df::math::mult(s1, s2);
-}
-
-#include "inline/mult.hxx"

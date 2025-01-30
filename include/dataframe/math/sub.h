@@ -22,30 +22,17 @@
  */
 
 #pragma once
-#include <dataframe/math/mult.h>
+#include <dataframe/math/operator_utils.h>
 
 namespace df {
-namespace math {
 
-template <typename T>
-auto scale(const Serie<T> &s, T val) -> decltype(mult(s, val)) {
-    return mult(s, val);
+template <typename T, typename U>
+inline auto sub(const Serie<T> &serie1, const Serie<U> &serie2) {
+    return details::operation<std::minus<>>{}(serie1, serie2);
 }
 
-template <typename T>
-auto scale(const Serie<T> &s1,
-           const Serie<T> &s2) -> decltype(mult(s1, s2)) {
-    return mult(s1, s2);
+template <typename U> inline auto bind_sub(const Serie<U> &serie2) {
+    return details::make_binary_binder<details::operation<std::minus<>>>(serie2);
 }
 
-template <typename T> auto make_scale(T val) -> decltype(make_mult(val)) {
-    return make_mult(val);
-}
-
-template <typename T>
-auto make_scale(const Serie<T> &s) -> decltype(make_mult(s)) {
-    return make_mult(s);
-}
-
-} // namespace math
 } // namespace df

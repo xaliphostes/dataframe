@@ -37,9 +37,9 @@ inline std::string cleanup_type_name(const std::string &name) {
     // List of the substitutions to clean the name
     static const std::vector<std::pair<std::string, std::string>>
         substitutions = {
-            {"std::__1::", "std::"}, // Enlève le __1 de l'espace de nom std
-            {"std::vector<", "vector<"},       // Simplifie std::vector
-            {"std::array<", "array<"},         // Simplifie std::array
+            {"std::__1::", "std::"},     // Enlève le __1 de l'espace de nom std
+            {"std::vector<", "vector<"}, // Simplifie std::vector
+            {"std::array<", "array<"},   // Simplifie std::array
             {", std::allocator<[^>]+>>", ">"}, // Enlève l'allocator
             {", std::allocator<[^>]+>", ">"}, // Enlève l'allocator (cas simple)
             {"ul", ""},
@@ -73,8 +73,7 @@ template <typename T> Serie<T>::Serie(const ArrayType &values) {
     }
 }
 
-template <typename T>
-Serie<T>::Serie(const std::initializer_list<T> &values) {
+template <typename T> Serie<T>::Serie(const std::initializer_list<T> &values) {
     data_.reserve(values.size());
     for (auto &v : values) {
         data_.push_back(v);
@@ -97,25 +96,23 @@ template <typename T> std::string Serie<T>::type() const {
 
 template <typename T> T &Serie<T>::operator[](size_t index) {
     if (index >= data_.size()) {
-        throw std::out_of_range(
-            details::format("Index ", index, " is out of bounds (max is ", data_.size(),
-                   ") in Serie::operator[]"));
+        throw std::out_of_range(format("Index ", index,
+                                       " is out of bounds (max is ",
+                                       data_.size(), ") in Serie::operator[]"));
     }
     return data_[index];
 }
 
 template <typename T> const T &Serie<T>::operator[](size_t index) const {
     if (index >= data_.size()) {
-        throw std::out_of_range(
-            details::format("Index ", index, " is out of bounds (max is ", data_.size(),
-                   ") in Serie::operator[]"));
+        throw std::out_of_range(format("Index ", index,
+                                       " is out of bounds (max is ",
+                                       data_.size(), ") in Serie::operator[]"));
     }
     return data_[index];
 }
 
-template <typename T> size_t Serie<T>::size() const {
-    return data_.size();
-}
+template <typename T> size_t Serie<T>::size() const { return data_.size(); }
 
 template <typename T>
 template <typename F>

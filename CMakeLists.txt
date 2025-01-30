@@ -25,10 +25,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS on)
 
-find_package(fmt REQUIRED)
-set(FMT_HEADER_ONLY ON)
-
-
 # ---------------------------------------------------------------------
 # Detect all testing files
 # ---------------------------------------------------------------------

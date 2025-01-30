@@ -37,15 +37,6 @@ auto pipe(T &&value, F &&operation, Rest &&...rest) {
     return pipe(operation(std::forward<T>(value)), std::forward<Rest>(rest)...);
 }
 
-// Helper for creating operations with additional arguments
-// template <typename F, typename... Args> auto bind(F &&f, Args &&...args) {
-//     return [f = std::forward<F>(f),
-//             ... args = std::forward<Args>(args)](auto &&value) mutable {
-//         return f(std::forward<decltype(value)>(value),
-//                  std::forward<Args>(args)...);
-//     };
-// }
-
 // Operator | overload for pipe operations
 template <typename T, typename F> auto operator|(T &&value, F &&operation) {
     return operation(std::forward<T>(value));
