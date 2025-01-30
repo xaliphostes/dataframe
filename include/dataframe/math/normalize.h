@@ -15,7 +15,7 @@
 #pragma once
 #include <array>
 #include <dataframe/Serie.h>
-#include <dataframe/macros.h>
+#include <dataframe/utils.h>
 #include <limits>
 #include <type_traits>
 

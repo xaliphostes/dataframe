@@ -22,14 +22,17 @@
  */
 
 #pragma once
+#include <sstream>
+#include <string>
 
 /**
- * @brief Macro that allows to generate a function to be used in pipe (for example).
+ * @brief Macro that allows to generate a function to be used in pipe (for
+ * example).
  * @example
  * ```cpp
  * Serie scale(const Serie&, double sc);
  * MAKE_OP(scale); // will generate: bind_scale
- * 
+ *
  * auto result = pipe(
  *      serie,
  *      bind_scale(2),
@@ -37,9 +40,25 @@
  * )
  * ```
  */
-#define MAKE_OP(op) \
-    template <typename F> \
-    auto bind_##op(F &&cb) \
-    { \
-        return [cb = std::forward<F>(cb)](const auto &serie) { return op(cb, serie); }; \
+#define MAKE_OP(op)                                                            \
+    template <typename F> auto bind_##op(F &&cb) {                             \
+        return [cb = std::forward<F>(cb)](const auto &serie) {                 \
+            return op(cb, serie);                                              \
+        };                                                                     \
     }
+
+/**
+ * Waiting for LLVM to support the std::format functions (C++20).
+ *
+ * Usage:
+ * @code
+ * int age = 25;
+ * std::string name = "Alice";
+ * std::string result = format("Name: ", name, ", Age: ", age);
+ * @endcode
+ */
+template <typename... Args> std::string format(const Args &...args) {
+    std::ostringstream oss;
+    (oss << ... << args);
+    return oss.str();
+}

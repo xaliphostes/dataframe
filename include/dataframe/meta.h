@@ -22,7 +22,6 @@
  */
 
 #pragma once
-#include <sstream>
 #include <type_traits>
 #include <vector>
 
@@ -120,7 +119,9 @@ struct container_size<std::array<T, N>>
 
 // -------------------------------------------------
 
-// Type trait to check if a type has reserve method
+/**
+ * @brief Type trait to check if a type has reserve method
+ */
 template <typename T, typename = void> struct has_reserve : std::false_type {};
 
 template <typename T>
@@ -161,43 +162,3 @@ template <typename... Types> struct tuple_element_types<std::tuple<Types...>> {
 
 } // namespace details
 } // namespace df
-
-// -------------------------------------------------
-
-/**
- * Waiting for LLVM to support the std::format functions (C++20).
- *
- * Usage:
- * @code
- * int age = 25;
- * std::string name = "Alice";
- * std::string result = format("Name: ", name, ", Age: ", age);
- * @endcode
- */
-template <typename... Args> std::string format(const Args &...args) {
-    std::ostringstream oss;
-    (oss << ... << args);
-    return oss.str();
-}
-
-/**
- * @brief Macro that allows to generate a function to be used in pipe (for
- * example).
- * @example
- * ```cpp
- * Serie scale(const Serie&, double sc);
- * MAKE_OP(scale); // will generate: bind_scale
- *
- * auto result = pipe(
- *      serie,
- *      bind_scale(2),
- *      bind_scale(10)
- * )
- * ```
- */
-#define MAKE_OP(op)                                                            \
-    template <typename F> auto bind_##op(F &&cb) {                             \
-        return [cb = std::forward<F>(cb)](const auto &serie) {                 \
-            return op(cb, serie);                                              \
-        };                                                                     \
-    }
