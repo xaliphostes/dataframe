@@ -68,10 +68,10 @@ TEST(pipe, make_pipe) {
     auto result = pipeline(series);
     std::cerr << result << std::endl;
 
-    // Using compose (operations are applied from right to left)
-    auto pipeline2 = df::compose(
-        df::bind_reduce([](int acc, int x, int) { return acc + x; }, 0),
-        df::bind_map([](int x, int) { return x * 2; }));
+    // // Using compose (operations are applied from right to left)
+    // auto pipeline2 = df::compose(
+    //     df::bind_reduce([](int acc, int x, int) { return acc + x; }, 0),
+    //     df::bind_map([](int x, int) { return x * 2; }));
 
     // Can also be used directly with the pipe operator
     auto result2 = series | pipeline;

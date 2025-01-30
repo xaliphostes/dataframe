@@ -27,52 +27,20 @@
 
 namespace df {
 
+/**
+ * @bried Utility function to display info about a serie
+ */
 template <typename T>
-void print(const Serie<T> &serie, size_t precision = 4) {
-    if (serie.empty()) {
-        std::cerr << "Invalid Serie" << std::endl;
-        return;
-    }
+void print(const Serie<T> &serie, size_t precision = 4);
 
-    // Save current precision and set new one
-    std::ios::fmtflags oldFlags = std::cout.flags();
-    std::streamsize oldPrecision = std::cout.precision();
-    std::cout.precision(precision);
-    std::cout << std::fixed;
-
-    // std::cout << serie << std::endl;
-
-    // Print header info
-    std::cout << "Serie<" << type_name<T>() << "> {\n";
-    std::cout << "  size: " << serie.size() << "\n";
-
-    if (serie.size() > 0) {
-        std::cout << "  values: [\n";
-        for (size_t i = 0; i < serie.size(); ++i) {
-            std::cout << "    " << serie[i];
-            if (i < serie.size() - 1) {
-                std::cout << ", \n";
-            } else {
-                std::cout << "\n  ]\n";
-            }
-        }
-        std::cout << "}" << std::endl;
-
-        // Restore old flags and precision
-        std::cout.flags(oldFlags);
-        std::cout.precision(oldPrecision);
-    }
-}
-
-// Version pour imprimer plusieurs séries
+/**
+ * @brief Utility function to display info about a a vector of serie
+ */
 template <typename T>
-void print(const std::vector<Serie<T>> &series, size_t precision = 4) {
-    std::cout << series.size() << " series:" << std::endl;
-    for (const auto &serie : series) {
-        print(serie, precision);
-    }
-}
+void print(const std::vector<Serie<T>> &series, size_t precision = 4);
 
 MAKE_OP(print);
 
 } // namespace df
+
+#include "inline/print.hxx"

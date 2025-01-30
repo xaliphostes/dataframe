@@ -25,6 +25,10 @@
 #include <type_traits>
 #include <vector>
 
+/**
+ * @brief Meta programming utilities for the dataframe library
+ */
+
 namespace df {
 namespace details {
 

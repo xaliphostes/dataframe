@@ -28,28 +28,38 @@
 
 namespace df {
 
-// Base case: end of pipe chain
+/**
+ * @brief Base case: end of pipe chain
+ */
 template <typename T> auto pipe(T &&value) { return std::forward<T>(value); }
 
-// General case: pipe with operation
+/**
+ * @brief General case: pipe with operation
+ */
 template <typename T, typename F, typename... Rest>
 auto pipe(T &&value, F &&operation, Rest &&...rest) {
     return pipe(operation(std::forward<T>(value)), std::forward<Rest>(rest)...);
 }
 
-// Operator | overload for pipe operations
+/**
+ * @brief Operator | overload for pipe operations
+ */
 template <typename T, typename F> auto operator|(T &&value, F &&operation) {
     return operation(std::forward<T>(value));
 }
 
-// Base case: single operation
+/**
+ * @brief Base case: single operation
+ */
 template <typename F> auto make_pipe(F &&operation) {
     return [op = std::forward<F>(operation)](const auto &value) {
         return op(value);
     };
 }
 
-// General case: multiple operations
+/**
+ * @brief General case: multiple operations
+ */
 template <typename F, typename... Rest>
 auto make_pipe(F &&first, Rest &&...rest) {
     return [first = std::forward<F>(first),
@@ -57,15 +67,17 @@ auto make_pipe(F &&first, Rest &&...rest) {
                const auto &value) { return rest_pipe(first(value)); };
 }
 
-// Helper to compose operations from right to left (like mathematical function
-// composition)
-template <typename F> auto compose(F &&operation) {
-    return make_pipe(std::forward<F>(operation));
-}
+// /**
+//  * @brief Helper to compose operations from right to left (like mathematical
+//  * function composition)
+//  */
+// template <typename F> auto compose(F &&operation) {
+//     return make_pipe(std::forward<F>(operation));
+// }
 
-template <typename F, typename... Rest> auto compose(F &&last, Rest &&...rest) {
-    return make_pipe(compose(std::forward<Rest>(rest)...),
-                     std::forward<F>(last));
-}
+// template <typename F, typename... Rest> auto compose(F &&last, Rest &&...rest) {
+//     return make_pipe(compose(std::forward<Rest>(rest)...),
+//                      std::forward<F>(last));
+// }
 
 } // namespace df

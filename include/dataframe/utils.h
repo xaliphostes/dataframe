@@ -26,6 +26,24 @@
 #include <string>
 
 /**
+ * Waiting for LLVM to support the std::format functions (C++20).
+ *
+ * Usage:
+ * @code
+ * int age = 25;
+ * std::string name = "Alice";
+ * std::string result = format("Name: ", name, ", Age: ", age);
+ * @endcode
+ */
+template <typename... Args> std::string format(const Args &...args) {
+    std::ostringstream oss;
+    (oss << ... << args);
+    return oss.str();
+}
+
+// ------------------------------------------------------
+
+/**
  * @brief Macro that allows to generate a function to be used in pipe (for
  * example).
  * @example
@@ -46,19 +64,3 @@
             return op(cb, serie);                                              \
         };                                                                     \
     }
-
-/**
- * Waiting for LLVM to support the std::format functions (C++20).
- *
- * Usage:
- * @code
- * int age = 25;
- * std::string name = "Alice";
- * std::string result = format("Name: ", name, ", Age: ", age);
- * @endcode
- */
-template <typename... Args> std::string format(const Args &...args) {
-    std::ostringstream oss;
-    (oss << ... << args);
-    return oss.str();
-}
