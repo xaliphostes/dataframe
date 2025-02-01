@@ -89,15 +89,34 @@ df::Serie<int> s4{1, 2, 3, 4, 5};
 auto s = (s1 + s2) * s3 / s4;
 ```
 
-### Parallel Processing
+### Parallel Processing (whenAll)
+
+The library provides several ways to perform parallel computations on Series.
+
+The parallel processing functions are particularly useful for:
+- Large datasets where computation can be distributed
+- CPU-intensive operations on each element
+- Processing multiple series simultaneously
+- Operations that can be executed independently
+
+Note that for small datasets, the overhead of parallel execution might outweigh the benefits. Consider using parallel operations when:
+- The dataset size is large (typically > 10,000 elements)
+- The operation per element is computationally expensive
+- The operation doesn't require maintaining order-dependent state
 
 ```cpp
-#include <dataframe/parallel_map.h>
+#include <dataframe/utils/whenAll.h>
 
-// Process large datasets in parallel
-auto result = df::parallel_map([](double x, size_t) {
-    return std::sqrt(x * x + 2 * x + 1);
-}, large_series);
+// Process multiple series in parallel with transformation
+df::Serie<double> s1{1.0, 2.0, 3.0, ...};
+df::Serie<double> s2{4.0, 5.0, 6.0, ...};
+
+auto result = df::whenAll([](const df::Serie<double>& s) { 
+    return s.map([](double x) { return x * 2; }); 
+}, {s1, s2});
+
+// Parallel processing with tuple results
+auto [r1, r2] = df::whenAll<double>(s1, s2);
 ```
 
 ### Working with Custom Types
