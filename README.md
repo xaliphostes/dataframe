@@ -15,7 +15,7 @@
 
 
 # 
-### ***<center>...Work in progress for linear algebra operations...</center>***
+### ***<center>...Work in progress for linear algebra, stats and geo(metry, logy, physic...) operations...</center>***
 #
 
 <br>
