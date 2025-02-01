@@ -2,8 +2,10 @@
 #include <array>
 #include <complex>
 #include <dataframe/math/add.h>
+#include <dataframe/math/div.h>
+#include <dataframe/math/mult.h>
+#include <dataframe/math/sub.h>
 #include <dataframe/meta.h>
-// #include <dataframe/math/sub.h>
 #include <vector>
 
 using namespace df;
@@ -345,7 +347,7 @@ std::ostream &operator<<(std::ostream &o, const DynamicVector &m) {
     return o;
 }
 
-TEST(Serie, MyVector3) {
+TEST(add, MyVector3) {
     // Fixed-size custom vector
     Serie<MyVector3> vec1{MyVector3(1.0, 2.0, 3.0), MyVector3(4.0, 5.0, 6.0)};
     Serie<MyVector3> vec2{MyVector3(0.1, 0.2, 0.3), MyVector3(0.4, 0.5, 0.6)};
@@ -388,7 +390,7 @@ TEST(Serie, MyVector3) {
 //     }
 // }
 
-TEST(Serie, MixedTypeAddition) {
+TEST(add, MixedTypeAddition) {
     MSG("Testing addition between different container types");
 
     // std::array with custom MyVector3
@@ -413,7 +415,7 @@ TEST(Serie, MixedTypeAddition) {
                       1e-10);
 }
 
-TEST(Serie, PipelineOperations) {
+TEST(add, PipelineOperations) {
     MSG("Testing pipeline operations with different types");
 
     using Vector3D = std::array<double, 3>;
@@ -430,7 +432,7 @@ TEST(Serie, PipelineOperations) {
     EXPECT_ARRAY_NEAR(chain_result[1], Vector3D({4.8, 6.0, 7.2}), 1e-10);
 }
 
-TEST(Serie, OperatorPlus) {
+TEST(add, OperatorPlus) {
     MSG("Testing operator+ with arithmetic types");
 
     // Test with integers
@@ -452,7 +454,7 @@ TEST(Serie, OperatorPlus) {
                       std::vector<double>({2.5, 4.5, 6.5}), 1e-10);
 }
 
-TEST(Serie, OperatorPlusVector) {
+TEST(add, OperatorPlusVector) {
     MSG("Testing operator+ with Vector3D");
 
     using Vector3D = std::array<double, 3>;
@@ -476,13 +478,23 @@ TEST(Serie, OperatorPlusVector) {
     }
 }
 
-TEST(Serie, OperatorPlusErrors) {
+TEST(add, OperatorPlusErrors) {
     MSG("Testing operator+ error conditions");
 
     Serie<int> s1{1, 2, 3};
     Serie<int> s2{1, 2}; // Different size
 
     EXPECT_THROW(s1 + s2, std::runtime_error);
+}
+
+TEST(add, multiple_operators) {
+    df::Serie<int> s1{1, 2, 3, 4, 5};
+    df::Serie<int> s2{1, 2, 3, 4, 5};
+    df::Serie<int> s3{1, 2, 3, 4, 5};
+    df::Serie<int> s4{1, 2, 3, 4, 5};
+
+    auto s = (s1 + s2) * s3 / s4;
+    EXPECT_ARRAY_EQ(s.asArray(), std::vector<int>({2, 4, 6, 8, 10}));
 }
 
 RUN_TESTS()

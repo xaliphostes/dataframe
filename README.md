@@ -84,8 +84,9 @@ auto result = pipeline(numbers);
 df::Serie<int> s1{1, 2, 3, 4, 5};
 df::Serie<int> s2{1, 2, 3, 4, 5};
 df::Serie<int> s3{1, 2, 3, 4, 5};
+df::Serie<int> s4{1, 2, 3, 4, 5};
 
-auto s = s1 - s2 * s3;
+auto s = (s1 + s2) * s3 / s4;
 ```
 
 ### Parallel Processing
