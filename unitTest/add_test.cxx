@@ -1,8 +1,8 @@
 #include "TEST.h"
 #include <array>
 #include <complex>
-#include <dataframe/meta.h>
 #include <dataframe/math/add.h>
+#include <dataframe/meta.h>
 // #include <dataframe/math/sub.h>
 #include <vector>
 
@@ -203,8 +203,9 @@ class Matrix2x2 {
     value_type data_;
 };
 
-std::ostream &operator<<(std::ostream &o, const Matrix2x2& m) {
-    o << m.data()[0] << " " << m.data()[1] << " " << m.data()[2] << " " << m.data()[3] << std::endl;
+std::ostream &operator<<(std::ostream &o, const Matrix2x2 &m) {
+    o << m.data()[0] << " " << m.data()[1] << " " << m.data()[2] << " "
+      << m.data()[3] << std::endl;
     return o;
 }
 
@@ -339,7 +340,7 @@ class DynamicVector {
     value_type data_;
 };
 
-std::ostream &operator<<(std::ostream &o, const DynamicVector& m) {
+std::ostream &operator<<(std::ostream &o, const DynamicVector &m) {
     o << "Dynamic-vector" << std::endl;
     return o;
 }
@@ -367,7 +368,7 @@ TEST(Serie, MyVector3) {
 //         DynamicVector{0.1, 0.2, 0.3},
 //         DynamicVector{0.4, 0.5, 0.6}
 //     };
-                              
+
 //     auto dyn_result = add(dyn1, dyn2);
 
 //     // Verify the results
@@ -375,12 +376,12 @@ TEST(Serie, MyVector3) {
 //     std::vector<double> expected2{4.4, 5.5, 6.6};
 
 //     EXPECT_EQ(dyn_result.size(), 2);
-    
+
 //     // Check first vector
 //     for (size_t j = 0; j < 3; ++j) {
 //         EXPECT_NEAR(dyn_result[0][j], expected1[j], 1e-10);
 //     }
-    
+
 //     // Check second vector
 //     for (size_t j = 0; j < 3; ++j) {
 //         EXPECT_NEAR(dyn_result[1][j], expected2[j], 1e-10);
@@ -427,6 +428,61 @@ TEST(Serie, PipelineOperations) {
     auto chain_result = v1 | bind_add(v2) | bind_add(v2);
     EXPECT_ARRAY_NEAR(chain_result[0], Vector3D({1.2, 2.4, 3.6}), 1e-10);
     EXPECT_ARRAY_NEAR(chain_result[1], Vector3D({4.8, 6.0, 7.2}), 1e-10);
+}
+
+TEST(Serie, OperatorPlus) {
+    MSG("Testing operator+ with arithmetic types");
+
+    // Test with integers
+    Serie<int> s1{1, 2, 3};
+    Serie<int> s2{4, 5, 6};
+    auto result = s1 + s2;
+    EXPECT_ARRAY_EQ(result.asArray(), std::vector<int>({5, 7, 9}));
+
+    // Test with doubles
+    Serie<double> d1{1.5, 2.5, 3.5};
+    Serie<double> d2{0.1, 0.2, 0.3};
+    auto result_double = d1 + d2;
+    EXPECT_ARRAY_NEAR(result_double.asArray(),
+                      std::vector<double>({1.6, 2.7, 3.8}), 1e-10);
+
+    // Test with mixed types
+    auto result_mixed = s1 + d1;
+    EXPECT_ARRAY_NEAR(result_mixed.asArray(),
+                      std::vector<double>({2.5, 4.5, 6.5}), 1e-10);
+}
+
+TEST(Serie, OperatorPlusVector) {
+    MSG("Testing operator+ with Vector3D");
+
+    using Vector3D = std::array<double, 3>;
+
+    Serie<Vector3D> s1{Vector3D{1.0, 0.0, 0.0}, Vector3D{0.0, 1.0, 0.0}};
+
+    Serie<Vector3D> s2{Vector3D{0.0, 1.0, 0.0}, Vector3D{1.0, 0.0, 1.0}};
+
+    auto result = s1 + s2;
+
+    // Expected results
+    std::vector<Vector3D> expected{Vector3D{1.0, 1.0, 0.0},
+                                   Vector3D{1.0, 1.0, 1.0}};
+
+    // Compare results
+    EXPECT_EQ(result.size(), expected.size());
+    for (size_t i = 0; i < result.size(); ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+            EXPECT_NEAR(result[i][j], expected[i][j], 1e-10);
+        }
+    }
+}
+
+TEST(Serie, OperatorPlusErrors) {
+    MSG("Testing operator+ error conditions");
+
+    Serie<int> s1{1, 2, 3};
+    Serie<int> s2{1, 2}; // Different size
+
+    EXPECT_THROW(s1 + s2, std::runtime_error);
 }
 
 RUN_TESTS()

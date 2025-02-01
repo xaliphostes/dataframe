@@ -75,6 +75,19 @@ auto pipeline = df::bind_map([](int n, size_t) { return n * 2; }) |
 auto result = pipeline(numbers);
 ```
 
+### Operator overloading
+
+```cpp
+#include <dataframe/Serie.h>
+
+// Create a serie of numbers
+df::Serie<int> s1{1, 2, 3, 4, 5};
+df::Serie<int> s2{1, 2, 3, 4, 5};
+df::Serie<int> s3{1, 2, 3, 4, 5};
+
+auto s = s1 - s2 * s3;
+```
+
 ### Parallel Processing
 
 ```cpp

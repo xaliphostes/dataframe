@@ -36,3 +36,9 @@ template <typename U> inline auto bind_mult(const Serie<U> &serie2) {
 }
 
 } // namespace df
+
+// Operator+ for two series
+template <typename T, typename U>
+inline auto operator*(const df::Serie<T> &serie1, const df::Serie<U> &serie2) {
+    return df::mult(serie1, serie2);
+}
