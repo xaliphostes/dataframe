@@ -1,4 +1,4 @@
-# Dataframe Library
+# Simple and efficient C++ Dataframe Library
 
 <p align="center">
   <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
