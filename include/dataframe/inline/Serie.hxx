@@ -68,7 +68,7 @@ template <typename T> std::string type_name() {
 
 template <typename T> Serie<T>::Serie(const ArrayType &values) {
     data_.reserve(values.size());
-    for (auto &v : values) {
+    for (const auto &v : values) {
         data_.push_back(v);
     }
 }
@@ -151,7 +151,7 @@ auto Serie<T>::reduce(F &&callback, AccT initial) {
 
 template <typename T>
 std::ostream &operator<<(std::ostream &o, const df::Serie<T> &s) {
-    o << "Serie<" << s.type() << ">" << std::endl;
+    o << "Serie<" << s.type_name() << ">" << std::endl;
     o << "  size    : " << s.size() << std::endl;
     if (s.size() > 0) {
         o << "  values   : [";

@@ -48,7 +48,7 @@ public:
     using value_type = T;
     using ArrayType = std::vector<T>;
 
-    std::string type() const;
+    std::string type_name() const;
     T& operator[](size_t index);
     const T& operator[](size_t index) const;
     uint32_t size() const;

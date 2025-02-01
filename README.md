@@ -24,7 +24,7 @@ A modern C++ library for data manipulation with a focus on functional programmin
 
 ## Features
 
-- Generic series container (`Serie<T>`) for any data type
+- Generic series container (`Serie<T>`) for any data type (similar to a column in Excel sheet)
 - DataFrame for managing multiple named series
 - Rich functional operations (map, reduce, filter, etc.)
 - Parallel processing capabilities
@@ -33,14 +33,16 @@ A modern C++ library for data manipulation with a focus on functional programmin
 
 ## Core Concepts
 
-### Serie<T>
+### `Serie<T>`
 
 A type-safe container for sequences of data with functional operations:
 - Supports any data type
 - Provides functional operations (map, reduce, filter)
 - Enables chaining operations using pipe syntax
 
-### DataFrame
+For comparison, the main difference is that while Excel columns can contain mixed types and empty cells, a Serie is strongly typed and all elements must be of the same type, making it more suitable for type-safe data processing.
+
+### `DataFrame`
 
 A container for managing multiple named series:
 - Type-safe storage of different series types
@@ -71,6 +73,17 @@ auto pipeline = df::bind_map([](int n, size_t) { return n * 2; }) |
 
 // Apply the pipeline to the numbers serie
 auto result = pipeline(numbers);
+```
+
+### Parallel Processing
+
+```cpp
+#include <dataframe/parallel_map.h>
+
+// Process large datasets in parallel
+auto result = df::parallel_map([](double x, size_t) {
+    return std::sqrt(x * x + 2 * x + 1);
+}, large_series);
 ```
 
 ### Working with Custom Types
@@ -117,6 +130,12 @@ df.remove("integers");
 ### 3D Mesh Example
 
 ```cpp
+#include <dataframe/Serie.h>
+#include <dataframe/DataFrame.h>
+#include <dataframe/map.h>
+#include <dataframe/math/norm.h>
+#include <dataframe/geo/normal.h>
+
 // Define types for clarity
 using Point    = std::array<double, 3>;
 using Triangle = std::array<uint32_t, 3>;
@@ -145,21 +164,14 @@ mesh.add("vertices", vertices);
 mesh.add("triangles", triangles);
 
 // Transform vertices
-auto transformed_vertices = vertices.map([](const Point& p, size_t) {
+auto transformed_vertices = df::map([](const Point& p, size_t) {
     return Point{p[0] * 2.0, p[1] * 2.0, p[2] * 2.0};
-});
+}, vertices);
 mesh.add("transformed_vertices", transformed_vertices);
-```
 
-### Parallel Processing
-
-```cpp
-#include <dataframe/parallel_map.h>
-
-// Process large datasets in parallel
-auto result = df::parallel_map([](double x, size_t) {
-    return std::sqrt(x * x + 2 * x + 1);
-}, large_series);
+// Add attributes at vertices
+mesh.add("norm", df::norm(vertices));
+mesh.add("normal", df::normals(vertices));
 ```
 
 ## Installation

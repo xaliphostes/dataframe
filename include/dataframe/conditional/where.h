@@ -23,48 +23,41 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-
-namespace df {
-namespace math {
+#include <type_traits>
 
 /**
- * @brief Negate values in a serie
- * @param serie Input serie to negate
- * @return Serie<T> Negated serie with same dimensions
+ * @code
+ * // With series values
+ * Serie<bool> condition{true, false, true};
+ * Serie<int> then_serie{1, 2, 3};
+ * Serie<int> else_serie{10, 20, 30};
+ * auto result1 = where(condition, then_serie, else_serie);  // {1, 20, 3}
+ *
+ * // With scalar values
+ * auto result2 = where(condition, 100, -100);  // {100, -100, 100}
+ *
+ * // Using pipeline syntax
+ * auto result3 = condition | bind_where(then_serie, else_serie);
+ * auto result4 = condition | bind_where(100, -100);
+ * @endcode
  */
-template<typename T>
-Serie<T> negate(const Serie<T>& serie) {
-    Serie<T> result(serie.itemSize(), serie.count());
-    
-    if (serie.itemSize() == 1) {
-        // Scalar case
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            result.setValue(i, -serie.value(i));
-        }
-    } else {
-        // Vector case
-        for (uint32_t i = 0; i < serie.count(); ++i) {
-            auto vec = serie.array(i);
-            std::vector<T> negated(vec.size());
-            for (size_t j = 0; j < vec.size(); ++j) {
-                negated[j] = -vec[j];
-            }
-            result.setArray(i, negated);
-        }
-    }
-    
-    return result;
-}
 
-MAKE_OP(negate);
+namespace df {
 
-} // namespace math
+template <typename CondT, typename ThenT, typename ElseT>
+auto where(const Serie<CondT> &condition, const Serie<ThenT> &then_serie,
+           const Serie<ElseT> &else_serie);
+
+template <typename CondT, typename ThenT, typename ElseT>
+auto where(const Serie<CondT> &condition, const ThenT &then_value,
+           const ElseT &else_value);
+
+template <typename ThenT, typename ElseT>
+auto bind_where(const Serie<ThenT> &then_serie, const Serie<ElseT> &else_serie);
+
+template <typename ThenT, typename ElseT>
+auto bind_where(const ThenT &then_value, const ElseT &else_value);
+
 } // namespace df
 
-// --------------------------------------------------
-
-// Operator overload for unary minus
-template<typename T>
-df::Serie<T> operator-(const df::Serie<T>& serie) {
-    return df::math::negate(serie);
-}
+#include "inline/where.hxx"

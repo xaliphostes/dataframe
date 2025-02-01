@@ -48,4 +48,5 @@ include_directories(include)
 enable_testing()
 auto_discover_tests()
 
-# add_subdirectory(examples/mesh)
+add_subdirectory(examples/complex)
+add_subdirectory(examples/excel)

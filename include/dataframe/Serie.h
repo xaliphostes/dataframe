@@ -24,11 +24,21 @@
 #pragma once
 #include "types.h"
 #include <cstdint>
+#include <iomanip>
 #include <vector>
 
 namespace df {
 
-template <typename T> class Serie {
+class SerieBase {
+  public:
+    virtual ~SerieBase() = default;
+    virtual size_t size() const = 0;
+    // virtual void printValueAt(std::ostream &os, size_t row, size_t width,
+    //                           size_t precision) const = 0;
+    virtual std::string type() const = 0;
+};
+
+template <typename T> class Serie : public SerieBase {
   public:
     using value_type = T;
     using ArrayType = std::vector<T>;
@@ -39,9 +49,26 @@ template <typename T> class Serie {
     Serie(const ArrayType &values);
     Serie(const std::initializer_list<T> &values);
 
-    std::string type() const;
-    size_t size() const;
-    bool empty() const ;
+    std::string type() const override;
+    size_t size() const override;
+    bool empty() const;
+
+    // void printValueAt(std::ostream &os, size_t row, size_t width,
+    //                   size_t precision) const override {
+    //     if (row >= data_.size()) {
+    //         throw std::out_of_range("Row index out of bounds");
+    //     }
+
+    //     const T &value = data_[row];
+    //     os << ' ';
+    //     if constexpr (std::is_floating_point_v<T>) {
+    //         os << std::fixed << std::setprecision(precision) <<
+    //         std::setw(width)
+    //            << std::left << value;
+    //     } else {
+    //         os << std::setw(width) << std::left << value;
+    //     }
+    // }
 
     T &operator[](size_t index);
     const T &operator[](size_t index) const;

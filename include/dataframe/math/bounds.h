@@ -24,42 +24,35 @@
 #pragma once
 #include <dataframe/Serie.h>
 
-namespace df {
-namespace math {
-
-// Helper struct to hold min/max results
 /**
- * @ingroup Math
+ * @code
+ * // For arithmetic types
+ * Serie<double> s1{1.5, -2.5, 3.5, -4.5, 5.5};
+ * auto [min_val, max_val] = bounds(s1);  // Gets both bounds
+ * auto min_only = min(s1);               // Gets just minimum
+ * auto max_only = max(s1);               // Gets just maximum
+ *
+ * // For Vector3D
+ * Serie<Vector3D> s2{{1.0, -2.0, 3.0}, {-4.0, 5.0, -6.0}};
+ * auto [vec_min, vec_max] = bounds(s2);  // Gets min/max across all components
+ *
+ * // Using pipeline syntax
+ * auto [pipe_min, pipe_max] = s1 | bind_bounds();
+ * auto min_pipe = s1 | bind_min();
+ * auto max_pipe = s1 | bind_max();
+ * @endcode
  */
-template <typename T> struct Bounds {
-    Bounds() = default;
-    Bounds(const Array<T> &m, const Array<T> &M) : min(m), max(M) {}
-    Array<T> min;
-    Array<T> max;
-};
 
-template <typename T> Bounds<T> bounds(const Serie<T> &serie) {
-    if (serie.isEmpty()) {
-        return Bounds<T>({}, {});
-    }
+namespace df {
 
-    std::vector<T> min = serie.array(0);
-    std::vector<T> max = min;
+template <typename T> auto bounds(const Serie<T> &serie);
+template <typename T> auto min(const Serie<T> &serie);
+template <typename T> auto max(const Serie<T> &serie);
 
-    for (uint32_t i = 1; i < serie.count(); ++i) {
-        auto arr = serie.array(i);
-        for (size_t j = 0; j < arr.size(); ++j) {
-            min[j] = std::min(min[j], arr[j]);
-            max[j] = std::max(max[j], arr[j]);
-        }
-    }
+auto bind_bounds();
+auto bind_min();
+auto bind_max();
 
-    return Bounds{min, max};
-}
-
-template <typename T> inline auto make_bounds() {
-    return [](const auto &serie) { return bounds(serie); };
-}
-
-} // namespace math
 } // namespace df
+
+#include "inline/bounds.hxx"

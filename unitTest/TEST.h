@@ -273,7 +273,7 @@ template <typename T> struct ParsedSerie {
 #define EXPECT_SERIE_EQ(serie, expected)                                       \
     {                                                                          \
         EXPECT_EQ(serie.size(), expected.size);                                \
-        EXPECT_STREQ(serie.type(), expected.type);                             \
+        EXPECT_STREQ(serie.type_name(), expected.type);                             \
         EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
     }
 

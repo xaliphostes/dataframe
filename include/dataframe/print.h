@@ -23,23 +23,54 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
+
+/**
+ * @code
+ * // Basic usage with zip
+ * Serie<double> s1{1.23456, 2.34567, 3.45678};
+ * Serie<int> s2{10, 20, 30};
+ * Serie<float> s3{100.123f, 200.234f, 300.345f};
+ * 
+ * print(zip(s1, s2, s3));  // default precision
+ * print(zip(s1, s2, s3), 2);  // custom precision
+ * 
+ * // Pipeline operation
+ * zip(s1, s2, s3) | bind_print<double, int, float>(3);
+ * 
+ * // Zip with expressions
+ * auto scaled = s1.map([](double x) { return x * 2; });
+ * print(zip(s1, scaled));
+ * @endcode
+ *
+ * @code
+ * // Single series
+ * Serie<double> s1{1.23456, 2.34567, 3.45678};
+ * print(s1);  // default precision (4)
+ * print(s1, 2);  // custom precision
+ * 
+ * // Multiple series
+ * std::vector<Serie<double>> series{s1, s2, s3};
+ * print(series);  // default precision
+ * print(series, 2);  // custom precision
+ * 
+ * // Pipeline operation
+ * s1 | bind_print<double>(3);
+ * @endcode
+ */
 
 namespace df {
 
-/**
- * @bried Utility function to display info about a serie
- */
-template <typename T>
-void print(const Serie<T> &serie, size_t precision = 4);
+template <typename... Types> using ZippedSeries = Serie<std::tuple<Types...>>;
 
-/**
- * @brief Utility function to display info about a a vector of serie
- */
-template <typename T>
-void print(const std::vector<Serie<T>> &series, size_t precision = 4);
+template <typename T> void print(const std::vector<Serie<T>> &, size_t = 4);
+template <typename T> void print(const Serie<T> &, size_t = 4);
 
-MAKE_OP(print);
+// Print function for zipped series
+template <typename... Types>
+void print(const ZippedSeries<Types...> &, size_t = 4);
+
+template <typename T> auto bind_print(size_t precision = 4);
+template <typename... Types> auto bind_print_zipped(size_t = 4);
 
 } // namespace df
 

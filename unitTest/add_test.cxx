@@ -203,6 +203,11 @@ class Matrix2x2 {
     value_type data_;
 };
 
+std::ostream &operator<<(std::ostream &o, const Matrix2x2& m) {
+    o << m.data()[0] << " " << m.data()[1] << " " << m.data()[2] << " " << m.data()[3] << std::endl;
+    return o;
+}
+
 TEST(add, Matrix2x2) {
     // Custom Matrix type
     Serie<Matrix2x2> m1{Matrix2x2({1.0, 2.0, 3.0, 4.0}),
@@ -333,6 +338,11 @@ class DynamicVector {
   private:
     value_type data_;
 };
+
+std::ostream &operator<<(std::ostream &o, const DynamicVector& m) {
+    o << "Dynamic-vector" << std::endl;
+    return o;
+}
 
 TEST(Serie, MyVector3) {
     // Fixed-size custom vector
