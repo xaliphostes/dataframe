@@ -22,6 +22,8 @@
 
 A modern C++ library for data manipulation with a focus on functional programming patterns and type safety.
 
+Only headers. Non linking!
+
 ## Features
 
 - Generic series container (`Serie<T>`) for any data type (similar to a column in Excel sheet)
