@@ -28,69 +28,42 @@
 
 namespace df {
 
-// Scale any type by an arithmetic scalar value
+/**
+ * @brief Scale any type by an arithmetic scalar value
+ */
 template <typename T, typename S>
-auto scale(const Serie<T> &serie, const S scalar)
-    -> std::enable_if_t<std::is_arithmetic<S>::value, Serie<T>> {
-    return serie.map(
-        [scalar](const T &value, size_t) { return value * scalar; });
-}
+auto scale(const Serie<T> &, const S) -> details::isArithmeticSerie<T, S>;
 
-// Scale any type by a Serie of arithmetic values
+/**
+ * @brief Scale any type by a Serie of arithmetic values
+ */
 template <typename T, typename S>
-auto scale(const Serie<T> &serie, const Serie<S> &scalars)
-    -> std::enable_if_t<std::is_arithmetic<S>::value, Serie<T>> {
-    if (serie.size() != scalars.size()) {
-        throw std::runtime_error(
-            "Series must have the same size for element-wise scaling");
-    }
+auto scale(const Serie<T> &, const Serie<S> &) -> details::isArithmeticSerie<T, S>;
 
-    return serie.map(
-        [&scalars](const T &value, size_t i) { return value * scalars[i]; });
-}
-
-// Element-wise scaling with the same type
+/**
+ * @brief Element-wise scaling with the same type
+ */
 template <typename T>
-Serie<T> scale(const Serie<T> &serie, const Serie<T> &scalars) {
-    if (serie.size() != scalars.size()) {
-        throw std::runtime_error(
-            "Series must have the same size for element-wise scaling");
-    }
+Serie<T> scale(const Serie<T> &serie, const Serie<T> &scalars);
 
-    return serie.map(
-        [&scalars](const T &value, size_t i) { return value * scalars[i]; });
-}
+/**
+ * @brief Alternative bind_scale implementation that avoids explicit type
+ * specification
+ */
+struct scale_binder;
 
-// Bind function for pipeline operations with arithmetic scalar value
-// template <typename T, typename S>
-// auto bind_scale(S scalar)
-//     -> std::enable_if_t<std::is_arithmetic<S>::value,
-//                         std::function<Serie<T>(const Serie<T> &)>> {
-//     return [scalar](const Serie<T> &serie) { return scale(serie, scalar); };
-// }
-
-// Alternative bind_scale implementation that avoids explicit type specification
-struct scale_binder {
-    template <typename S> scale_binder(S s) : scalar(s) {}
-
-    template <typename T> Serie<T> operator()(const Serie<T> &serie) const {
-        return scale(serie, scalar);
-    }
-
-    double scalar;
-};
-
-// Helper function to create scale_binder
+/**
+ * @brief Helper function to create scale_binder
+ */
 template <typename S>
 auto bind_scale(S scalar)
-    -> std::enable_if_t<std::is_arithmetic<S>::value, scale_binder> {
-    return scale_binder(scalar);
-}
+    -> std::enable_if_t<std::is_arithmetic<S>::value, scale_binder>;
 
-// Bind function for pipeline operations with any Serie
-template <typename T> auto bind_scale(const Serie<T> &scalars) {
-    return
-        [&scalars](const Serie<T> &serie) { return scale(serie, scalars); };
-}
+/**
+ * @brief Bind function for pipeline operations with any Serie
+ */
+template <typename T> auto bind_scale(const Serie<T> &scalars);
 
 } // namespace df
+
+#include "inline/scale.hxx"

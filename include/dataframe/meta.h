@@ -32,6 +32,10 @@
 namespace df {
 namespace details {
 
+template <typename T, typename S>
+using isArithmeticSerie =
+    std::enable_if_t<std::is_arithmetic<S>::value, Serie<T>>;
+
 // -------------------------------------------------
 
 /**
