@@ -21,9 +21,11 @@
  */
 
 #include "../TEST.h"
+#include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/map.h>
 #include <dataframe/utils/whenAll.h>
+#include <limits>
 
 TEST(whenAll, with_transformation) {
     df::Serie<double> s1{1.0, 2.0, 3.0};
