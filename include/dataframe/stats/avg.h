@@ -10,32 +10,35 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  */
 
 #pragma once
+#include <array>
 #include <dataframe/Serie.h>
+#include <dataframe/meta.h>
+#include <dataframe/utils.h>
+#include <type_traits>
 
 namespace df {
-namespace algebra {
 
 /**
- * @ingroup Algebra
+ * Compute arithmetic average of a Serie
+ * Works with scalar types and array types (vectors, matrices)
+ *
+ * @param serie Input Serie
+ * @return Average value (same type as input elements)
+ * @throws std::runtime_error if serie is empty
  */
-Serie inv(const Serie &serie);
+template <typename T> T avg(const Serie<T> &serie);
 
 /**
- * @ingroup Algebra
+ * Return a Serie containing the average value(s)
+ * Useful for pipeline operations
  */
-MAKE_OP(inv);
+template <typename T> Serie<T> avg_serie(const Serie<T> &serie);
 
-} // namespace algebra
+template <typename T> auto bind_avg();
+
 } // namespace df
+
+#include "inline/avg.hxx"

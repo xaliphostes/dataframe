@@ -67,6 +67,14 @@ template <typename T, std::size_t N> struct array_element<std::array<T, N>> {
     using type = T;
 };
 
+// Helper to get array dimension
+template <typename T> struct array_dimension {
+    static constexpr std::size_t value = 1;
+};
+template <typename T, std::size_t N> struct array_dimension<std::array<T, N>> {
+    static constexpr std::size_t value = N;
+};
+
 // -------------------------------------------------
 
 /**

@@ -23,14 +23,14 @@ TEST(inverse, scalar_1x1) {
 
     Serie<std::array<double, 1>> matrices{{2.0}, {4.0}, {-3.0}};
 
-    auto result = inverse(matrices);
+    auto result = inv(matrices);
     EXPECT_ARRAY_NEAR(result[0], std::vector<double>({0.5}), 1e-10);
     EXPECT_ARRAY_NEAR(result[1], std::vector<double>({0.25}), 1e-10);
     EXPECT_ARRAY_NEAR(result[2], std::vector<double>({-1.0 / 3.0}), 1e-10);
 
     // Test singular matrix
     Serie<std::array<double, 1>> singular{{0.0}};
-    EXPECT_THROW(inverse(singular), std::runtime_error);
+    EXPECT_THROW(inv(singular), std::runtime_error);
 }
 
 TEST(inverse, symmetric_2x2) {
@@ -43,7 +43,7 @@ TEST(inverse, symmetric_2x2) {
         {1.0, 0.0, 1.0}  // det = 1
     };
 
-    auto result = inverse(matrices);
+    auto result = inv(matrices);
 
     // Verify first matrix inverse
     EXPECT_ARRAY_NEAR(result[0],
@@ -67,7 +67,7 @@ TEST(inverse, full_2x2) {
         {1.0, 1.0, 1.0, 2.0}  // det = 1
     };
 
-    auto result = inverse(matrices);
+    auto result = inv(matrices);
 
     // Verify first matrix inverse
     EXPECT_ARRAY_NEAR(result[0], std::vector<double>({-2.0, 1.0, 1.5, -0.5}),
@@ -92,7 +92,7 @@ TEST(inverse, symmetric_3x3) {
         {1.0, 0.5, 0.0, 2.0, 0.5, 3.0}  // general symmetric
     };
 
-    auto result = inverse(matrices);
+    auto result = inv(matrices);
 
     // Verify diagonal matrix inverse
     EXPECT_ARRAY_NEAR(
@@ -112,7 +112,7 @@ TEST(inverse, full_3x3) {
         {2, 0, 0, 0, 2, 0, 0, 0, 2}  // diagonal
     };
 
-    auto result = inverse(matrices);
+    auto result = inv(matrices);
 
     // Verify identity matrix inverse (should be identity)
     EXPECT_ARRAY_NEAR(result[0],
@@ -148,20 +148,20 @@ TEST(inverse, edge_cases) {
     // Test singular matrices
     Serie<std::array<double, 3>> singular_2x2{
         {1.0, 1.0, 1.0}}; // singular symmetric 2x2
-    EXPECT_THROW(inverse(singular_2x2), std::runtime_error);
+    EXPECT_THROW(inv(singular_2x2), std::runtime_error);
 
     Serie<std::array<double, 4>> singular_full_2x2{
         {1, 1, 1, 1}}; // singular full 2x2
-    EXPECT_THROW(inverse(singular_full_2x2), std::runtime_error);
+    EXPECT_THROW(inv(singular_full_2x2), std::runtime_error);
 
     // Test empty series
     Serie<std::array<double, 3>> empty{};
-    auto result_empty = inverse(empty);
+    auto result_empty = inv(empty);
     EXPECT_EQ(result_empty.size(), 0);
 
     // Test nearly singular matrices
     Serie<std::array<double, 3>> nearly_singular{{1e-15, 0.0, 1e-15}};
-    EXPECT_THROW(inverse(nearly_singular), std::runtime_error);
+    EXPECT_THROW(inv(nearly_singular), std::runtime_error);
 }
 
 TEST(inverse, special_cases) {
@@ -169,23 +169,23 @@ TEST(inverse, special_cases) {
 
     // Test identity matrices
     Serie<std::array<double, 4>> identity_2x2{{1, 0, 0, 1}};
-    auto result_id_2x2 = inverse(identity_2x2);
+    auto result_id_2x2 = inv(identity_2x2);
     EXPECT_ARRAY_NEAR(result_id_2x2[0], std::vector<double>({1, 0, 0, 1}),
                       1e-10);
 
     Serie<std::array<double, 9>> identity_3x3{{1, 0, 0, 0, 1, 0, 0, 0, 1}};
-    auto result_id_3x3 = inverse(identity_3x3);
+    auto result_id_3x3 = inv(identity_3x3);
     EXPECT_ARRAY_NEAR(result_id_3x3[0],
                       std::vector<double>({1, 0, 0, 0, 1, 0, 0, 0, 1}), 1e-10);
 
     // Test diagonal matrices
     Serie<std::array<double, 3>> diag_sym_2x2{{2.0, 0.0, 3.0}};
-    auto result_diag_2x2 = inverse(diag_sym_2x2);
+    auto result_diag_2x2 = inv(diag_sym_2x2);
     EXPECT_ARRAY_NEAR(result_diag_2x2[0],
                       std::vector<double>({1.0 / 2.0, 0.0, 1.0 / 3.0}), 1e-10);
 
     Serie<std::array<double, 6>> diag_sym_3x3{{2, 0, 0, 2, 0, 2}};
-    auto result_diag_3x3 = inverse(diag_sym_3x3);
+    auto result_diag_3x3 = inv(diag_sym_3x3);
     EXPECT_ARRAY_NEAR(result_diag_3x3[0],
                       std::vector<double>({0.5, 0, 0, 0.5, 0, 0.5}), 1e-10);
 }
