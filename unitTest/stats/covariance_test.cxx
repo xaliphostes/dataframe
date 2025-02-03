@@ -15,6 +15,8 @@
 #include "../TEST.h"
 #include <dataframe/pipe.h>
 #include <dataframe/stats/covariance.h>
+#include <cmath>
+#include <limits>
 
 using namespace df;
 

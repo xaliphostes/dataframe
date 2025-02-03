@@ -15,6 +15,8 @@
 #include "../TEST.h"
 #include <dataframe/pipe.h>
 #include <dataframe/stats/bins.h>
+#include <cmath>
+#include <limits>
 
 using namespace df;
 
