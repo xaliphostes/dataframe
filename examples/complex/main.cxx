@@ -1,9 +1,11 @@
 
+#include <cmath>
 #include <dataframe/Serie.h>
 #include <dataframe/pipe.h>
 #include <dataframe/utils/compose.h>
 #include <dataframe/utils/unzip.h>
 #include <dataframe/utils/zip.h>
+#include <limits>
 
 /**
  * ## This example demonstrates several key features of the dataframe library:
@@ -30,7 +32,7 @@
  *
  * - Processes velocity data to compute statistics
  * - Shows how pipe can be used for simple left-to-right transformations
- * 
+ *
  * 5. ### Display some results
  *
  * The example uses seismic sensor data to show a realistic use case where:
