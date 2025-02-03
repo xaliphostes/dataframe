@@ -16,6 +16,8 @@
 #include <dataframe/Serie.h>
 #include <dataframe/utils/find.h>
 #include <dataframe/pipe.h>
+#include <cmath>
+#include <limits>
 
 TEST(Find, BasicFind) {
     auto series = df::Serie<int>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
