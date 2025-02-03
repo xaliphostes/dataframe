@@ -15,6 +15,8 @@
 #include "../TEST.h"
 #include <dataframe/Serie.h>
 #include <dataframe/math/scale.h>
+#include <cmath>
+#include <limits>
 
 TEST(Scale, scalar_multiplication) {
     df::Serie<double> serie({1.0, 2.0, 3.0, 4.0, 5.0});
