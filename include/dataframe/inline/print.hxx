@@ -166,7 +166,7 @@ void print(const std::vector<Serie<T>> &series, size_t precision) {
         detail::print_row_header(row, max_row_header_width);
 
         for (size_t col = 0; col < series.size(); ++col) {
-            std::cout << "| " << std::setw(column_widths[col])
+            std::cout << "| " /*<< std::setw(column_widths[col])*/
                       << series[col][row] << " ";
         }
         std::cout << "|" << std::endl;

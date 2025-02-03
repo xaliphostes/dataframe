@@ -22,20 +22,40 @@
  */
 
 #pragma once
+#include <array>
+#include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
+#include <stdexcept>
 
 namespace df {
-namespace algebra {
+
+namespace detail {
+
+// Helper for vector norm
+template <typename T, size_t N> T vector_norm(const std::array<T, N> &v) {
+    T sum = T{0};
+    for (const auto &x : v) {
+        sum += x * x;
+    }
+    return std::sqrt(sum);
+}
+
+} // namespace detail
 
 /**
- * @ingroup Algebra
+ * Compute norm (magnitude) of vectors
+ * @param serie Input vector serie
+ * @return Serie containing vector norms
  */
-Serie transpose(const Serie &serie);
+template <typename T, size_t N>
+Serie<T> norm(const Serie<std::array<T, N>> &serie) {
+    return serie.map(
+        [](const auto &v, size_t) { return detail::vector_norm(v); });
+}
 
-/**
- * @ingroup Algebra
- */
-MAKE_OP(transpose);
+template <typename T, size_t N> auto bind_norm() {
+    return [](const Serie<std::array<T, N>> &serie) { return norm(serie); };
+}
 
-} // namespace algebra
 } // namespace df

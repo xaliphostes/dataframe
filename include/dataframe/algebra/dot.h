@@ -22,28 +22,51 @@
  */
 
 #pragma once
+#include <array>
+#include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/utils.h>
+#include <stdexcept>
 
 namespace df {
-namespace algebra {
+
+namespace detail {
+
+// Helper for dot product
+template <typename T, size_t N>
+T dot_product(const std::array<T, N> &a, const std::array<T, N> &b) {
+    T result = T{0};
+    for (size_t i = 0; i < N; ++i) {
+        result += a[i] * b[i];
+    }
+    return result;
+}
+
+} // namespace detail
 
 /**
- * @ingroup Algebra
+ * Compute dot product of two vectors
+ * @param serie1 First vector serie
+ * @param serie2 Second vector serie
+ * @return Serie containing dot products
  */
-Serie dot(const Serie &a, const Serie &b);
+template <typename T, size_t N>
+Serie<T> dot(const Serie<std::array<T, N>> &serie1,
+             const Serie<std::array<T, N>> &serie2) {
+    if (serie1.size() != serie2.size()) {
+        throw std::runtime_error(
+            "Series must have the same size for dot product");
+    }
 
-/**
- * @ingroup Algebra
- */
-Serie dot(const Serie &a, const Serie::Array &b);
+    return serie1.map([&serie2](const auto &a, size_t i) {
+        return detail::dot_product(a, serie2[i]);
+    });
+}
 
-template<typename T>
-auto make_dot(const std::vector<T>& vec) ;
+template <typename T, size_t N> auto bind_dot(const Serie<std::array<T, N>> &serie2) {
+    return [serie2](const Serie<std::array<T, N>> &serie1) {
+        return dot(serie1, serie2);
+    };
+}
 
-template<typename T>
-auto make_dot(const Serie<T>& serie) ;
-
-} // namespace algebra
 } // namespace df
-
-#include "inline/dot.hxx"

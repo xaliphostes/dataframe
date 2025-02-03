@@ -124,6 +124,139 @@ TEST(inverse, full_3x3) {
                       1e-10);
 }
 
+TEST(inverse, matrix4x4) {
+    MSG("Testing 4x4 matrix inversion");
+
+    // Test identity matrix
+    Serie<Matrix4D> identity{{1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                              1.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
+    auto id_result = inv(identity);
+    EXPECT_ARRAY_NEAR(id_result[0], identity[0], 1e-10);
+
+    // Test diagonal matrix
+    Serie<Matrix4D> diagonal{{2.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0,
+                              3.0, 0.0, 0.0, 0.0, 0.0, 5.0}};
+    auto diag_result = inv(diagonal);
+    std::array<double, 16> expected_diag = {0.5, 0.0, 0.0, 0.0, 0.0,       0.25,
+                                            0.0, 0.0, 0.0, 0.0, 1.0 / 3.0, 0.0,
+                                            0.0, 0.0, 0.0, 0.2};
+    EXPECT_ARRAY_NEAR(diag_result[0], expected_diag, 1e-10);
+
+    // Test general matrix
+    Serie<Matrix4D> general{{4.0, -1.0, 2.0, 1.0, -1.0, 6.0, -2.0, 0.0, 2.0,
+                             -2.0, 5.0, -1.0, 1.0, 0.0, -1.0, 3.0}};
+    auto gen_result = inv(general);
+
+    // Verify inverse by multiplying with original (should get identity)
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 4; ++j) {
+            double sum = 0.0;
+            for (size_t k = 0; k < 4; ++k) {
+                sum += general[0][i * 4 + k] * gen_result[0][k * 4 + j];
+            }
+            if (i == j) {
+                EXPECT_NEAR(sum, 1.0, 1e-10);
+            } else {
+                EXPECT_NEAR(sum, 0.0, 1e-10);
+            }
+        }
+    }
+}
+
+TEST(inverse, symmetric_matrix4x4) {
+    MSG("Testing symmetric 4x4 matrix inversion");
+
+    // Test symmetric identity matrix
+    // Stored as [a,b,c,d,e,f,g,h,i,j] where matrix is:
+    // [a b c d]
+    // [b e f g]
+    // [c f h i]
+    // [d g i j]
+    Serie<SMatrix4D> sym_identity{
+        {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0}};
+    auto sym_id_result = inv(sym_identity);
+    EXPECT_ARRAY_NEAR(sym_id_result[0], sym_identity[0], 1e-10);
+
+    // Test symmetric diagonal matrix
+    Serie<SMatrix4D> sym_diagonal{
+        {2.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 4.0, 0.0, 5.0}};
+    auto sym_diag_result = inv(sym_diagonal);
+    std::array<double, 10> expected_sym_diag = {0.5, 0.0, 0.0,  0.0, 1.0 / 3.0,
+                                                0.0, 0.0, 0.25, 0.0, 0.2};
+    EXPECT_ARRAY_NEAR(sym_diag_result[0], expected_sym_diag, 1e-10);
+
+    // Test general symmetric matrix
+    Serie<SMatrix4D> symmetric{
+        {4.0, -1.0, 2.0, 1.0, 6.0, -2.0, 0.0, 5.0, -1.0, 3.0}};
+    auto sym_result = inv(symmetric);
+
+    std::array<double, 10> expected_sym = {
+        14. / 53., 1. / 53.,   -4. / 53.,  6. / 53.,    61. / 318.,
+        7. / 106., -5. / 318., 25. / 106., -11. / 106., -83. / 318.};
+    df::print(sym_result);
+    df::print(Serie<SMatrix4D>({expected_sym}));
+    EXPECT_ARRAY_NEAR(sym_result[0], expected_sym, 1e-10);
+
+    // // Convert to full matrix format for multiplication check
+    // std::array<double, 16> full_sym = {
+    //     symmetric[0][0], symmetric[0][1], symmetric[0][2], symmetric[0][3],
+    //     symmetric[0][1], symmetric[0][4], symmetric[0][5], symmetric[0][6],
+    //     symmetric[0][2], symmetric[0][5], symmetric[0][7], symmetric[0][8],
+    //     symmetric[0][3], symmetric[0][6], symmetric[0][8], symmetric[0][9]};
+    // df::print(Serie<Matrix4D>({full_sym}));
+    // std::array<double, 16> full_result = {
+    //     sym_result[0][0], sym_result[0][1], sym_result[0][2],
+    //     sym_result[0][3], sym_result[0][1], sym_result[0][4],
+    //     sym_result[0][5], sym_result[0][6], sym_result[0][2],
+    //     sym_result[0][5], sym_result[0][7], sym_result[0][8],
+    //     sym_result[0][3], sym_result[0][6], sym_result[0][8],
+    //     sym_result[0][9]};
+
+    // // Verify inverse by multiplying (should get identity)
+    // for (size_t i = 0; i < 4; ++i) {
+    //     for (size_t j = 0; j < 4; ++j) {
+    //         double sum = 0.0;
+    //         for (size_t k = 0; k < 4; ++k) {
+    //             sum += full_sym[i * 4 + k] * full_result[k * 4 + j];
+    //         }
+    //         if (i == j) {
+    //             // EXPECT_NEAR(sum, 1.0, 1e-10);
+    //         } else {
+    //             // EXPECT_NEAR(sum, 0.0, 1e-10);
+    //         }
+    //     }
+    // }
+}
+
+TEST(inverse, matrix4x4_error_cases) {
+    MSG("Testing 4x4 matrix error cases");
+
+    // Test singular matrix (non-symmetric)
+    // Second row is 2x first row
+    Serie<Matrix4D> singular{{1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 6.0, 8.0, 0.0, 0.0,
+                              1.0, 0.0, 0.0, 0.0, 0.0, 1.0}};
+    EXPECT_THROW(inv(singular), std::runtime_error);
+
+    // Test singular matrix (symmetric)
+    // Serie<SMatrix4D> singular_sym{{1.0, 2.0, 3.0, 4.0,
+    //                                     4.0, 6.0, 8.0,
+    //                                          9.0, 12.0,
+    //                                               16.0} // Rank deficient
+    // };
+    // EXPECT_THROW(inv(singular_sym), std::runtime_error);
+
+    // Test empty series
+    Serie<Matrix4D> empty_serie{};
+    auto empty_result = inv(empty_serie);
+    EXPECT_EQ(empty_result.size(), 0);
+
+    // Test single element series
+    Serie<SMatrix4D> single_serie{
+        {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0}};
+    auto single_result = inv(single_serie);
+    EXPECT_EQ(single_result.size(), 1);
+}
+
 TEST(inverse, pipeline) {
     MSG("Testing pipeline operations");
 

@@ -34,12 +34,22 @@ using Strings = std::vector<String>;
 
 using Vector2 = std::array<double, 2>;
 using Vector3 = std::array<double, 3>;
+using Vector4 = std::array<double, 4>;
 
-using Stain2D = std::array<double, 2>;
-using Stress2D = std::array<double, 3>;
+using Matrix2D = std::array<double, 4>;  // Full
+using Matrix3D = std::array<double, 9>;  // Full
+using Matrix4D = std::array<double, 16>; // Full
 
-using Strain3D = std::array<double, 6>;
-using Stress3D = std::array<double, 6>;
+using SMatrix2D = std::array<double, 3>;  // Symmetric
+using SMatrix3D = std::array<double, 6>;  // Symmetric
+using SMatrix4D = std::array<double, 10>; // Symmetric
+
+using Strain2D = SMatrix2D;
+using Strain3D = SMatrix3D;
+using Stress2D = SMatrix2D;
+using Stress3D = SMatrix3D;
+
+// ----------------------------------------------------------
 
 template <class T, std::size_t N>
 std::ostream &operator<<(std::ostream &o, const std::array<T, N> &m) {
