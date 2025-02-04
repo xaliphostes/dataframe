@@ -34,17 +34,32 @@ namespace detail { // forward decl
 template <size_t N> constexpr size_t get_matrix_dim();
 }
 
+// forward decl
+// Internal helper to compute eigenvectors return type
+template <size_t N> struct eigen_vectors_return_type;
+
+
+// ---------------------------------------------------------------
+
+/**
+ * @brief Eigen vectors return type for nxn symmetric matrices (n=2,3,4)
+ */
+template <size_t DIM>
+using EigenVectorType = std::array<std::array<double, DIM>, DIM>;
+
 /**
  * Compute eigenvectors of symmetric matrices
  * @param serie Input Serie containing symmetric matrices in row storage format
  * @return Serie containing eigenvectors in row storage format
  */
 template <typename T, size_t N>
-Serie<std::array<T, N>> eigenVectors(const Serie<std::array<T, N>> &serie);
+Serie<typename eigen_vectors_return_type<N>::type>
+eigenVectors(const Serie<std::array<T, N>> &serie);
 
 /**
  * Compute eigenvalues of symmetric matrices
- * @param serie Input Serie containing symmetric matrices in row storage format
+ * @param serie Input Serie containing symmetric matrices in row storage
+ * format
  * @return Serie containing eigenvalues in descending order
  */
 template <typename T, size_t N>
@@ -62,7 +77,9 @@ std::pair<Serie<std::array<T, N>>,
           Serie<std::array<T, detail::get_matrix_dim<N>()>>>
 eigenSystem(const Serie<std::array<T, N>> &serie);
 
-// Binding functions for pipeline operations
+/**
+ * @brief Binding functions for pipeline operations
+ */
 template <typename T, size_t N> auto bind_eigenVectors();
 template <typename T, size_t N> auto bind_eigenValues();
 template <typename T, size_t N> auto bind_eigenSystem();

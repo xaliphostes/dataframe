@@ -109,8 +109,10 @@ df::Serie<SMatrix3D> serie({
 
 auto [values, vectors] = df::eigenSystem(serie);
 
-df::forEach([](const Vector9& v) {
-    std::cout << v << std::endl ;
+df::forEach([](const EigenVectorType<3>& v, size_t) {
+    std::cout << "1st eigen vector: " << v[0] << std::endl ;
+    std::cout << "2nd eigen vector: " << v[1] << std::endl ;
+    std::cout << "3rd eigen vector: " << v[2] << std::endl ;
 }, vectors);
 ```
 

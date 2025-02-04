@@ -38,6 +38,41 @@ template <size_t N> constexpr size_t get_matrix_dim() {
                       "Unsupported matrix dimension");
 }
 
+// Helper to convert column eigenvectors to array of vectors
+template <typename T, size_t N>
+void col_vectors_to_array(const T *col_vectors, T *array_vectors) {
+    if constexpr (N == 3) { // 2x2 -> array<Vector2,2>
+        // Input: [v11 v21 v12 v22]
+        // Output: [(v11,v21), (v12,v22)]
+        array_vectors[0] = col_vectors[0]; // v11
+        array_vectors[1] = col_vectors[1]; // v21
+        array_vectors[2] = col_vectors[2]; // v12
+        array_vectors[3] = col_vectors[3]; // v22
+    } else if constexpr (N == 6) {         // 3x3 -> array<Vector3,3>
+        // Input: [v11 v21 v31 v12 v22 v32 v13 v23 v33]
+        // Output: [(v11,v21,v31), (v12,v22,v32), (v13,v23,v33)]
+        array_vectors[0] = col_vectors[0]; // v11
+        array_vectors[1] = col_vectors[1]; // v21
+        array_vectors[2] = col_vectors[2]; // v31
+        array_vectors[3] = col_vectors[3]; // v12
+        array_vectors[4] = col_vectors[4]; // v22
+        array_vectors[5] = col_vectors[5]; // v32
+        array_vectors[6] = col_vectors[6]; // v13
+        array_vectors[7] = col_vectors[7]; // v23
+        array_vectors[8] = col_vectors[8]; // v33
+    } else if constexpr (N == 10) {        // 4x4 -> array<Vector4,4>
+        // Input: [v11 v21 v31 v41 v12 v22 v32 v42 v13 v23 v33 v43 v14 v24 v34
+        // v44] Output: [(v11,v21,v31,v41), (v12,v22,v32,v42),
+        // (v13,v23,v33,v43), (v14,v24,v34,v44)]
+        const size_t dim = 4;
+        for (size_t j = 0; j < dim; ++j) {     // for each eigenvector
+            for (size_t i = 0; i < dim; ++i) { // for each component
+                array_vectors[j * dim + i] = col_vectors[j * dim + i];
+            }
+        }
+    }
+}
+
 // Convert from row symmetric to column symmetric storage
 template <typename T, size_t N>
 void row_to_col_symmetric(const T *row_sym, T *col_sym) {
@@ -294,20 +329,40 @@ void symmetricEigen(const double *mat, int n, double *eigen_vec,
 
 } // namespace detail
 
+/**
+ * Get appropriate return type for eigenVectors based on matrix size
+ */
+template <size_t N> struct eigen_vectors_return_type;
+template <> struct eigen_vectors_return_type<3> {
+    using type = std::array<Vector2, 2>;
+};
+template <> struct eigen_vectors_return_type<6> {
+    using type = std::array<Vector3, 3>;
+};
+template <> struct eigen_vectors_return_type<10> {
+    using type = std::array<Vector4, 4>;
+};
+
+/**
+ * Compute eigenvectors of symmetric matrices
+ * @param serie Input Serie containing symmetric matrices in row storage format
+ * @return Serie containing array of eigenvectors where each element is a full
+ * vector
+ */
 template <typename T, size_t N>
-inline Serie<std::array<T, N>> eigenVectors(const Serie<std::array<T, N>> &serie) {
+Serie<typename eigen_vectors_return_type<N>::type>
+eigenVectors(const Serie<std::array<T, N>> &serie) {
     static_assert(std::is_arithmetic<T>::value,
                   "eigenVectors requires arithmetic type");
 
     constexpr size_t dim = detail::get_matrix_dim<N>();
-    // MSG(N);
-    // MSG(dim);
+    using return_type = typename eigen_vectors_return_type<N>::type;
 
     return serie.map([](const auto &mat, size_t) {
         std::array<T, N> col_mat;
-        std::array<T, N> col_vectors;
+        std::array<T, dim * dim> col_vectors;
         std::array<T, dim> values;
-        std::array<T, N> row_vectors;
+        return_type eigenvectors;
 
         // Convert to column storage for symmetricEigen
         detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
@@ -316,11 +371,11 @@ inline Serie<std::array<T, N>> eigenVectors(const Serie<std::array<T, N>> &serie
         detail::symmetricEigen(col_mat.data(), dim, col_vectors.data(),
                                values.data());
 
-        // Convert eigenvectors back to row storage
-        // detail::col_to_row_symmetric<T, N>(col_vectors.data(),
-        //                                    row_vectors.data());
+        // Convert column storage eigenvectors to array of vectors
+        detail::col_vectors_to_array<T, N>(
+            col_vectors.data(), reinterpret_cast<T *>(eigenvectors.data()));
 
-        return row_vectors;
+        return eigenvectors;
     });
 }
 
@@ -350,7 +405,7 @@ eigenValues(const Serie<std::array<T, N>> &serie) {
 
 template <typename T, size_t N>
 inline std::pair<Serie<std::array<T, N>>,
-          Serie<std::array<T, detail::get_matrix_dim<N>()>>>
+                 Serie<std::array<T, detail::get_matrix_dim<N>()>>>
 eigenSystem(const Serie<std::array<T, N>> &serie) {
     static_assert(std::is_arithmetic<T>::value,
                   "eigenSystem requires arithmetic type");
