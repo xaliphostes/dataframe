@@ -32,10 +32,16 @@ template <typename T> using ArrayType = std::vector<T>;
 using String = std::string;
 using Strings = std::vector<String>;
 
+using iVector2 = std::array<uint, 2>;
+using iVector3 = std::array<uint, 3>;
+using iVector4 = std::array<uint, 4>;
+using iVector6 = std::array<uint, 6>;
+
 using Vector2 = std::array<double, 2>;
 using Vector3 = std::array<double, 3>;
 using Vector4 = std::array<double, 4>;
 using Vector6 = std::array<double, 6>;
+template <size_t N> using Vector = std::array<double, N>;
 
 using Matrix2D = std::array<double, 4>;  // Full
 using Matrix3D = std::array<double, 9>;  // Full

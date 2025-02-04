@@ -22,27 +22,39 @@
  */
 
 #pragma once
-#include <dataframe/forEach.h>
-#include <dataframe/geo/types.h>
-#include <dataframe/macros.h>
-#include <dataframe/pipe.h>
-#include <dataframe/types.h>
+#include <array>
+#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/utils.h>
+#include <stdexcept>
 
 namespace df {
-namespace geo {
 
 /**
- * @ingroup Geo
+ * Compute normals for a series of line segments (2D)
+ * @param vertices Serie of 2D vertices
+ * @param segments Serie of index pairs defining segments
+ * @return Serie of normalized normal vectors for each segment
  */
-Attribute normals(const Positions &positions, const Indices &indices);
+template <typename T>
+Serie<Vector2> normals(const Serie<Vector2> &vertices,
+                       const Serie<iVector2> &segments);
 
-auto make_normals(const Indices &indices) {
-    return [&indices](const Attribute &positions) -> Attribute {
-        return normals(positions, indices);
-    };
-}
+/**
+ * Compute normals for a series of triangles (3D)
+ * @param vertices Serie of 3D vertices
+ * @param triangles Serie of index triplets defining triangles
+ * @return Serie of normalized normal vectors for each triangle
+ */
+template <typename T>
+Serie<Vector3> normals(const Serie<Vector3> &vertices,
+                       const Serie<iVector3> &triangles);
 
-} // namespace geo
+// Binding functions for pipeline operations
+template <typename T> auto bind_normals(const Serie<iVector2> &segments);
+
+template <typename T> auto bind_normals(const Serie<iVector3> &triangles);
+
 } // namespace df
 
 #include "inline/normals.hxx"

@@ -1,1 +1,3 @@
-- Check inv of Matrix4x4 and SMatrix4x4
+- Check inv of `Matrix4x4` and `SMatrix4x4`
+- Build real tests for `normals`
+- 
