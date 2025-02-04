@@ -35,6 +35,7 @@ using Strings = std::vector<String>;
 using Vector2 = std::array<double, 2>;
 using Vector3 = std::array<double, 3>;
 using Vector4 = std::array<double, 4>;
+using Vector6 = std::array<double, 6>;
 
 using Matrix2D = std::array<double, 4>;  // Full
 using Matrix3D = std::array<double, 9>;  // Full

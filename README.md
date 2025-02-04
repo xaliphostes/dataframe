@@ -91,6 +91,29 @@ df::Serie<int> s4{1, 2, 3, 4, 5};
 auto s = (s1 + s2) * s3 / s4;
 ```
 
+### Linear algebra
+
+```cpp
+#include <dataframe/algebra/eigen.h>
+#include <dataframe/Serie.h>
+#include <dataframe/types.h>
+
+// Three sym tensor in 3D
+// Row storage format, i.e., {xx, xy, xz, yy, yz, zz}
+//
+df::Serie<SMatrix3D> serie({
+    {2, 4, 6, 3, 6, 9}, 
+    {1, 2, 3, 4, 5, 6},
+    {9, 8, 7, 6, 5, 4}
+});
+
+auto [values, vectors] = df::eigenSystem(serie);
+
+df::forEach([](const Vector9& v) {
+    std::cout << v << std::endl ;
+}, vectors);
+```
+
 ### Parallel Processing (whenAll)
 
 The library provides several ways to perform parallel computations on Series.
