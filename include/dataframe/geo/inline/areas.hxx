@@ -59,18 +59,23 @@ T triangle_area_2d(const Vector2 &v1, const Vector2 &v2, const Vector2 &v3) {
 }
 } // namespace detail
 
-template <typename T>
-Serie<T> area(const Serie<Vector3> &vertices,
-              const Serie<std::array<int, 3>> &triangles) {
+/**
+ * Compute areas of a series of triangles in 3D
+ * @param vertices Serie of 3D vertices
+ * @param triangles Serie of index triplets defining triangles
+ * @return Serie of triangle areas
+ */
+Serie<double> area(const Serie<Vector3> &vertices,
+                   const Serie<iVector3> &triangles) {
     if (vertices.empty() || triangles.empty()) {
-        return Serie<T>();
+        return Serie<double>();
     }
 
     return triangles.map([&vertices](const auto &triangle, size_t) {
         const auto &v1 = vertices[triangle[0]];
         const auto &v2 = vertices[triangle[1]];
         const auto &v3 = vertices[triangle[2]];
-        return detail::triangle_area<T>(v1, v2, v3);
+        return detail::triangle_area<double>(v1, v2, v3);
     });
 }
 
@@ -80,26 +85,24 @@ Serie<T> area(const Serie<Vector3> &vertices,
  * @param triangles Serie of index triplets defining triangles
  * @return Serie of triangle areas
  */
-template <typename T>
-Serie<T> area(const Serie<Vector2> &vertices,
-              const Serie<std::array<int, 3>> &triangles) {
+Serie<double> area(const Serie<Vector2> &vertices,
+                   const Serie<iVector3> &triangles) {
     if (vertices.empty() || triangles.empty()) {
-        return Serie<T>();
+        return Serie<double>();
     }
 
     return triangles.map([&vertices](const auto &triangle, size_t) {
         const auto &v1 = vertices[triangle[0]];
         const auto &v2 = vertices[triangle[1]];
         const auto &v3 = vertices[triangle[2]];
-        return detail::triangle_area_2d<T>(v1, v2, v3);
+        return detail::triangle_area_2d<double>(v1, v2, v3);
     });
 }
 
 // Binding functions for pipeline operations
-template <typename T>
-auto bind_area(const Serie<std::array<int, 3>> &triangles) {
+auto bind_area(const Serie<iVector3> &triangles) {
     return [&triangles](const auto &vertices) {
-        return area<T>(vertices, triangles);
+        return area(vertices, triangles);
     };
 }
 

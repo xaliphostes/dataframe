@@ -36,11 +36,12 @@ namespace df {
  * @param segments Serie of index pairs defining segments
  * @return Serie of segment lengths
  */
-template <typename T, size_t N>
-Serie<T> length(const Serie<Vector<N>> &vertices, const Serie<iVector2> &segments);
+template <size_t N>
+Serie<double> length(const Serie<Vector<N>> &vertices,
+                     const Serie<iVector2> &segments);
 
 // Binding functions for pipeline operations
-template <typename T, size_t N> auto bind_length(const Serie<iVector2> &segments);
+template <size_t N> auto bind_length(const Serie<iVector2> &segments);
 
 } // namespace df
 

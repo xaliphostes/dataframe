@@ -22,23 +22,33 @@
  */
 
 #pragma once
-#include <dataframe/geo/types.h>
-#include <dataframe/macros.h>
+#include <array>
+#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/utils.h>
+#include <stdexcept>
 
 namespace df {
-namespace geo {
 
 /**
- * @ingroup Geo
+ * Compute areas of a series of triangles in 3D
+ * @param vertices Serie of 3D vertices
+ * @param triangles Serie of index triplets defining triangles
+ * @return Serie of triangle areas
  */
-Attribute areas(const Positions &positions, const Indices &indices);
+Serie<double> area(const Serie<Vector3> &vertices, const Serie<iVector3> &triangles);
 
 /**
- * @ingroup Geo
+ * Compute areas of a series of triangles in 2D
+ * @param vertices Serie of 2D vertices
+ * @param triangles Serie of index triplets defining triangles
+ * @return Serie of triangle areas
  */
-MAKE_OP(areas);
+Serie<double> area(const Serie<Vector2> &vertices, const Serie<iVector3> &triangles);
 
-} // namespace geo
+// Binding functions for pipeline operations
+auto bind_area(const Serie<iVector3> &triangles);
+
 } // namespace df
 
 #include "inline/areas.hxx"

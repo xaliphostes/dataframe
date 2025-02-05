@@ -44,25 +44,25 @@ T segment_length(const std::array<T, N> &v1, const std::array<T, N> &v2) {
  * @param segments Serie of index pairs defining segments
  * @return Serie of segment lengths
  */
-template <typename T, size_t N>
-Serie<T> length(const Serie<Vector<N>> &vertices,
-                const Serie<iVector2> &segments) {
+template <size_t N>
+Serie<double> length(const Serie<Vector<N>> &vertices,
+                     const Serie<iVector2> &segments) {
     if (vertices.empty() || segments.empty()) {
-        return Serie<T>();
+        return Serie<double>();
     }
 
     return segments.map([&vertices](const auto &segment, size_t) {
         const auto &v1 = vertices[segment[0]];
         const auto &v2 = vertices[segment[1]];
-        return detail::segment_length<T, N>(v1, v2);
+        return detail::segment_length<double, N>(v1, v2);
     });
 }
 
 // Binding functions for pipeline operations
-template <typename T, size_t N>
+template <size_t N>
 auto bind_length(const Serie<iVector2> &segments) {
-    return [&segments](const Serie<std::array<T, N>> &vertices) {
-        return length<T, N>(vertices, segments);
+    return [&segments](const Serie<Vector<N>> &vertices) {
+        return length<N>(vertices, segments);
     };
 }
 
