@@ -25,6 +25,7 @@
 #include <array>
 #include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/geo/types.h>
 #include <dataframe/utils.h>
 #include <stdexcept>
 
@@ -38,10 +39,10 @@ namespace df {
  */
 template <size_t N>
 Serie<double> length(const Serie<Vector<N>> &vertices,
-                     const Serie<iVector2> &segments);
+                     const Segments &segments);
 
 // Binding functions for pipeline operations
-template <size_t N> auto bind_length(const Serie<iVector2> &segments);
+template <size_t N> auto bind_length(const Segments &segments);
 
 } // namespace df
 

@@ -26,83 +26,69 @@ namespace df {
 namespace detail {
 
 // Compute area of a triangle using cross product method
-template <typename T>
-T triangle_area(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
+inline double triangle_area_3d(const Vector3 &v1, const Vector3 &v2,
+                               const Vector3 &v3) {
     // Get two edge vectors
-    T e1x = v2[0] - v1[0];
-    T e1y = v2[1] - v1[1];
-    T e1z = v2[2] - v1[2];
+    double e1x = v2[0] - v1[0];
+    double e1y = v2[1] - v1[1];
+    double e1z = v2[2] - v1[2];
 
-    T e2x = v3[0] - v1[0];
-    T e2y = v3[1] - v1[1];
-    T e2z = v3[2] - v1[2];
+    double e2x = v3[0] - v1[0];
+    double e2y = v3[1] - v1[1];
+    double e2z = v3[2] - v1[2];
 
     // Cross product
-    T nx = e1y * e2z - e1z * e2y;
-    T ny = e1z * e2x - e1x * e2z;
-    T nz = e1x * e2y - e1y * e2x;
+    double nx = e1y * e2z - e1z * e2y;
+    double ny = e1z * e2x - e1x * e2z;
+    double nz = e1x * e2y - e1y * e2x;
 
     // Area is half the length of the cross product
-    return T{0.5} * std::sqrt(nx * nx + ny * ny + nz * nz);
+    return 0.5 * std::sqrt(nx * nx + ny * ny + nz * nz);
 }
 
 // Compute area of a triangle in 2D using cross product z-component
-template <typename T>
-T triangle_area_2d(const Vector2 &v1, const Vector2 &v2, const Vector2 &v3) {
+inline double triangle_area_2d(const Vector2 &v1, const Vector2 &v2,
+                               const Vector2 &v3) {
     // Compute cross product z-component of two edge vectors
-    T e1x = v2[0] - v1[0];
-    T e1y = v2[1] - v1[1];
-    T e2x = v3[0] - v1[0];
-    T e2y = v3[1] - v1[1];
+    double e1x = v2[0] - v1[0];
+    double e1y = v2[1] - v1[1];
+    double e2x = v3[0] - v1[0];
+    double e2y = v3[1] - v1[1];
 
-    return T{0.5} * std::abs(e1x * e2y - e1y * e2x);
+    return 0.5 * std::abs(e1x * e2y - e1y * e2x);
 }
 } // namespace detail
 
-/**
- * Compute areas of a series of triangles in 3D
- * @param vertices Serie of 3D vertices
- * @param triangles Serie of index triplets defining triangles
- * @return Serie of triangle areas
- */
-Serie<double> area(const Serie<Vector3> &vertices,
-                   const Serie<iVector3> &triangles) {
+template <size_t N>
+inline Serie<double> area(const Serie<Vector<N>> &vertices,
+                          const Triangles &triangles) {
+    static_assert(N == 2 || N == 3, "area function only works in 2D or 3D");
+
     if (vertices.empty() || triangles.empty()) {
         return Serie<double>();
     }
 
-    return triangles.map([&vertices](const auto &triangle, size_t) {
-        const auto &v1 = vertices[triangle[0]];
-        const auto &v2 = vertices[triangle[1]];
-        const auto &v3 = vertices[triangle[2]];
-        return detail::triangle_area<double>(v1, v2, v3);
-    });
-}
-
-/**
- * Compute areas of a series of triangles in 2D
- * @param vertices Serie of 2D vertices
- * @param triangles Serie of index triplets defining triangles
- * @return Serie of triangle areas
- */
-Serie<double> area(const Serie<Vector2> &vertices,
-                   const Serie<iVector3> &triangles) {
-    if (vertices.empty() || triangles.empty()) {
-        return Serie<double>();
+    if constexpr (N == 2) {
+        return triangles.map([&vertices](const auto &triangle, size_t) {
+            const auto &v1 = vertices[triangle[0]];
+            const auto &v2 = vertices[triangle[1]];
+            const auto &v3 = vertices[triangle[2]];
+            return detail::triangle_area_2d(v1, v2, v3);
+        });
+    } else /* N == 3 */ {
+        return triangles.map([&vertices](const auto &triangle, size_t) {
+            const auto &v1 = vertices[triangle[0]];
+            const auto &v2 = vertices[triangle[1]];
+            const auto &v3 = vertices[triangle[2]];
+            return detail::triangle_area_3d(v1, v2, v3);
+        });
     }
-
-    return triangles.map([&vertices](const auto &triangle, size_t) {
-        const auto &v1 = vertices[triangle[0]];
-        const auto &v2 = vertices[triangle[1]];
-        const auto &v3 = vertices[triangle[2]];
-        return detail::triangle_area_2d<double>(v1, v2, v3);
-    });
 }
 
 // Binding functions for pipeline operations
-auto bind_area(const Serie<iVector3> &triangles) {
-    return [&triangles](const auto &vertices) {
-        return area(vertices, triangles);
+template <size_t N> inline auto bind_area(const Triangles &triangles) {
+    return [&triangles](const Serie<std::array<double, N>> &vertices) {
+        return area<N>(vertices, triangles);
     };
 }
 

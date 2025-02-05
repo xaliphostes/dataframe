@@ -25,29 +25,24 @@
 #include <array>
 #include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/geo/types.h>
 #include <dataframe/utils.h>
 #include <stdexcept>
 
 namespace df {
 
 /**
- * Compute areas of a series of triangles in 3D
- * @param vertices Serie of 3D vertices
+ * Compute areas of a series of triangles
+ * @param vertices Serie of 2D or 3D vertices
  * @param triangles Serie of index triplets defining triangles
  * @return Serie of triangle areas
  */
-Serie<double> area(const Serie<Vector3> &vertices, const Serie<iVector3> &triangles);
-
-/**
- * Compute areas of a series of triangles in 2D
- * @param vertices Serie of 2D vertices
- * @param triangles Serie of index triplets defining triangles
- * @return Serie of triangle areas
- */
-Serie<double> area(const Serie<Vector2> &vertices, const Serie<iVector3> &triangles);
+template <size_t N>
+Serie<double> area(const Serie<Vector<N>> &vertices,
+                   const Triangles &triangles);
 
 // Binding functions for pipeline operations
-auto bind_area(const Serie<iVector3> &triangles);
+template <size_t N> auto bind_area(const Triangles &triangles);
 
 } // namespace df
 

@@ -50,7 +50,7 @@ TEST(metrics, triangle_area_2d) {
     EXPECT_NEAR(result[1], 0.5, 1e-10);
 
     // Test pipeline
-    auto pipe_result = vertices | bind_area(triangles);
+    auto pipe_result = vertices | bind_area<2>(triangles);
     EXPECT_ARRAY_NEAR(pipe_result.asArray(), result.asArray(), 1e-10);
 }
 

@@ -46,7 +46,7 @@ T segment_length(const std::array<T, N> &v1, const std::array<T, N> &v2) {
  */
 template <size_t N>
 Serie<double> length(const Serie<Vector<N>> &vertices,
-                     const Serie<iVector2> &segments) {
+                     const Segments &segments) {
     if (vertices.empty() || segments.empty()) {
         return Serie<double>();
     }
@@ -59,8 +59,7 @@ Serie<double> length(const Serie<Vector<N>> &vertices,
 }
 
 // Binding functions for pipeline operations
-template <size_t N>
-auto bind_length(const Serie<iVector2> &segments) {
+template <size_t N> auto bind_length(const Segments &segments) {
     return [&segments](const Serie<Vector<N>> &vertices) {
         return length<N>(vertices, segments);
     };
