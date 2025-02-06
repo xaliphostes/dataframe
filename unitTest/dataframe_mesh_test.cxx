@@ -47,11 +47,11 @@ using Position = std::array<double, 3>;
 using Triangle = std::array<uint32_t, 3>;
 
 // Create a wavy triangulated surface
-df::DataFrame createWavySurface(int nx = 5, int ny = 5, double width = 10.0,
+df::Dataframe createWavySurface(int nx = 5, int ny = 5, double width = 10.0,
                                 double length = 10.0, double amplitude = 2.0,
                                 double frequency = 0.5) {
 
-    df::DataFrame mesh;
+    df::Dataframe mesh;
     std::vector<Position> positions;
     std::vector<Triangle> triangles;
 
@@ -97,7 +97,7 @@ df::DataFrame createWavySurface(int nx = 5, int ny = 5, double width = 10.0,
 
 TEST(MeshExample, creation) {
     // Create a 10x10 grid which will generate 200 triangles
-    df::DataFrame mesh = createWavySurface(10, 10);
+    df::Dataframe mesh = createWavySurface(10, 10);
 
     // Verify the mesh
     EXPECT_TRUE(mesh.has("positions"));
@@ -162,7 +162,7 @@ TEST(MeshExample, creation) {
 
 TEST(MeshExample, manipulation) {
     // Create a smaller mesh for testing transformations
-    df::DataFrame mesh = createWavySurface(5, 5);
+    df::Dataframe mesh = createWavySurface(5, 5);
     const auto &positions = mesh.get<Position>("positions");
 
     // Create a transformed copy of the positions using map

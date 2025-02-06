@@ -4,7 +4,7 @@
 #include <dataframe/utils/compose.h>
 
 int main() {
-    // Create a DataFrame similar to this Excel sheet:
+    // Create a Dataframe similar to this Excel sheet:
     //
     // | Product  | Price | Quantity | Date       |
     // |----------|-------|----------|------------|
@@ -15,7 +15,7 @@ int main() {
     // | Orange   | 0.80  | 90       | 2024-01-02|
     // | Banana   | 0.35  | 140      | 2024-01-02|
 
-    df::DataFrame sales;
+    df::Dataframe sales;
 
     // Adding columns (like creating columns in Excel)
     sales.add("Product", df::Serie<std::string>{
@@ -71,7 +71,7 @@ int main() {
     });
 
     // Print structure (like Excel's table view)
-    std::cout << "DataFrame Structure:\n";
+    std::cout << "Dataframe Structure:\n";
     for (const auto& name : sales.names()) {
         std::cout << "Column: " << name << "\n";
     }

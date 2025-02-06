@@ -28,17 +28,18 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <typeindex>
 #include <typeinfo>
 
 namespace df {
 
-class DataFrame {
+class Dataframe {
   public:
-    DataFrame() = default;
-    ~DataFrame() = default;
+    Dataframe() = default;
+    ~Dataframe() = default;
 
     /**
-     * Add a serie to the DataFrame with the given name
+     * Add a serie to the Dataframe with the given name
      * @throws std::runtime_error if a serie with this name already exists
      */
     template <typename T>
@@ -48,16 +49,29 @@ class DataFrame {
     void add(const std::string &name, const ArrayType<T> &array);
 
     /**
-     * Remove a serie from the DataFrame
+     * Remove a serie from the Dataframe
      * @throws std::runtime_error if the serie doesn't exist
      */
     void remove(const std::string &name);
 
     /**
      * Get a serie by name and type
-     * @throws std::runtime_error if the serie doesn't exist or type mismatch
+     * @throws std::runtime_error if the serie doesn't exist or if there's a
+     * type mismatch
      */
     template <typename T> const Serie<T> &get(const std::string &name) const;
+
+    /**
+     * Get the type info for a serie
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    std::type_index type(const std::string &name) const;
+
+    /**
+     * Get the type name for a serie
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    String type_name(const std::string &name) const;
 
     /**
      * Check if a serie exists with the given name
@@ -65,29 +79,31 @@ class DataFrame {
     bool has(const std::string &name) const;
 
     /**
-     * Get the number of series in the DataFrame
+     * Get the number of series in the Dataframe
      */
     size_t size() const;
 
     /**
-     * Get all serie names in the DataFrame
+     * Get all serie names in the Dataframe
      */
     std::vector<std::string> names() const;
 
     /**
-     * Clear all series from the DataFrame
+     * Clear all series from the Dataframe
      */
     void clear();
 
   private:
-    // Type aliases for clarity
-    using SeriePtr = std::shared_ptr<void>;
-    using SerieMap = std::map<std::string, SeriePtr>;
+    struct SerieInfo {
+        std::shared_ptr<SerieBase> data;
+        std::type_index type;
 
-    SerieMap series_;
+        template <typename T>
+        SerieInfo(const Serie<T> &serie)
+            : data(std::make_shared<Serie<T>>(serie)), type(typeid(Serie<T>)) {}
+    };
 
-    // Helper method to get type name for error messages
-    template <typename T> std::string getTypeName() const;
+    std::map<std::string, SerieInfo> series_;
 };
 
 } // namespace df

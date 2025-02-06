@@ -73,6 +73,8 @@ template <typename T> class Serie : public SerieBase {
     T &operator[](size_t index);
     const T &operator[](size_t index) const;
 
+    void add(const T &value) { data_.push_back(value); }
+
     const ArrayType &data() const;
     const ArrayType &asArray() const; // same as data()
 

@@ -36,6 +36,7 @@ using iVector2 = std::array<uint, 2>;
 using iVector3 = std::array<uint, 3>;
 using iVector4 = std::array<uint, 4>;
 using iVector6 = std::array<uint, 6>;
+template <size_t N> using iVector = std::array<uint, N>;
 
 using Vector2 = std::array<double, 2>;
 using Vector3 = std::array<double, 3>;

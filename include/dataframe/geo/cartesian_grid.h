@@ -21,35 +21,39 @@
  *
  */
 
+// grid.h
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/geo/types.h>
+#include <vector>
 
 namespace df {
 namespace grid {
 namespace cartesian {
 
 /**
- * @brief Create a grid of points in 1D, 2D, or 3D
- * @param npts Number of points in each dimension (1, 2, or 3 values)
- * @param center Center position of the grid [x,y,z]
- * @param dimensions Size of the grid in each dimension [dx,dy,dz]
- * @return Serie<T> with itemSize=3 containing point coordinates
+ * Generate a regular grid of points centered at a given position with specified
+ * dimensions
+ * @param npts Number of points in each dimension
+ * @param center Center position of the grid
+ * @param dimensions Total dimensions of the grid in each direction
+ * @return Serie of grid point positions
  */
-template <typename T>
-Serie<T> from_dims(const std::vector<uint32_t> &npts,
-                      const std::vector<T> &center = {0, 0, 0},
-                      const std::vector<T> &dimensions = {1, 1, 1});
+template <size_t N>
+Serie<Vector<N>> from_dims(const iVector<N> &npts, const Vector<N> &center,
+                           const Vector<N> &dimensions);
 
 /**
- * @brief Create a grid of points in 1D, 2D, or 3D given first and last points
- * @param npts Number of points in each dimension (1, 2, or 3 values)
- * @param p1 First point [x1,y1,z1]
- * @param p2 Opposite point [x2,y2,z2]
- * @return Serie<T> with itemSize=3 containing point coordinates
+ * Generate a regular grid of points between two corner points
+ * @param npts Number of points in each dimension
+ * @param p1 First corner point
+ * @param p2 Second corner point
+ * @return Serie of grid point positions
  */
-template <typename T>
-Serie<T> from_points(const std::vector<uint32_t> &npts,
-                        const std::vector<T> &p1, const std::vector<T> &p2);
+template <size_t N>
+Serie<Vector<N>> from_points(const iVector<N> &npts,
+                             const std::vector<double> &p1,
+                             const std::vector<double> &p2);
 
 } // namespace cartesian
 } // namespace grid
