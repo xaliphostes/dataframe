@@ -69,3 +69,4 @@ std::ostream &operator<<(std::ostream &o, const std::array<T, N> &m) {
 
     return o;
 }
+
