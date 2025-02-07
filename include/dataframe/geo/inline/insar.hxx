@@ -21,18 +21,33 @@
  *
  */
 
-#pragma once
-#include <cmath>
-#include <dataframe/Serie.h>
-#include <dataframe/geo/mesh.h>
-#include <dataframe/geo/types.h>
-#include <dataframe/utils.h>
-#include <stdexcept>
 
 namespace df {
 
-Mesh3D generateSphere(double radius = 1.0, size_t nLon = 32, size_t nLat = 16);
+inline Serie<double> insar(const Serie<Vector3> &u, const Vector3 &los) {
+    if (u.size() == 0) {
+        return Serie<double>();
+    }
+
+    Serie<double> result;
+    u.forEach([&](const Vector3 &disp, size_t) { result.add(dot(disp, los)); });
+
+    return result;
+}
+
+inline Serie<double> fringes(const Serie<double> &insar, double fringeSpacing) {
+    if (insar.size() == 0 || fringeSpacing <= 0) {
+        return Serie<double>();
+    }
+
+    Serie<double> result;
+    insar.forEach([fringeSpacing, &result](double val, size_t) {
+        double frac = val / fringeSpacing - std::floor(val / fringeSpacing);
+        double fringe = std::abs(fringeSpacing * frac);
+        result.add(fringe);
+    });
+
+    return result;
+}
 
 } // namespace df
-
-#include "inline/gen_sphere.hxx"

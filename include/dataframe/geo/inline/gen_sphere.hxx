@@ -23,8 +23,7 @@
 
 namespace df {
 
-std::pair<Positions3, Triangles>
-generateSphere(double radius = 1.0, size_t nLon = 32, size_t nLat = 16) {
+Mesh3D generateSphere(double radius, size_t nLon, size_t nLat) {
     Positions3 vertices;
     Triangles triangles;
 
@@ -63,7 +62,7 @@ generateSphere(double radius = 1.0, size_t nLon = 32, size_t nLat = 16) {
         }
     }
 
-    return {vertices, triangles};
+    return Mesh3D(vertices, triangles);
 }
 
 } // namespace df

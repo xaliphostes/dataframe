@@ -41,7 +41,7 @@ template <size_t N>
 std::ostream &operator<<(std::ostream &os, const IsoSegment<N> &seg);
 
 /**
- * @brief Compute contour-contours for a given iso-value on a triangulated mesh
+ * @brief Compute iso-contours for a given iso-value on a triangulated mesh
  * (2D or 3D)
  *
  * @param mesh Mesh object
@@ -67,10 +67,17 @@ Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
                               const std::string &attributeName,
                               double isoValue);
 
+/**
+ * @brief Same as contours but using multiple iso values
+ */
 template <size_t N>
 Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
                               const std::string &attributeName,
                               const std::vector<double> &isoValues);
+
+/**
+ * @brief Same as contours but using multiple iso values
+ */
 template <size_t N>
 Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
                               const std::string &attributeName,
@@ -85,8 +92,9 @@ Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
  * @code
  * auto mesh = Mesh(positions, triangles);
  * mesh.addVertexAttribute("field", values);
- * 
- * auto segments = marchingTriangles(mesh, "field", generateIsosBySpacing(0.0, 0.7, 0.1));
+ *
+ * auto segments = marchingTriangles(mesh, "field", generateIsosBySpacing(0.0,
+ * 0.7, 0.1));
  * @endcode
  */
 Serie<double> generateIsosBySpacing(double min, double max, double spacing) {
@@ -145,7 +153,7 @@ Serie<double> generateIsosBySpacing(double min, double max, double spacing) {
  * @code
  * auto mesh = Mesh(positions, triangles);
  * mesh.addVertexAttribute("field", values);
- * 
+ *
  * auto segments = contours(mesh, "field", generateIsosByNumber(0.0, 0.7, 5));
  * @endcode
  */
@@ -161,17 +169,18 @@ Serie<double> generateIsosByNumber(double min, double max, size_t nbr = 10) {
  * @code
  * auto mesh = Mesh(positions, triangles);
  * mesh.addVertexAttribute("field", values);
- * 
+ *
  * // std::vector<double>
  * auto isos = generateIsos(0.0, 0.7, {0.2, 0.4, 0.6});
  * auto segments = contours(mesh, "field", isos);
  * @endcode
- * 
+ *
  * @code
  * auto mesh = Mesh(positions, triangles);
  * mesh.addVertexAttribute("field", values);
- * 
- * auto segments = contours(mesh, "field", generateIsos(0.0, 0.7, {}, true, 0.15));
+ *
+ * auto segments = contours(mesh, "field", generateIsos(0.0, 0.7, {}, true,
+ * 0.15));
  * @endcode
  */
 Serie<double>

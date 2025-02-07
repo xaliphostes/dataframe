@@ -21,4 +21,4 @@ df::Dataframe generateSphere(int subdivision, bool shared = true);
 } // namespace geo
 } // namespace df
 
-#include "inline/generate_sphere.hxx"
+#include "inline/gen_sphere.hxx"
