@@ -23,71 +23,129 @@
 
 namespace df {
 
-// Lookup table for marching triangles cases
-const std::array<std::array<int, 4>, 8> TRIANGLE_TABLE = {{
-    {-1, -1, -1, -1}, // Case 0: no intersection
-    {0, 1, -1, -1},   // Case 1: intersection on edges 0-1
-    {1, 2, -1, -1},   // Case 2: intersection on edges 1-2
-    {0, 2, -1, -1},   // Case 3: intersection on edges 0-2
-    {0, 1, 1, 2},     // Case 4: intersections on edges 0-1 and 1-2
-    {0, 2, 1, 2},     // Case 5: intersections on edges 0-2 and 1-2
-    {0, 1, 0, 2},     // Case 6: intersections on edges 0-1 and 0-2
-    {-1, -1, -1, -1}  // Case 7: no intersection
-}};
+namespace detail {
+
+// Lookup tables from TypeScript implementation
+const std::array<std::array<int, 2>, 8> lookupTable0 = {
+    {{-1, -1}, {1, 2}, {0, 1}, {2, 0}, {2, 0}, {0, 1}, {1, 2}, {-1, -1}}};
 
 template <size_t N>
-Vector<N> interpolateVertex(const Vector<N> &v1, const Vector<N> &v2,
-                            double val1, double val2, double isoValue) {
+inline Vector<N> interpolateVertex(const Vector<N> &v1, const Vector<N> &v2,
+                                   double val1, double val2, double isoValue) {
     double t = (isoValue - val1) / (val2 - val1);
     return v1 + (v2 - v1) * t;
+}
+
+inline bool ok(double p0, double p1, double p2, double min, double max) {
+    auto in = [](double p, double min, double max) {
+        return p >= min && p <= max;
+    };
+    return in(p0, min, max) && in(p1, min, max) && in(p2, min, max);
+}
+
+} // namespace detail
+
+// --------------------------------------------------------
+
+template <size_t N>
+inline std::ostream &operator<<(std::ostream &os, const IsoSegment<N> &seg) {
+    auto displV = [&os](const Vector<N> &v) {
+        os << "[";
+        for (size_t i = 0; i < N - 1; ++i) {
+            os << v[i] << ",";
+        }
+        os << v[v.size() - 1] << "]";
+    };
+
+    os << "IsoSegment(";
+    displV(seg.p1);
+    os << ", ";
+    displV(seg.p2);
+    os << "), value(" << seg.value << ")";
+    return os;
 }
 
 template <size_t N>
 inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
                                      const std::string &attributeName,
-                                     double isoValue) {
+                                     double isovalue) {
     const auto &values = mesh.template vertexAttribute<double>(attributeName);
     const auto &vertices = mesh.vertices();
     const auto &triangles = mesh.triangles();
 
-    Serie<IsoSegment<N>> segments;
+    // Store triangle indices and their codes
+    std::map<size_t, int> tri2code;
+    std::map<int, std::map<int, std::vector<size_t>>> connectivity;
 
+    // First pass: identify triangles crossed by isolines
     for (size_t i = 0; i < triangles.size(); ++i) {
         const auto &tri = triangles[i];
 
-        // Determine case index based on vertex values
-        int caseIndex = 0;
-        std::array<bool, 3> vertexStates;
-        for (int j = 0; j < 3; ++j) {
-            vertexStates[j] = values[tri[j]] >= isoValue;
-            caseIndex |= (vertexStates[j] ? 1 : 0) << j;
-        }
+        double p0 = values[tri[0]];
+        double p1 = values[tri[1]];
+        double p2 = values[tri[2]];
 
-        const auto &edges = TRIANGLE_TABLE[caseIndex];
-        if (edges[0] == -1)
+        // Skip if values are outside bounds
+        double minVal = std::min({p0, p1, p2});
+        double maxVal = std::max({p0, p1, p2});
+        if (!detail::ok(p0, p1, p2, minVal, maxVal))
             continue;
 
-        // Process edge intersections
-        for (int j = 0; j < 4; j += 2) {
-            if (edges[j] == -1)
-                break;
+        int t1 = (p0 >= isovalue) ? 1 : 0;
+        int t2 = (p1 >= isovalue) ? 1 : 0;
+        int t3 = (p2 >= isovalue) ? 1 : 0;
 
-            int edge1 = edges[j];
-            int edge2 = edges[j + 1];
+        int tri_code = t1 * 4 + t2 * 2 + t3;
 
-            int v1 = tri[edge1];
-            int v2 = tri[(edge1 + 1) % 3];
-            int v3 = tri[edge2];
-            int v4 = tri[(edge2 + 1) % 3];
+        if (tri_code > 0 && tri_code < 7) {
+            tri2code[i] = tri_code;
+            std::array<int, 2> cut_edges = {detail::lookupTable0[tri_code][0],
+                                            detail::lookupTable0[tri_code][1]};
 
-            Vector<N> p1 = interpolateVertex(vertices[v1], vertices[v2],
-                                             values[v1], values[v2], isoValue);
+            // Build connectivity
+            for (int e = 0; e < 2; ++e) {
+                int v0 = tri[cut_edges[e]];
+                int v1 = tri[(cut_edges[e] + 1) % 3];
 
-            Vector<N> p2 = interpolateVertex(vertices[v3], vertices[v4],
-                                             values[v3], values[v4], isoValue);
+                int vmin = std::min(v0, v1);
+                int vmax = std::max(v0, v1);
 
-            segments.add({p1, p2, isoValue});
+                connectivity[vmin][vmax].push_back(i);
+            }
         }
+    }
+
+    Serie<IsoSegment<N>> segments;
+
+    // Extract connected components
+    while (!tri2code.empty()) {
+        std::vector<Vector<N>> isoline;
+        std::vector<double> values_t;
+
+        size_t first_tri = tri2code.begin()->first;
+        int code = tri2code[first_tri];
+        tri2code.erase(first_tri);
+
+        if (code < 1 || code > 6)
+            continue;
+
+        const auto &tri = triangles[first_tri];
+        std::array<int, 2> cut_edges = {detail::lookupTable0[code][0],
+                                        detail::lookupTable0[code][1]};
+
+        // Process first triangle
+        for (int e = 0; e < 2; ++e) {
+            int v0 = tri[cut_edges[e]];
+            int v1 = tri[(cut_edges[e] + 1) % 3];
+
+            Vector<N> p = detail::interpolateVertex(
+                vertices[v0], vertices[v1], values[v0], values[v1], isovalue);
+
+            isoline.push_back(p);
+        }
+
+        // Connect segments
+        segments.add({isoline[0], isoline[1], isovalue});
     }
 
     return segments;
@@ -95,8 +153,8 @@ inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
 
 template <size_t N>
 inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
-                              const std::string &attributeName,
-                              const std::vector<double> &isoValues) {
+                                     const std::string &attributeName,
+                                     const std::vector<double> &isoValues) {
     Serie<IsoSegment<N>> allSegments;
     for (double isoValue : isoValues) {
         auto segments = contours(mesh, attributeName, isoValue);
@@ -105,6 +163,13 @@ inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
         }
     }
     return allSegments;
+}
+
+template <size_t N>
+Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
+                              const std::string &attributeName,
+                              const Serie<double> &isoValues) {
+    return contours(mesh, attributeName, isoValues.asArray());
 }
 
 } // namespace df

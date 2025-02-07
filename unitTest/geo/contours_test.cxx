@@ -28,7 +28,7 @@
 
 using namespace df;
 
-TEST(marching_triangles, single_triangle) {
+TEST(contours, single_triangle) {
     Serie<Vector2> vertices = {{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}};
     Triangles triangles = {{0, 1, 2}};
     Mesh2D mesh(vertices, triangles);
@@ -37,17 +37,16 @@ TEST(marching_triangles, single_triangle) {
     mesh.addVertexAttribute("test", values);
 
     auto segments = contours(mesh, "test", 0.5);
-    df::print(segments);
-    // EXPECT_EQ(segments.size(), 2);
+    EXPECT_EQ(segments.size(), 1);
 
-    // // Verify interpolated points
-    // auto seg1 = segments[0];
-    // EXPECT_NEAR(seg1.p1[0], 0.5, 1e-10);
-    // EXPECT_NEAR(seg1.p1[1], 0.0, 1e-10);
-    // EXPECT_NEAR(seg1.value, 0.5, 1e-10);
+    // Verify interpolated points
+    auto seg1 = segments[0];
+    EXPECT_NEAR(seg1.p1[0], 0.5, 1e-10);
+    EXPECT_NEAR(seg1.p1[1], 0.0, 1e-10);
+    EXPECT_NEAR(seg1.value, 0.5, 1e-10);
 }
 
-TEST(marching_triangles, square_mesh) {
+TEST(contours, square_mesh) {
     Serie<Vector2> vertices = {{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}};
     Triangles triangles = {{0, 1, 2}, {0, 2, 3}};
     Mesh2D mesh(vertices, triangles);
@@ -56,11 +55,10 @@ TEST(marching_triangles, square_mesh) {
     mesh.addVertexAttribute("test", values);
 
     auto segments = contours(mesh, "test", 0.5);
-    df::print(segments);
-    // EXPECT_EQ(segments.size(), 2);
+    EXPECT_EQ(segments.size(), 2);
 }
 
-TEST(marching_triangles, no_intersections) {
+TEST(contours, no_intersections) {
     Serie<Vector2> vertices = {{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}};
     Triangles triangles = {{0, 1, 2}};
     Mesh2D mesh(vertices, triangles);
@@ -69,11 +67,10 @@ TEST(marching_triangles, no_intersections) {
     mesh.addVertexAttribute("test", values);
 
     auto segments = contours(mesh, "test", 0.5);
-    df::print(segments);
     EXPECT_EQ(segments.size(), 0);
 }
 
-TEST(marching_triangles, error_handling) {
+TEST(contours, error_handling) {
     Serie<Vector2> vertices = {{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}};
     Triangles triangles = {{0, 1, 2}};
     Mesh2D mesh(vertices, triangles);
@@ -85,7 +82,7 @@ TEST(marching_triangles, error_handling) {
     EXPECT_THROW(contours(mesh, "vector", 0.5), std::runtime_error);
 }
 
-TEST(marching_triangles, multiple_isoValues) {
+TEST(contours, multiple_isoValues) {
     Serie<Vector2> vertices = {{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}};
     Triangles triangles = {{0, 1, 2}};
     Mesh2D mesh(vertices, triangles);
@@ -99,7 +96,12 @@ TEST(marching_triangles, multiple_isoValues) {
     EXPECT_GT(segments.size(), 0);
 }
 
-TEST(marching_triangles, grid_mesh) {
+/*
+This test creates a 10x10 grid (200 triangles) with a radial scalar field
+pattern and extracts 5 iso-contours. The test verifies segment endpoints are
+within bounds and iso-values match the requested values.
+*/
+TEST(contours, grid_mesh) {
     // Create a 10x10 grid (200 triangles)
     const int nx = 10, ny = 10;
     Serie<Vector2> vertices;
@@ -120,6 +122,8 @@ TEST(marching_triangles, grid_mesh) {
             values.add(value);
         }
     }
+
+    // df::print(values);
 
     // Generate triangles
     for (int j = 0; j < ny; ++j) {
@@ -142,9 +146,9 @@ TEST(marching_triangles, grid_mesh) {
     std::vector<double> isoValues = {-0.8, -0.4, 0.0, 0.4, 0.8};
     auto segments = contours(mesh, "field", isoValues);
 
-    EXPECT_GT(segments.size(), 0);
+    EXPECT_GT(segments.size(), 130);
     MSG("Generated " << segments.size() << " iso-segments");
-    df::print(segments);
+    // df::print(segments);
 
     // Verify some properties
     for (size_t i = 0; i < segments.size(); ++i) {
@@ -165,6 +169,59 @@ TEST(marching_triangles, grid_mesh) {
             }
         }
         EXPECT_TRUE(validIsoValue);
+    }
+}
+
+TEST(iso_contours, different_generation_methods) {
+    // Create test mesh and data
+    Serie<Vector2> vertices = {
+        {0, 0}, {1, 0}, {1, 1}, {0, 1}, {0.5, 0.5} // Center vertex
+    };
+    Triangles triangles = {{0, 1, 4}, {1, 2, 4}, {2, 3, 4}, {3, 0, 4}};
+    Mesh2D mesh(vertices, triangles);
+
+    // Create radial scalar field
+    Serie<double> values;
+    for (const auto &v : vertices.data()) {
+        double dx = v[0] - 0.5;
+        double dy = v[1] - 0.5;
+        values.add(std::sqrt(dx * dx + dy * dy));
+    }
+    mesh.addVertexAttribute("field", values);
+
+    // Test 1: Fixed number of contours
+    {
+        auto isos = generateIsosByNumber(0.0, 0.7, 5);
+        auto segments = contours(mesh, "field", isos);
+        MSG("Generated " << segments.size() << " segments using fixed number");
+        df::print(segments);
+    }
+
+    // Test 2: Fixed spacing
+    {
+        auto isos = generateIsosBySpacing(0.0, 0.7, 0.1);
+        auto segments = contours(mesh, "field", isos);
+        MSG("Generated " << segments.size() << " segments using fixed spacing");
+        df::print(segments);
+    }
+
+    // Test 3: Using generateIsos with specific values
+    {
+        std::vector<double> specificValues = {0.2, 0.4, 0.6};
+        auto isos = generateIsos(0.0, 0.7, specificValues);
+        auto segments = contours(mesh, "field", isos);
+        MSG("Generated " << segments.size()
+                         << " segments using specific values");
+        df::print(segments);
+    }
+
+    // Test 4: Using generateIsos with spacing
+    {
+        auto isos = generateIsos(0.0, 0.7, {}, true, 0.15);
+        auto segments = contours(mesh, "field", isos);
+        MSG("Generated " << segments.size()
+                         << " segments using generateIsos with spacing");
+        df::print(segments);
     }
 }
 
