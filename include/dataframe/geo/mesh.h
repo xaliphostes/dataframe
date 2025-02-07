@@ -35,19 +35,20 @@ namespace df {
  * @code
  * // Create a 2D mesh
  * Mesh2D mesh({{0,0}, {1,0}, {0,1}}, {{0,1,2}});
- * 
+ *
  * // Add vertex attribute
  * mesh.addVertexAttribute("temperature", Serie<double>{20.0, 25.0, 22.0});
- * 
+ *
  * // Add vector attributes
  * mesh.addVertexAttribute("vec", Serie<Vector2>{{0,1}, {1,0}, {-1,-1}});
- * mesh.addVertexAttribute("normals", df::normals(mesh.vertices(), mesh.triangles()));
- * 
+ * mesh.addVertexAttribute("normals", df::normals(mesh.vertices(),
+ * mesh.triangles()));
+ *
  * // Access attributes
  * const auto& temp  = mesh.vertexAttribute<double>("temperature");
  * const auto& norms = mesh.vertexAttribute<Vector2>("normals");
  * const auto& vec2  = mesh.vertexAttribute<Vector2>("vec2");
- * 
+ *
  * @endcode
  */
 template <size_t N> class Mesh {
@@ -73,6 +74,8 @@ template <size_t N> class Mesh {
     // Geometry access
     const Serie<VertexType> &vertices() const { return vertices_; }
     const Triangles &triangles() const { return triangles_; }
+    Serie<VertexType> &vertices() { return vertices_; }
+    Triangles &triangles() { return triangles_; }
 
     // Dataframe access
     const Dataframe &vertexAttributes() const { return vertex_attributes_; }

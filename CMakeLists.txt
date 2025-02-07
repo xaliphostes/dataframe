@@ -25,6 +25,19 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS on)
 
+include(FetchContent)
+
+# Eigen library for linear algebra operations (!optional)
+FetchContent_Declare(
+    eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+)
+set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "Disable Eigen documentation" FORCE)
+FetchContent_MakeAvailable(eigen)
+# target_link_libraries(dataframe PRIVATE Eigen3::Eigen)
+
 # ---------------------------------------------------------------------
 # Detect all testing files
 # ---------------------------------------------------------------------
@@ -44,6 +57,8 @@ endfunction()
 message("Setting build type to ${CMAKE_BUILD_TYPE}")
 
 include_directories(include)
+include_directories(${eigen_SOURCE_DIR})
+message("Eigen3 include directory: ${eigen_SOURCE_DIR}")
 
 enable_testing()
 auto_discover_tests()

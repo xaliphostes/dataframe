@@ -22,21 +22,43 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
+#include "mesh.h"
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <unordered_set>
+#include <vector>
 
 namespace df {
-namespace geo {
 
-template <typename T>
-Serie<T> insar(const Serie<T> &u, const std::vector<T> &los);
+/**
+ * @brief Parameters for the mesh optimizer
+ */
+struct OptimizeParams {
+    double damping = 0.5;
+    int maxIterations = 100;
+    double convergenceTol = 1e-6;
+    double targetLength = 1.0; // Will be computed from average edge length
+};
 
-template <typename T>
-Serie<T> fringes(const Serie<T> &insar_data, T fringe_spacing);
+/**
+ * @brief Optimize a 3D mesh using mass-spring relaxation, i.e., make the
+ * triangles as close as possible to equilateral.
+ * @code
+ * df::Mesh3D optimizedMesh = df::MeshOptimizer::optimize(inputMesh);
+ * @endcode
+ */
+Mesh3D optimize(const Mesh3D &, const OptimizeParams & = OptimizeParams());
 
-template <typename T> auto make_insar(const std::vector<T> &los);
-template <typename T> auto make_fringes(T fringe_spacing);
+/**
+ * @brief This implementation uses Least Squares Conformal Maps (LSCM) for
+ * parameterization and maintains seam consistency during optimization.
+ * @code
+ * df::Mesh3D optimizedMesh = df::MeshOptimizer::optimizeLSCM(inputMesh);
+ * @endcode
+ */
+Mesh3D optimizeLSCM(const Mesh3D &);
 
-} // namespace geo
 } // namespace df
 
-#include "inline/insar.hxx"
+#include "inline/mesh_optimizer.hxx"

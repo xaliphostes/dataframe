@@ -78,6 +78,7 @@ inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
     std::map<int, std::map<int, std::vector<size_t>>> connectivity;
 
     // First pass: identify triangles crossed by isolines
+    // TODO: optimization using kdtree or something else
     for (size_t i = 0; i < triangles.size(); ++i) {
         const auto &tri = triangles[i];
 
