@@ -25,11 +25,6 @@
 
 namespace df {
 
-inline Mesh3D optimize(const Mesh3D &mesh, const OptimizeParams &params) {
-    MeshOptimizer optimizer(mesh);
-    return optimizer.run(params);
-}
-
 class MeshOptimizer {
   public:
     MeshOptimizer(const Mesh3D &mesh) : originalMesh_(mesh) {
@@ -231,18 +226,12 @@ class MeshOptimizer {
     double targetLength_;
 };
 
-// ============================================================================
-
-auto Mesh3D optimizeLSCM(const Mesh3D &mesh) {
-    // 1. Compute UV parameterization
-    auto map = uvMapping(mesh);
-
-    // 2. Optimize mesh in UV space
-    auto optimizedUVs = UVSpaceOptimizer::optimizeUVMesh(mesh, map);
-
-    // 3. Map back to 3D
-    return UVSpaceOptimizer::mapToSurface(mesh, optimizedUVs);
+inline Mesh3D optimize(const Mesh3D &mesh, const OptimizeParams &params) {
+    MeshOptimizer optimizer(mesh);
+    return optimizer.run(params);
 }
+
+// ============================================================================
 
 class UVSpaceOptimizer {
   public:
@@ -346,5 +335,16 @@ class UVSpaceOptimizer {
         return result;
     }
 };
+
+inline Mesh3D optimizeLSCM(const Mesh3D &mesh) {
+    // 1. Compute UV parameterization
+    auto map = uvMapping(mesh);
+
+    // 2. Optimize mesh in UV space
+    auto optimizedUVs = UVSpaceOptimizer::optimizeUVMesh(mesh, map);
+
+    // 3. Map back to 3D
+    return UVSpaceOptimizer::mapToSurface(mesh, optimizedUVs);
+}
 
 } // namespace df

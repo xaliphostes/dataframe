@@ -22,43 +22,21 @@
  */
 
 #pragma once
-#include "mesh.h"
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <unordered_set>
-#include <vector>
+#include <dataframe/Serie.h>
 
 namespace df {
 
 /**
- * @brief Parameters for the mesh optimizer
+ * @brief Solves the linear system Ax = b where A is a matrix and b is a vector
+ * @param A Matrix stored as Serie<T> (must be square)
+ * @param b Vector stored as Serie<T>
+ * @return Serie<T> containing the solution x
  */
-struct OptimizeParams {
-    double damping = 0.5;
-    int maxIterations = 100;
-    double convergenceTol = 1e-6;
-    double targetLength = 1.0; // Will be computed from average edge length
-};
+template <typename T> Serie<T> solve(const Serie<T> &A, const Serie<T> &b);
 
-/**
- * @brief Optimize a 3D mesh using mass-spring relaxation, i.e., make the
- * triangles as close as possible to equilateral.
- * @code
- * df::Mesh3D optimizedMesh = df::MeshOptimizer::optimize(inputMesh);
- * @endcode
- */
-Mesh3D optimize(const Mesh3D &, const OptimizeParams & = OptimizeParams());
-
-/**
- * @brief This implementation uses Least Squares Conformal Maps (LSCM) for
- * parameterization and maintains seam consistency during optimization.
- * @code
- * df::Mesh3D optimizedMesh = df::MeshOptimizer::optimizeLSCM(inputMesh);
- * @endcode
- */
-Mesh3D optimizeLSCM(const Mesh3D &);
+// Helper function for pipe operations
+template <typename T> auto bind_solve(const Serie<T> &b);
 
 } // namespace df
 
-#include "inline/mesh_optimizer.hxx"
+#include "inline/solve.hxx"

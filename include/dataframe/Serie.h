@@ -48,6 +48,8 @@ template <typename T> class Serie : public SerieBase {
 
     Serie(const ArrayType &values);
     Serie(const std::initializer_list<T> &values);
+    explicit Serie(size_t size) : data_(size) {}
+    Serie(size_t size, const T& value) : data_(size, value) {}
 
     std::string type() const override;
     size_t size() const override;

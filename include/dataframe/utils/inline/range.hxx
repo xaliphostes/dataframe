@@ -21,17 +21,40 @@
  *
  */
 
-#pragma once
-#include <cmath>
-#include <dataframe/Serie.h>
-#include <dataframe/geo/types.h>
-#include <dataframe/utils.h>
-#include <stdexcept>
-
 namespace df {
 
-std::tuple<Positions3, Triangles> generateSphere(double radius = 1.0, size_t nLon = 32, size_t nLat = 16);
+template <typename T> inline Serie<T> range(T start, T end, T step) {
+    if (step == 0) {
+        throw std::invalid_argument("Step cannot be zero");
+    }
+
+    std::vector<T> values;
+
+    // Calculate size to pre-allocate vector
+    size_t size = static_cast<size_t>((end - start) / step);
+    values.reserve(size);
+
+    // Generate sequence
+    if (step > 0) {
+        for (T i = start; i < end; i += step) {
+            values.push_back(i);
+        }
+    } else {
+        for (T i = start; i > end; i += step) {
+            values.push_back(i);
+        }
+    }
+
+    return Serie<T>(values);
+}
+
+template <typename T> inline Serie<T> range(T end) {
+    return range<T>(0, end, 1);
+}
+
+// Helper function for pipe operations
+template <typename T> inline auto bind_range(T start, T end, T step) {
+    return [=]() { return range(start, end, step); };
+}
 
 } // namespace df
-
-#include "inline/gen_sphere.hxx"

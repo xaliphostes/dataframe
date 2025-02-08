@@ -23,7 +23,7 @@
 
 namespace df {
 
-Mesh3D generateSphere(double radius, size_t nLon, size_t nLat) {
+inline std::tuple<Positions3, Triangles> generateSphere(double radius, size_t nLon, size_t nLat) {
     Positions3 vertices;
     Triangles triangles;
 
@@ -62,7 +62,7 @@ Mesh3D generateSphere(double radius, size_t nLon, size_t nLat) {
         }
     }
 
-    return Mesh3D(vertices, triangles);
+    return {vertices, triangles};
 }
 
 } // namespace df

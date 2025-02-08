@@ -25,7 +25,7 @@
 #include <array>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/geo/mesh.h>
+#include <dataframe/geo/mesh/mesh.h>
 #include <dataframe/geo/types.h>
 #include <dataframe/types.h>
 #include <stdexcept>

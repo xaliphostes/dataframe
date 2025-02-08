@@ -48,8 +48,7 @@ TEST(Serie, basic) {
 }
 
 TEST(Serie, user) {
-    df::Serie<MyData> serie(
-        {MyData(1, 2.0, "test"), MyData(3, 4.0, "test2")});
+    df::Serie<MyData> serie({MyData(1, 2.0, "test"), MyData(3, 4.0, "test2")});
     df::print(serie);
 }
 
@@ -60,6 +59,50 @@ TEST(Serie, matrices) {
         {25, 26, 27, 28, 29, 30}, {31, 32, 33, 34, 35, 36},
     };
     df::print(stress);
+}
+
+TEST(serie, size_constructor) {
+    // Test default value initialization
+    df::Serie<int> s1(5);
+    EXPECT_TRUE(s1.size() == 5);
+    for (size_t i = 0; i < s1.size(); ++i) {
+        EXPECT_TRUE(s1[i] == 0); // int default is 0
+    }
+
+    // Test with specific value
+    df::Serie<double> s2(3, 1.5);
+    EXPECT_TRUE(s2.size() == 3);
+    for (size_t i = 0; i < s2.size(); ++i) {
+        EXPECT_TRUE(s2[i] == 1.5);
+    }
+
+    // Test with string
+    df::Serie<std::string> s3(2, "test");
+    EXPECT_TRUE(s3.size() == 2);
+    for (size_t i = 0; i < s3.size(); ++i) {
+        EXPECT_TRUE(s3[i] == "test");
+    }
+
+    // Test empty size
+    df::Serie<int> s4(0);
+    EXPECT_TRUE(s4.size() == 0);
+    EXPECT_TRUE(s4.empty());
+}
+
+TEST(serie, size_constructor_edge_cases) {
+    // Very large size
+    df::Serie<char> s1(1000000);
+    EXPECT_TRUE(s1.size() == 1000000);
+
+    // Size constructor with custom type
+    struct CustomType {
+        int x = 42;
+    };
+    df::Serie<CustomType> s2(3);
+    EXPECT_TRUE(s2.size() == 3);
+    for (size_t i = 0; i < s2.size(); ++i) {
+        EXPECT_TRUE(s2[i].x == 42);
+    }
 }
 
 RUN_TESTS();

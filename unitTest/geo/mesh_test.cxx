@@ -22,7 +22,7 @@
  */
 
 #include "../TEST.h"
-#include <dataframe/geo/mesh.h>
+#include <dataframe/geo/mesh/mesh.h>
 #include <dataframe/pipe.h>
 
 using namespace df;

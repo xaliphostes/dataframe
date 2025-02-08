@@ -24,7 +24,7 @@
 #include "../TEST.h"
 #include <cmath>
 #include <dataframe/geo/curvature.h>
-#include <dataframe/geo/mesh.h>
+#include <dataframe/geo/mesh/mesh.h>
 
 using namespace df;
 
