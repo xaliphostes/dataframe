@@ -60,6 +60,16 @@ A container for managing multiple named series:
 #include <dataframe/map.h>
 #include <dataframe/filter.h>
 
+// Create series with default values
+df::Serie<int> ints(5);        // Creates [0,0,0,0,0]
+df::Serie<double> doubles(3);  // Creates [0.0,0.0,0.0]
+
+// Create series with specific values
+df::Serie<int> ones(4, 1);     // Creates [1,1,1,1]
+df::Serie<double> pi(3, 3.14); // Creates [3.14,3.14,3.14]
+
+// -------------------------------------------
+
 // Create a serie of numbers
 df::Serie<int> numbers{1, 2, 3, 4, 5};
 
