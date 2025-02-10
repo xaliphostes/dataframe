@@ -33,18 +33,24 @@
 
 namespace df {
 
+/**
+ * @brief A Dataframe is a collection of series.
+ */
 class Dataframe {
   public:
     Dataframe() = default;
     ~Dataframe() = default;
 
     /**
-     * Add a serie to the Dataframe with the given name
+     * @brief Add a serie to the Dataframe with the given name
      * @throws std::runtime_error if a serie with this name already exists
      */
     template <typename T>
     void add(const std::string &name, const Serie<T> &serie);
 
+    /**
+     * @brief Add a serie to the Dataframe with the given name
+     */
     template <typename T>
     void add(const std::string &name, const ArrayType<T> &array);
 

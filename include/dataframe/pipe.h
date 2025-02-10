@@ -67,17 +67,4 @@ auto make_pipe(F &&first, Rest &&...rest) {
                const auto &value) { return rest_pipe(first(value)); };
 }
 
-// /**
-//  * @brief Helper to compose operations from right to left (like mathematical
-//  * function composition)
-//  */
-// template <typename F> auto compose(F &&operation) {
-//     return make_pipe(std::forward<F>(operation));
-// }
-
-// template <typename F, typename... Rest> auto compose(F &&last, Rest &&...rest) {
-//     return make_pipe(compose(std::forward<Rest>(rest)...),
-//                      std::forward<F>(last));
-// }
-
 } // namespace df

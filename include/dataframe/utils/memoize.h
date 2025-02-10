@@ -27,50 +27,100 @@
 #include <vector>
 
 namespace df {
-namespace utils {
 
-/**
- * @ingroup Utils
- */
 template <typename F> class Memoized {
   public:
-    Memoized(F f) : func(std::move(f)) {}
+    explicit Memoized(F f,
+                      std::chrono::seconds timeout = std::chrono::seconds{60})
+        : func(std::move(f)), cache_timeout(timeout) {}
 
-    Serie operator()(const Serie &s) const {
-        auto key = make_key(s);
-        auto it = cache.find(key);
-        if (it != cache.end()) {
-            return it->second;
+    template <typename T> Serie<T> operator()(const Serie<T> &s) const {
+        const auto key = make_key(s);
+
+        { // Scope for lock
+            std::shared_lock read_lock(mutex);
+            auto it = cache.find(key);
+            if (it != cache.end()) {
+                auto now = std::chrono::steady_clock::now();
+                if (now - it->second.timestamp < cache_timeout) {
+                    return std::any_cast<Serie<T>>(it->second.value);
+                }
+            }
         }
+
+        // If we get here, either:
+        // 1. The key wasn't in the cache
+        // 2. The cached value was expired
         auto result = func(s);
-        cache[key] = result;
+
+        { // Scope for lock
+            std::unique_lock write_lock(mutex);
+            cache[key] = CacheEntry{result, std::chrono::steady_clock::now()};
+            cleanup_expired_entries();
+        }
+
         return result;
     }
 
-    void clear_cache() { cache.clear(); }
+    void clear_cache() {
+        std::unique_lock lock(mutex);
+        cache.clear();
+    }
+
+    size_t cache_size() const {
+        std::shared_lock lock(mutex);
+        return cache.size();
+    }
+
+    void set_timeout(std::chrono::seconds timeout) {
+        std::unique_lock lock(mutex);
+        cache_timeout = timeout;
+        cleanup_expired_entries();
+    }
+
+  private:
+    struct CacheEntry {
+        std::any value;
+        std::chrono::steady_clock::time_point timestamp;
+    };
 
   private:
     F func;
-    mutable std::map<std::vector<double>, Serie> cache;
+    mutable std::unordered_map<size_t, CacheEntry> cache;
+    std::chrono::seconds cache_timeout;
+    // Allows multiple readers but single writer
+    mutable std::shared_mutex mutex;
 
-    // Helper to create cache key from Series
-    std::vector<double> make_key(const Serie &s) const {
-        std::vector<double> key;
-        for (uint32_t i = 0; i < s.count(); ++i) {
-            if (s.itemSize() == 1) {
-                key.push_back(s.template get<double>(i));
+    template <typename T> size_t make_key(const Serie<T> &s) const {
+        size_t seed = 0;
+        s.forEach([&seed](const T &value) {
+            seed ^=
+                std::hash<T>{}(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        });
+        return seed;
+    }
+
+    void cleanup_expired_entries() const {
+        auto now = std::chrono::steady_clock::now();
+        for (auto it = cache.begin(); it != cache.end();) {
+            if (now - it->second.timestamp >= cache_timeout) {
+                it = cache.erase(it);
             } else {
-                const auto &v = s.template get<Array>(i);
-                key.insert(key.end(), v.begin(), v.end());
+                ++it;
             }
         }
-        return key;
     }
 };
 
+template <typename F>
+auto memoize(F &&f, std::chrono::seconds timeout = std::chrono::seconds{60}) {
+    return Memoized<std::decay_t<F>>(std::forward<F>(f), timeout);
+}
+
 /**
  * @brief Memoization is a key optimization technique in computational and
- * scientific computing, particularly valuable for expensive calculations that are
+ * scientific computing, particularly valuable for expensive calculations that
+are
  * frequently repeated with the same inputs. Here's a detailed explanation.
  *
  * Purpose and Benefits:
@@ -184,9 +234,5 @@ void training_loop() {
  * });
  * ```
  */
-template <typename F> auto memoize(F &&f) {
-    return Memoized<std::decay_t<F>>(std::forward<F>(f));
-}
 
-} // namespace utils
 } // namespace df

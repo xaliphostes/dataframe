@@ -26,13 +26,18 @@
 
 namespace df {
 
-// Single series version
+/**
+ * @brief Apply a function to each element of the Serie and return a new Serie.
+ * Single series version.
+ */
 template <typename F, typename T>
 auto map(F &&callback, const Serie<T> &serie) {
     return serie.map(callback);
 }
 
-// Multi series version
+/**
+ * @brief Apply a function to each element of the Series and return a new Serie.
+ */
 template <typename F, typename T, typename... Args>
 auto map(F &&callback, const Serie<T> &first, const Serie<T> &second,
          const Args &...args) {
@@ -46,6 +51,9 @@ auto map(F &&callback, const Serie<T> &first, const Serie<T> &second,
     return Serie<ResultType>(result);
 }
 
+/**
+ * Bind the map so that it can be used with the pipe function
+ */
 template <typename F> auto bind_map(F &&callback) {
     return [f = std::forward<F>(callback)](const auto &serie) {
         return map(f, serie);

@@ -33,10 +33,17 @@ class SerieBase {
   public:
     virtual ~SerieBase() = default;
     virtual size_t size() const = 0;
-    // virtual void printValueAt(std::ostream &, size_t, size_t, size_t) const = 0;
+    // virtual void printValueAt(std::ostream &, size_t, size_t, size_t) const =
+    // 0;
     virtual std::string type() const = 0;
 };
 
+// --------------------------------------------------------------
+
+/**
+ * @brief A Serie is a column of data. It is a vector of values of type T.
+ * @tparam T The type of the data in the Serie.
+ */
 template <typename T> class Serie : public SerieBase {
   public:
     using value_type = T;
@@ -45,25 +52,81 @@ template <typename T> class Serie : public SerieBase {
 
     Serie() = default;
 
+    /**
+     * @brief Construct a Serie from a vector of values.
+     */
     Serie(const ArrayType &values);
+
+    /**
+     * @brief Construct a Serie from an initializer list of values.
+     */
     Serie(const std::initializer_list<T> &values);
+
+    /**
+     * @brief Construct a Serie of a given size.
+     */
     explicit Serie(size_t size) : data_(size) {}
+
+    /**
+     * @brief Construct a Serie of a given size, filled with a given value.
+     */
     Serie(size_t size, const T &value) : data_(size, value) {}
 
+    /**
+     * @brief Get the type of the Serie as a string.
+     */
     std::string type() const override;
+
+    /**
+     * @brief Get the size of the Serie.
+     */
     size_t size() const override;
+
+    /**
+     * @brief Check if the Serie is empty.
+     */
     bool empty() const;
 
+    /**
+     * @brief Get the value at a given index.
+     */
     T &operator[](size_t index);
+
+    /**
+     * @brief Get the value at a given index.
+     */
     const T &operator[](size_t index) const;
 
+    /**
+     * @brief Add a value to the Serie.
+     */
     void add(const T &value) { data_.push_back(value); }
 
+    /**
+     * @brief Get the data of the Serie.
+     */
     const ArrayType &data() const;
+
+    /**
+     * @brief Get the data of the Serie.
+     * @see data()
+     */
     const ArrayType &asArray() const;
 
+    /**
+     * @brief Apply a function to each element of the Serie.
+     */
     template <typename F> void forEach(F &&callback) const;
+
+    /**
+     * @brief Apply a function to each element of the Serie and return a new
+     * Serie with the results.
+     */
     template <typename F> auto map(F &&callback) const;
+
+    /**
+     * @brief Filter the elements of the Serie using a predicate.
+     */
     template <typename F, typename AccT> auto reduce(F &&, AccT) const;
 
     // void printValueAt(std::ostream &, size_t, size_t, size_t) const override;
