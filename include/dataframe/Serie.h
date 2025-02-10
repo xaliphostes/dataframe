@@ -33,8 +33,7 @@ class SerieBase {
   public:
     virtual ~SerieBase() = default;
     virtual size_t size() const = 0;
-    // virtual void printValueAt(std::ostream &os, size_t row, size_t width,
-    //                           size_t precision) const = 0;
+    // virtual void printValueAt(std::ostream &, size_t, size_t, size_t) const = 0;
     virtual std::string type() const = 0;
 };
 
@@ -49,28 +48,11 @@ template <typename T> class Serie : public SerieBase {
     Serie(const ArrayType &values);
     Serie(const std::initializer_list<T> &values);
     explicit Serie(size_t size) : data_(size) {}
-    Serie(size_t size, const T& value) : data_(size, value) {}
+    Serie(size_t size, const T &value) : data_(size, value) {}
 
     std::string type() const override;
     size_t size() const override;
     bool empty() const;
-
-    // void printValueAt(std::ostream &os, size_t row, size_t width,
-    //                   size_t precision) const override {
-    //     if (row >= data_.size()) {
-    //         throw std::out_of_range("Row index out of bounds");
-    //     }
-
-    //     const T &value = data_[row];
-    //     os << ' ';
-    //     if constexpr (std::is_floating_point_v<T>) {
-    //         os << std::fixed << std::setprecision(precision) <<
-    //         std::setw(width)
-    //            << std::left << value;
-    //     } else {
-    //         os << std::setw(width) << std::left << value;
-    //     }
-    // }
 
     T &operator[](size_t index);
     const T &operator[](size_t index) const;
@@ -78,11 +60,13 @@ template <typename T> class Serie : public SerieBase {
     void add(const T &value) { data_.push_back(value); }
 
     const ArrayType &data() const;
-    const ArrayType &asArray() const; // same as data()
+    const ArrayType &asArray() const;
 
     template <typename F> void forEach(F &&callback) const;
     template <typename F> auto map(F &&callback) const;
-    template <typename F, typename AccT> auto reduce(F &&, AccT);
+    template <typename F, typename AccT> auto reduce(F &&, AccT) const;
+
+    // void printValueAt(std::ostream &, size_t, size_t, size_t) const override;
 
   private:
     ArrayType data_;

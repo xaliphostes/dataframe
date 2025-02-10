@@ -117,33 +117,90 @@ template <typename T> size_t Serie<T>::size() const { return data_.size(); }
 template <typename T>
 template <typename F>
 inline void Serie<T>::forEach(F &&callback) const {
-    for (size_t i = 0; i < data_.size(); ++i) {
-        callback(data_[i], i);
+    if constexpr (std::is_invocable_v<F, const T &, size_t>) {
+        // Callback takes both value and index
+        for (size_t i = 0; i < data_.size(); ++i) {
+            callback(data_[i], i);
+        }
+    } else if constexpr (std::is_invocable_v<F, const T &>) {
+        // Callback takes only value
+        for (const auto &value : data_) {
+            callback(value);
+        }
+    } else {
+        static_assert(std::is_invocable_v<F, const T &> ||
+                          std::is_invocable_v<F, const T &, size_t>,
+                      "Callback must accept either (value) or (value, index)");
     }
 }
 
+// map with optional index
 template <typename T>
 template <typename F>
 inline auto Serie<T>::map(F &&callback) const {
-    using ResultType = decltype(callback(data_[0], 0));
-    std::vector<ResultType> result(data_.size());
+    if constexpr (std::is_invocable_v<F, const T &, size_t>) {
+        using ResultType = decltype(callback(data_[0], size_t{0}));
+        std::vector<ResultType> result(data_.size());
 
-    for (size_t i = 0; i < data_.size(); ++i) {
-        result[i] = callback(data_[i], i);
+        for (size_t i = 0; i < data_.size(); ++i) {
+            result[i] = callback(data_[i], i);
+        }
+        return Serie<ResultType>(result);
+    } else if constexpr (std::is_invocable_v<F, const T &>) {
+        using ResultType = decltype(callback(data_[0]));
+        std::vector<ResultType> result(data_.size());
+
+        for (size_t i = 0; i < data_.size(); ++i) {
+            result[i] = callback(data_[i]);
+        }
+        return Serie<ResultType>(result);
+    } else {
+        static_assert(std::is_invocable_v<F, const T &> ||
+                          std::is_invocable_v<F, const T &, size_t>,
+                      "Callback must accept either (value) or (value, index)");
     }
-    return Serie<ResultType>(result);
 }
 
+// reduce with optional index
 template <typename T>
 template <typename F, typename AccT>
-auto Serie<T>::reduce(F &&callback, AccT initial) {
-    AccT result = initial;
-
-    for (size_t i = 0; i < data_.size(); ++i) {
-        result = callback(result, data_[i], i);
+inline auto Serie<T>::reduce(F &&callback, AccT initial) const {
+    if constexpr (std::is_invocable_v<F, AccT, const T &, size_t>) {
+        AccT result = initial;
+        for (size_t i = 0; i < data_.size(); ++i) {
+            result = callback(result, data_[i], i);
+        }
+        return result;
+    } else if constexpr (std::is_invocable_v<F, AccT, const T &>) {
+        AccT result = initial;
+        for (const auto &value : data_) {
+            result = callback(result, value);
+        }
+        return result;
+    } else {
+        static_assert(std::is_invocable_v<F, AccT, const T &> ||
+                          std::is_invocable_v<F, AccT, const T &, size_t>,
+                      "Callback must accept either (accumulator, value) or "
+                      "(accumulator, value, index)");
     }
-    return result;
 }
+
+// template <typename T>
+// void Serie<T>::printValueAt(std::ostream &os, size_t row, size_t width, size_t precision) const {
+//     if (row >= data_.size()) {
+//         throw std::out_of_range("Row index out of bounds");
+//     }
+
+//     const T &value = data_[row];
+//     os << ' ';
+//     if constexpr (std::is_floating_point_v<T>) {
+//         os << std::fixed << std::setprecision(precision) <<
+//         std::setw(width)
+//            << std::left << value;
+//     } else {
+//         os << std::setw(width) << std::left << value;
+//     }
+// }
 
 } // namespace df
 

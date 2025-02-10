@@ -74,14 +74,15 @@ df::Serie<double> pi(3, 3.14); // Creates [3.14,3.14,3.14]
 df::Serie<int> numbers{1, 2, 3, 4, 5};
 
 // Map operation: double each number
-auto doubled = numbers.map([](int n, size_t) { return n * 2; });
+// Note: "size_t index" is optional
+auto doubled = numbers.map([](int n, size_t index) { return n * 2; });
 
 // Filter operation: keep only even numbers
-auto evens = numbers | df::bind_filter([](int n, size_t) { return n % 2 == 0; });
+auto evens = numbers | df::bind_filter([](int n) { return n % 2 == 0; });
 
 // Create a reusable pipeline using chaining operations
-auto pipeline = df::bind_map([](int n, size_t) { return n * 2; }) |
-                df::bind_filter([](int n, size_t) { return n > 5; });
+auto pipeline = df::bind_map([](int n) { return n * 2; }) |
+                df::bind_filter([](int n) { return n > 5; });
 
 // Apply the pipeline to the numbers serie
 auto result = pipeline(numbers);
@@ -119,7 +120,7 @@ df::Serie<SMatrix3D> serie({
 
 auto [values, vectors] = df::eigenSystem(serie);
 
-df::forEach([](const EigenVectorType<3>& v, size_t) {
+df::forEach([](const EigenVectorType<3>& v) {
     std::cout << "1st eigen vector: " << v[0] << std::endl ;
     std::cout << "2nd eigen vector: " << v[1] << std::endl ;
     std::cout << "3rd eigen vector: " << v[2] << std::endl ;
@@ -167,12 +168,12 @@ struct Point3D {
 df::Serie<Point3D> points{{0,0,0}, {1,1,1}, {2,2,2}};
 
 // Transform points
-auto translated = df::map(([](const Point3D& p, size_t) {
+auto translated = df::map(([](const Point3D& p) {
     return Point3D{p.x + 1, p.y + 1, p.z + 1};
 }, points);
 
 // Get the norms according to (0,0,0)
-auto norms = df::map(([](const Point3D& p, size_t) {
+auto norms = df::map(([](const Point3D& p) {
     return std::sqrt{std::pow(p.x, 2), std::pow(p.y, 2), std::pow(p.z, 2)};
 }, points);
 ```
@@ -234,7 +235,7 @@ mesh.add("vertices", vertices);
 mesh.add("triangles", triangles);
 
 // Transform vertices
-auto transformed_vertices = df::map([](const Point& p, size_t) {
+auto transformed_vertices = df::map([](const Point& p) {
     return Point{p[0] * 2.0, p[1] * 2.0, p[2] * 2.0};
 }, vertices);
 mesh.add("transformed_vertices", transformed_vertices);

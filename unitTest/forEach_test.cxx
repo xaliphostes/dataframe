@@ -51,6 +51,18 @@ TEST(forEach, forEach) {
     });
 }
 
+TEST(forEach, one_arg) {
+    df::forEach(
+        [](const Stress3D &s) {
+            std::cerr << "stress: " << s << std::endl;
+        },
+        stress);
+
+    stress.forEach([](const Stress3D &s, size_t index) {
+        std::cerr << "stress " << index << ": " << s << std::endl;
+    });
+}
+
 TEST(forEach, make_forEach) {
     auto display = df::bind_forEach([](const Stress3D &s, size_t index) {
         std::cerr << "stress " << index << ": " << s << std::endl;
