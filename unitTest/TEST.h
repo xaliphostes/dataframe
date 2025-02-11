@@ -27,8 +27,11 @@
 #include <dataframe/print.h>
 #include <dataframe/types.h>
 
+#include <algorithm>
+#include <chrono>
 #include <functional>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -85,6 +88,28 @@ inline void register_test(const char *name, const char *fixture,
     }
 
 #define MSG(msg) std::cout << "---> " << msg << std::endl;
+
+// Helper for timing measurements
+template <typename F> double TIMING(F &&func) {
+    auto start = std::chrono::high_resolution_clock::now();
+    func();
+    auto end = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double, std::milli>(end - start).count();
+}
+
+// Helper function to generate random series
+template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<T> dis(min_val, max_val);
+
+    std::vector<T> data;
+    data.reserve(size);
+    for (size_t i = 0; i < size; ++i) {
+        data.push_back(dis(gen));
+    }
+    return df::Serie<T>(data);
+}
 
 #define EXPECT_EQ(val1, val2)                                                  \
     {                                                                          \
@@ -273,7 +298,7 @@ template <typename T> struct ParsedSerie {
 #define EXPECT_SERIE_EQ(serie, expected)                                       \
     {                                                                          \
         EXPECT_EQ(serie.size(), expected.size);                                \
-        EXPECT_STREQ(serie.type_name(), expected.type);                             \
+        EXPECT_STREQ(serie.type_name(), expected.type);                        \
         EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
     }
 

@@ -28,13 +28,14 @@ set(CMAKE_CXX_EXTENSIONS on)
 include(FetchContent)
 
 # Eigen library for linear algebra operations (!optional)
+set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "Disable Eigen documentation" FORCE)
+set(EIGEN_BUILD_TESTS OFF CACHE BOOL "Disable Eigen tests" FORCE)
 FetchContent_Declare(
     eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
     GIT_TAG 3.4.0
 )
-set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
-set(EIGEN_BUILD_DOC OFF CACHE BOOL "Disable Eigen documentation" FORCE)
 FetchContent_MakeAvailable(eigen)
 # target_link_libraries(dataframe PRIVATE Eigen3::Eigen)
 

@@ -22,14 +22,12 @@
  */
 
 #pragma once
-#include <algorithm>
+#include "execution_policy.h"
 #include <dataframe/Serie.h>
-
-namespace df {
 
 /**
  * @brief Sort a Serie in ascending or descending order
- * 
+ *
  * Key features of this implementation:
  * - Supports both ascending and descending sort
  * - Allows custom comparison functions
@@ -38,48 +36,68 @@ namespace df {
  * - Handles edge cases (empty series, single element)
  *
  * @code
- * // Example usage:
- * df::Serie<int> serie{3, 1, 4, 1, 5};
+ * // Basic sorting
+ * Serie<double> s1{5, 2, 8, 1, 9};
+ * auto sorted1 = sort(s1);                           // [1, 2, 5, 8, 9]
+ * auto sorted2 = sort(s1, SortOrder::DESCENDING);    // [9, 8, 5, 2, 1]
  *
- * // Sort ascending (default)
- * auto result1 = df::sort(serie);  // [1, 1, 3, 4, 5]
- *
- * // Sort descending
- * auto result2 = df::sort(serie, false);  // [5, 4, 3, 1, 1]
- *
- * // Sort with custom comparator
- * auto result3 = df::sort(serie, [](const int& a, const int& b) {
+ * // Custom comparator
+ * auto sorted3 = sort(s1, [](double a, double b) {
  *     return std::abs(a) < std::abs(b);
  * });
  *
- * // Using bind_sort in a pipeline
- * auto result4 = serie | df::bind_sort(false);  // descending
+ * // Sort by key function
+ * struct Person { std::string name; int age; };
+ * Serie<Person> people = {...};
+ * auto by_age = sort_by(people, [](const Person& p) { return p.age; });
+ * auto by_name = sort_by(people, [](const Person& p) { return p.name; });
+ *
+ * // Sort with NaN handling
+ * Serie<double> s2{5, std::nan(""), 2, std::nan(""), 1};
+ * auto sorted4 = sort_nan(s2);                    // [1, 2, 5, NaN, NaN]
+ * auto sorted5 = sort_nan(s2, SortOrder::ASCENDING, true);  // [NaN, NaN, 1, 2,
+ * 5]
+ *
+ * // Pipeline usage
+ * auto result = s1
+ *     | bind_sort<double>(SortOrder::ASCENDING)
+ *     | bind_map([](double x) { return x * 2; });
  * @endcode
  */
+namespace df {
 
-// Basic sort with optional ascending/descending flag
+enum class SortOrder { ASCENDING, DESCENDING };
+
 template <typename T>
-Serie<T> sort(const Serie<T> &serie, bool ascending = true) {
-    std::vector<T> sorted_data = serie.data();
-    if (ascending) {
-        std::sort(sorted_data.begin(), sorted_data.end());
-    } else {
-        std::sort(sorted_data.begin(), sorted_data.end(), std::greater<T>());
-    }
-    return Serie<T>(sorted_data);
-}
+Serie<T> sort(const Serie<T> &serie, SortOrder order = SortOrder::ASCENDING,
+              ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-// Sort with custom comparator
 template <typename T, typename Compare>
-Serie<T> sort(const Serie<T> &serie, Compare comp) {
-    std::vector<T> sorted_data = serie.data();
-    std::sort(sorted_data.begin(), sorted_data.end(), comp);
-    return Serie<T>(sorted_data);
-}
+Serie<T> sort(const Serie<T> &serie, Compare comp,
+              ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-// Bind function for pipeline operations
-template <typename... Args> auto bind_sort(Args... args) {
-    return [args...](const auto &serie) { return sort(serie, args...); };
-}
+template <typename T, typename KeyFunc>
+Serie<T> sort_by(const Serie<T> &serie, KeyFunc key_func,
+                 SortOrder order = SortOrder::ASCENDING,
+                 ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+template <typename T>
+Serie<T> sort_nan(const Serie<T> &serie, SortOrder order = SortOrder::ASCENDING,
+                  bool nan_first = false,
+                  ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+// Bind functions for pipeline operations with parallel support
+template <typename T>
+auto bind_sort(SortOrder order = SortOrder::ASCENDING,
+               ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+template <typename Compare>
+auto bind_sort_with(Compare comp, ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+template <typename KeyFunc>
+auto bind_sort_by(KeyFunc key_func, SortOrder order = SortOrder::ASCENDING,
+                  ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
 } // namespace df
+
+#include "inline/sort.hxx"
