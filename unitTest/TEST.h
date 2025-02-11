@@ -26,6 +26,7 @@
 #include <dataframe/pipe.h>
 #include <dataframe/print.h>
 #include <dataframe/types.h>
+#include <dataframe/math/random.h>
 
 #include <algorithm>
 #include <chrono>
@@ -43,6 +44,7 @@
 //                            Todo: Use TEST_CASE and SUB_CASE?
 // -----------------------------------------------------------------------------------------------
 
+// ======================================================
 namespace test {
 
 using TestFunction = std::function<void()>;
@@ -86,30 +88,20 @@ inline void register_test(const char *name, const char *fixture,
         }                                                                      \
         return 0;                                                              \
     }
+// ======================================================
 
 #define MSG(msg) std::cout << "---> " << msg << std::endl;
 
-// Helper for timing measurements
-template <typename F> double TIMING(F &&func) {
-    auto start = std::chrono::high_resolution_clock::now();
-    func();
-    auto end = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration<double, std::milli>(end - start).count();
-}
-
-// Helper function to generate random series
-template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<T> dis(min_val, max_val);
-
-    std::vector<T> data;
-    data.reserve(size);
-    for (size_t i = 0; i < size; ++i) {
-        data.push_back(dis(gen));
+#define CHECK(condition)                                                       \
+    {                                                                          \
+        if (!(condition)) {                                                    \
+            std::stringstream ss;                                              \
+            ss << "Check failed: " << #condition << "\n";                      \
+            ss << "File: " << __FILE__ << "\n";                                \
+            ss << "Line: " << __LINE__ << "\n";                                \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
     }
-    return df::Serie<T>(data);
-}
 
 #define EXPECT_EQ(val1, val2)                                                  \
     {                                                                          \
@@ -134,11 +126,33 @@ template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
         }                                                                      \
     }
 
+#define EXPECT_GE(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 < v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to be greater than " << v2;           \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
 #define EXPECT_LT(val1, val2)                                                  \
     {                                                                          \
         auto v1 = (val1);                                                      \
         auto v2 = (val2);                                                      \
         if (v1 >= v2) {                                                        \
+            std::stringstream ss;                                              \
+            ss << "Expected " << v1 << " to be less than " << v2;              \
+            throw std::runtime_error(ss.str());                                \
+        }                                                                      \
+    }
+
+#define EXPECT_LE(val1, val2)                                                  \
+    {                                                                          \
+        auto v1 = (val1);                                                      \
+        auto v2 = (val2);                                                      \
+        if (v1 > v2) {                                                        \
             std::stringstream ss;                                              \
             ss << "Expected " << v1 << " to be less than " << v2;              \
             throw std::runtime_error(ss.str());                                \
@@ -212,24 +226,10 @@ template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
     }
 
 // Boolean condition true
-#define EXPECT_TRUE(condition)                                                 \
-    {                                                                          \
-        if (!(condition)) {                                                    \
-            std::stringstream ss;                                              \
-            ss << "Expected " << #condition << " to be true";                  \
-            throw std::runtime_error(ss.str());                                \
-        }                                                                      \
-    }
+#define EXPECT_TRUE(condition) CHECK(condition);
 
 // Boolean condition false
-#define EXPECT_FALSE(condition)                                                \
-    {                                                                          \
-        if (condition) {                                                       \
-            std::stringstream ss;                                              \
-            ss << "Expected " << #condition << " to be false";                 \
-            throw std::runtime_error(ss.str());                                \
-        }                                                                      \
-    }
+#define EXPECT_FALSE(condition) CHECK(!(condition));
 
 // No exception thrown
 #define EXPECT_NO_THROW(statement)                                             \
@@ -289,18 +289,18 @@ template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
         }                                                                      \
     }
 
-template <typename T> struct ParsedSerie {
-    std::string type;
-    size_t size;
-    std::vector<T> values;
-};
+// Helper for timing measurements
+template <typename F> double TIMING(F &&func) {
+    auto start = std::chrono::high_resolution_clock::now();
+    func();
+    auto end = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration<double, std::milli>(end - start).count();
+}
 
-#define EXPECT_SERIE_EQ(serie, expected)                                       \
-    {                                                                          \
-        EXPECT_EQ(serie.size(), expected.size);                                \
-        EXPECT_STREQ(serie.type_name(), expected.type);                        \
-        EXPECT_ARRAY_EQ(serie.asArray(), expected.values);                     \
-    }
+// Helper function to generate random series
+template <typename T> df::Serie<T> RANDOM(size_t size, T min_val, T max_val) {
+    return df::random_uniform(size, min_val, max_val);
+}
 
 template <typename T>
 void COMPARE_SERIE_VECTOR(const df::Serie<T> &actual,
@@ -310,16 +310,13 @@ void COMPARE_SERIE_VECTOR(const df::Serie<T> &actual,
 
 template <typename T>
 void COMPARE_SERIES(const df::Serie<T> &actual, const df::Serie<T> &expected) {
+    EXPECT_EQ(actual.size(), expected.size());
+    EXPECT_STREQ(actual.type(), expected.type());
     EXPECT_ARRAY_EQ(actual.asArray(), expected.asArray());
 }
 
-#define CHECK(condition)                                                       \
-    {                                                                          \
-        if (!(condition)) {                                                    \
-            std::stringstream ss;                                              \
-            ss << "Check failed: " << #condition << "\n";                      \
-            ss << "File: " << __FILE__ << "\n";                                \
-            ss << "Line: " << __LINE__ << "\n";                                \
-            throw std::runtime_error(ss.str());                                \
-        }                                                                      \
-    }
+template <typename T> struct ParsedSerie {
+    std::string type;
+    size_t size;
+    std::vector<T> values;
+};

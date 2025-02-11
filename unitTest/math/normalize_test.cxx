@@ -79,7 +79,7 @@ TEST(Normalize, random_data) {
     using namespace df;
 
     // Generate random data and normalize it
-    auto random_data = df::random<double>(1000, -100.0, 100.0);
+    auto random_data = df::random_uniform<double>(1000, -100.0, 100.0);
     auto normalized = df::normalize(random_data);
 
     // Verify bounds
