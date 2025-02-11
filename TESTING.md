@@ -52,7 +52,11 @@ The call **must** be at the end of the file of the test suite.
 
 - `EXPECT_GT(v1, v2)`: check that v1 > v2
 
+- `EXPECT_GE(v1, v2)`: check that v1 >= v2
+
 - `EXPECT_LT(v1, v2)`: check that v1 < v2
+
+- `EXPECT_LE(v1, v2)`: check that v1 <= v2
 
 - `EXPECT_NOT_EQ(v1, v2)`: check that v1 != v2
   
