@@ -32,7 +32,7 @@ Only headers. No linking!
 - Parallel processing capabilities
 - Type-safe operations with compile-time checks
 - Modern C++ design (C++23 if available)
-- Link to teh CGAL lib if needed
+- Link to the CGAL lib if needed for more complex algos
 
 ## Core Concepts
 
