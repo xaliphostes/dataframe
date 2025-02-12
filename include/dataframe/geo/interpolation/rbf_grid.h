@@ -21,6 +21,9 @@ class Grid2D;
 class Grid3D;
 
 /**
+ * @brief RBF interpolation optimized for regular 2D grids
+ * Similar to 3D version but for 2D grids
+ * 
  * @code
  * // Define a 2D grid
  * df::Grid2D grid {

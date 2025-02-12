@@ -25,6 +25,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS on)
 
+# Add option for CGAL
+option(USE_CGAL "Enable CGAL functionality" OFF)
+
 include(FetchContent)
 
 # Eigen library for linear algebra operations (!optional)
@@ -37,18 +40,67 @@ FetchContent_Declare(
     GIT_TAG 3.4.0
 )
 FetchContent_MakeAvailable(eigen)
-# target_link_libraries(dataframe PRIVATE Eigen3::Eigen)
+
+# ------------------------------------------
+# dataframe pure headers library
+# ------------------------------------------
+add_library(dataframe INTERFACE)
+target_include_directories(dataframe INTERFACE 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+# ------------------------------------------
+# CGAL configuration
+# ------------------------------------------
+if(USE_CGAL)
+    find_package(CGAL REQUIRED)
+    message(STATUS "CGAL found and enabled")
+    
+    # Add CGAL-specific compile definitions and link libraries
+    target_compile_definitions(dataframe INTERFACE USE_CGAL)
+    target_link_libraries(dataframe INTERFACE CGAL::CGAL)
+    
+    # Optionally, add CGAL-specific include directories
+    target_include_directories(dataframe INTERFACE ${CGAL_INCLUDE_DIRS})
+else()
+    message(STATUS "CGAL functionality disabled")
+endif()
 
 # ---------------------------------------------------------------------
 # Detect all testing files
 # ---------------------------------------------------------------------
 function (auto_discover_tests)
-    file(GLOB_RECURSE TEST_FILES "*_test.cxx")
-    foreach(TEST_FILE ${TEST_FILES})
+    # file(GLOB_RECURSE TEST_FILES "*_test.cxx")
+    # foreach(TEST_FILE ${TEST_FILES})
+    #     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+    #     add_executable(${TEST_NAME} ${TEST_FILE})
+    #     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    # endforeach()
+    # Regular test files (always compiled)
+
+    file(GLOB_RECURSE CORE_TEST_FILES "unitTest/core/*_test.cxx")
+    
+    # CGAL-specific test files
+    file(GLOB_RECURSE CGAL_TEST_FILES "unitTest/cgal/*_test.cxx")
+    
+    # Add core tests
+    foreach(TEST_FILE ${CORE_TEST_FILES})
         get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
         add_executable(${TEST_NAME} ${TEST_FILE})
+        target_link_libraries(${TEST_NAME} PRIVATE dataframe)
         add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
     endforeach()
+    
+    # Add CGAL-specific tests only if CGAL is enabled
+    if(USE_CGAL)
+        foreach(TEST_FILE ${CGAL_TEST_FILES})
+            get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+            add_executable(${TEST_NAME} ${TEST_FILE})
+            target_link_libraries(${TEST_NAME} PRIVATE dataframe)
+            add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+        endforeach()
+    endif()
 endfunction()
 
 # ---------------------------------------------------------------------

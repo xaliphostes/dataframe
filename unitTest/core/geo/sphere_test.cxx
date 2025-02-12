@@ -21,35 +21,41 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include "../../TEST.h"
+#include <dataframe/geo/gen_sphere.h>
+#include <dataframe/geo/mesh/mesh.h>
 
-namespace df {
+using namespace df;
 
-struct Grid3D {
-    Vector3 origin;      // Origin point (x0, y0, z0)
-    Vector3 spacing;     // Grid spacing (dx, dy, dz)
-    iVector3 dimensions; // Number of points in each direction (nx, ny, nz)
+TEST(generate_sphere, basic_properties) {
+    const auto& [vertices, triangles] = generateSphere(1.0, 32, 16);
 
-    Vector3 point_at(uint i, uint j, uint k) const {
-        return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],
-                origin[2] + k * spacing[2]};
+    // df::print(vertices);
+    // df::print(triangles);
+
+    // Test vertex count
+    EXPECT_EQ(vertices.size(), ((32 + 1) * (16 + 1)));
+
+    // Test triangle count
+    EXPECT_EQ(triangles.size(), (2 * 32 * 16));
+
+    // Test radius
+    for (const auto &v : vertices.data()) {
+        double r = std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        EXPECT_NEAR(r, 1.0, 1e-10);
     }
 
-    size_t linear_index(uint i, uint j, uint k) const {
-        return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
+    // Test vertex distribution
+    bool hasTop = false;
+    bool hasBottom = false;
+    for (const auto &v : vertices.data()) {
+        if (std::abs(v[2] - 1.0) < 1e-10)
+            hasTop = true;
+        if (std::abs(v[2] + 1.0) < 1e-10)
+            hasBottom = true;
     }
+    EXPECT_TRUE(hasTop);
+    EXPECT_TRUE(hasBottom);
+}
 
-    std::tuple<uint, uint, uint> grid_indices(size_t index) const {
-        uint i = index % dimensions[0];
-        uint j = (index / dimensions[0]) % dimensions[1];
-        uint k = index / (dimensions[0] * dimensions[1]);
-        return {i, j, k};
-    }
-
-    size_t total_points() const {
-        return dimensions[0] * dimensions[1] * dimensions[2];
-    }
-};
-
-} // namespace df
+RUN_TESTS()

@@ -29,7 +29,9 @@
 
 namespace df {
 
-// Nearest neighbor interpolation for 2D points
+/**
+ * Nearest neighbor interpolation for 2D points
+ */
 template <typename T>
 Serie<T> nearest_2d(const Serie<Vector2> &points, const Serie<T> &values,
                     const Serie<Vector2> &targets) {
@@ -59,7 +61,9 @@ Serie<T> nearest_2d(const Serie<Vector2> &points, const Serie<T> &values,
     return result;
 }
 
-// Nearest neighbor interpolation for 3D points
+/**
+ * Nearest neighbor interpolation for 3D points
+ */
 template <typename T>
 Serie<T> nearest_3d(const Serie<Vector3> &points, const Serie<T> &values,
                     const Serie<Vector3> &targets) {

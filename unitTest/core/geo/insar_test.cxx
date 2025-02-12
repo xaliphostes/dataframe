@@ -21,35 +21,25 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include "../../TEST.h"
+#include <dataframe/geo/insar.h>
 
-namespace df {
+using namespace df;
 
-struct Grid3D {
-    Vector3 origin;      // Origin point (x0, y0, z0)
-    Vector3 spacing;     // Grid spacing (dx, dy, dz)
-    iVector3 dimensions; // Number of points in each direction (nx, ny, nz)
+TEST(insar, basic_operations) {
+    Serie<Vector3> displacements = {
+        {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
 
-    Vector3 point_at(uint i, uint j, uint k) const {
-        return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],
-                origin[2] + k * spacing[2]};
-    }
+    Vector3 los = {1.0, 0.0, 0.0};
+    auto insar_vals = insar(displacements, los);
 
-    size_t linear_index(uint i, uint j, uint k) const {
-        return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
-    }
+    EXPECT_EQ(insar_vals.size(), 3);
+    EXPECT_NEAR(insar_vals[0], 1.0, 1e-10);
+    EXPECT_NEAR(insar_vals[1], 0.0, 1e-10);
+    EXPECT_NEAR(insar_vals[2], 0.0, 1e-10);
 
-    std::tuple<uint, uint, uint> grid_indices(size_t index) const {
-        uint i = index % dimensions[0];
-        uint j = (index / dimensions[0]) % dimensions[1];
-        uint k = index / (dimensions[0] * dimensions[1]);
-        return {i, j, k};
-    }
+    auto fringe_vals = fringes(insar_vals, 0.5);
+    EXPECT_EQ(fringe_vals.size(), 3);
+}
 
-    size_t total_points() const {
-        return dimensions[0] * dimensions[1] * dimensions[2];
-    }
-};
-
-} // namespace df
+RUN_TESTS()

@@ -22,9 +22,6 @@
  */
 
 #pragma once
-#include <Eigen/Dense>
-#include <array>
-#include <cmath>
 #include <dataframe/Serie.h>
 
 namespace df {

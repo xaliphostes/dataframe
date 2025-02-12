@@ -28,7 +28,7 @@
 namespace df {
 
 /**
- * @brief Inverse Distance Weighting interpolation for 2D or 3D points
+ * @brief Inverse Distance Weighting (idw) interpolation for 2D or 3D points
  * @param points Serie of 2D/3D points (Vector2/Vector3)
  * @param values Serie of values at each point
  * @param targets Serie of points to interpolate to
