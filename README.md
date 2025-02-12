@@ -22,7 +22,7 @@
 
 A modern C++ library for data manipulation with a focus on functional programming patterns and type safety.
 
-Only headers. Non linking!
+Only headers. No linking!
 
 ## Features
 
@@ -31,7 +31,8 @@ Only headers. Non linking!
 - Rich functional operations (map, reduce, filter, etc.)
 - Parallel processing capabilities
 - Type-safe operations with compile-time checks
-- Modern C++ design (C++20)
+- Modern C++ design (C++23 if available)
+- Link to teh CGAL lib if needed
 
 ## Core Concepts
 
