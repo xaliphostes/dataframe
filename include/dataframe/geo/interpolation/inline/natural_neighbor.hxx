@@ -44,6 +44,7 @@ template <typename T> class NaturalNeighborInterpolator {
     using Point_2 = K::Point_2;
     using DT = CGAL::Delaunay_triangulation_2<K>;
     using Vertex_handle = DT::Vertex_handle;
+    using Polygon_2 = CGAL::Polygon_2<K>;
 
     DT triangulation;
     std::map<Vertex_handle, T> values_map;
@@ -88,6 +89,37 @@ template <typename T> class NaturalNeighborInterpolator {
         return cell;
     }
 
+    /**
+     * @brief Calculate intersection area between two Voronoi cells
+     */
+    double
+    calculate_intersection_area(const std::vector<Point_2> &cell1,
+                                const std::vector<Point_2> &cell2) const {
+        // Convert vector of points to Polygon_2
+        Polygon_2 polygon1;
+        Polygon_2 polygon2;
+
+        for (const auto &p : cell1)
+            polygon1.push_back(p);
+        for (const auto &p : cell2)
+            polygon2.push_back(p);
+
+        // Calculate intersection
+        auto result = CGAL::intersection(polygon1, polygon2);
+
+        if (result) {
+            if (const Polygon_2 *poly = boost::get<Polygon_2>(&*result)) {
+                std::vector<Point_2> intersection_points;
+                for (auto v = poly->vertices_begin(); v != poly->vertices_end();
+                     ++v) {
+                    intersection_points.push_back(*v);
+                }
+                return calculate_area(intersection_points);
+            }
+        }
+        return 0.0;
+    }
+
   public:
     /**
      * @brief Initialize interpolator with input points and values
@@ -108,7 +140,7 @@ template <typename T> class NaturalNeighborInterpolator {
     /**
      * @brief Interpolate value at a target point
      */
-    T interpolate(const Vector2 &target) const {
+    T interpolate(const Vector2 &target) {
         Point_2 query(target[0], target[1]);
 
         // Find cell containing the target point
@@ -117,7 +149,6 @@ template <typename T> class NaturalNeighborInterpolator {
             return values_map.at(nearest);
         }
 
-        // Get natural neighbors
         std::vector<std::pair<Vertex_handle, double>> weights;
 
         // Insert point temporarily to find natural neighbors
@@ -137,11 +168,7 @@ template <typename T> class NaturalNeighborInterpolator {
 
             // Calculate stolen area
             auto old_cell = get_voronoi_cell(curr->point(), curr);
-            std::vector<Point_2> intersection;
-            CGAL::intersection(new_cell, old_cell,
-                               std::back_inserter(intersection));
-
-            double area = calculate_area(intersection);
+            double area = calculate_intersection_area(new_cell, old_cell);
             weights.emplace_back(curr, area / total_area);
 
         } while (++curr != start);
@@ -161,7 +188,7 @@ template <typename T> class NaturalNeighborInterpolator {
     /**
      * @brief Interpolate values at multiple target points
      */
-    Serie<T> interpolate(const Serie<Vector2> &targets) const {
+    Serie<T> interpolate(const Serie<Vector2> &targets) {
         Serie<T> result(targets.size());
 
 #pragma omp parallel for if (targets.size() > 1000)

@@ -27,7 +27,9 @@
 #include <CGAL/Delaunay_triangulation_adaptation_policies_2.h>
 #include <CGAL/Delaunay_triangulation_adaptation_traits_2.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Polygon_2.h>
 #include <CGAL/Voronoi_diagram_2.h>
+#include <CGAL/intersections.h>
 #endif
 #include <dataframe/Serie.h>
 #include <map>

@@ -33,6 +33,8 @@ Only headers. No linking!
 - Type-safe operations with compile-time checks
 - Modern C++ design (C++23 if available)
 - Link to the CGAL lib if needed for more complex algos
+- Use [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) for libear algebra (will install it automatically)
+- Use [CGAL](https://www.cgal.org/) if needed (read [this to install CGAL](CGAL_INSTALL.md))
 
 ## Core Concepts
 
