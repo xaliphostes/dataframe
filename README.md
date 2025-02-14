@@ -1,7 +1,16 @@
-
+<center>
 <img src="media/distance_field_2d.png" alt="drawing" width="200"/>
 <img src="media/distance_field_3d.png" alt="drawing" width="200"/>
+</center>
+<center>Example of <b>distance field</b> computation using functional programming</center>
 
+```c++
+auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
+auto grid      = from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});
+auto distances = distance_field<2>(grid, ref_pts);
+```
+
+<br><br>
 
 # Simple and efficient C++ Dataframe Library
 
