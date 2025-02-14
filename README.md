@@ -28,7 +28,7 @@ auto distances = distance_field<2>(grid, ref_pts);
     <img src="media/field_comparison.jpg" alt="drawing" width="800"/>
 </p>
 <p align="center">
-Example of <b>interpolated</b> scalar field (left: real, right: interpolation)
+Example of <b>interpolated</b> scalar field (left: real, right: interpolation vrt to black points)
 </p>
 
 <p align="center">
