@@ -1,21 +1,3 @@
-<p align="center">
-    <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
-</p>
-<p align="center">
-Example of <b>distance field</b> computation using functional programming
-</p>
-
-<p align="center">
-
-```c++
-auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
-auto grid      = from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});
-auto distances = distance_field<2>(grid, ref_pts);
-```
-
-</p>
-<br><br>
-
 # Simple and efficient C++ Dataframe Library
 
 <p align="center">
@@ -28,6 +10,34 @@ auto distances = distance_field<2>(grid, ref_pts);
   <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
+
+<p align="center">
+    <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
+</p>
+<p align="center">
+Example of <b>distance field</b> computation
+
+```c++
+auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
+auto grid      = from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});
+auto distances = distance_field<2>(grid, ref_pts);
+```
+</p>
+
+<p align="center">
+    <img src="media/interpolated-IDW.jpg" alt="drawing" width="200"/>
+    <img src="media/interpolated-Linear.jpg" alt="drawing" width="200"/>
+    <img src="media/interpolated-RBF.jpg" alt="drawing" width="200"/>
+    <img src="media/interpolated-Nearest.jpg" alt="drawing" width="200"/>
+</p>
+<p align="center">
+Example of <b>interpolated field</b> using IDW, Linear, RBF and Nearest techniques
+</p>
+
+<p align="center">
+
+</p>
+<br><br>
 
 # 
 ### ***<center>...Work in progress for linear algebra, stats and geo(metry, logy, physic...) operations...</center>***

@@ -58,24 +58,10 @@ template <typename T, DistType D>
 Serie<T> random(size_t n, const DistParams<T, D> &params);
 
 // Specializations for convenience
-template <typename T>
-Serie<T> random_uniform(size_t, const DistParams<T, DistType::Uniform> &);
 template <typename T> Serie<T> random_uniform(size_t, T, T);
-
-template <typename T>
-Serie<T> random_normal(size_t, const DistParams<T, DistType::Normal> &);
 template <typename T> Serie<T> random_normal(size_t, T, T);
-
-template <typename T>
-Serie<T> random_bernoulli(size_t, const DistParams<T, DistType::Bernoulli> &);
 template <typename T> Serie<T> random_bernoulli(size_t, double);
-
-template <typename T>
-Serie<T> random_poisson(size_t, const DistParams<T, DistType::Poisson> &);
 template <typename T> Serie<T> random_poisson(size_t, double);
-
-template <typename T>
-Serie<T> random_sampling(size_t, const DistParams<T, DistType::Sampling> &);
 template <typename T> Serie<T> random_sampling(size_t, const std::vector<T>& , T);
 
 } // namespace df

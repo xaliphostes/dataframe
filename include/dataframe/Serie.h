@@ -49,6 +49,38 @@ template <typename T> class Serie : public SerieBase {
     using value_type = T;
     using ArrayType = std::vector<T>;
     using Self = Serie<T>;
+    using iterator = typename ArrayType::iterator;
+    using const_iterator = typename ArrayType::const_iterator;
+
+    /**
+     * @brief Get iterator to beginning of the Serie
+     */
+    iterator begin() { return data_.begin(); }
+
+    /**
+     * @brief Get const iterator to beginning of the Serie
+     */
+    const_iterator begin() const { return data_.begin(); }
+
+    /**
+     * @brief Get const iterator to beginning of the Serie
+     */
+    const_iterator cbegin() const { return data_.cbegin(); }
+
+    /**
+     * @brief Get iterator to end of the Serie
+     */
+    iterator end() { return data_.end(); }
+
+    /**
+     * @brief Get const iterator to end of the Serie
+     */
+    const_iterator end() const { return data_.end(); }
+
+    /**
+     * @brief Get const iterator to end of the Serie
+     */
+    const_iterator cend() const { return data_.cend(); }
 
     Serie() = default;
 
