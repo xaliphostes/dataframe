@@ -22,7 +22,8 @@
  */
 
 #include "../../TEST.h"
-#include <dataframe/geo/cartesian_grid.h>
+#include <dataframe/geo/grid/from_points.h>
+#include <dataframe/geo/grid/from_dims.h>
 #include <dataframe/pipe.h>
 
 using namespace df;

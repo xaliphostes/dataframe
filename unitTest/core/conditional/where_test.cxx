@@ -23,7 +23,7 @@
 
 #include "../../TEST.h"
 #include <array>
-#include <dataframe/conditional/where.h>
+#include <dataframe/utils/where.h>
 
 using namespace df;
 

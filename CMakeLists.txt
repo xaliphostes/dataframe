@@ -118,3 +118,5 @@ auto_discover_tests()
 
 add_subdirectory(examples/complex)
 add_subdirectory(examples/excel)
+add_subdirectory(examples/kdtree)
+add_subdirectory(examples/distance-field)

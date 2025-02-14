@@ -22,17 +22,24 @@
  */
 
 #pragma once
+#include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 
 namespace df {
 
 /**
- * @brief Structure to hold grid information
+ * @brief Structure to hold 2D grid information
+ *
+ * Working with attributes (data attributes associated with each grid point):
+ * - get an attribute: `grid.attributes.get<T>(name)`
+ * - remove an attribute: `grid.attributes.remove(name);`
+ * - add a new attribute: `grid.attributes.add(name, values);`
  */
 struct Grid2D {
-    Vector2 origin;      // Origin point (x0, y0)
-    Vector2 spacing;     // Grid spacing (dx, dy)
-    iVector2 dimensions; // Number of points in each direction (nx, ny)
+    Vector2 origin;       // Origin point (x0, y0)
+    Vector2 spacing;      // Grid spacing (dx, dy)
+    iVector2 dimensions;  // Number of points in each direction (nx, ny)
+    Dataframe attributes; // Data attributes associated with each grid point
 
     /**
      * @brief Get grid point coordinates at given indices
@@ -61,4 +68,4 @@ struct Grid2D {
     size_t total_points() const { return dimensions[0] * dimensions[1]; }
 };
 
-}
+} // namespace df

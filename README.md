@@ -1,3 +1,8 @@
+<center>
+<img src="media/distance_field_2d.png" alt="drawing" width="200"/>
+<img src="media/distance_field_3d.png" alt="drawing" width="200"/>
+</center>
+
 # Simple and efficient C++ Dataframe Library
 
 <p align="center">
@@ -9,10 +14,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
-  
 </p>
-
-
 
 # 
 ### ***<center>...Work in progress for linear algebra, stats and geo(metry, logy, physic...) operations...</center>***

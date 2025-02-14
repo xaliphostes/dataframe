@@ -240,7 +240,7 @@ TEST(Random, sampling_with_replacement) {
     const size_t n = 1000;
     std::vector<double> population = {1.0, 2.0, 3.0, 4.0, 5.0};
 
-    auto serie = df::random_sample<double>(n, population, true);
+    auto serie = df::random_sampling<double>(n, population, true);
     EXPECT_EQ(serie.size(), n);
 
     // Check that all values come from population
@@ -263,7 +263,7 @@ TEST(Random, sampling_without_replacement) {
     const size_t n = 3;
     std::vector<double> population = {1.0, 2.0, 3.0, 4.0, 5.0};
 
-    auto serie = df::random_sample<double>(n, population, false);
+    auto serie = df::random_sampling<double>(n, population, false);
     EXPECT_EQ(serie.size(), n);
 
     // Check that all values are unique

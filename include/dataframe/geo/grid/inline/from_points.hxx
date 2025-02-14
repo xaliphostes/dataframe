@@ -21,42 +21,40 @@
  *
  */
 
-// grid.h
-#pragma once
-#include <dataframe/Serie.h>
-#include <dataframe/geo/types.h>
-#include <vector>
+#include "../from_dims.h"
 
 namespace df {
 namespace grid {
 namespace cartesian {
 
-/**
- * Generate a regular grid of points centered at a given position with specified
- * dimensions
- * @param npts Number of points in each dimension
- * @param center Center position of the grid
- * @param dimensions Total dimensions of the grid in each direction
- * @return Serie of grid point positions
- */
-template <size_t N>
-Serie<Vector<N>> from_dims(const iVector<N> &npts, const Vector<N> &center,
-                           const Vector<N> &dimensions);
-
-/**
- * Generate a regular grid of points between two corner points
- * @param npts Number of points in each dimension
- * @param p1 First corner point
- * @param p2 Second corner point
- * @return Serie of grid point positions
- */
 template <size_t N>
 Serie<Vector<N>> from_points(const iVector<N> &npts,
                              const std::vector<double> &p1,
-                             const std::vector<double> &p2);
+                             const std::vector<double> &p2) {
+    // Validate input
+    if (p1.size() != N || p2.size() != N) {
+        throw std::invalid_argument("Input points must have the same dimension "
+                                    "as template parameter N");
+    }
+
+    // Convert input points to Vector<N>
+    Vector<N> min_corner, max_corner;
+    for (size_t i = 0; i < N; ++i) {
+        min_corner[i] = std::min(p1[i], p2[i]);
+        max_corner[i] = std::max(p1[i], p2[i]);
+    }
+
+    // Calculate dimensions and center
+    Vector<N> dimensions, center;
+    for (size_t i = 0; i < N; ++i) {
+        dimensions[i] = max_corner[i] - min_corner[i];
+        center[i] = min_corner[i] + dimensions[i] / 2.0;
+    }
+
+    // Use from_dims to generate the grid
+    return from_dims(npts, center, dimensions);
+}
 
 } // namespace cartesian
 } // namespace grid
 } // namespace df
-
-#include "inline/cartesian_grid.hxx"

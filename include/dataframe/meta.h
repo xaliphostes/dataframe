@@ -63,6 +63,11 @@ template <typename T> struct is_std_array : std::false_type {};
 template <typename T, std::size_t N>
 struct is_std_array<std::array<T, N>> : std::true_type {};
 
+// Helper variable template for easier usage
+template<typename T>
+inline constexpr bool is_std_array_v = is_std_array<T>::value;
+
+
 // Type trait for getting array element type
 template <typename T> struct array_element {
     using type = T;
@@ -87,6 +92,10 @@ template <typename T, std::size_t N> struct array_dimension<std::array<T, N>> {
 template <typename T> struct is_std_vector : std::false_type {};
 template <typename T, typename A>
 struct is_std_vector<std::vector<T, A>> : std::true_type {};
+// Helper variable template for easier usage
+template<typename T>
+inline constexpr bool is_std_vector_v = is_std_vector<T>::value;
+
 
 // -------------------------------------------------
 

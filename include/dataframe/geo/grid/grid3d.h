@@ -22,14 +22,24 @@
  */
 
 #pragma once
+#include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 
 namespace df {
 
+/**
+ * @brief Structure to hold 3D grid information
+ *
+ * Working with attributes (data attributes associated with each grid point):
+ * - get an attribute: `grid.attributes.get<T>(name)`
+ * - remove an attribute: `grid.attributes.remove(name);`
+ * - add a new attribute: `grid.attributes.add(name, values);`
+ */
 struct Grid3D {
-    Vector3 origin;      // Origin point (x0, y0, z0)
-    Vector3 spacing;     // Grid spacing (dx, dy, dz)
-    iVector3 dimensions; // Number of points in each direction (nx, ny, nz)
+    Vector3 origin;       // Origin point (x0, y0, z0)
+    Vector3 spacing;      // Grid spacing (dx, dy, dz)
+    iVector3 dimensions;  // Number of points in each direction (nx, ny, nz)
+    Dataframe attributes; // Data attributes associated with each grid point
 
     Vector3 point_at(uint i, uint j, uint k) const {
         return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],

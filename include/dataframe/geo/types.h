@@ -12,6 +12,8 @@ using Positions3 = Serie<Vector3>;
 using Segments = Serie<iVector2>;
 using Triangles = Serie<iVector3>;
 
+// --------------------------------------------------------
+
 // Vector arithmetic operators
 template <size_t N>
 Vector<N> operator-(const Vector<N> &a, const Vector<N> &b) {
