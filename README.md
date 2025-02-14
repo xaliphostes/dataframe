@@ -1,7 +1,7 @@
-<center>
+
 <img src="media/distance_field_2d.png" alt="drawing" width="200"/>
 <img src="media/distance_field_3d.png" alt="drawing" width="200"/>
-</center>
+
 
 # Simple and efficient C++ Dataframe Library
 
