@@ -1,8 +1,9 @@
-<center>
-<img src="media/distance_field_2d.png" alt="drawing" width="200"/>
-<img src="media/distance_field_3d.png" alt="drawing" width="200"/>
-</center>
-<center>Example of <b>distance field</b> computation using functional programming</center>
+<p align="center">
+    <img src="media/distance_field_2d.png" alt="drawing" width="200"/>
+</p>
+<p align="center">
+Example of <b>distance field</b> computation using functional programming
+</p>
 
 ```c++
 auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
