@@ -208,4 +208,55 @@ KDTree<T, DIM>::findNearest(const Serie<point_t> &points, size_t k) const {
     return result;
 }
 
+template <typename T, size_t DIM>
+inline void KDTree<T, DIM>::findInRadius(const point_t &target, double radius,
+                                         std::vector<size_t> &result) const {
+    double squared_radius = radius * radius;
+    result.clear();
+    radiusSearch(root_.get(), target, squared_radius, result);
+}
+
+template <typename T, size_t DIM>
+inline void KDTree<T, DIM>::radiusSearch(const Node *node,
+                                         const point_t &target,
+                                         double squared_radius,
+                                         std::vector<size_t> &result) const {
+    if (!node)
+        return;
+
+    // Check if current point is within radius
+    double squared_dist = squaredDistance(node->index, target);
+    if (squared_dist <= squared_radius) {
+        result.push_back(node->index);
+    }
+
+    // Get distance along current axis
+    double axis_dist = get_component(target, node->axis) -
+                       get_component(positions_[node->index], node->axis);
+
+    // If splitting plane intersects radius sphere, we need to search both
+    // subtrees
+    if (axis_dist * axis_dist <= squared_radius) {
+        radiusSearch(node->left.get(), target, squared_radius, result);
+        radiusSearch(node->right.get(), target, squared_radius, result);
+    }
+    // Otherwise, search only the subtree that could contain points within
+    // radius
+    else if (axis_dist < 0) {
+        radiusSearch(node->left.get(), target, squared_radius, result);
+    } else {
+        radiusSearch(node->right.get(), target, squared_radius, result);
+    }
+}
+
+template <typename T, size_t DIM>
+inline double KDTree<T, DIM>::get_component(const point_t &point, size_t axis) const {
+    return point[axis];
+}
+
+template <typename T, size_t DIM>
+inline double KDTree<T, DIM>::get_component(size_t idx, size_t axis) const {
+    return positions_[idx][axis];
+}
+
 } // namespace df

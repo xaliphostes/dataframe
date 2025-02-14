@@ -13,7 +13,7 @@
 
 <p align="center">
     <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
-</p>
+</p>v
 <p align="center">
 Example of <b>distance field</b> computation
 
@@ -25,13 +25,10 @@ auto distances = distance_field<2>(grid, ref_pts);
 </p>
 
 <p align="center">
-    <img src="media/interpolated-IDW.jpg" alt="drawing" width="200"/>
-    <img src="media/interpolated-Linear.jpg" alt="drawing" width="200"/>
-    <img src="media/interpolated-RBF.jpg" alt="drawing" width="200"/>
-    <img src="media/interpolated-Nearest.jpg" alt="drawing" width="200"/>
+    <img src="media/field_comparison.jpg" alt="drawing" width="800"/>
 </p>
 <p align="center">
-Example of <b>interpolated field</b> using IDW, Linear, RBF and Nearest techniques
+Example of <b>interpolated</b> scalar field (left: real, right: interpolation)
 </p>
 
 <p align="center">

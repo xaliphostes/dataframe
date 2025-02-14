@@ -156,6 +156,15 @@ template <typename T, size_t DIM> class KDTree {
      */
     std::vector<Neighbor> findNearest(const Serie<point_t> &, size_t) const;
 
+    /**
+     * @brief Find all points within a given radius of a query point
+     *
+     * @param target Query point to search around
+     * @param radius Search radius
+     * @param result Vector to store indices of points within radius
+     */
+    void findInRadius(const point_t &, double, std::vector<size_t> &) const;
+
     double squaredDistance(size_t idx, const point_t &point) const;
 
   private:
@@ -166,6 +175,26 @@ template <typename T, size_t DIM> class KDTree {
     double getComponent(size_t idx, size_t axis) const;
     std::unique_ptr<Node> buildTree(std::vector<size_t> &, size_t);
     void searchNN(const Node *, const point_t &, size_t &, double &) const;
+    void radiusSearch(const Node *node, const point_t &target,
+                      double squared_radius, std::vector<size_t> &result) const;
+
+    /**
+     * @brief Get the component value of a point at a given axis
+     *
+     * @param point The point to get component from
+     * @param axis The axis index (0 for x, 1 for y, etc.)
+     * @return Component value at the specified axis
+     */
+    double get_component(const point_t &point, size_t axis) const;
+
+    /**
+     * @brief Get the component value from index at a given axis
+     *
+     * @param idx Index in the positions series
+     * @param axis The axis index (0 for x, 1 for y, etc.)
+     * @return Component value at the specified axis
+     */
+    double get_component(size_t idx, size_t axis) const;
 };
 
 } // namespace df

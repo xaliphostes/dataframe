@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2024-now fmaerten@gmail.com
+ *
+ * Permission is hereby granted, free of charge...
+ * [MIT License text as in other files]
+ */
+
+#pragma once
+#include <cmath>
+#include <dataframe/Serie.h>
+#include <dataframe/geo/utils/kdtree.h>
+#include <dataframe/types.h>
+#include <dataframe/meta.h>
+#include <numeric>
+
+namespace df {
+
+// Interpolation methods available
+enum class InterpolationType {
+    NearestNeighbor, // Use value from closest point
+    Linear,          // Linear interpolation from neighbors
+    IDW,             // Inverse Distance Weighting
+    RBF              // Radial Basis Function
+};
+
+/**
+ * @brief Parameters for field interpolation
+ */
+template <typename T> struct InterpolationParams {
+    InterpolationType method = InterpolationType::Linear;
+    size_t num_neighbors = 4; // Number of neighbors to use
+    double radius = std::numeric_limits<double>::infinity(); // Search radius
+    double power = 2.0; // Power parameter for IDW
+
+    // Optional weights for custom weighting
+    std::function<double(double)> weight_function = nullptr;
+};
+
+/**
+ * @brief Interpolate a field (scalar or vector) at given points
+ *
+ * @tparam T Type of values (scalar or vector)
+ * @tparam DIM Dimension of the space (2 or 3)
+ * @param points Points where to interpolate
+ * @param field_points Points where the field is known
+ * @param field_values Values of the field at field_points
+ * @param params Interpolation parameters
+ * @return Serie<T> Interpolated values at points
+ */
+template <typename T, size_t DIM>
+Serie<T> interpolate_field(
+    const Serie<typename detail::point_type<DIM>::type> &points, 
+    const Serie<typename detail::point_type<DIM>::type> &field_points,
+    const Serie<T> &field_values,
+    const InterpolationParams<T> &params = InterpolationParams<T>{}) {
+    using point_t = typename detail::point_type<DIM>::type;
+
+    // Validate input
+    if (field_points.size() != field_values.size()) {
+        throw std::runtime_error(
+            "Number of field points and values must match");
+    }
+
+    // Create KDTree for efficient neighbor search
+    Serie<size_t> indices(field_points.size());
+    std::iota(indices.begin(), indices.end(), 0);
+    KDTree<size_t, DIM> kdtree(indices, field_points);
+
+    // Interpolate at each point
+    return points.map([&](const point_t &point, size_t) -> T {
+        std::vector<std::pair<size_t, double>> neighbors;
+
+        // Find nearest neighbors
+        if (params.method == InterpolationType::NearestNeighbor) {
+            auto [idx, _] = kdtree.findNearest(point);
+            return field_values[idx];
+        }
+
+        // Get k nearest neighbors and their distances
+        auto k_neighbors =
+            kdtree.findNearest(Serie<point_t>({point}), params.num_neighbors);
+
+        // Compute weights based on interpolation method
+        std::vector<double> weights(k_neighbors.size());
+        double weight_sum = 0.0;
+
+        for (size_t i = 0; i < k_neighbors.size(); ++i) {
+            auto [idx, _] = k_neighbors[i];
+            double dist = std::sqrt(kdtree.squaredDistance(idx, point));
+
+            if (dist > params.radius)
+                continue;
+
+            if (dist < 1e-10) {
+                return field_values[idx]; // Point coincides with a field point
+            }
+
+            double weight;
+            if (params.weight_function) {
+                weight = params.weight_function(dist);
+            } else if (params.method == InterpolationType::IDW) {
+                weight = 1.0 / std::pow(dist, params.power);
+            } else if (params.method == InterpolationType::RBF) {
+                weight = std::exp(-dist * dist); // Gaussian RBF
+            } else {                             // Linear
+                weight = 1.0 / dist;
+            }
+
+            weights[i] = weight;
+            weight_sum += weight;
+        }
+
+        // Compute interpolated value
+        if constexpr (std::is_arithmetic_v<T>) {
+            T result = T{0};
+            for (size_t i = 0; i < k_neighbors.size(); ++i) {
+                auto [idx, _] = k_neighbors[i];
+                result += field_values[idx] * (weights[i] / weight_sum);
+            }
+            return result;
+        } else if constexpr (details::is_std_array_v<T>) {
+            T result{};
+            for (size_t i = 0; i < k_neighbors.size(); ++i) {
+                auto [idx, _] = k_neighbors[i];
+                const auto &val = field_values[idx];
+                for (size_t j = 0; j < std::tuple_size_v<T>; ++j) {
+                    result[j] += val[j] * (weights[i] / weight_sum);
+                }
+            }
+            return result;
+        }
+    });
+}
+
+} // namespace df

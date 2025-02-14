@@ -5,16 +5,18 @@ from matplotlib.colors import LinearSegmentedColormap
 import argparse
 import sys
 
+def real_field(x, y):
+    """The actual scalar field function"""
+    return np.sin(2*x) * np.cos(2*y)
+
 def main():
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Visualize distance field from grid and reference points')
+    parser = argparse.ArgumentParser(description='Compare real and interpolated fields')
     parser.add_argument('grid_file', help='CSV file containing grid points and distances')
     parser.add_argument('ref_file', help='CSV file containing reference points')
-    parser.add_argument('--output', '-o', default='interpolated_field', help='Base name for output files (default: interpolated_field)')
+    parser.add_argument('--output', '-o', default='field_comparison', help='Base name for output files')
     args = parser.parse_args()
 
     try:
-        # Read the data
         grid_data = pd.read_csv(args.grid_file)
         ref_points = pd.read_csv(args.ref_file)
     except FileNotFoundError as e:
@@ -28,56 +30,46 @@ def main():
         sys.exit(1)
 
     # Reshape the data into a grid
-    n = int(np.sqrt(len(grid_data)))  # Assuming square grid
+    n = int(np.sqrt(len(grid_data)))
     X = grid_data['x'].values.reshape(n, n)
     Y = grid_data['y'].values.reshape(n, n)
-    Z = grid_data['distance'].values.reshape(n, n)
+    Z_interpolated = grid_data['distance'].values.reshape(n, n)
+
+    # Compute real field values
+    Z_real = real_field(X, Y)
 
     # Create custom colormap
-    colors = ['yellow', 'blue', 'lightblue', 'white', 'yellow', 'orange', 'red']
+    colors = ['darkblue', 'blue', 'lightblue', 'white', 'yellow', 'orange', 'red']
     n_bins = 100
     cmap = LinearSegmentedColormap.from_list("custom", colors, N=n_bins)
 
-    # Create the 2D plot
-    plt.figure(figsize=(12, 10))
+    # Create figure with two subplots side by side
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
 
-    # Plot the distance field
-    plt.contourf(X, Y, Z, levels=50, cmap=cmap)
-    plt.colorbar(label='Distance')
+    # Plot 1: Real field
+    c1 = ax1.contourf(X, Y, Z_real, levels=50, cmap=cmap)
+    plt.colorbar(c1, ax=ax1, label='Value')
+    # ax1.scatter(ref_points['x'], ref_points['y'], color='black', marker='o', s=30, label='Sample Points')
+    ax1.set_title('Real Field (sin(2x)cos(2y))')
+    ax1.set_xlabel('X')
+    ax1.set_ylabel('Y')
+    ax1.axis('equal')
+    ax1.grid(True)
+    ax1.legend()
 
-    # Plot the reference points
-    plt.scatter(ref_points['x'], ref_points['y'], 
-               color='black', marker='o', s=30, 
-               label='Reference Points')
+    # Plot 2: Interpolated field
+    c2 = ax2.contourf(X, Y, Z_interpolated, levels=50, cmap=cmap)
+    plt.colorbar(c2, ax=ax2, label='Value')
+    ax2.scatter(ref_points['x'], ref_points['y'], color='black', marker='o', s=30, label='Sample Points')
+    ax2.set_title('Interpolated Field')
+    ax2.set_xlabel('X')
+    ax2.set_ylabel('Y')
+    ax2.axis('equal')
+    ax2.grid(True)
+    ax2.legend()
 
-    plt.title('Distance Field with Reference Points')
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.axis('equal')
-    plt.legend()
-    plt.grid(True)
-
-    # Save the 2D plot
-    plt.savefig(f'{args.output}_2d.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-    # Create a 3D surface plot
-    fig = plt.figure(figsize=(12, 10))
-    ax = fig.add_subplot(111, projection='3d')
-
-    surf = ax.plot_surface(X, Y, Z, cmap=cmap)
-    ax.scatter(ref_points['x'], ref_points['y'], 
-              np.zeros_like(ref_points['x']), 
-              color='black', marker='o', s=30)
-
-    plt.colorbar(surf, label='Distance')
-    ax.set_title('3D View of Distance Field')
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Distance')
-
-    # Save the 3D plot
-    plt.savefig(f'{args.output}_3d.png', dpi=300, bbox_inches='tight')
+    plt.tight_layout()
+    plt.savefig(f'{args.output}.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 if __name__ == '__main__':
