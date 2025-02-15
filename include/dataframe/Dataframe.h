@@ -99,6 +99,14 @@ class Dataframe {
      */
     void clear();
 
+    /**
+     * @brief Dump the content of the Dataframe to a stream with detailed
+     * statistics
+     * @param os Output stream (defaults to std::cout)
+     * @param max_preview Maximum number of preview values to show
+     */
+    void dump(std::ostream &os = std::cout, size_t max_preview = 5) const;
+
   private:
     struct SerieInfo {
         std::shared_ptr<SerieBase> data;
@@ -110,6 +118,19 @@ class Dataframe {
     };
 
     std::map<std::string, SerieInfo> series_;
+
+    void printSeriesOverview(std::ostream &, int, int, int) const;
+
+    void printSerieDetails(std::ostream &, const std::string &, size_t,
+                           int) const;
+
+    template <typename T>
+    void printNumericStats(std::ostream &, const std::string &, int) const;
+
+    void printSeriePreview(std::ostream &, const std::string &, size_t) const;
+
+    template <typename T>
+    void printNumericPreview(std::ostream &, const std::string &, size_t) const;
 };
 
 } // namespace df

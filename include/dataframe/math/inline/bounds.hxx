@@ -24,6 +24,7 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
+#include <dataframe/meta.h>
 
 namespace df {
 
@@ -51,7 +52,7 @@ auto get_array_bounds(const std::array<T, N> &arr) {
 // Helper for container types
 template <typename T>
 auto get_element_bounds_impl(const T &value, std::false_type) {
-    if constexpr (is_std_array<T>::value) {
+    if constexpr (details::is_std_array<T>::value) {
         return get_array_bounds(value);
     } else if constexpr (is_container<T>::value) {
         using ElementType = typename container_value_type<T>::type;

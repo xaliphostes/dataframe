@@ -55,7 +55,7 @@ template <size_t N> class Mesh {
   public:
     static_assert(N == 2 || N == 3, "Mesh dimension must be 2 or 3");
 
-    using VertexType = Vector<N>;
+    using VertexType = Vector<N>; // i.e., std::array<double, N>
 
     Mesh() = default;
 
@@ -103,14 +103,27 @@ template <size_t N> class Mesh {
     // Validation
     bool isValid() const;
 
+    /**
+     * @brief Get the neighbors of a node with index node_idx
+     */
+    const std::vector<size_t> &neighbors(size_t node_idx) const;
+
+    /**
+     * @brief Get the border nodes of the mesh
+     */
+    const std::vector<size_t> &borderNodes() const;
+
   private:
     Serie<VertexType> vertices_;
     Triangles triangles_;
     Dataframe vertex_attributes_;
     Dataframe triangle_attributes_;
+    std::vector<std::vector<size_t>> adjacency_;
+    std::vector<size_t> border_nodes_;
 
-    void validateAttributeSize(const std::string &name, size_t size,
-                               bool isVertex) const;
+    void validateAttributeSize(const std::string &, size_t, bool) const;
+    void buildTopology();
+    void findBorderNodes();
 };
 
 // Type aliases for common dimensions

@@ -57,23 +57,24 @@ using Strain3D = SMatrix3D;
 using Stress2D = SMatrix2D;
 using Stress3D = SMatrix3D;
 
+namespace df {
 namespace detail {
 
-    /**
-     * @brief Traits class for dimensionality of points or vectors (2D or 3D)
-     */
-    template <size_t DIM> struct point_type {};
-    
-    template <> struct point_type<2> {
-        using type = Vector2;
-    };
-    
-    template <> struct point_type<3> {
-        using type = Vector3;
-    };
-    
-    } // namespace detail
-    
+/**
+ * @brief Traits class for dimensionality of points or vectors (2D or 3D)
+ */
+template <size_t DIM> struct point_type {};
+
+template <> struct point_type<2> {
+    using type = Vector2;
+};
+
+template <> struct point_type<3> {
+    using type = Vector3;
+};
+
+} // namespace detail
+} // namespace df
 
 // ----------------------------------------------------------
 
@@ -87,4 +88,3 @@ std::ostream &operator<<(std::ostream &o, const std::array<T, N> &m) {
 
     return o;
 }
-

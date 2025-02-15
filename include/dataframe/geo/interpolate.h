@@ -40,7 +40,7 @@ enum class SmoothingMethod {
 /**
  * @brief Parameters for field interpolation
  */
-struct InterpolationParams2 {
+struct InterpolationParams {
     size_t num_neighbors = 4; // Number of neighbors to use
     double power = 2.0;       // Power parameter for IDW
     SmoothingMethod smoothing = SmoothingMethod::None;
@@ -60,7 +60,7 @@ Serie<T> interpolate_field(
     const Serie<typename detail::point_type<DIM>::type> &points,
     const Serie<typename detail::point_type<DIM>::type> &reference_points,
     const Serie<T> &values,
-    const InterpolationParams2 &params = InterpolationParams2{}) {
+    const InterpolationParams &params = InterpolationParams{}) {
     using point_t = typename detail::point_type<DIM>::type;
 
     if (points.empty() || reference_points.empty()) {
@@ -233,7 +233,7 @@ template <typename T, size_t DIM>
 auto bind_interpolate_field(
     const Serie<typename detail::point_type<DIM>::type> &reference_points,
     const Serie<T> &values,
-    const InterpolationParams2 &params = InterpolationParams2{}) {
+    const InterpolationParams &params = InterpolationParams{}) {
     return [&](const Serie<typename detail::point_type<DIM>::type> &points) {
         return interpolate_field<T, DIM>(points, reference_points, values,
                                          params);
