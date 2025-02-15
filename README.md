@@ -39,8 +39,12 @@ auto interp    = interpolate_field<double, 2>(grid, scattered, values);
 </p>
 
 <p align="center">
-
+    <img src="media/diffusion_evolution.gif" alt="drawing" width="400"/>
 </p>
+<p align="center">
+Example of heat diffusion using <b>HarmonicDiffusion</b>
+</p>
+
 
 # 
 ### ***<center>...Work in progress for linear algebra, stats and geo(metry, logy, physic...) operations...</center>***

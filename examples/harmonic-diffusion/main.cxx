@@ -59,7 +59,7 @@ int main() {
 int main() {
     // Create a square grid of points (51x51 = 2601 points)
     // This will generate 2500 squares which become 5000 triangles
-    const size_t n = 51;      // points per side
+    const size_t n = 21;      // points per side
     const double size = 10.0; // square side length
     Mesh2D mesh = generate_grid2d_mesh(n, size);
 
@@ -71,15 +71,15 @@ int main() {
     diffusion.constrainBorders(0.0);
 
     // Add some hot spots
-    diffusion.addConstraint({-4.0, -4.0}, 1.0); // Bottom left
-    diffusion.addConstraint({4.0, 4.0}, 1.0);   // Top right
-    diffusion.addConstraint({-4.0, 4.0}, -1.0); // Top left
+    diffusion.addConstraint({-2.0, -2.0}, 4.0); // Bottom left
+    diffusion.addConstraint({2.0, 4.0}, 5.0);   // Top right
+    diffusion.addConstraint({-0.0, 1.0}, -7.0); // Top left
     diffusion.addConstraint({4.0, -4.0}, -1.0); // Bottom right
 
     // Set parameters
     diffusion.setMaxIter(2000); // Increased for larger mesh
     diffusion.setEps(1e-6);
-    diffusion.setEpsilon(0.5);
+    diffusion.setEpsilon(0.05);
 
     // Solve and get results with intermediate steps recorded
     Dataframe result = diffusion.solve("temperature", true, 100);

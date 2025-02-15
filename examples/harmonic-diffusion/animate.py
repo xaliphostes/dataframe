@@ -48,7 +48,7 @@ step_files = sorted(glob.glob('../../build/temperature_step*.csv'))
 if step_files:
     print(f"Creating animation from {len(step_files)} intermediate steps...")
     
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(4, 4), dpi=72)
     plt.style.use('dark_background')
     
     def init():
