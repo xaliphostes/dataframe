@@ -31,10 +31,10 @@ auto distances = distance_field<2>(grid, ref_pts);
 Example of <b>interpolated</b> scalar field (left: real, right: interpolation vrt to black points)
 
 ```c++
-auto scattered    = random_uniform<Vector2>(50, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
-auto values       = map([](const Vector2 &p) {return std::sin(p[0]*2) * std::cos(p[1]*2);}, scattered);
-auto grid         = from_dims<2>({100, 100}, {0, 0}, {2.0, 2.0});
-auto interpolated = interpolate_field<double, 2>(grid, scattered, values);
+auto scattered = random_uniform<Vector2>(50, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
+auto values    = map([](const Vector2 &p) {return sin(p[0]*2) * cos(p[1]*2);}, scattered);
+auto grid      = from_dims<2>({100, 100}, {0, 0}, {2.0, 2.0});
+auto interp    = interpolate_field<double, 2>(grid, scattered, values);
 ```
 </p>
 
