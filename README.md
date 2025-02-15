@@ -41,7 +41,6 @@ auto interp    = interpolate_field<double, 2>(grid, scattered, values);
 <p align="center">
 
 </p>
-<br><br>
 
 # 
 ### ***<center>...Work in progress for linear algebra, stats and geo(metry, logy, physic...) operations...</center>***
