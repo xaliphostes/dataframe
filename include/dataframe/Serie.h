@@ -120,6 +120,12 @@ template <typename T> class Serie : public SerieBase {
     bool empty() const;
 
     /**
+     * @brief Reserve space for future elements.
+     * @param n The number of elements to reserve space for
+     */
+    void reserve(size_t n) { data_.reserve(n); }
+
+    /**
      * @brief Get the value at a given index.
      */
     T &operator[](size_t index);

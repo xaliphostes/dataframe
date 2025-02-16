@@ -71,14 +71,7 @@ endif()
 # Detect all testing files
 # ---------------------------------------------------------------------
 function (auto_discover_tests)
-    # file(GLOB_RECURSE TEST_FILES "*_test.cxx")
-    # foreach(TEST_FILE ${TEST_FILES})
-    #     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
-    #     add_executable(${TEST_NAME} ${TEST_FILE})
-    #     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-    # endforeach()
-    # Regular test files (always compiled)
-
+    # Base test files
     file(GLOB_RECURSE CORE_TEST_FILES "unitTest/core/*_test.cxx")
     
     # CGAL-specific test files
