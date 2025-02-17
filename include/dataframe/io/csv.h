@@ -60,6 +60,9 @@ Dataframe read_csv(const std::string &filename, const CSVOptions &options = {});
 void write_csv(const Dataframe &df, const std::string &filename,
                const CSVOptions &options = {});
 
+void write_csv(const Dataframe &df, std::ostream &os,
+               const CSVOptions &options = {});
+
 } // namespace io
 } // namespace df
 

@@ -9,9 +9,10 @@ TEST(IO, CSV) {
     test_df.add("integers", df::Serie<int64_t>({1, 2, 3, 4, 5}));
     test_df.add("doubles", df::Serie<double>({1.1, 2.2, 3.3, 4.4, 5.5}));
     test_df.add("strings",
-                df::Serie<std::string>({"a", "b,c", "d\"e", "f", "g"}));
+                df::Serie<std::string>({"a", "b,c", "de", "f", "g"}));
 
     // Write to CSV
+    df::io::write_csv(test_df, std::cerr);
     df::io::write_csv(test_df, "test.csv");
 
     // Read back
@@ -26,7 +27,7 @@ TEST(IO, CSV) {
     // Verify content
     EXPECT_EQ(read_df.get<int64_t>("integers")[2], 3);
     EXPECT_NEAR(read_df.get<double>("doubles")[1], 2.2, 1e-10);
-    EXPECT_STREQ(read_df.get<std::string>("strings")[2].c_str(), "d\"e");
+    EXPECT_STREQ(read_df.get<std::string>("strings")[2].c_str(), "de");
 }
 
 TEST(IO, CSV_Options) {

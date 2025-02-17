@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
 
@@ -286,7 +286,7 @@ Header-only library. Simply include the headers that you need in your project.
 
 ## Requirements
 
-- C++20 or later
+- C++23 or later
 - Modern C++ compiler (GCC, Clang, MSVC)
 
 ## License

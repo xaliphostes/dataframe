@@ -35,11 +35,80 @@ namespace df {
 
 /**
  * @brief A Dataframe is a collection of series.
+ * 
+ * Use range-based for loops:
+ * @code
+ * for (const auto& [name, serie] : dataframe) {
+ *   // Work with name and serie
+ * }
+ * @endcode
+ * 
+ * Use standard algorithms:
+ * @code
+ * auto it = std::find_if(dataframe.begin(), dataframe.end(), 
+ *    [](const auto& pair) { return pair.first == "column_name"; });
+ * @endcode
+ * 
+ * Use both forward and reverse iteration:
+ * @code
+ * // Forward iteration
+ * for (auto it = dataframe.begin(); it != dataframe.end(); ++it) {
+ *     // Access using it->first (name) and it->second (SerieInfo)
+ * }
+ * 
+ * // Reverse iteration
+ * for (auto it = dataframe.rbegin(); it != dataframe.rend(); ++it) {
+ *     // Access using it->first (name) and it->second (SerieInfo)
+ * }
+ * @endcode
+ * 
+ * Use const and non-const iterations:
+ * @code
+ * void printDataframe(const Dataframe& df) {
+ *     for (const auto& it = df.cbegin(); it != df.cend(); ++it) {
+ *         // Read-only access
+ *     }
+ * }
+ * @endcode
  */
 class Dataframe {
   public:
+    struct SerieInfo {
+        std::shared_ptr<SerieBase> data;
+        std::type_index type;
+
+        template <typename T>
+        SerieInfo(const Serie<T> &serie)
+            : data(std::make_shared<Serie<T>>(serie)), type(typeid(Serie<T>)) {}
+    };
+
     Dataframe() = default;
     ~Dataframe() = default;
+
+    // Iterator type aliases
+    using iterator = std::map<std::string, SerieInfo>::iterator;
+    using const_iterator = std::map<std::string, SerieInfo>::const_iterator;
+    using reverse_iterator = std::map<std::string, SerieInfo>::reverse_iterator;
+    using const_reverse_iterator =
+        std::map<std::string, SerieInfo>::const_reverse_iterator;
+
+    // Forward iterators
+    iterator begin() { return series_.begin(); }
+    const_iterator begin() const { return series_.begin(); }
+    const_iterator cbegin() const { return series_.cbegin(); }
+
+    iterator end() { return series_.end(); }
+    const_iterator end() const { return series_.end(); }
+    const_iterator cend() const { return series_.cend(); }
+
+    // Reverse iterators
+    reverse_iterator rbegin() { return series_.rbegin(); }
+    const_reverse_iterator rbegin() const { return series_.rbegin(); }
+    const_reverse_iterator crbegin() const { return series_.crbegin(); }
+
+    reverse_iterator rend() { return series_.rend(); }
+    const_reverse_iterator rend() const { return series_.rend(); }
+    const_reverse_iterator crend() const { return series_.crend(); }
 
     /**
      * @brief Add a serie to the Dataframe with the given name
@@ -108,15 +177,6 @@ class Dataframe {
     void dump(std::ostream &os = std::cout, size_t max_preview = 5) const;
 
   private:
-    struct SerieInfo {
-        std::shared_ptr<SerieBase> data;
-        std::type_index type;
-
-        template <typename T>
-        SerieInfo(const Serie<T> &serie)
-            : data(std::make_shared<Serie<T>>(serie)), type(typeid(Serie<T>)) {}
-    };
-
     std::map<std::string, SerieInfo> series_;
 
     void printSeriesOverview(std::ostream &, int, int, int) const;
