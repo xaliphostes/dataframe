@@ -56,7 +56,7 @@ inline std::string cleanup_type_name(const std::string &name) {
     return result;
 }
 
-template <typename T> std::string type_name() {
+template <typename T> inline std::string type_name() {
     const char *mangled = typeid(T).name();
     int status = 0;
     std::unique_ptr<char, void (*)(void *)> demangled(
@@ -66,35 +66,64 @@ template <typename T> std::string type_name() {
 
 // ------------------------------------------------
 
-template <typename T> Serie<T>::Serie(const ArrayType &values) {
+template <typename T> inline Serie<T>::Serie(const ArrayType &values) {
     data_.reserve(values.size());
     for (const auto &v : values) {
         data_.push_back(v);
     }
 }
 
-template <typename T> Serie<T>::Serie(const std::initializer_list<T> &values) {
+template <typename T>
+inline Serie<T>::Serie(const std::initializer_list<T> &values) {
     data_.reserve(values.size());
     for (auto &v : values) {
         data_.push_back(v);
     }
 }
 
-template <typename T> const Serie<T>::ArrayType &Serie<T>::data() const {
+template <typename T> inline const Serie<T>::ArrayType &Serie<T>::data() const {
     return data_;
 }
 
-template <typename T> const Serie<T>::ArrayType &Serie<T>::asArray() const {
+template <typename T>
+inline const Serie<T>::ArrayType &Serie<T>::asArray() const {
     return data_;
 }
 
-template <typename T> bool Serie<T>::empty() const { return data_.empty(); }
+template <typename T> inline bool Serie<T>::empty() const {
+    return data_.empty();
+}
 
-template <typename T> std::string Serie<T>::type() const {
+template <typename T>
+template <typename U>
+inline Serie<U> Serie<T>::as() const {
+    // Handle same type case
+    if constexpr (std::is_same_v<T, U>) {
+        return *this;
+    }
+
+    // Create new serie with converted values
+    Serie<U> result;
+    result.data_.reserve(data_.size());
+
+    for (const auto &value : data_) {
+        if constexpr (std::is_constructible_v<U, T>) {
+            // Use constructor if available
+            result.data_.push_back(U(value));
+        } else {
+            // Fallback to static_cast
+            result.data_.push_back(static_cast<U>(value));
+        }
+    }
+
+    return result;
+}
+
+template <typename T> inline std::string Serie<T>::type() const {
     return type_name<T>();
 }
 
-template <typename T> T &Serie<T>::operator[](size_t index) {
+template <typename T> inline T &Serie<T>::operator[](size_t index) {
     if (index >= data_.size()) {
         throw std::out_of_range(format("Index ", index,
                                        " is out of bounds (max is ",
@@ -103,7 +132,7 @@ template <typename T> T &Serie<T>::operator[](size_t index) {
     return data_[index];
 }
 
-template <typename T> const T &Serie<T>::operator[](size_t index) const {
+template <typename T> inline const T &Serie<T>::operator[](size_t index) const {
     if (index >= data_.size()) {
         throw std::out_of_range(format("Index ", index,
                                        " is out of bounds (max is ",
@@ -112,7 +141,9 @@ template <typename T> const T &Serie<T>::operator[](size_t index) const {
     return data_[index];
 }
 
-template <typename T> size_t Serie<T>::size() const { return data_.size(); }
+template <typename T> inline size_t Serie<T>::size() const {
+    return data_.size();
+}
 
 template <typename T>
 template <typename F>
@@ -186,7 +217,8 @@ inline auto Serie<T>::reduce(F &&callback, AccT initial) const {
 }
 
 // template <typename T>
-// void Serie<T>::printValueAt(std::ostream &os, size_t row, size_t width, size_t precision) const {
+// void Serie<T>::printValueAt(std::ostream &os, size_t row, size_t width,
+// size_t precision) const {
 //     if (row >= data_.size()) {
 //         throw std::out_of_range("Row index out of bounds");
 //     }

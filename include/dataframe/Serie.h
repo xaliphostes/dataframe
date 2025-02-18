@@ -120,6 +120,13 @@ template <typename T> class Serie : public SerieBase {
     bool empty() const;
 
     /**
+     * @brief Convert Serie to a different type
+     * @tparam U Target type to convert to
+     * @return A new Serie with converted values
+     */
+    template <typename U> Serie<U> as() const;
+
+    /**
      * @brief Reserve space for future elements.
      * @param n The number of elements to reserve space for
      */
