@@ -147,7 +147,7 @@ TEST(contours, grid_mesh) {
     auto segments = contours(mesh, "field", isoValues);
 
     EXPECT_GT(segments.size(), 130);
-    MSG("Generated " << segments.size() << " iso-segments");
+    MSG("Generated ", segments.size(), " iso-segments");
     // df::print(segments);
 
     // Verify some properties
@@ -193,7 +193,7 @@ TEST(iso_contours, different_generation_methods) {
     {
         auto isos = generateIsosByNumber(0.0, 0.7, 5);
         auto segments = contours(mesh, "field", isos);
-        MSG("Generated " << segments.size() << " segments using fixed number");
+        MSG("Generated ", segments.size(), " segments using fixed number");
         df::print(segments);
     }
 
@@ -201,7 +201,7 @@ TEST(iso_contours, different_generation_methods) {
     {
         auto isos = generateIsosBySpacing(0.0, 0.7, 0.1);
         auto segments = contours(mesh, "field", isos);
-        MSG("Generated " << segments.size() << " segments using fixed spacing");
+        MSG("Generated ", segments.size(), " segments using fixed spacing");
         df::print(segments);
     }
 
@@ -210,8 +210,7 @@ TEST(iso_contours, different_generation_methods) {
         std::vector<double> specificValues = {0.2, 0.4, 0.6};
         auto isos = generateIsos(0.0, 0.7, specificValues);
         auto segments = contours(mesh, "field", isos);
-        MSG("Generated " << segments.size()
-                         << " segments using specific values");
+        MSG("Generated ", segments.size(), " segments using specific values");
         df::print(segments);
     }
 
@@ -219,8 +218,8 @@ TEST(iso_contours, different_generation_methods) {
     {
         auto isos = generateIsos(0.0, 0.7, {}, true, 0.15);
         auto segments = contours(mesh, "field", isos);
-        MSG("Generated " << segments.size()
-                         << " segments using generateIsos with spacing");
+        MSG("Generated ", segments.size(),
+            " segments using generateIsos with spacing");
         df::print(segments);
     }
 }

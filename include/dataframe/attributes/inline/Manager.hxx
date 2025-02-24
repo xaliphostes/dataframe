@@ -21,13 +21,62 @@
  *
  */
 
+#include <dataframe/meta.h>
+
 namespace df {
 namespace attributes {
 
-inline Manager::Manager(const Dataframe &df) : dataframe_(df) {}
+// Helper to get component count for a type
+template <typename T> inline size_t Decomposer::getComponentCount() {
+    if constexpr (std::is_array_v<T> || details::is_std_array_v<T>) {
+        return std::tuple_size_v<T>;
+    } else {
+        return 1;
+    }
+}
 
-inline Manager::Manager(const Manager &other) : dataframe_(other.dataframe_) {
-    // Deep copy decomposers
+// Helper to extract component at index
+template <typename T>
+inline Serie<double> Decomposer::extractComponent(const Serie<T> &serie,
+                                                  size_t index) {
+    return serie.map([index](const T &value, size_t) -> double {
+        if constexpr (std::is_array_v<T> || details::is_std_array_v<T>) {
+            return static_cast<double>(value[index]);
+        } else {
+            return static_cast<double>(value);
+        }
+    });
+}
+
+// ---------------------------------------------------------------
+
+template <typename C>
+inline std::unique_ptr<Decomposer> GenDecomposer<C>::clone() const {
+    return std::make_unique<C>(static_cast<const C &>(*this));
+}
+
+// Forward names() to derived class
+template <typename C>
+inline Strings
+GenDecomposer<C>::names(const Dataframe &dataframe, DecompDimension targetDim,
+                        const SerieBase &serie, const String &name) const {
+    return static_cast<const C *>(this)->names(dataframe, targetDim, serie,
+                                               name);
+}
+
+// Forward serie() to derived class
+template <typename C>
+inline Serie<double> GenDecomposer<C>::serie(const Dataframe &dataframe,
+                                             DecompDimension targetDim,
+                                             const std::string &name) const {
+    return static_cast<const C *>(this)->serie(dataframe, targetDim, name);
+}
+
+// ---------------------------------------------------------------
+
+Manager::Manager(const Dataframe &df) : dataframe_(df) {}
+
+Manager::Manager(const Manager &other) : dataframe_(other.dataframe_) {
     for (const auto &decomposer : other.decomposers_) {
         if (decomposer) {
             decomposers_.push_back(decomposer->clone());
@@ -35,30 +84,22 @@ inline Manager::Manager(const Manager &other) : dataframe_(other.dataframe_) {
     }
 }
 
-// Add a decomposer
-inline void Manager::addDecomposer(std::unique_ptr<Decomposer> decomposer) {
-    if (decomposer) {
-        decomposers_.push_back(std::move(decomposer));
-    }
+void Manager::addDecomposer(const Decomposer &decomposer) {
+    decomposers_.push_back(decomposer.clone());
 }
 
-// Get all available attribute names for a given item size
-inline std::vector<std::string> Manager::getNames(uint32_t itemSize) const {
+std::vector<std::string> Manager::getNames(DecompDimension targetDim) const {
     std::vector<std::string> result;
 
-    // Iterate through all series in the dataframe
     for (const auto &name : dataframe_.names()) {
-        // For each decomposer
         for (const auto &decomposer : decomposers_) {
             if (!decomposer)
                 continue;
 
-            // Get decomposed names for this serie
-            const auto &serie = dataframe_.get<SerieBase>(name);
-            auto decomposed_names =
-                decomposer->names(dataframe_, itemSize, serie, name);
+            const auto &serie = dataframe_.get(name);
 
-            // Add to result if matching itemSize
+            auto decomposed_names =
+                decomposer->names(dataframe_, targetDim, serie, name);
             result.insert(result.end(), decomposed_names.begin(),
                           decomposed_names.end());
         }
@@ -66,37 +107,44 @@ inline std::vector<std::string> Manager::getNames(uint32_t itemSize) const {
     return result;
 }
 
-// Get a specific serie by name
 template <typename T>
-inline Serie<T> Manager::getSerie(const std::string &name) const {
-    // Try each decomposer
+Serie<T> Manager::getSerie(const std::string &name) const {
     for (const auto &decomposer : decomposers_) {
         if (!decomposer)
             continue;
 
-        try {
-            // Attempt to get serie using this decomposer
-            auto serie = decomposer->serie(dataframe_, sizeof(T), name);
+        if constexpr (details::is_std_array<T>::value) {
+            // auto DIM = details::array_dimension<T>::value;
+            // auto serie =
+            //     decomposer->serie(dataframe_, DecompDimension::Vector, name);
+            // if (!serie.empty()) {
+            //     return serie.template as<T>();
+            // }
+        } else if constexpr (details::is_container<T>::value) {
+            // todo
+        } else {
+            static_assert(std::is_arithmetic<T>::value ||
+                              details::is_container<T>::value,
+                          "Type must be either arithmetic or a container type");
+            auto serie =
+                decomposer->serie(dataframe_, DecompDimension::Scalar, name);
             if (!serie.empty()) {
                 return serie.template as<T>();
             }
-        } catch (const std::exception &) {
-            // Continue to next decomposer if this one fails
-            continue;
         }
     }
     throw std::runtime_error("Unable to find serie with name: " + name);
+    // return Serie<T>();
 }
 
-// Check if a specific attribute exists
-inline bool Manager::hasAttribute(uint32_t itemSize,
-                                  const std::string &name) const {
+bool Manager::hasAttribute(DecompDimension targetDim,
+                           const std::string &name) const {
     for (const auto &decomposer : decomposers_) {
         if (!decomposer)
             continue;
 
         try {
-            auto serie = decomposer->serie(dataframe_, itemSize, name);
+            auto serie = decomposer->serie(dataframe_, targetDim, name);
             return !serie.empty();
         } catch (const std::exception &) {
             continue;
@@ -105,31 +153,23 @@ inline bool Manager::hasAttribute(uint32_t itemSize,
     return false;
 }
 
-// Clear all decomposers
-inline void Manager::clear() { decomposers_.clear(); }
+void Manager::clear() { decomposers_.clear(); }
 
-// Get number of registered decomposers
-inline size_t Manager::decomposerCount() const { return decomposers_.size(); }
+size_t Manager::decomposerCount() const { return decomposers_.size(); }
 
-// Helper function to create a Manager from series and names
-template <typename T>
-inline Manager createManager(const std::vector<Serie<T>> &series,
-                             const std::vector<std::string> &names,
-                             Decomposers decomposers = {}) {
-    if (series.size() != names.size()) {
+// Helper function to create a Manager
+template <typename... Ts>
+inline Manager createManager(const std::vector<std::string> &names,
+                             const Serie<Ts> &...series) {
+    if (sizeof...(Ts) != names.size()) {
         throw std::runtime_error("Number of series must match number of names");
     }
 
     Dataframe df;
-    for (size_t i = 0; i < series.size(); ++i) {
-        df.add(names[i], series[i]);
-    }
+    size_t i = 0;
+    (df.add(names[i++], series), ...);
 
     Manager manager(df);
-    for (auto &decomposer : decomposers) {
-        manager.addDecomposer(std::move(decomposer));
-    }
-
     return manager;
 }
 

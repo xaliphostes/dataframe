@@ -90,7 +90,7 @@ inline void register_test(const char *name, const char *fixture,
     }
 // ======================================================
 
-#define MSG(msg) std::cout << "---> " << msg << std::endl;
+// #define MSG(msg) std::cout << "---> " << msg << std::endl;
 
 #define CHECK(condition)                                                       \
     {                                                                          \

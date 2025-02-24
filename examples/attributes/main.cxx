@@ -6,29 +6,52 @@
 #include <dataframe/attributes/Manager.h>
 
 int main() {
-    // Create some sample data
+
+    // --------------------------------------------
+
     df::Serie<Vector3> positions = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
     df::Serie<Stress3D> stresses = {{1, 2, 3, 4, 5, 6}, {7, 8, 9, 10, 11, 12}};
+    df::Serie<Matrix4D> truc = {
+        {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+        {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0}};
 
-    // Create a dataframe
+    // --------------------------------------------
+
     df::Dataframe dataframe;
-    dataframe.add("positions", positions);
-    dataframe.add("stresses", stresses);
+    dataframe.add("P", positions);
+    dataframe.add("S", stresses);
+    dataframe.add("T", truc);
+    dataframe.dump();
 
-    // Create manager with decomposers
+    // --------------------------------------------
+
     df::attributes::Manager manager(dataframe);
-    manager.addDecomposer(std::make_unique<df::attributes::Coordinates>());
-    manager.addDecomposer(std::make_unique<df::attributes::Components>());
+    manager.addDecomposer(df::attributes::Components());
 
-    // Access decomposed attributes
-    // auto posX = manager.getSerie<double>("positions_x");
-    // auto stressXX = manager.getSerie<double>("stresses_0");
+    // --------------------------------------------
 
     // Get all available attribute names
-    auto names = manager.getNames(sizeof(double));
-    for (auto name: names) {
+    MSG("------------1-----------");
+    for (auto name :
+         manager.getNames(df::attributes::DecompDimension::Scalar)) {
         std::cout << name << std::endl;
     }
+    MSG("------------2-----------");
+    for (auto name :
+         manager.getNames(df::attributes::DecompDimension::Vector)) {
+        std::cout << name << std::endl;
+    }
+    MSG("------------3-----------");
+    for (auto name :
+         manager.getNames(df::attributes::DecompDimension::Matrix)) {
+        std::cout << name << std::endl;
+    }
+    MSG("-----------------------");
+
+    // Access decomposed attributes
+    auto posX = manager.getSerie<double>("Px");
+    auto stressXX = manager.getSerie<double>("Sxx");
+    auto tXX = manager.getSerie<double>("Txx");
 
     return 0;
 }

@@ -303,15 +303,15 @@ TEST(Random, performance_large_samples) {
 
     double time_uniform =
         TIMING([&]() { auto serie = df::random_uniform<double>(n, 0.0, 1.0); });
-    MSG("Uniform generation time (ms): " << time_uniform);
+    MSG("Uniform generation time (ms): ", time_uniform);
 
     double time_normal =
         TIMING([&]() { auto serie = df::random_normal<double>(n, 0.0, 1.0); });
-    MSG("Normal generation time (ms): " << time_normal);
+    MSG("Normal generation time (ms): ", time_normal);
 
     double time_poisson =
         TIMING([&]() { auto serie = df::random_poisson<int>(n, 1.0); });
-    MSG("Poisson generation time (ms): " << time_poisson);
+    MSG("Poisson generation time (ms): ", time_poisson);
 }
 
 RUN_TESTS();

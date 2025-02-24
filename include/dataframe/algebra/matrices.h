@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) 2024-now fmaerten@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+
+#pragma once
+#include <array>
+#include <iostream>
+
+namespace df {
+
+template <typename T, size_t N> class Vector;
+
+template <typename T, size_t N> class FullMatrix {
+  public:
+    using type = std::array<T, N * N>;
+    using value_type = T;
+    using size_type = size_t;
+    static constexpr size_type size = N;
+
+    FullMatrix();
+    explicit FullMatrix(const type &t);
+    FullMatrix(const FullMatrix &other) = default;
+    FullMatrix(FullMatrix &&other) noexcept = default;
+
+    FullMatrix(std::initializer_list<std::initializer_list<T>> init);
+
+    FullMatrix &operator=(const FullMatrix &other) = default;
+    FullMatrix &operator=(FullMatrix &&other) noexcept = default;
+
+    T &operator()(size_t i, size_t j);
+    const T &operator()(size_t i, size_t j) const;
+
+    T *data();
+    const T *data() const;
+
+    FullMatrix operator+(const FullMatrix &other) const;
+    FullMatrix operator-(const FullMatrix &other) const;
+    FullMatrix operator*(const FullMatrix &other) const;
+    FullMatrix operator*(T scalar) const;
+    Vector<T, N> operator*(const Vector<T, N> &vec) const;
+
+    FullMatrix transpose() const;
+    T determinant() const;
+    FullMatrix inverse() const;
+
+    bool operator==(const FullMatrix &other) const;
+    bool operator!=(const FullMatrix &other) const;
+
+  private:
+    type mat_;
+    T computeCofactor(size_t row, size_t col) const;
+};
+
+// =================================================================
+
+// For an NxN symmetric matrix, we only need N*(N+1)/2 elements
+template <typename T, size_t N> class SymmetricMatrix {
+  public:
+    static constexpr size_t storage_size = (N * (N + 1)) / 2;
+    using type = std::array<T, storage_size>;
+    using value_type = T;
+    using size_type = size_t;
+    static constexpr size_type size = N;
+
+    // Constructors
+    SymmetricMatrix();
+    explicit SymmetricMatrix(const type &t);
+    SymmetricMatrix(const SymmetricMatrix &other) = default;
+    SymmetricMatrix(SymmetricMatrix &&other) noexcept = default;
+
+    SymmetricMatrix(std::initializer_list<std::initializer_list<T>> init);
+
+    SymmetricMatrix &operator=(const SymmetricMatrix &other) = default;
+    SymmetricMatrix &operator=(SymmetricMatrix &&other) noexcept = default;
+
+    static size_t index(size_t i, size_t j);
+
+    T &operator()(size_t i, size_t j);
+    const T &operator()(size_t i, size_t j) const;
+
+    T *data();
+    const T *data() const;
+
+    SymmetricMatrix operator+(const SymmetricMatrix &other) const;
+    SymmetricMatrix operator-(const SymmetricMatrix &other) const;
+    SymmetricMatrix operator*(T scalar) const;
+    FullMatrix<T, N> operator*(const SymmetricMatrix &other) const;
+    Vector<T, N> operator*(const Vector<T, N> &vec) const;
+
+    T determinant() const;
+    SymmetricMatrix inverse() const;
+
+    bool operator==(const SymmetricMatrix &other) const;
+    bool operator!=(const SymmetricMatrix &other) const;
+
+  private:
+    type mat_; // Stores upper triangle in row-major order
+};
+
+} // namespace df
+
+template <typename T, size_t N>
+std::ostream &operator<<(std::ostream &, const df::FullMatrix<T, N> &);
+
+template <typename T, size_t N>
+std::ostream &operator<<(std::ostream &, const df::SymmetricMatrix<T, N> &);
+
+#include "inline/matrices.hxx"

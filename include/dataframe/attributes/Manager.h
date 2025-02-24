@@ -25,28 +25,75 @@
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 #include <dataframe/types.h>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace df {
 namespace attributes {
 
-class Decomposer;
-using Decomposers = std::vector<std::unique_ptr<Decomposer>>;
+// -----------------------------------------------------------
+
+// Mathematical decomposition dimension
+enum class DecompDimension {
+    Scalar = 1, // Individual components (x, y, z, etc.)
+    Vector,     // N-dimensional vectors
+    Matrix      // N-dimensional matrices/tensors
+};
+
+// -----------------------------------------------------------
+
+/**
+ * @brief Base class for attribute decomposers
+ */
+class Decomposer {
+  public:
+    virtual ~Decomposer() = default;
+
+    // Create a clone of this decomposer
+    virtual std::unique_ptr<Decomposer> clone() const = 0;
+
+    // Get the names of all decomposed attributes for a given serie
+    virtual Strings names(const Dataframe &dataframe, DecompDimension targetDim,
+                          const SerieBase &serie, const String &name) const = 0;
+
+    // Get a specific decomposed serie
+    virtual Serie<double> serie(const Dataframe &dataframe,
+                                DecompDimension targetDim,
+                                const std::string &name) const = 0;
+
+  protected:
+    template <typename T> static size_t getComponentCount();
+
+    template <typename T>
+    static Serie<double> extractComponent(const Serie<T> &serie, size_t index);
+};
+
+// -----------------------------------------------------------
+
+template <typename C> class GenDecomposer : public Decomposer {
+  public:
+    std::unique_ptr<Decomposer> clone() const override;
+
+    Strings names(const Dataframe &dataframe, DecompDimension targetDim,
+                  const SerieBase &serie, const String &name) const override;
+
+    Serie<double> serie(const Dataframe &dataframe, DecompDimension targetDim,
+                        const std::string &name) const override;
+};
+
+// -----------------------------------------------------------
 
 class Manager {
   public:
-    Manager(const Dataframe &df);
+    explicit Manager(const Dataframe &df);
+
     Manager(const Manager &other);
 
-    void addDecomposer(std::unique_ptr<Decomposer> decomposer);
+    void addDecomposer(const Decomposer &decomposer);
 
-    std::vector<std::string> getNames(uint32_t itemSize) const;
+    std::vector<std::string> getNames(DecompDimension targetDim) const;
 
     template <typename T> Serie<T> getSerie(const std::string &name) const;
 
-    bool hasAttribute(uint32_t itemSize, const std::string &name) const;
+    bool hasAttribute(DecompDimension, const std::string &) const;
 
     void clear();
 
@@ -54,13 +101,17 @@ class Manager {
 
   private:
     const Dataframe &dataframe_;
-    Decomposers decomposers_;
+    std::vector<std::unique_ptr<Decomposer>> decomposers_;
 };
 
-// Helper function to create a Manager from series and names
-inline Manager createManager(const std::vector<SerieBase> &series,
-                             const std::vector<std::string> &names,
-                             Decomposers decomposers = {});
+// -----------------------------------------------------------
+
+// Helper function to create a Manager
+template <typename... Ts>
+Manager createManager(const std::vector<std::string> &names,
+                      const Serie<Ts> &...series);
+
+// -----------------------------------------------------------
 
 } // namespace attributes
 } // namespace df

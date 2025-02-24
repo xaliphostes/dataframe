@@ -60,9 +60,9 @@ TEST(compose, with_three_transforms) {
         });
     df::Serie<int> expected{16, 36, 64};
 
-    MSG("result")
+    MSG("result");
     df::print(result);
-    MSG("expected")
+    MSG("expected");
     df::print(expected);
     
     COMPARE_SERIES(result, expected);

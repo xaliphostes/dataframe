@@ -197,7 +197,7 @@ TEST(SortPerformance, LargeSerie_BasicSort) {
         }
     });
 
-    MSG("Sorting " << size << " elements took " << time << " ms");
+    MSG("Sorting ", size, " elements took ", time, " ms");
 }
 
 TEST(SortPerformance, LargeSerie_NaN) {
@@ -227,7 +227,7 @@ TEST(SortPerformance, LargeSerie_NaN) {
         }
     });
 
-    MSG("Sorting " << size << " elements with NaN took " << time << " ms");
+    MSG("Sorting ", size, " elements with NaN took ", time, " ms");
 }
 
 TEST(SortPerformance, LargeSerie_CustomComparator) {
@@ -244,8 +244,8 @@ TEST(SortPerformance, LargeSerie_CustomComparator) {
         }
     });
 
-    MSG("Sorting " << size << " elements with custom comparator took " << time
-                   << " ms");
+    MSG("Sorting ", size, " elements with custom comparator took ", time,
+        " ms");
 }
 
 TEST(SortPerformance, LargeSerie_KeyFunction) {
@@ -279,7 +279,7 @@ TEST(SortPerformance, LargeSerie_KeyFunction) {
         }
     });
 
-    MSG("Sorting " << size << " complex elements took " << time << " ms");
+    MSG("Sorting ", size, " complex elements took ", time, " ms");
 }
 
 TEST(SortPerformance, PreSortedData) {
@@ -292,16 +292,14 @@ TEST(SortPerformance, PreSortedData) {
 
     // Sort already sorted data
     double time_sorted = TIMING([&]() { auto result = sort(serie); });
-    MSG("Sorting " << size << " pre-sorted elements took " << time_sorted
-                   << " ms");
+    MSG("Sorting ", size, " pre-sorted elements took ", time_sorted, " ms");
 
     // Sort reverse sorted data
     std::reverse(data.begin(), data.end());
     Serie<double> reverse_serie(data);
-    double time_reverse =
-        TIMING([&]() { auto result = sort(reverse_serie); });
-    MSG("Sorting " << size << " reverse-sorted elements took " << time_reverse
-                   << " ms");
+    double time_reverse = TIMING([&]() { auto result = sort(reverse_serie); });
+    MSG("Sorting ", size, " reverse-sorted elements took ", time_reverse,
+        " ms");
 }
 
 TEST(SortPerformance, PipelineWithLargeSerie) {
@@ -321,7 +319,7 @@ TEST(SortPerformance, PipelineWithLargeSerie) {
         }
     });
 
-    MSG("Pipeline sort+map on " << size << " elements took " << time << " ms");
+    MSG("Pipeline sort+map on ", size, " elements took ", time, " ms");
 }
 
 RUN_TESTS();

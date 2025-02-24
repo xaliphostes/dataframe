@@ -22,42 +22,44 @@
  */
 
 #pragma once
-#include <dataframe/attributes/Decomposer.h>
+#include <dataframe/attributes/Manager.h>
 
 namespace df {
 namespace attributes {
 
 /**
- * @brief Coordinates decomposer - extracts x,y,z components from vector types
+ * @brief Coordinates decomposer - handles spatial coordinate decomposition
  */
-class Coordinates : public Decomposer {
+class Coordinates : public GenDecomposer<Coordinates> {
   public:
     explicit Coordinates(const std::vector<std::string> &coordNames = {"x", "y",
                                                                        "z"})
         : coordNames_(coordNames) {}
 
-    std::unique_ptr<Decomposer> clone() const override {
-        return std::make_unique<Coordinates>(coordNames_);
-    }
-
     std::vector<std::string> names(const Dataframe &dataframe,
-                                   uint32_t itemSize, const SerieBase &serie,
-                                   const std::string &name) const override {
+                                   DecompDimension targetDim,
+                                   const SerieBase &serie,
+                                   const String &name) const override {
         std::vector<std::string> result;
 
-        // Only decompose vector types
-        if (itemSize >= sizeof(double) && itemSize <= sizeof(double) * 3) {
-            const size_t numComponents = itemSize / sizeof(double);
-            for (size_t i = 0; i < numComponents && i < coordNames_.size();
-                 ++i) {
+        // Only decompose if we're targeting scalars or vectors
+        if (targetDim == DecompDimension::Scalar) {
+            // For vectors of any dimension, create coordinate components
+            for (size_t i = 0; i < coordNames_.size(); ++i) {
                 result.push_back(name + "_" + coordNames_[i]);
             }
+        }
+        // Vector decomposition might create subvectors (e.g., xy-plane vector
+        // from 3D vector)
+        else if (targetDim == DecompDimension::Vector) {
+            // Add appropriate vector decompositions based on dimensionality
+            // This could be customized based on needs
         }
 
         return result;
     }
 
-    Serie<double> serie(const Dataframe &dataframe, uint32_t itemSize,
+    Serie<double> serie(const Dataframe &dataframe, DecompDimension targetDim,
                         const std::string &name) const override {
         // Parse the original serie name and coordinate component
         size_t pos = name.rfind('_');
@@ -76,14 +78,24 @@ class Coordinates : public Decomposer {
         }
         size_t index = std::distance(coordNames_.begin(), it);
 
-        // Get the original serie and extract the component
-        if (itemSize == sizeof(Vector2)) {
-            return extractComponent(dataframe.get<Vector2>(baseName), index);
-        } else if (itemSize == sizeof(Vector3)) {
-            return extractComponent(dataframe.get<Vector3>(baseName), index);
-        } else {
-            throw std::runtime_error("Unsupported vector size for coordinates");
+        // Handle different vector types
+        try {
+            if (dataframe.has<Vector2>(baseName)) {
+                return extractComponent(dataframe.get<Vector2>(baseName),
+                                        index);
+            } else if (dataframe.has<Vector3>(baseName)) {
+                return extractComponent(dataframe.get<Vector3>(baseName),
+                                        index);
+            } else if (dataframe.has<Vector4>(baseName)) {
+                return extractComponent(dataframe.get<Vector4>(baseName),
+                                        index);
+            }
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Error extracting coordinate component: " +
+                                     std::string(e.what()));
         }
+
+        throw std::runtime_error("Unsupported vector type for coordinates");
     }
 
   private:

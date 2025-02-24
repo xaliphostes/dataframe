@@ -33,8 +33,6 @@ class SerieBase {
   public:
     virtual ~SerieBase() = default;
     virtual size_t size() const = 0;
-    // virtual void printValueAt(std::ostream &, size_t, size_t, size_t) const =
-    // 0;
     virtual std::string type() const = 0;
 };
 
@@ -173,8 +171,6 @@ template <typename T> class Serie : public SerieBase {
      * @brief Filter the elements of the Serie using a predicate.
      */
     template <typename F, typename AccT> auto reduce(F &&, AccT) const;
-
-    // void printValueAt(std::ostream &, size_t, size_t, size_t) const override;
 
   private:
     ArrayType data_;

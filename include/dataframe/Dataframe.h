@@ -35,33 +35,33 @@ namespace df {
 
 /**
  * @brief A Dataframe is a collection of series.
- * 
+ *
  * Use range-based for loops:
  * @code
  * for (const auto& [name, serie] : dataframe) {
  *   // Work with name and serie
  * }
  * @endcode
- * 
+ *
  * Use standard algorithms:
  * @code
- * auto it = std::find_if(dataframe.begin(), dataframe.end(), 
+ * auto it = std::find_if(dataframe.begin(), dataframe.end(),
  *    [](const auto& pair) { return pair.first == "column_name"; });
  * @endcode
- * 
+ *
  * Use both forward and reverse iteration:
  * @code
  * // Forward iteration
  * for (auto it = dataframe.begin(); it != dataframe.end(); ++it) {
  *     // Access using it->first (name) and it->second (SerieInfo)
  * }
- * 
+ *
  * // Reverse iteration
  * for (auto it = dataframe.rbegin(); it != dataframe.rend(); ++it) {
  *     // Access using it->first (name) and it->second (SerieInfo)
  * }
  * @endcode
- * 
+ *
  * Use const and non-const iterations:
  * @code
  * void printDataframe(const Dataframe& df) {
@@ -129,6 +129,14 @@ class Dataframe {
      */
     void remove(const std::string &name);
 
+    const SerieBase &get(const std::string &name) const {
+        auto it = series_.find(name);
+        if (it == series_.end()) {
+            throw std::runtime_error("Serie not found: " + name);
+        }
+        return *(it->second.data); // assuming data is the shared_ptr<SerieBase>
+    }
+
     /**
      * Get a serie by name and type
      * @throws std::runtime_error if the serie doesn't exist or if there's a
@@ -152,6 +160,7 @@ class Dataframe {
      * Check if a serie exists with the given name
      */
     bool has(const std::string &name) const;
+    template <typename T> bool has(const std::string &name) const;
 
     /**
      * Get the number of series in the Dataframe

@@ -94,9 +94,9 @@ TEST(vector_norm, various_dimensions) {
 }
 
 TEST(matrix_transpose, various_sizes) {
-    MSG("Testing matrix transpose");
+    MSGD("Testing matrix transpose");
 
-    MSG("Test transpose 2x2 matrices")
+    MSGD("Test transpose 2x2 matrices");
     {
         Serie<Matrix2D> mat{{1.0, 2.0, 3.0, 4.0}, {0.0, 1.0, -1.0, 0.0}};
         Serie<Matrix2D> sol{{1.0, 3.0, 2.0, 4.0}, {0.0, -1.0, 1.0, 0.0}};
@@ -110,7 +110,7 @@ TEST(matrix_transpose, various_sizes) {
         EXPECT_ARRAY_NEAR(res[1], mat[1], 1e-10);
     }
 
-    MSG("Test transpose 3x3 matrices")
+    MSGD("Test transpose 3x3 matrices");
     {
         Serie<Matrix3D> mat{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}};
         Serie<Matrix3D> sol{{1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0}};
@@ -122,7 +122,7 @@ TEST(matrix_transpose, various_sizes) {
         EXPECT_ARRAY_NEAR(res[0], mat[0], 1e-10);
     }
 
-    MSG("Test transpose 4x4 matrices")
+    MSGD("Test transpose 4x4 matrices");
     {
         Serie<Matrix4D> mat{{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0,
                              11.0, 12.0, 13.0, 14.0, 15.0, 16.0}};

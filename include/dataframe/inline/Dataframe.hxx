@@ -31,7 +31,7 @@ namespace df {
 
 template <typename T>
 void Dataframe::add(const std::string &name, const Serie<T> &serie) {
-    if (has(name)) {
+    if (has<T>(name)) {
         throw std::runtime_error(
             format("Serie with name '", name, "' already exists in Dataframe"));
     }
@@ -88,6 +88,23 @@ inline String Dataframe::type_name(const std::string &name) const {
 
 inline bool Dataframe::has(const std::string &name) const {
     return series_.find(name) != series_.end();
+}
+
+template <typename T> bool Dataframe::has(const std::string &name) const {
+    try {
+        // First check if the serie exists
+        if (!series_.contains(name)) {
+            return false;
+        }
+
+        // Get the stored type info
+        const auto &serieInfo = series_.at(name);
+
+        // Compare stored type with requested type
+        return serieInfo.type == std::type_index(typeid(Serie<T>));
+    } catch (const std::exception &) {
+        return false;
+    }
 }
 
 inline size_t Dataframe::size() const { return series_.size(); }

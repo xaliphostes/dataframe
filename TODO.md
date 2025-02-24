@@ -112,3 +112,38 @@ auto chained = chain(collection1, collection2);
 // Cache function results
 auto memoized = memoize(expensive_function);
 ```
+
+
+# Idea
+
+```
+scalar = number
+```
+
+```
+vector = [number, number, ...]
+```
+
+```
+         | number number ... |
+         | .                 |
+matrix = | .                 |
+         | number number ... |
+```
+
+## Example for vector
+```
+v1 = [1 2 3 4 5 6 7 8 9]
+v2a = [1 2 3]
+```
+
+## Example for matrix
+```
+    | 1 2 3 |
+m = | 4 5 6 | === [1 2 3 4 5 6 7 8 9] in dim=3
+    | 7 8 9 |
+
+    | 1 2 3 |
+n = | 2 4 5 | === [1 2 3 4 5 6] in dim=3
+    | 3 5 6 |
+```

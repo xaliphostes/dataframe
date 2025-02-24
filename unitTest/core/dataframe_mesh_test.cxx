@@ -115,8 +115,8 @@ TEST(MeshExample, creation) {
 
     // Print some statistics
     MSG("Mesh statistics:");
-    MSG("  Number of vertices: " << positions.size());
-    MSG("  Number of triangles: " << triangles.size());
+    MSG("  Number of vertices: ", positions.size());
+    MSG("  Number of triangles: ", triangles.size());
 
     // Verify some mesh properties
     // Check that triangle indices are within bounds
@@ -148,9 +148,9 @@ TEST(MeshExample, creation) {
     });
 
     MSG("Mesh bounds:");
-    MSG("  X: [" << min_x << ", " << max_x << "]");
-    MSG("  Y: [" << min_y << ", " << max_y << "]");
-    MSG("  Z: [" << min_z << ", " << max_z << "]");
+    MSG("  X: [", min_x, ", ", max_x, "]");
+    MSG("  Y: [", min_y, ", ", max_y, "]");
+    MSG("  Z: [", min_z, ", ", max_z, "]");
 
     // Example of using map to transform vertices
     auto scaled_positions = positions.map([](const Position &pos, uint32_t) {

@@ -13,7 +13,7 @@
 
 <p align="center">
     <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
-</p>v
+</p>
 <p align="center">
 Example of <b>distance field</b> computation
 

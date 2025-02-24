@@ -216,24 +216,6 @@ inline auto Serie<T>::reduce(F &&callback, AccT initial) const {
     }
 }
 
-// template <typename T>
-// void Serie<T>::printValueAt(std::ostream &os, size_t row, size_t width,
-// size_t precision) const {
-//     if (row >= data_.size()) {
-//         throw std::out_of_range("Row index out of bounds");
-//     }
-
-//     const T &value = data_[row];
-//     os << ' ';
-//     if constexpr (std::is_floating_point_v<T>) {
-//         os << std::fixed << std::setprecision(precision) <<
-//         std::setw(width)
-//            << std::left << value;
-//     } else {
-//         os << std::setw(width) << std::left << value;
-//     }
-// }
-
 } // namespace df
 
 // -----------------------------------------------

@@ -25,6 +25,15 @@
 #include <sstream>
 #include <string>
 
+template <typename... Args> void MSGD(const Args &...args) {
+    std::cerr << __FILE__ << ":" << __LINE__ << ": ";
+    (std::cerr << ... << args) << "\n";
+}
+
+template <typename... Args> void MSG(const Args &...args) {
+    (std::cerr << ... << args) << "\n";
+}
+
 /**
  * Waiting for LLVM to support the std::format functions (C++20).
  *
