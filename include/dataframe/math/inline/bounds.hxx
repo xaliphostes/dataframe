@@ -24,7 +24,7 @@
 #include <limits>
 #include <tuple>
 #include <type_traits>
-#include <dataframe/meta.h>
+#include <dataframe/utils/meta.h>
 
 namespace df {
 

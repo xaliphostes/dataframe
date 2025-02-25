@@ -23,8 +23,8 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/pipe.h>
-#include <dataframe/print.h>
+#include <dataframe/core/pipe.h>
+#include <dataframe/utils/print.h>
 #include <dataframe/types.h>
 #include <dataframe/math/random.h>
 

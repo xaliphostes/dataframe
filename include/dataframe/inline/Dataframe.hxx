@@ -22,7 +22,7 @@
  */
 
 // Dataframe.hxx
-#include "../utils.h"
+#include "../utils/utils.h"
 #include <dataframe/math/bounds.h>
 #include <dataframe/stats/avg.h>
 #include <dataframe/stats/quantile.h>

@@ -25,7 +25,7 @@
 #include <array>
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
+#include <dataframe/utils/utils.h>
 #include <stdexcept>
 
 namespace df {

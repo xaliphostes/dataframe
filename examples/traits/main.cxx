@@ -2,7 +2,7 @@
 #include <dataframe/algebra/matrices.h>
 #include <dataframe/algebra/vector.h>
 #include <dataframe/math/mult.h>
-#include <dataframe/print.h>
+#include <dataframe/utils/print.h>
 #include <iostream>
 
 double r() { return (std::rand() - 0.5) / RAND_MAX * 200.0; }

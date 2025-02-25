@@ -1,8 +1,8 @@
 #include <dataframe/Serie.h>
+#include <dataframe/core/unzip.h>
+#include <dataframe/core/zip.h>
 #include <dataframe/geo/utils/kdtree.h>
 #include <dataframe/types.h>
-#include <dataframe/utils/unzip.h>
-#include <dataframe/utils/zip.h>
 #include <iomanip>
 #include <iostream>
 

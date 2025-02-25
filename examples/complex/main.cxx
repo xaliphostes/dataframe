@@ -1,10 +1,10 @@
 
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/pipe.h>
-#include <dataframe/utils/compose.h>
-#include <dataframe/utils/unzip.h>
-#include <dataframe/utils/zip.h>
+#include <dataframe/core/pipe.h>
+#include <dataframe/core/compose.h>
+#include <dataframe/core/unzip.h>
+#include <dataframe/core/zip.h>
 #include <limits>
 
 /**

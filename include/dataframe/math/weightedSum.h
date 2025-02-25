@@ -25,7 +25,7 @@
 #include <dataframe/Serie.h>
 #include <dataframe/math/add.h>
 #include <dataframe/math/mult.h>
-#include <dataframe/meta.h>
+#include <dataframe/utils/meta.h>
 #include <stdexcept>
 #include <type_traits>
 

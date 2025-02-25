@@ -21,7 +21,7 @@
  *
  */
 
-#include <dataframe/meta.h>
+#include <dataframe/utils/meta.h>
 
 namespace df {
 namespace attributes {

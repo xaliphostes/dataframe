@@ -23,7 +23,7 @@
 #pragma once
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/meta.h>
+#include <dataframe/utils/meta.h>
 #include <optional>
 
 namespace df {

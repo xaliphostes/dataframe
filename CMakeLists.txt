@@ -71,21 +71,18 @@ endif()
 # Detect all testing files
 # ---------------------------------------------------------------------
 function (auto_discover_tests)
+
     # Base test files
-    file(GLOB_RECURSE CORE_TEST_FILES "unitTest/core/*_test.cxx")
-    
-    # CGAL-specific test files
-    file(GLOB_RECURSE CGAL_TEST_FILES "unitTest/cgal/*_test.cxx")
-    
-    # Add core tests
-    foreach(TEST_FILE ${CORE_TEST_FILES})
+    file(GLOB_RECURSE BASE_TEST_FILES "unitTest/base/*_test.cxx")
+    foreach(TEST_FILE ${BASE_TEST_FILES})
         get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
         add_executable(${TEST_NAME} ${TEST_FILE})
         target_link_libraries(${TEST_NAME} PRIVATE dataframe)
         add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
     endforeach()
     
-    # Add CGAL-specific tests only if CGAL is enabled
+    # CGAL-specific test files only if CGAL is enabled
+    file(GLOB_RECURSE CGAL_TEST_FILES "unitTest/cgal/*_test.cxx")
     if(USE_CGAL)
         foreach(TEST_FILE ${CGAL_TEST_FILES})
             get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
@@ -94,6 +91,7 @@ function (auto_discover_tests)
             add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
         endforeach()
     endif()
+    
 endfunction()
 
 # ---------------------------------------------------------------------

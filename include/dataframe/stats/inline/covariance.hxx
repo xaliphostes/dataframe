@@ -14,7 +14,7 @@
 
 #pragma once
 #include <dataframe/Serie.h>
-#include <dataframe/utils.h>
+#include <dataframe/utils/utils.h>
 #include <type_traits>
 
 namespace df {
