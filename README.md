@@ -1,4 +1,6 @@
-# Simple and efficient C++ Dataframe Library (header only)
+<p align="center">
+  <img src="media/icon-dataframe.png" alt="Logo dataframe" width="100">
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
@@ -11,18 +13,7 @@
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
 
-<p align="center">
-    <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
-</p>
-<p align="center">
-Example of <b>distance field</b> computation
-
-```c++
-auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
-auto grid      = from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});
-auto distances = distance_field<2>(grid, ref_pts);
-```
-</p>
+# Simple and efficient C++ Dataframe Library (header only)
 
 <p align="center">
     <img src="media/field_comparison.jpg" alt="drawing" width="800"/>
@@ -35,6 +26,19 @@ auto scattered = random_uniform<Vector2>(50, Vector2{-1.0, -1.0}, Vector2{1.0, 1
 auto values    = map([](const Vector2 &p) {return sin(p[0]*2) * cos(p[1]*2);}, scattered);
 auto grid      = from_dims<2>({100, 100}, {0, 0}, {2.0, 2.0});
 auto interp    = interpolate_field<double, 2>(grid, scattered, values);
+```
+</p>
+
+<p align="center">
+    <img src="media/distance_field_2d.png" alt="drawing" width="300"/>
+</p>
+<p align="center">
+Example of <b>distance field</b> computation
+
+```c++
+auto ref_pts   = random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});
+auto grid      = from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});
+auto distances = distance_field<2>(grid, ref_pts);
 ```
 </p>
 
