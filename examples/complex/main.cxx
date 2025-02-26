@@ -1,8 +1,8 @@
 
 #include <cmath>
 #include <dataframe/Serie.h>
-#include <dataframe/core/pipe.h>
 #include <dataframe/core/compose.h>
+#include <dataframe/core/pipe.h>
 #include <dataframe/core/unzip.h>
 #include <dataframe/core/zip.h>
 #include <limits>
@@ -44,15 +44,18 @@
  */
 int main() {
     // Raw sensor data: time, amplitude, and location (x,y)
+    // ----------------------------------------------------
     df::Serie<double> timestamps{0.0, 0.5, 1.0, 1.5, 2.0};
     df::Serie<double> amplitudes{0.2, 1.5, 0.8, 2.1, 1.3};
     df::Serie<Vector2> locations{
         {10.0, 20.0}, {10.2, 20.1}, {10.4, 20.3}, {10.5, 20.4}, {10.7, 20.6}};
 
     // Step 1: Combine related data using zip
+    // --------------------------------------
     auto combined_data = df::zip(timestamps, amplitudes, locations);
 
     // Step 2: Process data using compose for a chain of transformations
+    // -----------------------------------------------------------------
     auto processed = df::compose(
         combined_data,
         // Compute velocity and normalize amplitude
@@ -79,9 +82,11 @@ int main() {
         });
 
     // Step 3: Unzip processed data for separate analysis
+    // --------------------------------------------------
     auto [velocities, norm_amplitudes, final_locations] = df::unzip(processed);
 
     // Step 4: Analyze velocity data using pipe
+    // ----------------------------------------
     auto velocity_stats = velocities | [](const auto &v) {
         double sum = 0, max_vel = 0;
         v.forEach([&](double vel, size_t) {
@@ -93,7 +98,8 @@ int main() {
 
     auto [avg_velocity, max_velocity] = velocity_stats;
 
-    // 5. Print results
+    // Step 5: Print results
+    // ---------------------
     std::cout << "Seismic Analysis Results:\n"
               << "Average velocity: " << avg_velocity << " units/s\n"
               << "Maximum velocity: " << max_velocity << " units/s\n";

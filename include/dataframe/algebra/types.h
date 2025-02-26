@@ -20,6 +20,8 @@ namespace df {
 
 template <typename T, size_t N> class Vector;
 
+// =================================================================
+
 template <typename T, size_t N> class FullMatrix {
   public:
     using type = std::array<T, N * N>;
@@ -107,6 +109,59 @@ template <typename T, size_t N> class SymmetricMatrix {
     type mat_; // Stores upper triangle in row-major order
 };
 
+// =================================================================
+
+template <typename T, size_t N> class Vector {
+  public:
+    using type = std::array<T, N>;
+    using value_type = T;
+    using size_type = size_t;
+    static constexpr size_type size = N;
+
+    Vector();
+    explicit Vector(const type &t);
+    Vector(const Vector &other) = default;
+    Vector(Vector &&other) noexcept = default;
+
+    Vector(std::initializer_list<T> init);
+
+    Vector &operator=(const Vector &other) = default;
+    Vector &operator=(Vector &&other) noexcept = default;
+
+    T &operator[](size_t i);
+
+    const T &operator[](size_t i) const;
+
+    T *data();
+    const T *data() const;
+
+    Vector operator+(const Vector &other) const;
+    Vector operator-(const Vector &other) const;
+    Vector operator*(T scalar) const;
+
+    T dot(const Vector &other) const;
+    Vector cross(const Vector &other) const;
+    T normSquared() const;
+    T norm() const;
+
+    Vector normalized() const;
+
+    Vector operator*(const FullMatrix<T, N> &mat) const;
+    Vector operator*(const SymmetricMatrix<T, N> &mat) const;
+
+    FullMatrix<T, N> tensor(const Vector &other) const;
+
+    bool operator==(const Vector &other) const;
+    bool operator!=(const Vector &other) const;
+
+    static Vector zero();
+    static Vector ones();
+    static Vector unit(size_t dir);
+
+  private:
+    type data_;
+};
+
 } // namespace df
 
 template <typename T, size_t N>
@@ -115,4 +170,7 @@ std::ostream &operator<<(std::ostream &, const df::FullMatrix<T, N> &);
 template <typename T, size_t N>
 std::ostream &operator<<(std::ostream &, const df::SymmetricMatrix<T, N> &);
 
-#include "inline/matrices.hxx"
+template <typename T, size_t N>
+std::ostream &operator<<(std::ostream &os, const df::Vector<T, N> &vec);
+
+#include "inline/types.hxx"

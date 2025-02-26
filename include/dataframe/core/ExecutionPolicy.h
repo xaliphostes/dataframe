@@ -22,34 +22,14 @@
  */
 
 #pragma once
-#include <dataframe/Serie.h>
-#include <utility>
-#include <vector>
 
 namespace df {
 
-// Split a serie into two series based on a predicate
-template <typename T, typename F>
-std::pair<Serie<T>, Serie<T>> partition(const Serie<T> &serie, F &&predicate) {
-    std::vector<T> matches;
-    std::vector<T> non_matches;
-
-    for (size_t i = 0; i < serie.size(); ++i) {
-        if (predicate(serie[i], i)) {
-            matches.push_back(serie[i]);
-        } else {
-            non_matches.push_back(serie[i]);
-        }
-    }
-
-    return {Serie<T>(matches), Serie<T>(non_matches)};
-}
-
-// Helper function to create a bound partition operation
-template <typename F> auto bind_partition(F &&predicate) {
-    return [f = std::forward<F>(predicate)](const auto &serie) {
-        return partition(serie, f);
-    };
-}
+// Execution policy enum that works with or without parallel support
+enum class ExecutionPolicy {
+    SEQ,      // Sequential execution
+    PAR,      // Parallel execution
+    PAR_UNSEQ // Parallel and vectorized execution
+};
 
 } // namespace df

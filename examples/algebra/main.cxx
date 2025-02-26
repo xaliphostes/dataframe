@@ -1,6 +1,5 @@
 #include <dataframe/Serie.h>
-#include <dataframe/algebra/matrices.h>
-#include <dataframe/algebra/vector.h>
+#include <dataframe/algebra/types.h>
 #include <dataframe/math/mult.h>
 #include <dataframe/utils/print.h>
 #include <iostream>

@@ -19,7 +19,7 @@
 TEST(SplitEqual, BasicSplit) {
     df::Serie<int> numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    auto splits = df::split_equal(3, numbers);
+    auto splits = df::split(3, numbers);
 
     EXPECT_EQ(splits.size(), 3);
 
@@ -39,7 +39,7 @@ TEST(SplitEqual, BasicSplit) {
 TEST(SplitEqual, EvenSplit) {
     df::Serie<int> numbers{1, 2, 3, 4, 5, 6};
 
-    auto splits = df::split_equal(2, numbers);
+    auto splits = df::split(2, numbers);
 
     EXPECT_EQ(splits.size(), 2);
     EXPECT_EQ(splits[0].size(), 3);
@@ -49,7 +49,7 @@ TEST(SplitEqual, EvenSplit) {
 TEST(SplitEqual, SingleElement) {
     df::Serie<int> numbers{1};
 
-    auto splits = df::split_equal(3, numbers);
+    auto splits = df::split(3, numbers);
 
     EXPECT_EQ(splits.size(), 1);
     EXPECT_EQ(splits[0].size(), 1);
@@ -58,7 +58,7 @@ TEST(SplitEqual, SingleElement) {
 TEST(SplitEqual, EmptySeries) {
     df::Serie<int> empty{};
 
-    auto splits = df::split_equal(3, empty);
+    auto splits = df::split(3, empty);
 
     EXPECT_EQ(splits.size(), 0);
 }
@@ -67,7 +67,7 @@ TEST(SplitEqual, MultipleSeries) {
     df::Serie<int> numbers{1, 2, 3, 4, 5, 6};
     df::Serie<std::string> labels{"a", "b", "c", "d", "e", "f"};
 
-    auto splits = df::split_equal_n(2, numbers, labels);
+    auto splits = df::split(2, numbers, labels);
 
     EXPECT_EQ(splits.size(), 2);
 
@@ -91,7 +91,7 @@ TEST(SplitEqual, ThreeSeries) {
     df::Serie<double> s2{1.1, 2.2, 3.3, 4.4};
     df::Serie<std::string> s3{"a", "b", "c", "d"};
 
-    auto splits = df::split_equal_n(2, s1, s2, s3);
+    auto splits = df::split(2, s1, s2, s3);
 
     EXPECT_EQ(splits.size(), 2);
 
@@ -111,7 +111,7 @@ TEST(SplitEqual, ThreeSeries) {
 TEST(SplitEqual, PipeOperator) {
     df::Serie<int> numbers{1, 2, 3, 4, 5, 6};
 
-    auto splitter = df::bind_split_equal<int>(2);
+    auto splitter = df::bind_split<int>(2);
     auto splits = numbers | splitter;
 
     EXPECT_EQ(splits.size(), 2);
@@ -122,7 +122,7 @@ TEST(SplitEqual, PipeOperator) {
 TEST(SplitEqual, TooManySplits) {
     df::Serie<int> numbers{1, 2, 3};
 
-    auto splits = df::split_equal(5, numbers);
+    auto splits = df::split(5, numbers);
 
     // Should adjust to actual size
     EXPECT_EQ(splits.size(), 3);
@@ -140,7 +140,7 @@ TEST(SplitEqual, many_series_same_type) {
                          51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
 
     {
-        auto splits = df::split_equal(2, df::merge(s1, s2, s3));
+        auto splits = df::split(2, df::merge(s1, s2, s3));
         COMPARE_SERIE_VECTOR(splits[0],
                              {1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
                               11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -152,7 +152,7 @@ TEST(SplitEqual, many_series_same_type) {
     }
 
     {
-        auto splits = df::split_equal(4, df::merge(s1, s2, s3));
+        auto splits = df::split(4, df::merge(s1, s2, s3));
         COMPARE_SERIE_VECTOR(
             splits[0], {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
         COMPARE_SERIE_VECTOR(splits[1], {16, 17, 18, 19, 20, 21, 22, 23, 24, 25,

@@ -173,4 +173,82 @@ Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
     return contours(mesh, attributeName, isoValues.asArray());
 }
 
+// -------------------------------------------------
+// HELPERS
+
+inline Serie<double> generateIsosBySpacing(double min, double max,
+                                           double spacing) {
+    std::vector<double> isos;
+
+    if (max < min) {
+        throw std::runtime_error("Min should be less than max");
+    }
+
+    if (std::abs(max - min) / spacing > 500) {
+        spacing = std::abs(max - min) / 500;
+        std::cerr << "WARNING: increasing the spacing to " << spacing
+                  << " to avoid too many isos" << std::endl;
+    }
+
+    if (min < 0 && max > 0) {
+        // Handle range crossing zero
+        double value = spacing;
+        while (value >= min + spacing) {
+            isos.push_back(value);
+            value -= spacing;
+        }
+        value = 0;
+        while (value <= max - spacing) {
+            isos.push_back(value);
+            value += spacing;
+        }
+    } else {
+        // Handle range not crossing zero
+        double scale = 1;
+        if (max < 0) {
+            scale = -1;
+            std::swap(min, max);
+        }
+
+        if (min * scale >= max * scale)
+            return {};
+
+        int valueInc = static_cast<int>(min * scale / spacing);
+        if (valueInc * spacing < min * scale)
+            valueInc++;
+
+        double value = valueInc * spacing;
+        while (value <= max * scale) {
+            isos.push_back(value * scale);
+            value += spacing;
+        }
+    }
+
+    std::sort(isos.begin(), isos.end());
+    return Serie(isos);
+}
+
+inline Serie<double> generateIsosByNumber(double min, double max, size_t nbr) {
+    if (min >= max)
+        return {};
+    double epsilon = (max - min) / nbr;
+    return generateIsosBySpacing(min, max, epsilon);
+}
+
+inline Serie<double> generateIsos(double min, double max,
+                                  const std::vector<double> &values,
+                                  bool useSpacing, double nbrOrSpacing) {
+    if (!values.empty()) {
+        std::vector<double> filtered;
+        std::copy_if(values.begin(), values.end(), std::back_inserter(filtered),
+                     [min, max](double v) { return v >= min && v <= max; });
+        return filtered;
+    }
+
+    if (useSpacing) {
+        return generateIsosBySpacing(min, max, nbrOrSpacing);
+    }
+    return generateIsosByNumber(min, max, static_cast<size_t>(nbrOrSpacing));
+}
+
 } // namespace df
