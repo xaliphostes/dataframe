@@ -4,36 +4,42 @@
 ### Classes
 - Serie
 - Dataframe
-### Functions
-- forEach
-- map
-- pipe
-- print
-- reduce
-- operator | (i.e., pipe)
 
-## Utils
+## Core
 ### Functions
+- chain
+- chunk
 - compose
 - concat
 - filter
 - find
+- flatten
+- forEach
+- groupBy
 - map_if
+- map
 - memoise
 - merge
 - ones
+- orderBy
 - parallel_map
 - partition
+- pipe with operator |
+- print
 - range
+- reduce
 - reject
+- skip
 - slice
 - sort
 - split
+- take
+- unique
 - unzip
 - whenAll
+- where
 - zeros
 - zip
-- where
 
 ## Linear algebra
 ### Functions

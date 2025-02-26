@@ -71,6 +71,7 @@ Only headers. No linking!
 - Link to the CGAL lib if needed for more complex algos
 - Use [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) for libear algebra (will install it automatically)
 - Use [CGAL](https://www.cgal.org/) if needed (read [this to install CGAL](CGAL_INSTALL.md))
+- Implements the functions such as `chain`, `chunk`, `compose`, `concat`, `filter`, `find`, `flatten`, `forEach`, `groupBy`, `map_if`, `map`, `memoise`, `merge`, `ones`, `orderBy`, `parallel_map`, `partition`, `pipe` with operator `|`, `print`, `range`, `reduce`, `reject`, `skip`, `slice`, `sort`, `split`, `take`, `unique`, `unzip`, `whenAll`, `where`, `zeros`, `zip`.
 
 ## Core Concepts
 
