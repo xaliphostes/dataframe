@@ -66,6 +66,38 @@ template <typename T> inline std::string type_name() {
 
 // ------------------------------------------------
 
+template <typename T> inline Serie<T>::iterator Serie<T>::begin() {
+    return data_.begin();
+}
+
+template <typename T> inline Serie<T>::const_iterator Serie<T>::begin() const {
+    return data_.begin();
+}
+
+template <typename T> inline Serie<T>::const_iterator Serie<T>::cbegin() const {
+    return data_.cbegin();
+}
+
+template <typename T> inline Serie<T>::iterator Serie<T>::end() {
+    return data_.end();
+}
+
+template <typename T> inline Serie<T>::const_iterator Serie<T>::end() const {
+    return data_.end();
+}
+
+template <typename T> inline Serie<T>::const_iterator Serie<T>::cend() const {
+    return data_.cend();
+}
+
+template <typename T> inline void Serie<T>::reserve(size_t n) {
+    data_.reserve(n);
+}
+
+template <typename T> inline void Serie<T>::add(const T &value) {
+    data_.push_back(value);
+}
+
 template <typename T> inline Serie<T>::Serie(const ArrayType &values) {
     data_.reserve(values.size());
     for (const auto &v : values) {

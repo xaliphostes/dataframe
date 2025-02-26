@@ -29,6 +29,9 @@
 
 namespace df {
 
+/**
+ * Base class for all Serie types providing common virtual interface
+ */
 class SerieBase {
   public:
     virtual ~SerieBase() = default;
@@ -39,137 +42,70 @@ class SerieBase {
 // --------------------------------------------------------------
 
 /**
- * @brief A Serie is a column of data. It is a vector of values of type T.
- * @tparam T The type of the data in the Serie.
+ * @brief A typed column of data for data analysis and manipulation.
+ *
+ * Serie is a fundamental building block representing a sequence of values of
+ * the same type. It provides STL-compatible container interface with additional
+ * functional programming capabilities such as map, reduce, and forEach.
+ *
+ * @tparam T The element type stored in the Serie
+ *
+ * @example
+ * ```cpp
+ * // Create a Serie of doubles
+ * df::Serie<double> s1{1.0, 2.0, 3.0, 4.0, 5.0};
+ *
+ * // Apply transformations
+ * auto s2 = s1.map([](double x, size_t idx) { return x * x; });
+ *
+ * // Calculate sum using reduce
+ * double sum = s1.reduce([](double acc, double x) { return acc + x; }, 0.0);
+ *
+ * // Iterate through elements
+ * s1.forEach([](double x, size_t idx) { std::cout << x << " "; });
+ * ```
  */
 template <typename T> class Serie : public SerieBase {
   public:
+    // Standard container type definitions
     using value_type = T;
     using ArrayType = std::vector<T>;
     using Self = Serie<T>;
     using iterator = typename ArrayType::iterator;
     using const_iterator = typename ArrayType::const_iterator;
 
-    /**
-     * @brief Get iterator to beginning of the Serie
-     */
-    iterator begin() { return data_.begin(); }
+    // Iterator interface
+    iterator begin();
+    const_iterator begin() const ;
+    const_iterator cbegin() const ;
+    iterator end();
+    const_iterator end() const ;
+    const_iterator cend() const ;
 
-    /**
-     * @brief Get const iterator to beginning of the Serie
-     */
-    const_iterator begin() const { return data_.begin(); }
-
-    /**
-     * @brief Get const iterator to beginning of the Serie
-     */
-    const_iterator cbegin() const { return data_.cbegin(); }
-
-    /**
-     * @brief Get iterator to end of the Serie
-     */
-    iterator end() { return data_.end(); }
-
-    /**
-     * @brief Get const iterator to end of the Serie
-     */
-    const_iterator end() const { return data_.end(); }
-
-    /**
-     * @brief Get const iterator to end of the Serie
-     */
-    const_iterator cend() const { return data_.cend(); }
-
+    // Constructors
     Serie() = default;
-
-    /**
-     * @brief Construct a Serie from a vector of values.
-     */
     Serie(const ArrayType &values);
-
-    /**
-     * @brief Construct a Serie from an initializer list of values.
-     */
     Serie(const std::initializer_list<T> &values);
-
-    /**
-     * @brief Construct a Serie of a given size.
-     */
     explicit Serie(size_t size) : data_(size) {}
-
-    /**
-     * @brief Construct a Serie of a given size, filled with a given value.
-     */
     Serie(size_t size, const T &value) : data_(size, value) {}
 
-    /**
-     * @brief Get the type of the Serie as a string.
-     */
+    // Basic operations
     std::string type() const override;
-
-    /**
-     * @brief Get the size of the Serie.
-     */
     size_t size() const override;
-
-    /**
-     * @brief Check if the Serie is empty.
-     */
     bool empty() const;
-
-    /**
-     * @brief Convert Serie to a different type
-     * @tparam U Target type to convert to
-     * @return A new Serie with converted values
-     */
     template <typename U> Serie<U> as() const;
+    void reserve(size_t n);
 
-    /**
-     * @brief Reserve space for future elements.
-     * @param n The number of elements to reserve space for
-     */
-    void reserve(size_t n) { data_.reserve(n); }
-
-    /**
-     * @brief Get the value at a given index.
-     */
+    // Element access
     T &operator[](size_t index);
-
-    /**
-     * @brief Get the value at a given index.
-     */
     const T &operator[](size_t index) const;
-
-    /**
-     * @brief Add a value to the Serie.
-     */
-    void add(const T &value) { data_.push_back(value); }
-
-    /**
-     * @brief Get the data of the Serie.
-     */
+    void add(const T &value);
     const ArrayType &data() const;
-
-    /**
-     * @brief Get the data of the Serie.
-     * @see data()
-     */
     const ArrayType &asArray() const;
 
-    /**
-     * @brief Apply a function to each element of the Serie.
-     */
+    // Functional operations
     template <typename F> void forEach(F &&callback) const;
-
-    /**
-     * @brief Apply a function to each element of the Serie and return a new
-     * Serie with the results.
-     */
     template <typename F> auto map(F &&callback) const;
-
-    /**
-     * @brief Filter the elements of the Serie using a predicate.
-     */
     template <typename F, typename AccT> auto reduce(F &&, AccT) const;
 
   private:

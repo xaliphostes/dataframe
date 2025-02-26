@@ -68,7 +68,6 @@ Only headers. No linking!
 - Parallel processing capabilities
 - Type-safe operations with compile-time checks
 - Modern C++ design (C++23 if available)
-- Link to the CGAL lib if needed for more complex algos
 - Use [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) for libear algebra (will install it automatically)
 - Use [CGAL](https://www.cgal.org/) if needed (read [this to install CGAL](CGAL_INSTALL.md))
 - Implements the functions such as `chain`, `chunk`, `compose`, `concat`, `filter`, `find`, `flatten`, `forEach`, `groupBy`, `map_if`, `map`, `memoise`, `merge`, `ones`, `orderBy`, `parallel_map`, `partition`, `pipe` with operator `|`, `print`, `range`, `reduce`, `reject`, `skip`, `slice`, `sort`, `split`, `take`, `unique`, `unzip`, `whenAll`, `where`, `zeros`, `zip`.
@@ -84,7 +83,7 @@ A type-safe container for sequences of data with functional operations:
 
 For comparison, the main difference is that while Excel columns can contain mixed types and empty cells, a Serie is strongly typed and all elements must be of the same type, making it more suitable for type-safe data processing.
 
-### `DataFrame`
+### `Dataframe`
 
 A container for managing multiple named series:
 - Type-safe storage of different series types
@@ -218,24 +217,28 @@ auto norms = df::map(([](const Point3D& p) {
 }, points);
 ```
 
-### DataFrame Usage
+### Dataframe Usage
 
 ```cpp
-#include <dataframe/DataFrame.h>
+#include <dataframe/Dataframe.h>
 
-// Create a DataFrame
-df::DataFrame df;
+// Create a Dataframe
+df::Dataframe dataframe;
 
 // Add different types of series
-df.add("integers", df::Serie<int>{1, 2, 3, 4, 5});
-df.add("doubles", df::Serie<double>{1.1, 2.2, 3.3, 4.4, 5.5});
+dataframe.add("integers", df::Serie<int>{1, 2, 3, 4, 5});
+dataframe.add("doubles", df::Serie<double>{1.1, 2.2, 3.3, 4.4, 5.5});
 
 // Access series with type safety
-const auto& ints = df.get<int>("integers");
-const auto& dbls = df.get<double>("doubles");
+const auto& ints = dataframe.get<int>("integers");
+const auto& dbls = dataframe.get<double>("doubles");
+
+for (const auto& [name, serie] : dataframe) {
+    // Work with name and serie
+}
 
 // Remove a series
-df.remove("integers");
+dataframe.remove("integers");
 ```
 
 ### 3D Mesh Example
@@ -252,7 +255,7 @@ using Point    = std::array<double, 3>;
 using Triangle = std::array<uint32_t, 3>;
 
 // Create a simple mesh
-df::DataFrame mesh;
+df::Dataframe mesh;
 
 // Create vertices
 df::Serie<Point> vertices{
