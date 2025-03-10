@@ -33,7 +33,7 @@ template <typename T>
 void Dataframe::add(const std::string &name, const Serie<T> &serie) {
     if (has<T>(name)) {
         throw std::runtime_error(
-            format("Serie with name '", name, "' already exists in Dataframe"));
+            concat("Serie with name '", name, "' already exists in Dataframe"));
     }
     series_.emplace(name, SerieInfo(serie));
 }
@@ -46,7 +46,7 @@ void Dataframe::add(const std::string &name, const ArrayType<T> &array) {
 inline void Dataframe::remove(const std::string &name) {
     if (!has(name)) {
         throw std::runtime_error(
-            format("Serie '", name, "' does not exist in Dataframe"));
+            concat("Serie '", name, "' does not exist in Dataframe"));
     }
     series_.erase(name);
 }
@@ -55,14 +55,14 @@ template <typename T>
 const Serie<T> &Dataframe::get(const std::string &name) const {
     if (!has(name)) {
         throw std::runtime_error(
-            format("Serie '", name, "' does not exist in Dataframe"));
+            concat("Serie '", name, "' does not exist in Dataframe"));
     }
 
     const auto &info = series_.at(name);
     auto typed_ptr = std::dynamic_pointer_cast<Serie<T>>(info.data);
 
     if (!typed_ptr) {
-        throw std::runtime_error(format(
+        throw std::runtime_error(concat(
             "Type mismatch for Serie '", name, "': expected type '",
             typeid(Serie<T>).name(), "' but got '", info.type.name(), "'"));
     }
@@ -73,7 +73,7 @@ const Serie<T> &Dataframe::get(const std::string &name) const {
 inline std::type_index Dataframe::type(const std::string &name) const {
     if (!has(name)) {
         throw std::runtime_error(
-            format("Serie '", name, "' does not exist in Dataframe"));
+            concat("Serie '", name, "' does not exist in Dataframe"));
     }
     return series_.at(name).type;
 }
@@ -81,7 +81,7 @@ inline std::type_index Dataframe::type(const std::string &name) const {
 inline String Dataframe::type_name(const std::string &name) const {
     if (!has(name)) {
         throw std::runtime_error(
-            format("Serie '", name, "' does not exist in Dataframe"));
+            concat("Serie '", name, "' does not exist in Dataframe"));
     }
     return series_.at(name).data.operator*().type();
 }

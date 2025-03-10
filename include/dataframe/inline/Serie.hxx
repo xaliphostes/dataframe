@@ -157,7 +157,7 @@ template <typename T> inline std::string Serie<T>::type() const {
 
 template <typename T> inline T &Serie<T>::operator[](size_t index) {
     if (index >= data_.size()) {
-        throw std::out_of_range(format("Index ", index,
+        throw std::out_of_range(concat("Index ", index,
                                        " is out of bounds (max is ",
                                        data_.size(), ") in Serie::operator[]"));
     }
@@ -166,7 +166,7 @@ template <typename T> inline T &Serie<T>::operator[](size_t index) {
 
 template <typename T> inline const T &Serie<T>::operator[](size_t index) const {
     if (index >= data_.size()) {
-        throw std::out_of_range(format("Index ", index,
+        throw std::out_of_range(concat("Index ", index,
                                        " is out of bounds (max is ",
                                        data_.size(), ") in Serie::operator[]"));
     }

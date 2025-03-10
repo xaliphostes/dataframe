@@ -44,11 +44,63 @@ template <typename... Args> void MSG(const Args &...args) {
  * std::string result = format("Name: ", name, ", Age: ", age);
  * @endcode
  */
-template <typename... Args> std::string format(const Args &...args) {
+
+/**
+ * @brief Concatenate objects that can be converted to strings
+ *
+ * Creates a string by converting all input arguments to strings
+ * and concatenating them together. Works with any type that
+ * can be inserted into a std::ostringstream.
+ *
+ * @tparam Args Types of objects to concatenate
+ * @param args Objects to concatenate
+ * @return std::string The concatenated string
+ *
+ * Example:
+ * @code
+ * // Basic concatenation of different types
+ * auto s1 = concat("Value: ", 42, ", Pi: ", 3.14159);
+ * // => "Value: 42, Pi: 3.14159"
+ *
+ * // With arrays
+ * Vector2 v{1.5, 2.5};
+ * auto s2 = concat("Vector: ", v);
+ * // => "Vector: [1.5,2.5]"
+ *
+ * // Series concatenation
+ * Serie<int> serie{1, 2, 3};
+ * auto s3 = concat("Serie: ", serie);
+ * // => "Serie: [1, 2, 3]"
+ * @endcode
+ */
+template <typename... Args> std::string concat(const Args &...args) {
     std::ostringstream oss;
     (oss << ... << args);
     return oss.str();
 }
+
+/**
+ * @brief String concatenation operator
+ * 
+ * Operator version of concat function that concatenates two objects.
+ * 
+ * @tparam T First object type
+ * @tparam U Second object type
+ * @param lhs First object
+ * @param rhs Second object
+ * @return std::string Concatenated string
+ * 
+ * @code
+ * auto r1 = "Number: " ^ 42; // "Number: 42"
+ * 
+ * Vector3 v{1.0, 2.0, 3.0};
+ * auto r2 = "Vector: " ^ v; // "Vector: [1,2,3]"
+ * @endcode
+ */
+// template <typename T, typename U>
+// std::string operator^(const T& lhs, const U& rhs) {
+//     return concat(lhs, rhs);
+// }
 
 // ------------------------------------------------------
 

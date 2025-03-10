@@ -33,6 +33,7 @@
 - slice
 - sort
 - split
+- switch
 - take
 - unique
 - unzip

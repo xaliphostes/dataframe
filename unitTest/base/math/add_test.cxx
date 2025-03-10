@@ -333,7 +333,7 @@ class DynamicVector {
     double &operator[](size_t i) {
         if (i >= data_.size()) {
             throw std::runtime_error(
-                format("Index out of bounds: ", i, " >= ", data_.size()));
+                concat("Index out of bounds: ", i, " >= ", data_.size()));
         }
         return data_[i];
     }
@@ -341,7 +341,7 @@ class DynamicVector {
     const double &operator[](size_t i) const {
         if (i >= data_.size()) {
             throw std::runtime_error(
-                format("Index out of bounds: ", i, " >= ", data_.size()));
+                concat("Index out of bounds: ", i, " >= ", data_.size()));
         }
         return data_[i];
     }
