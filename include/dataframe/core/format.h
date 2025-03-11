@@ -31,45 +31,6 @@
 namespace df {
 
 /**
- * @brief Concatenate a Serie of objects with a separator
- *
- * Creates a string by converting all elements in the Serie to strings
- * and concatenating them with the given separator.
- *
- * @tparam T Type of elements in the Serie
- * @param serie Serie of elements to concatenate
- * @param separator String to insert between elements (default: ", ")
- * @return std::string The concatenated string
- *
- * Example:
- * @code
- * Serie<int> numbers{1, 2, 3, 4, 5};
- *
- * // Default separator (comma)
- * auto s1 = format(numbers);
- * // => "1, 2, 3, 4, 5"
- *
- * // Custom separator
- * auto s2 = format(numbers, " | ");
- * // => "1 | 2 | 3 | 4 | 5"
- * @endcode
- */
-// template <typename T>
-// std::string format(const Serie<T> &serie, const std::string &separator = ",
-// ") {
-//     if (serie.empty()) {
-//         return "";
-//     }
-
-//     std::ostringstream oss;
-//     for (size_t i = 0; i < serie.size() - 1; ++i) {
-//         oss << serie[i] << separator;
-//     }
-//     oss << serie[serie.size() - 1];
-//     return oss.str();
-// }
-
-/**
  * @brief Concatenate a Serie with a prefix, separator, and suffix
  *
  * Creates a string representation of a Serie with customizable prefix,

@@ -1,0 +1,151 @@
+/* Custom CSS for Doxygen */
+
+/* Overall page styling */
+body, table, div, p, dl {
+    font-family: 'Segoe UI', 'Roboto', 'Open Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Header styling */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin: 1em 0 0.5em 0;
+    color: #2c3e50;
+}
+
+h1 {
+    font-size: 2em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    font-size: 1.6em;
+}
+
+h3 {
+    font-size: 1.4em;
+}
+
+/* Link styling */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Code blocks */
+div.fragment {
+    padding: 16px;
+    background-color: #f8f8f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+div.line {
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+    line-height: 1.4;
+}
+
+/* Tables */
+table.doxtable {
+    border-collapse: collapse;
+    margin: 1em 0;
+    width: 100%;
+}
+
+table.doxtable th, table.doxtable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table.doxtable th {
+    background-color: #f2f2f2;
+    text-align: left;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+/* Navigation tree */
+#nav-tree {
+    background-color: #f8f8f8;
+    border-right: 1px solid #e5e5e5;
+}
+
+#nav-tree .selected {
+    background-color: #e6f0fa;
+    border-left: 4px solid #3498db;
+}
+
+/* Header and footer */
+#titlearea {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    border-bottom: 1px solid #1a252f;
+}
+
+#projectname {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+#projectbrief {
+    font-size: 1.2em;
+    margin-top: 0.5em;
+}
+
+/* Search box */
+#MSearchBox {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Member declarations */
+.memtitle {
+    background-color: #f2f2f2;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: 1px solid #e5e5e5;
+    border-bottom: none;
+    padding: 8px 12px;
+    font-weight: bold;
+}
+
+.memitem {
+    border: 1px solid #e5e5e5;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+.memdoc {
+    padding: 12px;
+}
+
+/* Tabs */
+.tabs, .tabs2, .tabs3 {
+    background-color: #2c3e50;
+}
+
+.tablist li {
+    background-color: transparent !important;
+}
+
+.tablist a {
+    color: white !important;
+    text-shadow: none !important;
+}
+
+.tablist a:hover, .tablist a.current {
+    background-color: #3498db !important;
+    text-shadow: none !important;
+}
