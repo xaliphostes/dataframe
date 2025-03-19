@@ -26,6 +26,7 @@
 #include <dataframe/Serie.h>
 
 namespace df {
+namespace grid {
 
 /**
  * @brief Structure to hold 3D grid information
@@ -41,25 +42,28 @@ struct Grid3D {
     iVector3 dimensions;  // Number of points in each direction (nx, ny, nz)
     Dataframe attributes; // Data attributes associated with each grid point
 
-    Vector3 point_at(uint i, uint j, uint k) const {
-        return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],
-                origin[2] + k * spacing[2]};
-    }
+    /**
+     * @brief Get grid point coordinates at given indices
+     */
+    Vector3 point_at(uint i, uint j, uint k) const;
 
-    size_t linear_index(uint i, uint j, uint k) const {
-        return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
-    }
+    /**
+     * @brief Get linear index from 3D indices
+     */
+    size_t linear_index(uint i, uint j, uint k) const;
 
-    std::tuple<uint, uint, uint> grid_indices(size_t index) const {
-        uint i = index % dimensions[0];
-        uint j = (index / dimensions[0]) % dimensions[1];
-        uint k = index / (dimensions[0] * dimensions[1]);
-        return {i, j, k};
-    }
+    /**
+     * @brief Get 3D indices from linear index
+     */
+    std::tuple<uint, uint, uint> grid_indices(size_t index) const;
 
-    size_t total_points() const {
-        return dimensions[0] * dimensions[1] * dimensions[2];
-    }
+    /**
+     * @brief Get total number of points in the grid
+     */
+    size_t total_points() const;
 };
 
+} // namespace grid
 } // namespace df
+
+#include "inline/grid3d.hxx"

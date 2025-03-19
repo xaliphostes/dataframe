@@ -34,6 +34,7 @@ namespace df {
  * @tparam N Dimension of the mesh (2 or 3)
  * @code
  * // Create a 2D mesh
+ * //             v1    v2      v3      t1
  * Mesh2D mesh({{0,0}, {1,0}, {0,1}}, {{0,1,2}});
  *
  * // Add vertex attribute

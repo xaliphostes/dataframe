@@ -21,8 +21,7 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include <tuple>
 
 namespace df {
 
@@ -30,7 +29,17 @@ namespace df {
  * @brief Binary zip (two Series)
  */
 template <typename T, typename U>
-auto zip(const Serie<T> &serie1, const Serie<U> &serie2);
+auto zip(const Serie<T> &serie1, const Serie<U> &serie2) {
+    if (serie1.size() != serie2.size()) {
+        throw std::runtime_error(
+            "Series must have the same size for zip operation");
+    }
+
+    // Creates a Serie of tuples
+    return serie1.map([&serie2](const T &value, size_t i) {
+        return std::make_tuple(value, serie2[i]);
+    });
+}
 
 /**
  * @brief Variadic zip (multiple Series)
@@ -50,8 +59,18 @@ auto zip(const Serie<T> &serie1, const Serie<U> &serie2);
  * @endcode
  */
 template <typename T, typename... Args>
-auto zip(const Serie<T> &first, const Args &...rest);
+auto zip(const Serie<T> &first, const Args &...rest) {
+    // Check that all series have the same size
+    const size_t size = first.size();
+    if (!((rest.size() == size) && ...)) {
+        throw std::runtime_error(
+            "All series must have the same size for zip operation");
+    }
+
+    // Creates a Serie of tuples containing elements from all input series
+    return first.map([&](const T &value, size_t i) {
+        return std::make_tuple(value, rest[i]...);
+    });
+}
 
 } // namespace df
-
-#include "inline/zip.hxx"

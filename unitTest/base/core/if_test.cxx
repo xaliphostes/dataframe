@@ -89,16 +89,13 @@ TEST(If, ComplexTypes) {
     auto processed = df::if_then_else<Vector3, Vector3>(
         vectors,
         [](const Vector3 &v) {
-            double magnitude =
-                std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-            return magnitude >= 2.0;
+            double mag2 = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+            return mag2 >= 4.0;
         },
         [](const Vector3 &v) {
             // Normalize the vector
-            double magnitude =
-                std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-            return Vector3{v[0] / magnitude, v[1] / magnitude,
-                           v[2] / magnitude};
+            double mag = std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            return Vector3{v[0] / mag, v[1] / mag, v[2] / mag};
         },
         [](const Vector3 &v) {
             // Return unchanged

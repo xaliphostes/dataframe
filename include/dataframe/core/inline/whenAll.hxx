@@ -20,10 +20,19 @@
  * SOFTWARE.
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include <dataframe/core/concat.h>
+#include <future>
+#include <thread>
+#include <tuple>
 
 namespace df {
+
+// Helper for tuple creation from futures
+template <typename T, std::size_t... I>
+auto make_tuple_from_futures(std::vector<std::future<Serie<T>>> &futures,
+                             std::index_sequence<I...>) {
+    return std::make_tuple(futures[I].get()...);
+}
 
 /**
  * @brief Execute transformations on multiple Series in parallel.
@@ -51,7 +60,27 @@ namespace df {
  * @endcode
  */
 template <typename T, typename F>
-Serie<T> whenAll(F &&transform, const std::vector<Serie<T>> &series);
+inline Serie<T> whenAll(F &&transform, const std::vector<Serie<T>> &series) {
+    std::vector<std::future<Serie<T>>> futures;
+    futures.reserve(series.size());
+
+    // Launch transformations in parallel
+    for (const auto &serie : series) {
+        futures.push_back(std::async(std::launch::async, [transform, serie]() {
+            return transform(serie);
+        }));
+    }
+
+    // Collect results
+    std::vector<Serie<T>> results;
+    results.reserve(futures.size());
+
+    for (auto &future : futures) {
+        results.push_back(future.get());
+    }
+
+    return concat(results);
+}
 
 /**
  * The main purposes are:
@@ -64,7 +93,23 @@ Serie<T> whenAll(F &&transform, const std::vector<Serie<T>> &series);
  * preserving their individual identity and order.
  */
 template <typename T, typename... Series>
-auto whenAll(const Series &...series);
+inline auto whenAll(const Series &...series) {
+    static_assert((std::is_same_v<Series, Serie<T>> && ...),
+                  "All series must be of the same type Serie<T>");
+
+    std::vector<std::future<Serie<T>>> futures;
+    futures.reserve(sizeof...(series));
+
+    // Launch series operations in parallel
+    (futures.push_back(std::async(
+         std::launch::async,
+         [](const Serie<T> &s) { return Serie<T>(s.data()); }, series)),
+     ...);
+
+    // Create tuple from results
+    return make_tuple_from_futures<T>(
+        futures, std::make_index_sequence<sizeof...(Series)>{});
+}
 
 /**
  * @brief Create a bind_whenAll function for use in pipelines
@@ -85,12 +130,20 @@ auto whenAll(const Series &...series);
 
 // Version for transformation
 template <typename F, typename T>
-auto bind_whenAll(F &&transform, const std::vector<Serie<T>> &series);
+inline auto bind_whenAll(F &&transform, const std::vector<Serie<T>> &series) {
+    return [f = std::forward<F>(transform), series](const Serie<T> &input) {
+        std::vector<Serie<T>> all_series = {input};
+        all_series.insert(all_series.end(), series.begin(), series.end());
+        return whenAll(f, all_series);
+    };
+}
 
 // Version without transformation (returns tuple)
 template <typename T, typename... Series>
-auto bind_whenAll(const Series &...series);
+inline auto bind_whenAll(const Series &...series) {
+    return [series...](const Serie<T> &input) {
+        return whenAll<T>(input, series...);
+    };
+}
 
 } // namespace df
-
-#include "inline/whenAll.hxx"

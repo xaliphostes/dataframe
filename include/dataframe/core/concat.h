@@ -42,32 +42,13 @@
 
 namespace df {
 
-template <typename T> Serie<T> concat(const std::vector<Serie<T>> &series) {
-    // Calculate total size needed
-    size_t total_size = 0;
-    for (const auto &serie : series) {
-        total_size += serie.size();
-    }
+template <typename T> Serie<T> concat(const std::vector<Serie<T>> &series);
 
-    // Create result array with reserved capacity
-    std::vector<T> result;
-    result.reserve(total_size);
-
-    // Copy all elements from each serie
-    for (const auto &serie : series) {
-        const auto &data = serie.data();
-        result.insert(result.end(), data.begin(), data.end());
-    }
-
-    return Serie<T>(result);
-}
-
-// Variadic template version for ease of use
+/**
+ * Variadic template version for ease of use
+ */
 template <typename T, typename... Args>
-Serie<T> concat(const Serie<T> &first, const Args &...args) {
-    std::vector<Serie<T>> series{first, args...};
-    return concat(series);
-}
+Serie<T> concat(const Serie<T> &first, const Args &...args);
 
 /**
  * @code
@@ -83,10 +64,8 @@ Serie<T> concat(const Serie<T> &first, const Args &...args) {
  * auto result3 = s1 | bind_concat(s2, s3);
  * @endcode
  */
-template <typename... Args> auto bind_concat(const Args &...series) {
-    return [series...](const auto &input_serie) {
-        return concat(input_serie, series...);
-    };
-}
+template <typename... Args> auto bind_concat(const Args &...series);
 
 } // namespace df
+
+#include <dataframe/core/inline/concat.hxx>

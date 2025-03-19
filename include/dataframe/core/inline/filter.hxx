@@ -21,25 +21,47 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include <dataframe/utils/utils.h>
+#include <type_traits>
 
 namespace df {
 
 // Single series version
 template <typename F, typename T>
-auto filter(F &&predicate, const Serie<T> &serie) -> Serie<T>;
+inline auto filter(F &&predicate, const Serie<T> &serie) -> Serie<T> {
+    std::vector<T> filtered;
+    filtered.reserve(serie.size()); // Reserve max possible size
+
+    for (size_t i = 0; i < serie.size(); ++i) {
+        if (predicate(serie[i], i)) {
+            filtered.push_back(serie[i]);
+        }
+    }
+
+    return Serie<T>(filtered);
+}
 
 // Multi series version
 template <typename F, typename T, typename... Args>
-auto filter(F &&predicate, const Serie<T> &first, const Serie<T> &second,
-            const Args &...args) -> Serie<T>;
+inline auto filter(F &&predicate, const Serie<T> &first, const Serie<T> &second,
+            const Args &...args) -> Serie<T> {
+    std::vector<T> filtered;
+    filtered.reserve(first.size()); // Reserve max possible size
+
+    for (size_t i = 0; i < first.size(); ++i) {
+        if (predicate(first[i], second[i], (args[i])..., i)) {
+            filtered.push_back(first[i]);
+        }
+    }
+
+    return Serie<T>(filtered);
+}
 
 // Bind function for multiple series
-template <typename F> auto bind_filter(F &&predicate, const auto &second);
-
-MAKE_OP(filter);
+template <typename F> inline auto bind_filter(F &&predicate, const auto &second) {
+    return [pred = std::forward<F>(predicate), &second](const auto &first) {
+        return filter(pred, first, second);
+    };
+}
 
 } // namespace df
-
-#include <dataframe/core/inline/filter.hxx>

@@ -14,7 +14,9 @@
 - filter
 - find
 - flatten
+- for
 - forEach
+- if_then_else
 - groupBy
 - map_if
 - map

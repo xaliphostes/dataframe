@@ -21,21 +21,40 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
-
 namespace df {
 
-template <typename T> auto compose(T &&value);
+template <typename T>
+inline Serie<T> concat(const std::vector<Serie<T>> &series) {
+    // Calculate total size needed
+    size_t total_size = 0;
+    for (const auto &serie : series) {
+        total_size += serie.size();
+    }
 
-template <typename T, typename F, typename... Rest>
-auto compose(T &&value, F &&operation, Rest &&...rest);
+    // Create result array with reserved capacity
+    std::vector<T> result;
+    result.reserve(total_size);
 
-template <typename F> auto make_compose(F &&operation);
+    // Copy all elements from each serie
+    for (const auto &serie : series) {
+        const auto &data = serie.data();
+        result.insert(result.end(), data.begin(), data.end());
+    }
 
-template <typename F, typename... Rest>
-auto make_compose(F &&first, Rest &&...rest);
+    return Serie<T>(result);
+}
+
+// Variadic template version for ease of use
+template <typename T, typename... Args>
+inline Serie<T> concat(const Serie<T> &first, const Args &...args) {
+    std::vector<Serie<T>> series{first, args...};
+    return concat(series);
+}
+
+template <typename... Args> inline auto bind_concat(const Args &...series) {
+    return [series...](const auto &input_serie) {
+        return concat(input_serie, series...);
+    };
+}
 
 } // namespace df
-
-#include <dataframe/core/inline/compose.hxx>

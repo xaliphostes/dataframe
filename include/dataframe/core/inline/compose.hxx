@@ -21,21 +21,33 @@
  *
  */
 
-#pragma once
-#include <dataframe/Serie.h>
+#include <dataframe/core/pipe.h>
+#include <functional>
 
 namespace df {
 
-template <typename T> auto compose(T &&value);
+template <typename T> inline auto compose(T &&value) {
+    return pipe(std::forward<T>(value));
+}
 
 template <typename T, typename F, typename... Rest>
-auto compose(T &&value, F &&operation, Rest &&...rest);
+inline auto compose(T &&value, F &&operation, Rest &&...rest) {
+    if constexpr (sizeof...(Rest) == 0) {
+        return operation(value);
+    } else {
+        return operation(
+            compose(std::forward<T>(value), std::forward<Rest>(rest)...));
+    }
+}
 
-template <typename F> auto make_compose(F &&operation);
+template <typename F> inline auto make_compose(F &&operation) {
+    return make_pipe(std::forward<F>(operation));
+}
 
 template <typename F, typename... Rest>
-auto make_compose(F &&first, Rest &&...rest);
+inline auto make_compose(F &&first, Rest &&...rest) {
+    return make_pipe(make_pipe(std::forward<Rest>(rest)...),
+                     std::forward<F>(first));
+}
 
 } // namespace df
-
-#include <dataframe/core/inline/compose.hxx>

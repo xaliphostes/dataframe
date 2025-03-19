@@ -21,49 +21,28 @@
  *
  */
 
-#pragma once
-#include <dataframe/Dataframe.h>
-#include <dataframe/Serie.h>
-
 namespace df {
 namespace grid {
 
-/**
- * @brief Structure to hold 2D grid information
- *
- * Working with attributes (data attributes associated with each grid point):
- * - get an attribute: `grid.attributes.get<T>(name)`
- * - remove an attribute: `grid.attributes.remove(name);`
- * - add a new attribute: `grid.attributes.add(name, values);`
- */
-struct Grid2D {
-    Vector2 origin;       // Origin point (x0, y0)
-    Vector2 spacing;      // Grid spacing (dx, dy)
-    iVector2 dimensions;  // Number of points in each direction (nx, ny)
-    Dataframe attributes; // Data attributes associated with each grid point
+inline Vector3 Grid3D::point_at(uint i, uint j, uint k) const {
+    return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],
+            origin[2] + k * spacing[2]};
+}
 
-    /**
-     * @brief Get grid point coordinates at given indices
-     */
-    Vector2 point_at(uint i, uint j) const;
+inline size_t Grid3D::linear_index(uint i, uint j, uint k) const {
+    return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
+}
 
-    /**
-     * @brief Get linear index from 2D indices
-     */
-    size_t linear_index(uint i, uint j) const;
+inline std::tuple<uint, uint, uint> Grid3D::grid_indices(size_t index) const {
+    uint i = index % dimensions[0];
+    uint j = (index / dimensions[0]) % dimensions[1];
+    uint k = index / (dimensions[0] * dimensions[1]);
+    return {i, j, k};
+}
 
-    /**
-     * @brief Get 2D indices from linear index
-     */
-    std::pair<uint, uint> grid_indices(size_t index) const;
-
-    /**
-     * @brief Get total number of points in the grid
-     */
-    size_t total_points() const;
-};
+inline size_t Grid3D::total_points() const {
+    return dimensions[0] * dimensions[1] * dimensions[2];
+}
 
 } // namespace grid
 } // namespace df
-
-#include "inline/grid2d.hxx"

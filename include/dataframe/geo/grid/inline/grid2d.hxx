@@ -21,49 +21,24 @@
  *
  */
 
-#pragma once
-#include <dataframe/Dataframe.h>
-#include <dataframe/Serie.h>
-
 namespace df {
 namespace grid {
 
-/**
- * @brief Structure to hold 2D grid information
- *
- * Working with attributes (data attributes associated with each grid point):
- * - get an attribute: `grid.attributes.get<T>(name)`
- * - remove an attribute: `grid.attributes.remove(name);`
- * - add a new attribute: `grid.attributes.add(name, values);`
- */
-struct Grid2D {
-    Vector2 origin;       // Origin point (x0, y0)
-    Vector2 spacing;      // Grid spacing (dx, dy)
-    iVector2 dimensions;  // Number of points in each direction (nx, ny)
-    Dataframe attributes; // Data attributes associated with each grid point
+Vector2 Grid2D::point_at(uint i, uint j) const {
+    return {origin[0] + i * spacing[0], origin[1] + j * spacing[1]};
+}
 
-    /**
-     * @brief Get grid point coordinates at given indices
-     */
-    Vector2 point_at(uint i, uint j) const;
+size_t Grid2D::linear_index(uint i, uint j) const {
+    return i + j * dimensions[0];
+}
 
-    /**
-     * @brief Get linear index from 2D indices
-     */
-    size_t linear_index(uint i, uint j) const;
+std::pair<uint, uint> Grid2D::grid_indices(size_t index) const {
+    uint i = index % dimensions[0];
+    uint j = index / dimensions[0];
+    return {i, j};
+}
 
-    /**
-     * @brief Get 2D indices from linear index
-     */
-    std::pair<uint, uint> grid_indices(size_t index) const;
-
-    /**
-     * @brief Get total number of points in the grid
-     */
-    size_t total_points() const;
-};
+size_t Grid2D::total_points() const { return dimensions[0] * dimensions[1]; }
 
 } // namespace grid
 } // namespace df
-
-#include "inline/grid2d.hxx"
