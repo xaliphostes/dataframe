@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>forEach Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">forEach</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The forEach function iterates over each element in a Serie to perform an operation without changing the Serie itself. It's useful for side effects like printing or accumulating values.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+          // Single serie version
+          template &lt;typename F, typename T&gt;
+          auto forEach(F&& callback, const Serie&lt;T&gt;& serie);
+          
+          // Multi-series version
+          template &lt;typename F, typename T, typename... Args&gt;
+          auto forEach(F&& callback, const Serie&lt;T&gt;& first, const Serie&lt;T&gt;& second, const Args&... args);
+          
+          // Member function version
+          template &lt;typename F&gt;
+          void Serie&lt;T&gt;::forEach(F&& callback) const;
+          
+          // Bound version for pipeline operations
+          template &lt;typename F&gt; auto bind_forEach(F&& callback);
+        </code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">callback</span></td>
+              <td><span class="param-type">F&& (callable)</span></td>
+              <td>Function to apply to each element. For single Serie version, should accept <code>(T value, size_t index)</code>. For multi-Serie version, should accept <code>(T first_value, U second_value, ... args_values, size_t index)</code>.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+              <td>The Serie to iterate over.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">first, second, args...</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&, const Serie&lt;U&gt;&, ...</span></td>
+              <td>Multiple Series to iterate over in parallel.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>The forEach function does not return a value (void). It is used for its side effects.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Single Serie Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+
+// Using Serie member function
+numbers.forEach([](int value, size_t index) {
+    std::cout << "Element " << index << ": " << value << std::endl;
+});
+
+// Using free function
+df::forEach([](int value, size_t index) {
+    std::cout << "Element " << index << ": " << value << std::endl;
+}, numbers);
+
+// Calculate sum (using a side effect)
+int sum = 0;
+numbers.forEach([&sum](int value, size_t) {
+    sum += value;
+});
+std::cout << "Sum: " << sum << std::endl;  // Output: Sum: 15</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Multiple Series Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create multiple Series
+df::Serie&lt;std::string&gt; names{"Alice", "Bob", "Charlie"};
+df::Serie&lt;int&gt; ages{25, 32, 28};
+df::Serie&lt;double&gt; heights{165.5, 180.2, 175.0};
+
+// Process multiple Series together
+df::forEach([](const std::string& name, int age, double height, size_t index) {
+    std::cout << "Person " << index << ": " 
+              << name << ", age " << age 
+              << ", height " << height << " cm" << std::endl;
+}, names, ages, heights);
+
+// Output:
+// Person 0: Alice, age 25, height 165.5 cm
+// Person 1: Bob, age 32, height 180.2 cm
+// Person 2: Charlie, age 28, height 175 cm</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;double&gt; values{1.1, 2.2, 3.3, 4.4, 5.5};
+
+// Use bind_forEach in a pipeline
+values | df::bind_forEach([](double value, size_t index) {
+    std::cout << "Value at " << index << ": " << value << std::endl;
+});
+
+// Multiple operations in a pipeline
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+int sum = 0;
+
+numbers
+    | df::bind_map([](int x, size_t) { return x * 2; })  // Double each value
+    | df::bind_forEach([&sum](int value, size_t) {       // Sum the doubled values
+        sum += value;
+    });
+    
+std::cout << "Sum of doubled values: " << sum << std::endl;  // Output: 30</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The forEach function does not modify the input Serie(s).</li>
+          <li>For multiple Series, all Series must have the same size.</li>
+          <li>The callback function is called once for each element, in order from first to last.</li>
+          <li>The index parameter is optional in the callback function.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="map.html" class="related-function">map</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

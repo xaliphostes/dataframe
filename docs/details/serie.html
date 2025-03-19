@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serie Class - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Serie&lt;T&gt;</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The Serie class is a column of data with elements of the same type, providing the fundamental building block
+          of the DataFrame library. It supports a wide range of operations through a functional programming interface.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Declaration</h2>
+        <!-- <div class="function-signature"> -->
+        <pre><code class="language-cpp">
+          template &lt;typename T&gt; class Serie : public SerieBase {
+            // Members and methods...
+          };
+        </code></pre>
+        <!-- </div> -->
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Constructors</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Constructors</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+Serie(); // Default constructor
+Serie(const ArrayType &values); // From vector
+Serie(const std::initializer_list&lt;T&gt; &values); // From initializer list
+explicit Serie(size_t size); // With size
+Serie(size_t size, const T &value); // With size and default value</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Key Methods</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">size()</span></td>
+              <td>Returns the number of elements in the Serie.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">empty()</span></td>
+              <td>Checks if the Serie is empty.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">operator[](size_t)</span></td>
+              <td>Access element at the given index.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">add(const T&)</span></td>
+              <td>Add a value to the end of the Serie.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">data()</span></td>
+              <td>Get the underlying array of values.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">asArray()</span></td>
+              <td>Get the underlying array of values (alias for data()).</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">forEach(F&&)</span></td>
+              <td>Apply a function to each element.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">map(F&&)</span></td>
+              <td>Apply a function to each element and return a new Serie.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">reduce(F&&, AccT)</span></td>
+              <td>Reduce the Serie to a single value using an accumulator.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">type()</span></td>
+              <td>Get the type of the Serie as a string.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie from an initializer list
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0};
+
+// Create an empty Serie and add values
+df::Serie&lt;std::string&gt; names;
+names.add("Alice");
+names.add("Bob");
+names.add("Charlie");
+
+// Create a Serie of a specific size with default values
+df::Serie&lt;int&gt; zeros(10, 0);
+
+// Access elements
+double first = values[0];  // 1.0
+std::string last = names[2];  // "Charlie"
+
+// Get the size
+size_t count = values.size();  // 5
+
+// Check if empty
+bool is_empty = values.empty();  // false</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Functional Operations</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a sample Serie
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+
+// Apply forEach to print each element
+numbers.forEach([](int value, size_t index) {
+    std::cout << "Element " << index << ": " << value << std::endl;
+});
+
+// Map to create a new Serie with doubled values
+auto doubled = numbers.map([](int value, size_t) {
+    return value * 2;
+});  // {2, 4, 6, 8, 10}
+
+// Reduce to calculate the sum
+int sum = numbers.reduce([](int acc, int value, size_t) {
+    return acc + value;
+}, 0);  // 15</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Working with Operators</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create two Series
+df::Serie&lt;double&gt; a{1.0, 2.0, 3.0, 4.0, 5.0};
+df::Serie&lt;double&gt; b{5.0, 4.0, 3.0, 2.0, 1.0};
+
+// Element-wise addition
+auto sum = a + b;  // {6.0, 6.0, 6.0, 6.0, 6.0}
+
+// Using with mathematical functions
+auto squared = a.map([](double x, size_t) { return x * x; });
+auto sqrt_values = squared.map([](double x, size_t) { return std::sqrt(x); });</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="map.html" class="related-function">map</a>
+          <a href="forEach.html" class="related-function">forEach</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="if_then_else.html" class="related-function">if_then_else</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

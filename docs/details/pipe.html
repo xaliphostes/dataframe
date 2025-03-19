@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pipe Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">pipe</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The pipe function enables functional composition by allowing multiple operations to be chained together into a single processing pipeline. It provides a clean, readable way to express complex transformations on Series.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+          // Base case: end of pipe chain
+          template &lt;typename T&gt;
+          auto pipe(T&& value);
+          
+          // General case: pipe with operation
+          template &lt;typename T, typename F, typename... Rest&gt;
+          auto pipe(T&& value, F&& operation, Rest&&... rest);
+          
+          // Operator | overload for pipe operations
+          template &lt;typename T, typename F&gt;
+          auto operator|(T&& value, F&& operation);
+          
+          // make_pipe factory function
+          template &lt;typename... F&gt;
+          auto make_pipe(F&&... operations);
+        </code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">value</span></td>
+              <td><span class="param-type">T&& (any type)</span></td>
+              <td>The input value to be processed through the pipeline.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">operation</span></td>
+              <td><span class="param-type">F&& (callable)</span></td>
+              <td>A function or operation to apply to the value. Should accept the input value and return a transformed value.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">rest</span></td>
+              <td><span class="param-type">Rest&&... (callables)</span></td>
+              <td>Additional operations to be applied in sequence.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>The result of applying all operations in sequence to the input value.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Pipe Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+
+// Using pipe function with multiple operations
+auto result = df::pipe(
+    numbers,
+    [](const df::Serie&lt;int&gt;& s) { return s.map([](int x, size_t) { return x * 2; }); },
+    [](const df::Serie&lt;int&gt;& s) { return s.map([](int x, size_t) { return x + 10; }); }
+);  // {12, 14, 16, 18, 20}
+
+// Using the | operator (more readable)
+auto piped_result = numbers
+    | [](const df::Serie&lt;int&gt;& s) { return s.map([](int x, size_t) { return x * 2; }); }
+    | [](const df::Serie&lt;int&gt;& s) { return s.map([](int x, size_t) { return x + 10; }); };
+// {12, 14, 16, 18, 20}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Using Bind Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;double&gt; values{1.1, 2.2, 3.3, 4.4, 5.5};
+
+// Using bind functions with the pipe operator
+auto result = values
+    | df::bind_map([](double x, size_t) { return x * 2; })       // Double each value
+    | df::bind_map([](double x, size_t) { return std::round(x); })  // Round to nearest integer
+    | df::bind_map([](double x, size_t) { return x > 8; });      // Convert to boolean
+// {false, false, true, true, true}
+
+// Create a custom bind function
+auto double_values = [](const df::Serie&lt;double&gt;& s) {
+    return s.map([](double x, size_t) { return x * 2; });
+};
+
+// Use it in a pipe
+auto doubled = values | double_values;  // {2.2, 4.4, 6.6, 8.8, 11.0}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Creating Reusable Pipelines</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a reusable pipeline using make_pipe
+auto process_values = df::make_pipe(
+    df::bind_map([](double x, size_t) { return x * 2; }),       // Double
+    df::bind_map([](double x, size_t) { return x + 10; }),      // Add 10
+    df::bind_map([](double x, size_t) { return std::round(x); })  // Round
+);
+
+// Apply the pipeline to different Series
+df::Serie&lt;double&gt; values1{1.1, 2.2, 3.3};
+df::Serie&lt;double&gt; values2{4.4, 5.5, 6.6};
+
+auto result1 = process_values(values1);  // {12, 14, 17}
+auto result2 = process_values(values2);  // {19, 21, 23}
+
+// Combine multiple operations
+auto preprocess = df::bind_map([](double x, size_t) { return std::abs(x); });
+auto calculate = df::bind_map([](double x, size_t) { return std::sqrt(x); });
+auto format = df::bind_map([](double x, size_t) { return std::round(x * 100) / 100; });
+
+// Create a pipeline with all operations
+auto analyze = df::make_pipe(preprocess, calculate, format);
+
+// Apply the combined pipeline
+df::Serie&lt;double&gt; input{-16.0, 25.0, -4.0, 9.0};
+auto output = analyze(input);  // {4.0, 5.0, 2.0, 3.0}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Complex Transformation Pipeline</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Process student data
+df::Serie&lt;std::string&gt; names{"Alice Smith", "Bob Johnson", "Charlie Brown"};
+df::Serie&lt;double&gt; scores{87.5, 92.0, 78.5};
+
+// Create a pipeline to generate formatted reports
+auto report_pipeline = df::make_pipe(
+    // Combine name and score into a tuple
+    [](const df::Serie&lt;std::string&gt;& names, const df::Serie&lt;double&gt;& scores) {
+        return df::zip(names, scores);
+    },
+    
+    // Format each student record
+    df::bind_map([](const auto& tuple, size_t index) {
+        auto [name, score] = tuple;
+        std::string grade;
+        
+        if (score >= 90) grade = "A";
+        else if (score >= 80) grade = "B";
+        else if (score >= 70) grade = "C";
+        else grade = "D";
+        
+        return "Student #" + std::to_string(index + 1) + ": " + name +
+               " - Score: " + std::to_string(score) +
+               " - Grade: " + grade;
+    })
+);
+
+// Apply the pipeline
+auto reports = report_pipeline(names, scores);
+// {"Student #1: Alice Smith - Score: 87.5 - Grade: B",
+//  "Student #2: Bob Johnson - Score: 92.0 - Grade: A",
+//  "Student #3: Charlie Brown - Score: 78.5 - Grade: C"}</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The pipe function and | operator both execute operations from left to right.</li>
+          <li>Each operation must accept the result of the previous operation as its input.</li>
+          <li>The make_pipe function creates a reusable pipeline that can be applied to different inputs.</li>
+          <li>Bind functions (e.g., bind_map, bind_forEach) are designed to work seamlessly with pipe.</li>
+          <li>Pipe operations are evaluated lazily, meaning they are only executed when needed.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="map.html" class="related-function">map</a>
+          <a href="forEach.html" class="related-function">forEach</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="if_then_else.html" class="related-function">if_then_else</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
