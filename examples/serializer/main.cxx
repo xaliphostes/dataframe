@@ -38,34 +38,32 @@ int main() {
             "SensorReading",
 
             // Write function
-            [](std::ofstream &ofs, const SensorReading &reading,
-               bool swap_needed) {
+            [](std::ostream &os, const SensorReading &reading, bool swap_needed) {
                 // Write each field in order
-                df::io::detail::write_value(ofs, reading.timestamp,
+                df::io::detail::write_value(os, reading.timestamp, swap_needed);
+                df::io::detail::write_value(os, reading.temperature,
                                             swap_needed);
-                df::io::detail::write_value(ofs, reading.temperature,
-                                            swap_needed);
-                df::io::detail::write_value(ofs, reading.humidity, swap_needed);
+                df::io::detail::write_value(os, reading.humidity, swap_needed);
                 df::io::detail::serializer<std::string>::write(
-                    ofs, reading.sensorId, swap_needed);
-                df::io::detail::write_value(ofs, reading.isValid, swap_needed);
+                    os, reading.sensorId, swap_needed);
+                df::io::detail::write_value(os, reading.isValid, swap_needed);
             },
 
             // Read function
-            [](std::ifstream &ifs, bool swap_needed) {
+            [](std::istream &is, bool swap_needed) {
                 SensorReading reading;
                 // Read each field in the same order
                 reading.timestamp =
-                    df::io::detail::read_value<int64_t>(ifs, swap_needed);
+                    df::io::detail::read_value<int64_t>(is, swap_needed);
                 reading.temperature =
-                    df::io::detail::read_value<double>(ifs, swap_needed);
+                    df::io::detail::read_value<double>(is, swap_needed);
                 reading.humidity =
-                    df::io::detail::read_value<double>(ifs, swap_needed);
+                    df::io::detail::read_value<double>(is, swap_needed);
                 reading.sensorId =
-                    df::io::detail::serializer<std::string>::read(ifs,
+                    df::io::detail::serializer<std::string>::read(is,
                                                                   swap_needed);
                 reading.isValid =
-                    df::io::detail::read_value<bool>(ifs, swap_needed);
+                    df::io::detail::read_value<bool>(is, swap_needed);
                 return reading;
             });
 

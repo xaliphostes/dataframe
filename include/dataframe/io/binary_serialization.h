@@ -82,15 +82,15 @@ std::array<T, N> read_array(std::ifstream &ifs, bool swap_needed);
 
 // Type-specific serialization interface
 template <typename T> struct serializer {
-    static void write(std::ofstream &ofs, const T &value, bool swap_needed);
-    static T read(std::ifstream &ifs, bool swap_needed);
+    static void write(std::ostream &ofs, const T &value, bool swap_needed);
+    static T read(std::istream &ifs, bool swap_needed);
 };
 
 // Specialization for std::string
 template <> struct serializer<std::string> {
-    static void write(std::ofstream &ofs, const std::string &value,
+    static void write(std::ostream &ofs, const std::string &value,
                       bool swap_needed);
-    static std::string read(std::ifstream &ifs, bool swap_needed);
+    static std::string read(std::istream &ifs, bool swap_needed);
 };
 
 } // namespace detail
@@ -118,8 +118,8 @@ SerieFactory &getSerieFactory();
  *
  * @throws std::runtime_error If the file cannot be opened or written
  */
-template <typename T>
-bool save(const Serie<T> &serie, const std::string &filename);
+template <typename T> bool save(const Serie<T> &serie, const std::string &);
+template <typename T> bool save(const Serie<T> &serie, std::ostream &os);
 
 /**
  * @brief Deserialize a Serie from a binary file with explicit type
@@ -137,6 +137,7 @@ bool save(const Serie<T> &serie, const std::string &filename);
  * requested
  */
 template <typename T> Serie<T> load(const std::string &filename);
+template <typename T> Serie<T> load(std::istream &is);
 
 /**
  * @brief Deserialize a Serie from a binary file with automatic type detection
@@ -152,6 +153,7 @@ template <typename T> Serie<T> load(const std::string &filename);
  * @throws std::runtime_error If the file contains a type that's not registered
  */
 std::shared_ptr<SerieBase> load(const std::string &filename);
+std::shared_ptr<SerieBase> load(std::istream &is);
 
 /**
  * @brief Utility function to check what type a serialized file contains
@@ -160,97 +162,7 @@ std::shared_ptr<SerieBase> load(const std::string &filename);
  * @return std::string A string describing the type
  */
 std::string get_file_type(const std::string &filename);
-
-// ======== Serie factory for automatic type detection and extensibility
-
-/**
- * @brief Type-erased creator interface for Serie instances
- *
- * Abstract base class for creating Serie objects of specific types
- */
-class SerieCreator {
-  public:
-    virtual ~SerieCreator() = default;
-
-    // Create a new Serie from a binary stream
-    virtual std::shared_ptr<SerieBase> create(std::ifstream &ifs,
-                                              const detail::FileHeader &header,
-                                              bool swap_needed) const = 0;
-
-    // Check if this creator can handle a given type name or hash
-    virtual bool canHandle(const std::string &type_name,
-                           uint64_t type_hash) const = 0;
-
-    // Clone this creator
-    virtual std::unique_ptr<SerieCreator> clone() const = 0;
-};
-
-/**
- * @brief Typed implementation of SerieCreator
- *
- * Creates Serie instances of a specific type T
- */
-template <typename T> class TypedSerieCreator : public SerieCreator {
-  public:
-    std::shared_ptr<SerieBase>
-    create(std::ifstream &, const detail::FileHeader &, bool) const override;
-    bool canHandle(const std::string &, uint64_t) const override;
-    std::unique_ptr<SerieCreator> clone() const override;
-};
-
-/**
- * @brief Custom serie creator with custom serializer functions
- *
- * Allows for registering custom types with their own
- * serialization/deserialization logic
- */
-template <typename T> class CustomSerieCreator : public SerieCreator {
-  public:
-    using ReadFunc = std::function<T(std::ifstream &, bool)>;
-
-    CustomSerieCreator(const std::string &, uint64_t, ReadFunc);
-    std::shared_ptr<SerieBase>
-    create(std::ifstream &, const detail::FileHeader &, bool) const override;
-    bool canHandle(const std::string &, uint64_t) const override;
-    std::unique_ptr<SerieCreator> clone() const override;
-
-  private:
-    std::string typeName_;
-    uint64_t typeHash_;
-    ReadFunc readFunc_;
-};
-
-/**
- * @brief Factory class for creating Serie instances from serialized data
- *
- * Manages registration of type creators and handles Serie instantiation
- * based on type information in the serialized data.
- */
-class SerieFactory {
-  public:
-    SerieFactory();
-    ~SerieFactory() = default;
-
-    // Create a Serie instance from serialized data
-    std::shared_ptr<SerieBase> createSerie(std::ifstream &ifs,
-                                           const detail::FileHeader &header,
-                                           bool swap_needed,
-                                           const std::string &type_name) const;
-
-    // Register a built-in type with the factory
-    template <typename T> void registerType();
-
-    // Register a custom type with custom serialization functions
-    template <typename T>
-    void registerCustomType(const std::string &typeName, uint64_t typeHash,
-                            typename CustomSerieCreator<T>::ReadFunc readFunc);
-
-  private:
-    // Register all built-in types
-    void registerBuiltinTypes();
-
-    std::vector<std::unique_ptr<SerieCreator>> creators_;
-};
+std::string get_file_type(std::istream &is);
 
 /**
  * @brief Register a custom type with the serialization system
@@ -266,8 +178,8 @@ class SerieFactory {
 template <typename T>
 void registerCustomType(
     const std::string &typeName,
-    std::function<void(std::ofstream &, const T &, bool)> writeFunc,
-    std::function<T(std::ifstream &, bool)> readFunc);
+    std::function<void(std::ostream &, const T &, bool)> writeFunc,
+    std::function<T(std::istream &, bool)> readFunc);
 
 } // namespace io
 } // namespace df

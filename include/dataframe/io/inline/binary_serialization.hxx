@@ -43,7 +43,6 @@ constexpr uint32_t CURRENT_VERSION = 2;
 // File header signature ("DFSR" in ASCII)
 constexpr uint32_t FILE_SIGNATURE = 0x44465352;
 
-
 // Type encoding identifiers
 enum class TypeCode : uint8_t {
     Bool = 1,
@@ -173,8 +172,8 @@ template <typename T> constexpr TypeCode get_type_code() {
 class SerializerRegistry {
   public:
     template <typename T> struct SerializerFunctions {
-        std::function<void(std::ofstream &, const T &, bool)> write_func;
-        std::function<T(std::ifstream &, bool)> read_func;
+        std::function<void(std::ostream &, const T &, bool)> write_func;
+        std::function<T(std::istream &, bool)> read_func;
         bool registered = false;
     };
 
@@ -185,8 +184,8 @@ class SerializerRegistry {
 
     template <typename T>
     static void registerFunctions(
-        std::function<void(std::ofstream &, const T &, bool)> write_func,
-        std::function<T(std::ifstream &, bool)> read_func) {
+        std::function<void(std::ostream &, const T &, bool)> write_func,
+        std::function<T(std::istream &, bool)> read_func) {
         auto &funcs = get<T>();
         funcs.write_func = write_func;
         funcs.read_func = read_func;
@@ -199,8 +198,7 @@ class SerializerRegistry {
 };
 
 // Read data with potential endian conversion
-template <typename T>
-inline T read_value(std::ifstream &ifs, bool swap_needed) {
+template <typename T> inline T read_value(std::istream &ifs, bool swap_needed) {
     T value;
     ifs.read(reinterpret_cast<char *>(&value), sizeof(T));
     if (swap_needed && sizeof(T) > 1) {
@@ -223,7 +221,7 @@ inline T read_value(std::ifstream &ifs, bool swap_needed) {
 
 // Write data with potential endian conversion
 template <typename T>
-inline void write_value(std::ofstream &ofs, T value, bool swap_needed) {
+inline void write_value(std::ostream &ofs, T value, bool swap_needed) {
     if (swap_needed && sizeof(T) > 1) {
         if constexpr (std::is_integral_v<T>) {
             value = swap_endian(value);
@@ -263,8 +261,7 @@ inline std::array<T, N> read_array(std::ifstream &ifs, bool swap_needed) {
 
 // Type-specific serialization for complex types
 template <typename T>
-void serializer<T>::write(std::ofstream &ofs, const T &value,
-                          bool swap_needed) {
+void serializer<T>::write(std::ostream &ofs, const T &value, bool swap_needed) {
     // First check if we have custom serializer registered
     if (SerializerRegistry::isRegistered<T>()) {
         SerializerRegistry::get<T>().write_func(ofs, value, swap_needed);
@@ -290,17 +287,17 @@ void serializer<T>::write(std::ofstream &ofs, const T &value,
 }
 
 template <typename T>
-T serializer<T>::read(std::ifstream &ifs, bool swap_needed) {
+T serializer<T>::read(std::istream &is, bool swap_needed) {
     // First check if we have custom serializer registered
     if (SerializerRegistry::isRegistered<T>()) {
-        return SerializerRegistry::get<T>().read_func(ifs, swap_needed);
+        return SerializerRegistry::get<T>().read_func(is, swap_needed);
     }
 
     // Default implementation for non-registered types
     if constexpr (std::is_standard_layout_v<T> && std::is_trivial_v<T>) {
         // For trivial types, direct binary read
         T value;
-        ifs.read(reinterpret_cast<char *>(&value), sizeof(T));
+        is.read(reinterpret_cast<char *>(&value), sizeof(T));
         return value;
     } else if constexpr (details::is_std_array_v<T>) {
         // For std::array
@@ -308,7 +305,7 @@ T serializer<T>::read(std::ifstream &ifs, bool swap_needed) {
         using ElementType = typename T::value_type;
         T arr;
         for (size_t i = 0; i < N; ++i) {
-            arr[i] = read_value<ElementType>(ifs, swap_needed);
+            arr[i] = read_value<ElementType>(is, swap_needed);
         }
         return arr;
     } else {
@@ -319,35 +316,132 @@ T serializer<T>::read(std::ifstream &ifs, bool swap_needed) {
 }
 
 // Specialization for std::string
-inline void serializer<std::string>::write(std::ofstream &ofs,
+inline void serializer<std::string>::write(std::ostream &os,
                                            const std::string &value,
                                            bool swap_needed) {
     uint64_t size = value.size();
-    write_value(ofs, size, swap_needed);
-    ofs.write(value.data(), size);
+    write_value(os, size, swap_needed);
+    os.write(value.data(), size);
 }
 
-inline std::string serializer<std::string>::read(std::ifstream &ifs,
+inline std::string serializer<std::string>::read(std::istream &is,
                                                  bool swap_needed) {
-    uint64_t size = read_value<uint64_t>(ifs, swap_needed);
+    uint64_t size = read_value<uint64_t>(is, swap_needed);
     std::string value(size, '\0');
-    ifs.read(&value[0], size);
+    is.read(&value[0], size);
     return value;
 }
 
 } // namespace detail
 
 // =========================================================================
+
+/**
+ * @brief Type-erased creator interface for Serie instances
+ *
+ * Abstract base class for creating Serie objects of specific types
+ */
+class SerieCreator {
+  public:
+    virtual ~SerieCreator() = default;
+    // Change from std::ifstream to std::istream
+    virtual std::shared_ptr<SerieBase> create(std::istream &is,
+                                              const detail::FileHeader &header,
+                                              bool swap_needed) const = 0;
+    virtual bool canHandle(const std::string &type_name,
+                           uint64_t type_hash) const = 0;
+    virtual std::unique_ptr<SerieCreator> clone() const = 0;
+};
+
+/**
+ * @brief Typed implementation of SerieCreator
+ *
+ * Creates Serie instances of a specific type T
+ */
+template <typename T> class TypedSerieCreator : public SerieCreator {
+  public:
+    // Change std::ifstream to std::istream
+    std::shared_ptr<SerieBase> create(std::istream &is,
+                                      const detail::FileHeader &header,
+                                      bool swap_needed) const override;
+    bool canHandle(const std::string &type_name,
+                   uint64_t type_hash) const override;
+    std::unique_ptr<SerieCreator> clone() const override;
+};
+
+/**
+ * @brief Custom serie creator with custom serializer functions
+ *
+ * Allows for registering custom types with their own
+ * serialization/deserialization logic
+ */
+template <typename T> class CustomSerieCreator : public SerieCreator {
+  public:
+    // Change from std::ifstream to std::istream
+    using ReadFunc = std::function<T(std::istream &, bool)>;
+
+    CustomSerieCreator(const std::string &typeName, uint64_t typeHash,
+                       ReadFunc readFunc);
+
+    // Change std::ifstream to std::istream
+    std::shared_ptr<SerieBase> create(std::istream &is,
+                                      const detail::FileHeader &header,
+                                      bool swap_needed) const override;
+
+    bool canHandle(const std::string &type_name,
+                   uint64_t type_hash) const override;
+
+    std::unique_ptr<SerieCreator> clone() const override;
+
+  private:
+    std::string typeName_;
+    uint64_t typeHash_;
+    ReadFunc readFunc_;
+};
+
+/**
+ * @brief Factory class for creating Serie instances from serialized data
+ *
+ * Manages registration of type creators and handles Serie instantiation
+ * based on type information in the serialized data.
+ */
+class SerieFactory {
+  public:
+    SerieFactory();
+    ~SerieFactory() = default;
+
+    // Change from std::ifstream to std::istream
+    std::shared_ptr<SerieBase> createSerie(std::istream &is,
+                                           const detail::FileHeader &header,
+                                           bool swap_needed,
+                                           const std::string &type_name) const;
+
+    template <typename T> void registerType();
+
+    template <typename T>
+    void registerCustomType(const std::string &typeName, uint64_t typeHash,
+                            typename CustomSerieCreator<T>::ReadFunc readFunc);
+
+  private:
+    void registerBuiltinTypes();
+
+    std::vector<std::unique_ptr<SerieCreator>> creators_;
+};
+
 // =========================================================================
 
 template <typename T>
-bool save(const Serie<T> &serie, const std::string &filename) {
+inline bool save(const Serie<T> &serie, const std::string &filename) {
     std::ofstream ofs(filename, std::ios::binary);
     if (!ofs) {
         throw std::runtime_error("Failed to open file for writing: " +
                                  filename);
     }
+    return save(serie, ofs);
+}
 
+template <typename T>
+inline bool save(const Serie<T> &serie, std::ostream &os) {
     // Write file header
     detail::FileHeader header;
     header.signature = detail::FILE_SIGNATURE;
@@ -362,29 +456,32 @@ bool save(const Serie<T> &serie, const std::string &filename) {
     header.type_name_size = type_name.size();
 
     // Write header
-    ofs.write(reinterpret_cast<const char *>(&header), sizeof(header));
+    os.write(reinterpret_cast<const char *>(&header), sizeof(header));
 
     // Write type name
-    ofs.write(type_name.data(), type_name.size());
+    os.write(type_name.data(), type_name.size());
 
     // Write data
     for (size_t i = 0; i < serie.size(); ++i) {
-        detail::serializer<T>::write(ofs, serie[i], false);
+        detail::serializer<T>::write(os, serie[i], false);
     }
 
-    return ofs.good();
+    return os.good();
 }
 
-template <typename T> Serie<T> load(const std::string &filename) {
+template <typename T> Serie<T> inline load(const std::string &filename) {
     std::ifstream ifs(filename, std::ios::binary);
     if (!ifs) {
         throw std::runtime_error("Failed to open file for reading: " +
                                  filename);
     }
+    return load<T>(ifs);
+}
 
+template <typename T> Serie<T> inline load(std::istream &is) {
     // Read header
     detail::FileHeader header;
-    ifs.read(reinterpret_cast<char *>(&header), sizeof(header));
+    is.read(reinterpret_cast<char *>(&header), sizeof(header));
 
     // Verify signature
     if (header.signature != detail::FILE_SIGNATURE) {
@@ -416,7 +513,7 @@ template <typename T> Serie<T> load(const std::string &filename) {
     std::string type_name;
     if (header.type_name_size > 0) {
         type_name.resize(header.type_name_size);
-        ifs.read(&type_name[0], header.type_name_size);
+        is.read(&type_name[0], header.type_name_size);
     }
 
     // Type checking - using both type code and hash if available
@@ -437,22 +534,16 @@ template <typename T> Serie<T> load(const std::string &filename) {
     data.reserve(header.elements);
 
     for (size_t i = 0; i < header.elements; ++i) {
-        data.push_back(detail::serializer<T>::read(ifs, swap_needed));
+        data.push_back(detail::serializer<T>::read(is, swap_needed));
     }
 
     return Serie<T>(data);
 }
 
-inline std::shared_ptr<SerieBase> load(const std::string &filename) {
-    std::ifstream ifs(filename, std::ios::binary);
-    if (!ifs) {
-        throw std::runtime_error("Failed to open file for reading: " +
-                                 filename);
-    }
-
+inline std::shared_ptr<SerieBase> load(std::istream &is) {
     // Read header
     detail::FileHeader header;
-    ifs.read(reinterpret_cast<char *>(&header), sizeof(header));
+    is.read(reinterpret_cast<char *>(&header), sizeof(header));
 
     // Verify signature
     if (header.signature != detail::FILE_SIGNATURE) {
@@ -484,7 +575,7 @@ inline std::shared_ptr<SerieBase> load(const std::string &filename) {
     std::string type_name;
     if (header.type_name_size > 0) {
         type_name.resize(header.type_name_size);
-        ifs.read(&type_name[0], header.type_name_size);
+        is.read(&type_name[0], header.type_name_size);
     } else if (header.version >= 2) {
         // Version 2+ should always have a type name
         throw std::runtime_error(
@@ -492,7 +583,17 @@ inline std::shared_ptr<SerieBase> load(const std::string &filename) {
     }
 
     // Return to the factory for creating appropriate Serie type
-    return getSerieFactory().createSerie(ifs, header, swap_needed, type_name);
+    return getSerieFactory().createSerie(is, header, swap_needed, type_name);
+}
+
+inline std::shared_ptr<SerieBase> load(const std::string &filename) {
+    std::ifstream ifs(filename, std::ios::binary);
+    if (!ifs) {
+        throw std::runtime_error("Failed to open file for reading: " +
+                                 filename);
+    }
+
+    return load(ifs);
 }
 
 inline std::string get_file_type(const std::string &filename) {
@@ -500,13 +601,26 @@ inline std::string get_file_type(const std::string &filename) {
     if (!ifs) {
         throw std::runtime_error("Failed to open file: " + filename);
     }
+    return get_file_type(ifs);
+}
+
+inline std::string get_file_type(std::istream &is) {
+    // Save the current position in the stream
+    std::streampos original_pos = is.tellg();
+
+    // Check if stream is in good state
+    if (!is.good()) {
+        throw std::runtime_error("Stream is not in a good state for reading");
+    }
 
     // Read header
     detail::FileHeader header;
-    ifs.read(reinterpret_cast<char *>(&header), sizeof(header));
+    is.read(reinterpret_cast<char *>(&header), sizeof(header));
 
     // Verify signature
     if (header.signature != detail::FILE_SIGNATURE) {
+        // Restore original position before throwing
+        is.seekg(original_pos);
         throw std::runtime_error("Invalid file format: not a valid Serie file");
     }
 
@@ -527,8 +641,11 @@ inline std::string get_file_type(const std::string &filename) {
     std::string type_name;
     if (header.type_name_size > 0) {
         type_name.resize(header.type_name_size);
-        ifs.read(&type_name[0], header.type_name_size);
+        is.read(&type_name[0], header.type_name_size);
     }
+
+    // Restore original position in the stream
+    is.seekg(original_pos);
 
     // Map type code to string
     switch (type_code) {
@@ -566,14 +683,13 @@ inline std::string get_file_type(const std::string &filename) {
 // ======== TypedSerieCreator implementation ========
 template <typename T>
 std::shared_ptr<SerieBase>
-TypedSerieCreator<T>::create(std::ifstream &ifs,
-                             const detail::FileHeader &header,
+TypedSerieCreator<T>::create(std::istream &is, const detail::FileHeader &header,
                              bool swap_needed) const {
     std::vector<T> data;
     data.reserve(header.elements);
 
     for (size_t i = 0; i < header.elements; ++i) {
-        data.push_back(detail::serializer<T>::read(ifs, swap_needed));
+        data.push_back(detail::serializer<T>::read(is, swap_needed));
     }
 
     return std::make_shared<Serie<T>>(data);
@@ -608,14 +724,14 @@ CustomSerieCreator<T>::CustomSerieCreator(const std::string &typeName,
 
 template <typename T>
 std::shared_ptr<SerieBase>
-CustomSerieCreator<T>::create(std::ifstream &ifs,
+CustomSerieCreator<T>::create(std::istream &is,
                               const detail::FileHeader &header,
                               bool swap_needed) const {
     std::vector<T> data;
     data.reserve(header.elements);
 
     for (size_t i = 0; i < header.elements; ++i) {
-        data.push_back(readFunc_(ifs, swap_needed));
+        data.push_back(readFunc_(is, swap_needed));
     }
 
     return std::make_shared<Serie<T>>(data);
@@ -649,13 +765,13 @@ inline SerieFactory::SerieFactory() {
 }
 
 inline std::shared_ptr<SerieBase>
-SerieFactory::createSerie(std::ifstream &ifs, const detail::FileHeader &header,
+SerieFactory::createSerie(std::istream &is, const detail::FileHeader &header,
                           bool swap_needed,
                           const std::string &type_name) const {
     // Find the appropriate creator based on type name or hash
     for (const auto &creator : creators_) {
         if (creator->canHandle(type_name, header.type_hash)) {
-            return creator->create(ifs, header, swap_needed);
+            return creator->create(is, header, swap_needed);
         }
     }
 
@@ -696,28 +812,23 @@ inline SerieFactory &getSerieFactory() {
 }
 
 // ======== Custom type registration ========
+
 template <typename T>
-void registerCustomType(
-    const std::string &typeName,
-    std::function<void(std::ofstream &, const T &, bool)> writeFunc,
-    std::function<T(std::ifstream &, bool)> readFunc) {
-
-    // Store the clean type name as provided by the user
-    std::string clean_type_name = typeName;
-
-    // Calculate a hash for the type using the clean name
-    uint64_t typeHash = std::hash<std::string>{}(clean_type_name);
+inline void
+registerCustomType(const std::string &typeName,
+                   std::function<void(std::ostream &, const T &, bool)>
+                       writeFunc, // Changed from std::ofstream to std::ostream
+                   std::function<T(std::istream &, bool)>
+                       readFunc) // Changed from std::ifstream to std::istream
+{
+    // Calculate a hash for the type
+    uint64_t typeHash = std::hash<std::string>{}(typeName);
 
     // Register with the factory for automatic type detection
-    getSerieFactory().registerCustomType<T>(clean_type_name, typeHash,
-                                            readFunc);
+    getSerieFactory().registerCustomType<T>(typeName, typeHash, readFunc);
 
     // Register with the serializer registry
     detail::SerializerRegistry::registerFunctions<T>(writeFunc, readFunc);
-
-    // When saving, use this clean type name instead of typeid(T).name()
-    // We can store this in another registry
-    detail::TypeNameRegistry::registerName<T>(clean_type_name);
 }
 
 } // namespace io
