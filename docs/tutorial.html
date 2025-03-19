@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">API Reference</a></li>
+                    <li><a href="examples.html">Examples</a></li>
+                    <li><a href="tutorial.html" class="active">Tutorial</a></li>
+                    <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="tutorial-container">
+            <aside class="tutorial-sidebar">
+                <nav>
+                    <ul>
+                        <li><a href="#introduction">Introduction</a></li>
+                        <li><a href="#installation">Installation</a></li>
+                        <li><a href="#creating-series">Creating Series</a></li>
+                        <li><a href="#basic-operations">Basic Operations</a></li>
+                        <li><a href="#functional-approach">Functional Approach</a></li>
+                        <li><a href="#pipelines">Working with Pipelines</a></li>
+                        <li><a href="#advanced-topic">Case Study: Weather Data Analysis</a></li>
+                        <li><a href="#conclusion">Conclusion</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="tutorial-content">
+                <h1 class="tutorial-title">Building a Data Analysis Pipeline with DataFrame</h1>
+                <p class="tutorial-subtitle">A comprehensive tutorial on creating efficient data processing workflows
+                </p>
+
+                <section id="introduction">
+                    <h2>Introduction</h2>
+                    <p>
+                        The DataFrame library offers a powerful way to process and analyze data using modern C++
+                        techniques.
+                        It's designed around the concept of <em>Series</em> (columns of data) and functional operations
+                        that can be chained together to create clear, expressive data processing pipelines.
+                    </p>
+                    <p>
+                        This tutorial will guide you through building a complete data analysis workflow using the
+                        DataFrame
+                        library. We'll start with the basics and gradually move to more advanced techniques, showing how
+                        the functional approach enables clean, maintainable, and efficient data processing code.
+                    </p>
+                    <p>
+                        By the end of this tutorial, you'll be able to:
+                    </p>
+                    <ul>
+                        <li>Create and manipulate Series of various data types</li>
+                        <li>Apply transformations, filters, and reductions on your data</li>
+                        <li>Combine multiple operations into efficient pipelines</li>
+                        <li>Handle real-world data analysis scenarios</li>
+                        <li>Implement a complete weather data analysis system</li>
+                    </ul>
+                </section>
+
+                <section id="installation">
+                    <h2>Installation and Setup</h2>
+                    <p>
+                        Before diving into the DataFrame library, you'll need to set up your development environment.
+                        The library can be installed through various methods:
+                    </p>
+
+                    <h3>Using CMake (Recommended)</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>CMake Configuration</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cmake">
+# In your CMakeLists.txt
+cmake_minimum_required(VERSION 3.14)
+project(MyDataAnalysis)
+
+# Option 1: Using FetchContent
+include(FetchContent)
+FetchContent_Declare(
+    dataframe
+    GIT_REPOSITORY https://github.com/fmaerten/dataframe.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(dataframe)
+
+# Option 2: If already installed in your system
+# find_package(dataframe REQUIRED)
+
+# Create an executable
+add_executable(data_analysis main.cpp)
+target_link_libraries(data_analysis PRIVATE dataframe)
+</code></pre>
+                    </div>
+
+                    <h3>Manual Installation</h3>
+                    <p>
+                        Alternatively, you can clone the repository and include it in your project:
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Terminal Commands</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="bash">
+git clone https://github.com/fmaerten/dataframe.git
+cd dataframe
+mkdir build && cd build
+cmake ..
+make
+make install  # May require sudo
+</code></pre>
+                    </div>
+
+                    <h3>Basic Project Structure</h3>
+                    <p>
+                        For this tutorial, we'll use the following project structure:
+                    </p>
+                    <pre><code>
+└── weather_analysis/
+    ├── CMakeLists.txt
+    ├── src/
+    │   ├── main.cpp
+    │   ├── data_loader.h
+    │   ├── data_processor.h
+    │   └── visualization.h
+    └── data/
+        └── weather_data.csv
+</code></pre>
+                </section>
+
+                <section id="creating-series">
+                    <h2>Creating and Working with Series</h2>
+                    <p>
+                        The <code>Serie</code> class is the fundamental building block of the DataFrame library. It
+                        represents
+                        a column of data with elements of the same type, providing functionality similar to arrays but
+                        with
+                        powerful data processing capabilities.
+                    </p>
+
+                    <h3>Creating Series</h3>
+                    <p>
+                        Let's start by creating various types of Series:
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Creating Series</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/creating_series.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+int main() {
+    // Creating Series from initializer lists
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+    df::Serie&lt;double&gt; temperatures{22.5, 23.7, 25.2, 24.8, 21.9};
+    df::Serie&lt;std::string&gt; cities{"New York", "Paris", "Tokyo", "London", "Sydney"};
+    
+    // Creating a Serie from a vector
+    std::vector&lt;double&gt; humidity_vec{45.2, 52.8, 60.3, 55.7, 48.9};
+    df::Serie&lt;double&gt; humidity(humidity_vec);
+    
+    // Creating a Serie of a specific size
+    df::Serie&lt;int&gt; zeroes(5, 0);  // 5 elements, all initialized to 0
+    
+    // Print the Series
+    std::cout << "Numbers: " << numbers << std::endl;
+    std::cout << "Temperatures: " << temperatures << std::endl;
+    std::cout << "Number of cities: " << cities.size() << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <h3>Basic Serie Properties and Methods</h3>
+                    <p>
+                        Series provide several properties and methods for basic operations:
+                    </p>
+                    <ul>
+                        <li><code>size()</code>: Get the number of elements in the Serie</li>
+                        <li><code>empty()</code>: Check if the Serie has no elements</li>
+                        <li><code>operator[]</code>: Access an element by index</li>
+                        <li><code>data()</code> or <code>asArray()</code>: Get the underlying data as a vector</li>
+                        <li><code>type()</code>: Get the type of the Serie elements as a string</li>
+                    </ul>
+                </section>
+
+                <section id="basic-operations">
+                    <h2>Basic Operations on Series</h2>
+                    <p>
+                        The DataFrame library provides various operations to work with Series. Let's explore some of the
+                        most
+                        commonly used ones:
+                    </p>
+
+                    <h3>Iterating Through Elements</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>forEach Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/forEach_example.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/forEach.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+    
+    // Using the Serie method
+    numbers.forEach([](int value, size_t index) {
+        std::cout << "Element at index " << index << ": " << value << std::endl;
+    });
+    
+    // Alternatively, using the free function
+    df::forEach([](int value, size_t index) {
+        std::cout << "Element at index " << index << ": " << value << std::endl;
+    }, numbers);
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <h3>Transforming Elements</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>map Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/map_example.cpp" class="view-file-button" target="_blank">View full file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    df::Serie&lt;double&gt; celsius{0.0, 10.0, 20.0, 30.0, 40.0};
+    
+    // Convert Celsius to Fahrenheit using the Serie method
+    auto fahrenheit = celsius.map([](double c, size_t) {
+        return c * 9.0/5.0 + 32.0;
+    });
+    
+    // Print results
+    std::cout << "Celsius: " << celsius << std::endl;
+    std::cout << "Fahrenheit: " << fahrenheit << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <h3>Filtering Elements</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>filter Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/filter_example.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    
+    // Get even numbers using the Serie method
+    auto even_numbers = numbers.filter([](int n) {
+        return n % 2 == 0;
+    });
+    
+    // Get odd numbers using the free function
+    auto odd_numbers = df::filter([](int n) {
+        return n % 2 != 0;
+    }, numbers);
+    
+    // Print results
+    std::cout << "All numbers: " << numbers << std::endl;
+    std::cout << "Even numbers: " << even_numbers << std::endl;
+    std::cout << "Odd numbers: " << odd_numbers << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <h3>Reducing to a Single Value</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>reduce Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/reduce_example.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+    
+    // Calculate sum using the Serie method
+    int sum = numbers.reduce([](int acc, int value, size_t) {
+        return acc + value;
+    }, 0);  // 0 is the initial value
+    
+    // Calculate product using the free function
+    int product = df::reduce([](int acc, int value, size_t) {
+        return acc * value;
+    }, numbers, 1);  // 1 is the initial value
+    
+    // Print results
+    std::cout << "Numbers: " << numbers << std::endl;
+    std::cout << "Sum: " << sum << std::endl;
+    std::cout << "Product: " << product << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="functional-approach">
+                    <h2>The Functional Approach to Data Processing</h2>
+                    <p>
+                        One of the strengths of the DataFrame library is its functional programming approach to data
+                        processing.
+                        This approach offers several benefits:
+                    </p>
+                    <ul>
+                        <li><strong>Immutability</strong>: Operations create new Series without modifying the original
+                            data</li>
+                        <li><strong>Composability</strong>: Operations can be easily combined into complex workflows
+                        </li>
+                        <li><strong>Readability</strong>: The intent of the code is clear and follows a declarative
+                            style</li>
+                        <li><strong>Maintainability</strong>: Logic is broken down into smaller, reusable functions</li>
+                    </ul>
+
+                    <h3>Combining Operations</h3>
+                    <p>
+                        Let's see how we can combine multiple operations to solve a more complex problem:
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Combining Operations</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/combining_operations.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    // Initial data: temperatures in Celsius
+    df::Serie&lt;double&gt; temperatures{
+        -5.2, 3.7, 10.5, 15.8, 22.3, 28.6, 32.1, 26.4, 18.9, 12.5, 4.2, -2.8
+    };
+    
+    // Step 1: Convert to Fahrenheit
+    auto fahrenheit = temperatures.map([](double celsius, size_t) {
+        return celsius * 9.0/5.0 + 32.0;
+    });
+    
+    // Step 2: Filter out freezing temperatures (below 32°F)
+    auto above_freezing = fahrenheit.filter([](double temp) {
+        return temp > 32.0;
+    });
+    
+    // Step 3: Apply a temperature comfort formula
+    auto comfort_index = above_freezing.map([](double temp, size_t) {
+        // A simplified comfort formula
+        double optimal = 70.0;
+        double distance = std::abs(temp - optimal);
+        return 10.0 * std::exp(-0.05 * distance);
+    });
+    
+    // Print results
+    std::cout << "Original temperatures (°C): " << temperatures << std::endl;
+    std::cout << "Temperatures in Fahrenheit: " << fahrenheit << std::endl;
+    std::cout << "Above freezing temperatures: " << above_freezing << std::endl;
+    std::cout << "Comfort indices: " << comfort_index << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <p>
+                        In the example above, we sequentially applied multiple operations to transform our data.
+                        However, this approach requires creating intermediate variables for each step, which can make
+                        the
+                        code more verbose. The DataFrame library offers a solution to this problem with pipelines.
+                    </p>
+                </section>
+
+                <section id="pipelines">
+                    <h2>Working with Pipelines</h2>
+                    <p>
+                        Pipelines allow you to chain operations together in a more concise and readable way.
+                        Instead of creating intermediate variables, you can use the pipe operator (<code>|</code>) or
+                        the
+                        <code>pipe()</code> function to pass data through a sequence of operations.
+                    </p>
+
+                    <h3>Using the Pipe Operator</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Pipeline Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/pipeline_example.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/pipe.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    // Initial data: temperatures in Celsius
+    df::Serie&lt;double&gt; temperatures{
+        -5.2, 3.7, 10.5, 15.8, 22.3, 28.6, 32.1, 26.4, 18.9, 12.5, 4.2, -2.8
+    };
+    
+    // Create bound operations for use in the pipeline
+    auto to_fahrenheit = df::bind_map&lt;double&gt;([](double celsius, size_t) {
+        return celsius * 9.0/5.0 + 32.0;
+    });
+    
+    auto above_freezing = df::bind_filter&lt;double&gt;([](double temp) {
+        return temp > 32.0;
+    });
+    
+    auto comfort_calculation = df::bind_map&lt;double&gt;([](double temp, size_t) {
+        double optimal = 70.0;
+        double distance = std::abs(temp - optimal);
+        return 10.0 * std::exp(-0.05 * distance);
+    });
+    
+    // Apply the entire pipeline at once
+    auto result = temperatures
+        | to_fahrenheit
+        | above_freezing
+        | comfort_calculation;
+    
+    std::cout << "Comfort indices: " << result << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <h3>Creating Reusable Pipeline Components</h3>
+                    <p>
+                        One of the benefits of pipelines is the ability to create reusable components
+                        that can be applied to different datasets:
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Reusable Pipeline Components</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/reusable_pipelines.cpp" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/pipe.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+// Define reusable pipeline components
+auto temperature_processor = df::make_pipe(
+    // Convert to Fahrenheit
+    df::bind_map&lt;double&gt;([](double celsius, size_t) {
+        return celsius * 9.0/5.0 + 32.0;
+    }),
+    
+    // Filter out freezing temperatures
+    df::bind_filter&lt;double&gt;([](double temp) {
+        return temp > 32.0;
+    })
+);
+
+int main() {
+    // Process multiple temperature datasets
+    df::Serie&lt;double&gt; winter_temps{-5.2, -3.1, 0.5, 2.8, -1.3, -7.2};
+    df::Serie&lt;double&gt; summer_temps{25.3, 28.6, 32.1, 30.4, 27.9, 26.5};
+    
+    // Apply the processing pipeline to each dataset
+    auto winter_processed = temperature_processor(winter_temps);
+    auto summer_processed = temperature_processor(summer_temps);
+    
+    std::cout << "Processed winter temperatures: " << winter_processed << std::endl;
+    std::cout << "Processed summer temperatures: " << summer_processed << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+                </section>
+
+                <section id="advanced-topic">
+                    <h2>Case Study: Weather Data Analysis</h2>
+                    <p>
+                        Now let's build a more comprehensive example that brings together all the concepts we've
+                        learned.
+                        We'll create a weather data analysis system that can:
+                    </p>
+                    <ul>
+                        <li>Load and parse weather data from a CSV file</li>
+                        <li>Clean and preprocess the data</li>
+                        <li>Perform statistical analysis</li>
+                        <li>Detect anomalies and patterns</li>
+                    </ul>
+
+                    <h3>Step 1: Defining the Data Structures</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>data_types.h</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/weather/data_types.h" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#pragma once
+#include &lt;string&gt;
+#include &lt;dataframe/Serie.h&gt;
+
+namespace weather {
+
+// Structure to hold a single weather record
+struct WeatherRecord {
+    std::string date;
+    double temperature;
+    double humidity;
+    double pressure;
+    double wind_speed;
+    double precipitation;
+    bool is_valid;
+    
+    // Default constructor
+    WeatherRecord() 
+        : temperature(0.0), humidity(0.0), pressure(0.0),
+          wind_speed(0.0), precipitation(0.0), is_valid(false) {}
+};
+
+using WeatherSerie = df::Serie&lt;WeatherRecord&gt;;
+using DateSerie = df::Serie&lt;std::string&gt;;
+using DoubleSerie = df::Serie&lt;double&gt;;
+using BoolSerie = df::Serie&lt;bool&gt;;
+
+} // namespace weather
+</code></pre>
+                    </div>
+
+                    <h3>Step 2: Loading and Parsing Data</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>data_loader.h</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/weather/data_loader.h" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#pragma once
+#include "data_types.h"
+#include &lt;dataframe/io/csv.h>
+#include &lt;string>
+#include &lt;stdexcept>
+
+namespace weather {
+
+class DataLoader {
+public:
+    // Load weather data from a CSV file
+    static WeatherSerie loadFromCSV(const std::string& filename) {
+        try {
+            // Use the built-in CSV reader to load the data
+            df::Dataframe data = df::io::read_csv(filename);
+            
+            // Now we need to convert the Dataframe (collection of series) to our WeatherSerie
+            std::vector&lt;WeatherRecord> records;
+            size_t n = data.size() > 0 ? data.get&lt;std::string>("date").size() : 0;
+            
+            for (size_t i = 0; i &lt; n; ++i) {
+                WeatherRecord record;
+                
+                record.date = data.get&lt;std::string>("date")[i];
+                record.temperature = data.get&lt;double>("temperature")[i];
+                record.humidity = data.get&lt;double>("humidity")[i];
+                record.pressure = data.get&lt;double>("pressure")[i];
+                record.wind_speed = data.get&lt;double>("wind_speed")[i];
+                record.precipitation = data.get&lt;double>("precipitation")[i];
+                record.is_valid = true;
+                
+                records.push_back(record);
+            }
+            
+            return WeatherSerie(records);
+        } catch (const std::exception& e) {
+            throw std::runtime_error("Failed to load CSV file: " + std::string(e.what()));
+        }
+    }
+};
+
+} // namespace weather
+</code></pre>
+                    </div>
+
+                    <h3>Step 3: Processing and Analyzing Data</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>data_processor.h</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/weather/data_processor.h" class="view-file-button" target="_blank">View full
+                                file</a>
+                        </div>
+                        <pre><code class="cpp">
+#pragma once
+#include "data_types.h"
+#include &lt;dataframe/pipe.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;dataframe/zip.h&gt;
+#include &lt;dataframe/unzip.h&gt;
+#include &lt;limits&gt;
+#include &lt;cmath&gt;
+
+namespace weather {
+
+class DataProcessor {
+public:
+    // Clean the data by removing invalid records
+    static WeatherSerie cleanData(const WeatherSerie& data) {
+        return data
+            | df::bind_filter&lt;WeatherRecord&gt;([](const WeatherRecord& record) {
+                return record.is_valid;
+              });
+    }
+    
+    // Extract temperature data for analysis
+    static DoubleSerie extractTemperatures(const WeatherSerie& data) {
+        return data.map([](const WeatherRecord& record, size_t) {
+            return record.temperature;
+        });
+    }
+    
+    // Calculate average temperature
+    static double calculateAverageTemperature(const WeatherSerie& data) {
+        auto temperatures = extractTemperatures(data);
+        
+        return temperatures.reduce([](double acc, double temp, size_t idx, const auto& serie) {
+            return acc + temp / serie.size();
+        }, 0.0);
+    }
+};
+
+} // namespace weather</code></pre>
+                    </div>
+
+                    <h3>Step 4: Building the Main Application</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>main.cpp</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            <a href="code/weather/main.cpp" class="view-file-button" target="_blank">View full file</a>
+                        </div>
+                        <pre><code class="cpp">
+#include "data_types.h"
+#include "data_loader.h"
+#include "data_processor.h"
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main(int argc, char* argv[]) {
+    try {
+        weather::WeatherSerie data;
+        
+        // Load data from file
+        if (argc > 1) {
+            std::string filename = argv[1];
+            std::cout << "Loading weather data from: " << filename << std::endl;
+            data = weather::DataLoader::loadFromCSV(filename);
+        } else {
+            std::cout << "No input file specified. Exiting." << std::endl;
+            return 1;
+        }
+        
+        std::cout << "Loaded " << data.size() << " weather records." << std::endl;
+        
+        // Clean the data
+        auto clean_data = weather::DataProcessor::cleanData(data);
+        std::cout << "After cleaning: " << clean_data.size() << " valid records." << std::endl;
+        
+        // Calculate average temperature
+        double avg_temp = weather::DataProcessor::calculateAverageTemperature(clean_data);
+        std::cout << "Average temperature: " << avg_temp << "°C" << std::endl;
+        
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3>Sample Output</h3>
+                    <pre class="output">
+Loading weather data from: weather_data.csv
+Loaded 365 weather records.
+After cleaning: 361 valid records.
+Average temperature: 15.37°C
+</pre>
+                </section>
+
+                <section id="conclusion">
+                    <h2>Conclusion</h2>
+                    <p>
+                        In this tutorial, we've explored how to use the DataFrame library to build comprehensive
+                        data analysis pipelines. We've covered:
+                    </p>
+                    <ul>
+                        <li>Creating and manipulating Series of various data types</li>
+                        <li>Applying basic operations like map, filter, and reduce</li>
+                        <li>Building expressive data pipelines using the functional programming paradigm</li>
+                        <li>Creating reusable pipeline components</li>
+                        <li>Implementing a complete weather data analysis system</li>
+                    </ul>
+
+                    <p>
+                        The functional approach provided by the DataFrame library makes complex data analysis tasks
+                        more manageable by breaking them down into composable, reusable operations. This leads to
+                        code that is more readable, maintainable, and expressive.
+                    </p>
+
+                    <p>
+                        For more advanced topics, refer to the API documentation, which covers additional features
+                        like KDTree for spatial queries, zip/unzip operations, and various mathematical functions.
+                    </p>
+
+                    <div class="next-steps">
+                        <h3>Next Steps</h3>
+                        <ul>
+                            <li><a href="examples.html">Explore more examples</a></li>
+                            <li><a href="index.html">Browse the API reference</a></li>
+                            <li><a href="https://github.com/fmaerten/dataframe" target="_blank">Visit the GitHub
+                                    repository</a></li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Additional styles specific to the tutorial page */
+        .tutorial-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tutorial-sidebar {
+            width: 250px;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 20px;
+        }
+
+        .tutorial-sidebar nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tutorial-sidebar nav li {
+            margin-bottom: 10px;
+        }
+
+        .tutorial-sidebar nav a {
+            display: block;
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all var(--transition-speed);
+        }
+
+        .tutorial-sidebar nav a:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        .tutorial-content {
+            flex: 1;
+            max-width: 900px;
+            padding-left: 30px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .tutorial-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 30px;
+        }
+
+        .tutorial-content section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tutorial-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .tutorial-content ul {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+
+        .tutorial-content li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .output {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin: 15px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .next-steps {
+            background-color: rgba(74, 111, 165, 0.1);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary-color);
+            margin-top: 30px;
+        }
+
+        .next-steps h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .next-steps ul {
+            padding-left: 20px;
+        }
+
+        .next-steps a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .next-steps a:hover {
+            text-decoration: underline;
+        }
+
+        .view-file-button {
+            display: inline-block;
+            margin-left: 10px;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all var(--transition-speed);
+        }
+
+        .view-file-button:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .tutorial-container {
+                flex-direction: column;
+            }
+
+            .tutorial-sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                padding-right: 0;
+                margin-bottom: 30px;
+            }
+
+            .tutorial-content {
+                padding-left: 0;
+                border-left: none;
+            }
+        }
+    </style>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('.tutorial-sidebar a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Active section highlighting based on scroll position
+            const sections = document.querySelectorAll('.tutorial-content section');
+            const navLinks = document.querySelectorAll('.tutorial-sidebar nav a');
+
+            function highlightActiveSection() {
+                let scrollPosition = window.scrollY;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 120;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        const targetLink = document.querySelector(`.tutorial-sidebar nav a[href="#${section.id}"]`);
+
+                        navLinks.forEach(link => {
+                            link.style.fontWeight = '400';
+                            link.style.backgroundColor = 'transparent';
+                        });
+
+                        if (targetLink) {
+                            targetLink.style.fontWeight = '600';
+                            targetLink.style.backgroundColor = 'rgba(74, 111, 165, 0.1)';
+                        }
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', highlightActiveSection);
+            highlightActiveSection(); // Initial check
+        });
+    </script>
+</body>
+
+</html>
