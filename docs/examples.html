@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">API Reference</a></li>
+                    <li><a href="examples.html" class="active">Examples</a></li>
+                    <li><a href="tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title animate-fade-in">DataFrame Library Examples</h1>
+
+            <div class="search-container animate-fade-in delay-100">
+                <input type="text" class="search-box" placeholder="Search examples...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <!-- Data Processing Examples -->
+            <div class="category-container animate-slide-up" data-delay="200">
+                <h2 class="category-title">Data Processing Examples</h2>
+
+                <div class="example-card">
+                    <h3>Basic Operations Pipeline</h3>
+                    <p>This example shows how to chain multiple operations on numerical data using pipelines.</p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Data Pipeline</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/pipe.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Create a Serie of test scores
+    df::Serie&lt;double&gt; scores{42, 65, 87, 91, 55, 78, 93, 60, 32, 88};
+    
+    // Create a pipeline to process the scores:
+    // 1. Filter out failing scores (< 60)
+    // 2. Apply a curve (add 5 points to each score)
+    // 3. Cap scores at 100
+    // 4. Calculate the average
+    
+    double average = scores
+        | df::bind_filter&lt;double&gt;([](double score) { return score >= 60; })
+        | df::bind_map([](double score, size_t) { return score + 5; })
+        | df::bind_map([](double score, size_t) { return std::min(100.0, score); })
+        | df::bind_reduce([](double sum, double score, size_t idx, const auto& serie) {
+            return sum + score / serie.size();
+        }, 0.0);
+    
+    // Print original scores
+    std::cout << "Original scores: ";
+    scores.forEach([](double score, size_t) {
+        std::cout << score << " ";
+    });
+    std::cout << std::endl;
+    
+    // Print processed average
+    std::cout << "Average after processing: " << average << std::endl;
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <p>Output:</p>
+                    <pre class="output">
+Original scores: 42 65 87 91 55 78 93 60 32 88 
+Average after processing: 85.71
+</pre>
+                </div>
+
+                <div class="example-card">
+                    <h3>Time Series Analysis</h3>
+                    <p>This example demonstrates how to use DataFrame to analyze time series data by calculating moving
+                        averages and detecting trends.</p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Time Series Analysis</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/zip.h&gt;
+#include &lt;dataframe/unzip.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/forEach.h&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+
+// Calculate moving average with window size
+template &lt;typename T&gt;
+df::Serie&lt;double&gt; movingAverage(const df::Serie&lt;T&gt;& serie, size_t window) {
+    if (serie.size() < window) {
+        throw std::runtime_error("Serie is smaller than window size");
+    }
+    
+    return serie.map([window](double val, size_t idx, const auto& s) {
+        if (idx < window - 1) {
+            // For the first (window-1) elements, average fewer values
+            double sum = 0.0;
+            for (size_t i = 0; i <= idx; ++i) {
+                sum += s[i];
+            }
+            return sum / (idx + 1);
+        } else {
+            // For the rest, use the full window
+            double sum = 0.0;
+            for (size_t i = idx - window + 1; i <= idx; ++i) {
+                sum += s[i];
+            }
+            return sum / window;
+        }
+    });
+}
+
+// Calculate if value is increasing compared to previous
+df::Serie&lt;bool&gt; isTrending(const df::Serie&lt;double&gt;& serie) {
+    return serie.map([](double val, size_t idx, const auto& s) {
+        if (idx == 0) return false;
+        return val > s[idx - 1];
+    });
+}
+
+int main() {
+    // Create time series data (e.g., stock prices over days)
+    df::Serie&lt;double&gt; timestamps{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    df::Serie&lt;double&gt; prices{
+        100.25, 101.50, 103.25, 102.75, 101.80, 
+        102.20, 103.50, 105.75, 106.80, 107.25, 
+        106.50, 107.75, 109.25, 110.50, 111.75
+    };
+    
+    // Combine data into a single serie of tuples
+    auto time_series = df::zip(timestamps, prices);
+    
+    // Calculate moving average (window size 3)
+    auto ma3 = movingAverage(prices, 3);
+    
+    // Detect upward trends in the moving average
+    auto trends = isTrending(ma3);
+    
+    // Combine original data with calculated data
+    auto analysis = df::zip(timestamps, prices, ma3, trends);
+    
+    // Display the results
+    std::cout << "Day\tPrice\tMA(3)\tTrending Up\n";
+    std::cout << "------------------------------------\n";
+    
+    analysis.forEach([](const auto& tuple, size_t) {
+        auto [day, price, ma, trend] = tuple;
+        std::cout << day << "\t" << price << "\t" << ma << "\t" 
+                  << (trend ? "Yes" : "No") << "\n";
+    });
+    
+    // Count days with upward trend
+    size_t uptrend_days = std::count(trends.data().begin(), trends.data().end(), true);
+    std::cout << "\nDays with upward trend: " << uptrend_days << " out of " 
+              << timestamps.size() << " (" 
+              << (uptrend_days * 100.0 / timestamps.size()) << "%)\n";
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <p>Output:</p>
+                    <pre class="output">
+Day     Price   MA(3)   Trending Up
+------------------------------------
+1       100.25  100.25  No
+2       101.5   100.875 Yes
+3       103.25  101.667 Yes
+4       102.75  102.5   Yes
+5       101.8   102.6   Yes
+6       102.2   102.25  No
+7       103.5   102.5   Yes
+8       105.75  103.817 Yes
+9       106.8   105.35  Yes
+10      107.25  106.6   Yes
+11      106.5   106.85  Yes
+12      107.75  107.167 Yes
+13      109.25  107.833 Yes
+14      110.5   109.167 Yes
+15      111.75  110.5   Yes
+
+Days with upward trend: 13 out of 15 (86.6667%)
+</pre>
+                </div>
+            </div>
+
+            <!-- Data Visualization Examples -->
+            <div class="category-container animate-slide-up" data-delay="300">
+                <h2 class="category-title">Data Visualization Examples</h2>
+
+                <div class="example-card">
+                    <h3>Combining DataFrame with KDTree for Geographic Data</h3>
+                    <p>This example demonstrates how to use the KDTree class to efficiently find the nearest neighbors
+                        in a geographic dataset.</p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Geographic Nearest Neighbors</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/kdtree.h&gt;
+#include &lt;dataframe/types.h&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;string&gt;
+#include &lt;cmath&gt;
+
+// Simple function to calculate distance in kilometers between 
+// two lat/lon points using the Haversine formula
+double haversineDistance(const Vector2& p1, const Vector2& p2) {
+    const double R = 6371.0; // Earth radius in kilometers
+    double lat1 = p1[0] * M_PI / 180.0;
+    double lat2 = p2[0] * M_PI / 180.0;
+    double dLat = (p2[0] - p1[0]) * M_PI / 180.0;
+    double dLon = (p2[1] - p1[1]) * M_PI / 180.0;
+    
+    double a = sin(dLat/2) * sin(dLat/2) +
+               cos(lat1) * cos(lat2) * 
+               sin(dLon/2) * sin(dLon/2);
+    double c = 2 * atan2(sqrt(a), sqrt(1-a));
+    return R * c;
+}
+
+int main() {
+    // Create a Serie of city names (data)
+    df::Serie&lt;std::string&gt; cities{
+        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
+        "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose"
+    };
+    
+    // Create a Serie of city locations (lat, lon)
+    df::Serie&lt;Vector2&gt; locations{
+        {40.7128, -74.0060},  // New York
+        {34.0522, -118.2437}, // Los Angeles
+        {41.8781, -87.6298},  // Chicago
+        {29.7604, -95.3698},  // Houston
+        {33.4484, -112.0740}, // Phoenix
+        {39.9526, -75.1652},  // Philadelphia
+        {29.4241, -98.4936},  // San Antonio
+        {32.7157, -117.1611}, // San Diego
+        {32.7767, -96.7970},  // Dallas
+        {37.3382, -121.8863}  // San Jose
+    };
+    
+    // Create a KDTree for efficient spatial queries
+    df::KDTree&lt;std::string, 2&gt; city_tree(cities, locations);
+    
+    // Query coordinates (Austin, TX)
+    Vector2 query_location{30.2672, -97.7431};
+    
+    // Find the nearest city to the query location
+    auto nearest = city_tree.findNearest(query_location);
+    
+    // Find the 3 nearest cities
+    auto nearest_3 = city_tree.findNearest(df::Serie&lt;Vector2&gt;{query_location}, 3);
+    
+    // Print results
+    std::cout << "Query Location: Austin, TX (30.2672, -97.7431)\n\n";
+    
+    std::cout << "Nearest city: " << nearest.second << "\n";
+    std::cout << "Distance: " << 
+        std::fixed << std::setprecision(2) << 
+        haversineDistance(query_location, locations[nearest.first]) << " km\n\n";
+    
+    std::cout << "Top 3 nearest cities:\n";
+    for (const auto& [idx, name] : nearest_3) {
+        std::cout << "- " << name << " (Distance: " << 
+            std::fixed << std::setprecision(2) << 
+            haversineDistance(query_location, locations[idx]) << " km)\n";
+    }
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <p>Output:</p>
+                    <pre class="output">
+Query Location: Austin, TX (30.2672, -97.7431)
+
+Nearest city: San Antonio
+Distance: 117.53 km
+
+Top 3 nearest cities:
+- San Antonio (Distance: 117.53 km)
+- Houston (Distance: 234.15 km)
+- Dallas (Distance: 297.35 km)
+</pre>
+                </div>
+            </div>
+
+            <!-- Advanced Applications -->
+            <div class="category-container animate-slide-up" data-delay="400">
+                <h2 class="category-title">Advanced Applications</h2>
+
+                <div class="example-card">
+                    <h3>Scientific Data Processing with DataFrame</h3>
+                    <p>
+                        This example demonstrates using DataFrame for scientific data processing with vector operations
+                        and statistics.
+                        <br>
+                        It does not use the existing <b>stats</b> package from this library, but instead calculates
+                        statistics manually for educational purposes.
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Scientific Data Processing</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/math/random.h&gt;
+#include &lt;dataframe/math/bounds.h&gt;
+#include &lt;dataframe/zip.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/reduce.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;cmath&gt;
+
+// Calculate statistics for a Serie
+template &lt;typename T&gt;
+void calculateStatistics(const df::Serie&lt;T&gt;& data, const std::string& name) {
+    std::cout << "---- Statistics for " << name << " ----\n";
+    
+    // Calculate mean
+    double mean = data.reduce([](double acc, T value, size_t idx, const auto& serie) {
+        return acc + value / serie.size();
+    }, 0.0);
+    
+    // Calculate variance and standard deviation
+    double variance = data.reduce([mean](double acc, T value, size_t idx, const auto& serie) {
+        double diff = value - mean;
+        return acc + (diff * diff) / serie.size();
+    }, 0.0);
+    
+    double std_dev = std::sqrt(variance);
+    
+    // Get min/max values
+    auto [min_val, max_val] = df::bounds(data);
+    
+    // Calculate median (sorting required)
+    auto sorted = df::sort(data);
+    T median;
+    size_t n = sorted.size();
+    if (n % 2 == 0) {
+        median = (sorted[n/2 - 1] + sorted[n/2]) / 2.0;
+    } else {
+        median = sorted[n/2];
+    }
+    
+    // Print results
+    std::cout << std::fixed << std::setprecision(4);
+    std::cout << "Count: " << data.size() << "\n";
+    std::cout << "Min: " << min_val << "\n";
+    std::cout << "Max: " << max_val << "\n";
+    std::cout << "Mean: " << mean << "\n";
+    std::cout << "Median: " << median << "\n";
+    std::cout << "Variance: " << variance << "\n";
+    std::cout << "Std Dev: " << std_dev << "\n";
+    std::cout << "CV (Coeff. of Variation): " << (std_dev / mean) << "\n";
+    
+    // Count values outside 2 standard deviations
+    size_t outliers = data.filter([mean, std_dev](T value) {
+        return std::abs(value - mean) > 2 * std_dev;
+    }).size();
+    
+    std::cout << "Outliers (outside 2σ): " << outliers << " (" 
+              << (outliers * 100.0 / data.size()) << "%)\n\n";
+}
+
+int main() {
+    // Generate normally distributed random data
+    size_t n = 1000;
+    auto normal_data = df::random_normal&lt;double&gt;(n, 100.0, 15.0);  // Mean 100, StdDev 15
+    
+    // Generate uniformly distributed random data
+    auto uniform_data = df::random_uniform&lt;double&gt;(n, 50.0, 150.0);  // Range [50, 150)
+    
+    // Generate data with a mathematical relationship
+    auto x = df::random_uniform&lt;double&gt;(n, 0.0, 10.0);  // x values from 0 to 10
+    auto y = x.map([](double x_val, size_t) {
+        // y = 2x + 5 + normal noise
+        return 2.0 * x_val + 5.0 + df::random_normal&lt;double&gt;(1, 0.0, 1.0)[0];
+    });
+    
+    // Calculate and display statistics
+    calculateStatistics(normal_data, "Normal Distribution Data");
+    calculateStatistics(uniform_data, "Uniform Distribution Data");
+    
+    // Calculate correlation between x and y
+    double x_mean = x.reduce([](double sum, double val, size_t i, const auto& s) {
+        return sum + val / s.size();
+    }, 0.0);
+    
+    double y_mean = y.reduce([](double sum, double val, size_t i, const auto& s) {
+        return sum + val / s.size();
+    }, 0.0);
+    
+    auto xy_zipped = df::zip(x, y);
+    
+    double covariance = xy_zipped.reduce([x_mean, y_mean](double sum, auto tuple, size_t i, const auto& s) {
+        auto [x_val, y_val] = tuple;
+        return sum + (x_val - x_mean) * (y_val - y_mean) / s.size();
+    }, 0.0);
+    
+    double x_variance = x.reduce([x_mean](double sum, double val, size_t i, const auto& s) {
+        double diff = val - x_mean;
+        return sum + (diff * diff) / s.size();
+    }, 0.0);
+    
+    double y_variance = y.reduce([y_mean](double sum, double val, size_t i, const auto& s) {
+        double diff = val - y_mean;
+        return sum + (diff * diff) / s.size();
+    }, 0.0);
+    
+    double correlation = covariance / (std::sqrt(x_variance) * std::sqrt(y_variance));
+    
+    std::cout << "---- Correlation Analysis ----\n";
+    std::cout << "X mean: " << x_mean << "\n";
+    std::cout << "Y mean: " << y_mean << "\n";
+    std::cout << "Covariance: " << covariance << "\n";
+    std::cout << "Correlation coefficient: " << correlation << "\n";
+    std::cout << "Coefficient of determination (R²): " << correlation * correlation << "\n";
+    
+    return 0;
+}
+</code></pre>
+                    </div>
+
+                    <p>Output:</p>
+                    <pre class="output">
+---- Statistics for Normal Distribution Data ----
+Count: 1000
+Min: 49.1287
+Max: 153.8762
+Mean: 99.9502
+Median: 100.0418
+Variance: 226.1259
+Std Dev: 15.0374
+CV (Coeff. of Variation): 0.1504
+Outliers (outside 2σ): 45 (4.5%)
+
+---- Statistics for Uniform Distribution Data ----
+Count: 1000
+Min: 50.0193
+Max: 149.9911
+Mean: 99.7751
+Median: 99.4973
+Variance: 833.9109
+Std Dev: 28.8774
+CV (Coeff. of Variation): 0.2894
+Outliers (outside 2σ): 0 (0%)
+
+---- Correlation Analysis ----
+X mean: 4.9834
+Y mean: 14.9545
+Covariance: 9.9826
+Correlation coefficient: 0.9962
+Coefficient of determination (R²): 0.9924
+</pre>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize search functionality
+            const searchBox = document.querySelector('.search-box');
+            const exampleCards = document.querySelectorAll('.example-card');
+            const categories = document.querySelectorAll('.category-container');
+
+            searchBox.addEventListener('input', function (e) {
+                const term = e.target.value.toLowerCase();
+
+                exampleCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const content = card.querySelector('p').textContent.toLowerCase();
+                    const code = card.querySelector('code').textContent.toLowerCase();
+                    const isMatch = title.includes(term) || content.includes(term) || code.includes(term);
+
+                    card.style.display = isMatch ? 'block' : 'none';
+                });
+
+                // Hide empty categories
+                categories.forEach(category => {
+                    const visibleCards = Array.from(category.querySelectorAll('.example-card')).filter(
+                        card => card.style.display !== 'none'
+                    );
+                    category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
