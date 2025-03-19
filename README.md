@@ -60,6 +60,8 @@ A modern C++ library for data manipulation with a focus on functional programmin
 
 Only headers. No linking!
 
+# [Read the doc (in progress...)](https://xaliphostes.github.io/dataframe/)
+
 ## Features
 
 - Generic series container (`Serie<T>`) for any data type (similar to a column in Excel sheet)
