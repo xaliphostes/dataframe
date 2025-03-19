@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>filter Function - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">filter</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>The filter function creates a new Serie containing only elements that satisfy a predicate function. 
+                   It's useful for selecting a subset of data that meets specific criteria without modifying the original 
+                   Serie.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Function Signatures</h2>
+                <pre><code class="cpp">
+          // Free function version with index
+          template &lt;typename T&gt;
+          Serie&lt;T&gt; filter(std::function&lt;bool(const T&, size_t)&gt; predicate, 
+                          const Serie&lt;T&gt;& serie);
+          
+          // Free function version without index
+          template &lt;typename T&gt;
+          Serie&lt;T&gt; filter(std::function&lt;bool(const T&)&gt; predicate, 
+                          const Serie&lt;T&gt;& serie);
+          
+          // Member function version
+          template &lt;typename F&gt;
+          Serie&lt;T&gt; Serie&lt;T&gt;::filter(F&& predicate) const;
+          
+          // Bound version for pipeline operations with index
+          template &lt;typename T&gt;
+          auto bind_filter(std::function&lt;bool(const T&, size_t)&gt; predicate);
+          
+          // Bound version for pipeline operations without index
+          template &lt;typename T&gt;
+          auto bind_filter(std::function&lt;bool(const T&)&gt; predicate);
+        </code></pre>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Parameters</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">predicate</span></td>
+                            <td><span class="param-type">Function</span></td>
+                            <td>Function that takes an element (and optionally its index) and returns a boolean value. 
+                                If the predicate returns true, the element is included in the result; otherwise, it's excluded.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">serie</span></td>
+                            <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+                            <td>The Serie to filter.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>A new Serie containing only the elements for which the predicate returns true. The returned Serie has 
+                   the same element type as the input Serie but may have fewer elements.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Filtering Examples</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+// Filter even numbers using free function
+auto even_numbers = df::filter([](int value) {
+    return value % 2 == 0;
+}, numbers);
+// even_numbers = {2, 4, 6, 8, 10}
+
+// Filter odd numbers using member function
+auto odd_numbers = numbers.filter([](int value) {
+    return value % 2 != 0;
+});
+// odd_numbers = {1, 3, 5, 7, 9}
+
+// Filter numbers greater than 5
+auto greater_than_five = df::filter([](int value) {
+    return value > 5;
+}, numbers);
+// greater_than_five = {6, 7, 8, 9, 10}
+
+// Filter using index (keep elements at even indices)
+auto even_indices = df::filter([](int, size_t idx) {
+    return idx % 2 == 0;
+}, numbers);
+// even_indices = {1, 3, 5, 7, 9} (elements at indices 0, 2, 4, 6, 8)</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Complex Filtering</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of different types
+df::Serie&lt;double&gt; temperatures{-5.2, 10.8, 15.4, -2.3, 22.1, 8.7, -8.9, 30.5};
+
+// Filter positive temperatures
+auto positive_temps = temperatures.filter([](double temp) {
+    return temp > 0;
+});
+// positive_temps = {10.8, 15.4, 22.1, 8.7, 30.5}
+
+// Filter temperatures in a specific range
+auto comfortable_temps = temperatures.filter([](double temp) {
+    return temp >= 18.0 && temp <= 25.0;
+});
+// comfortable_temps = {22.1}
+
+// Custom object filtering
+struct Person {
+    std::string name;
+    int age;
+    std::string city;
+};
+
+df::Serie&lt;Person&gt; people{
+    {"Alice", 28, "New York"},
+    {"Bob", 35, "Chicago"},
+    {"Charlie", 22, "New York"},
+    {"Diana", 41, "Boston"},
+    {"Eve", 19, "Chicago"}
+};
+
+// Filter people from New York
+auto new_yorkers = people.filter([](const Person& p) {
+    return p.city == "New York";
+});
+// new_yorkers = {{"Alice", 28, "New York"}, {"Charlie", 22, "New York"}}
+
+// Filter people older than 30
+auto over_thirty = people.filter([](const Person& p) {
+    return p.age > 30;
+});
+// over_thirty = {{"Bob", 35, "Chicago"}, {"Diana", 41, "Boston"}}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Pipeline Examples</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+// Use bind_filter in a pipeline
+auto even_squared = numbers
+    | df::bind_filter&lt;int&gt;([](int value) { return value % 2 == 0; })  // Keep only even numbers
+    | df::bind_map([](int value, size_t) { return value * value; });   // Square the results
+// even_squared = {4, 16, 36, 64, 100}
+
+// Multiple filters in a pipeline
+auto result = numbers
+    | df::bind_filter&lt;int&gt;([](int value) { return value > 3; })       // Keep numbers > 3
+    | df::bind_filter&lt;int&gt;([](int value) { return value < 9; })       // Keep numbers < 9
+    | df::bind_map([](int value, size_t) { return value * 10; });      // Multiply by 10
+// result = {40, 50, 60, 70, 80}
+
+// Complex pipeline with filter and other operations
+df::Serie&lt;double&gt; values{-2.5, 3.7, -1.2, 4.8, -0.9, 6.2, -3.3};
+auto processed = values
+    | df::bind_filter&lt;double&gt;([](double value) { return value > 0; })  // Keep positive values
+    | df::bind_map([](double value, size_t) { return std::sqrt(value); })  // Take square root
+    | df::bind_filter&lt;double&gt;([](double value) { return value > 2.0; });  // Keep values > 2.0
+// processed = {2.19, 2.49}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>The filter function creates a new Serie and doesn't modify the original Serie.</li>
+                    <li>If no elements satisfy the predicate, an empty Serie is returned.</li>
+                    <li>The order of elements in the result is preserved from the original Serie.</li>
+                    <li>The filter function evaluates the predicate once for each element in the Serie.</li>
+                    <li>The index parameter in the predicate function is optional.</li>
+                    <li>In pipeline operations with multiple filters, the filters are applied sequentially from left to right.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="map.html" class="related-function">map</a>
+                    <a href="forEach.html" class="related-function">forEach</a>
+                    <a href="reduce.html" class="related-function">reduce</a>
+                    <a href="if_then_else.html" class="related-function">if_then_else</a>
+                    <a href="pipe.html" class="related-function">pipe</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

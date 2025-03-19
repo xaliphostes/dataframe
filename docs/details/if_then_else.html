@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>if_then_else Function - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">if_then_else</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>The if_then_else function applies conditional transformations to each element in a Serie. For each element,
+                   it evaluates a condition and applies either a "true" transformation or a "false" transformation based on
+                   the result. This provides a powerful way to selectively transform elements without using multiple operations.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Function Signatures</h2>
+                <pre><code class="cpp">
+          // Full version with index parameter
+          template &lt;typename T, typename R&gt;
+          Serie&lt;R&gt; if_then_else(const Serie&lt;T&gt; &serie,
+                               std::function&lt;bool(const T&, size_t)&gt; condition,
+                               std::function&lt;R(const T&, size_t)&gt; true_transform,
+                               std::function&lt;R(const T&, size_t)&gt; false_transform);
+          
+          // Simplified version without index parameter
+          template &lt;typename T, typename R&gt;
+          Serie&lt;R&gt; if_then_else(const Serie&lt;T&gt; &serie,
+                               std::function&lt;bool(const T&)&gt; condition,
+                               std::function&lt;R(const T&)&gt; true_transform,
+                               std::function&lt;R(const T&)&gt; false_transform);
+          
+          // Bound version for pipeline operations with index
+          template &lt;typename T, typename R&gt;
+          auto bind_if_then_else(std::function&lt;bool(const T&, size_t)&gt; condition,
+                                std::function&lt;R(const T&, size_t)&gt; true_transform,
+                                std::function&lt;R(const T&, size_t)&gt; false_transform);
+          
+          // Simplified bound version without index parameter
+          template &lt;typename T, typename R&gt;
+          auto bind_if_then_else(std::function&lt;bool(const T&)&gt; condition,
+                                std::function&lt;R(const T&)&gt; true_transform,
+                                std::function&lt;R(const T&)&gt; false_transform);
+        </code></pre>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Parameters</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">serie</span></td>
+                            <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+                            <td>The input Serie to apply conditional transformations to.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">condition</span></td>
+                            <td><span class="param-type">Function</span></td>
+                            <td>Function that takes an element (and optionally its index) and returns a boolean value.
+                                This determines which transformation is applied to each element.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">true_transform</span></td>
+                            <td><span class="param-type">Function</span></td>
+                            <td>Function that takes an element (and optionally its index) and returns a transformed value.
+                                This is applied when the condition returns true.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">false_transform</span></td>
+                            <td><span class="param-type">Function</span></td>
+                            <td>Function that takes an element (and optionally its index) and returns a transformed value.
+                                This is applied when the condition returns false.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>A new Serie where each element has been transformed according to the condition. The type of elements in the
+                   returned Serie corresponds to the return type of the transformation functions (type R), which may be
+                   different from the input Serie's element type.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Conditional Transformations</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;int&gt; numbers{-5, -2, 0, 3, 7, -1, 4};
+
+// Replace negative values with zero, keep positive values
+auto non_negative = df::if_then_else&lt;int, int&gt;(numbers,
+    [](int x) { return x < 0; },          // condition: is negative?
+    [](int) { return 0; },                // true transform: return 0
+    [](int x) { return x; });             // false transform: keep original value
+// non_negative = {0, 0, 0, 3, 7, 0, 4}
+
+// Take absolute values
+auto absolute = df::if_then_else&lt;int, int&gt;(numbers,
+    [](int x) { return x < 0; },          // condition: is negative?
+    [](int x) { return -x; },             // true transform: negate
+    [](int x) { return x; });             // false transform: keep original value
+// absolute = {5, 2, 0, 3, 7, 1, 4}
+
+// Classify values as "positive", "negative", or "zero"
+auto categories = df::if_then_else&lt;int, std::string&gt;(numbers,
+    [](int x) { return x == 0; },         // condition: is zero?
+    [](int) { return "zero"; },           // true transform: "zero"
+    [](int x) { return x > 0 ? "positive" : "negative"; });  // false transform: check sign
+// categories = {"negative", "negative", "zero", "positive", "positive", "negative", "positive"}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Conditional Transformations with Index</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+// For even indices, square the value; for odd indices, double the value
+auto transformed = df::if_then_else&lt;int, int&gt;(numbers,
+    [](int, size_t idx) { return idx % 2 == 0; },  // condition: even index?
+    [](int x, size_t) { return x * x; },           // true transform: square
+    [](int x, size_t) { return x * 2; });          // false transform: double
+// transformed = {1, 4, 9, 8, 25, 12, 49, 16, 81, 20}
+
+// Convert values to strings with position-dependent format
+auto formatted = df::if_then_else&lt;int, std::string&gt;(numbers,
+    [](int, size_t idx) { return idx < 5; },       // condition: first half?
+    [](int x, size_t idx) {                        // true transform: format with index
+        return "Pos " + std::to_string(idx) + ": " + std::to_string(x);
+    },
+    [](int x, size_t) {                            // false transform: simple format
+        return "Val: " + std::to_string(x);
+    });
+// formatted = {"Pos 0: 1", "Pos 1: 2", "Pos 2: 3", "Pos 3: 4", "Pos 4: 5", 
+//             "Val: 6", "Val: 7", "Val: 8", "Val: 9", "Val: 10"}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Working with Complex Data Types</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Define a structure for a point
+struct Point {
+    double x;
+    double y;
+};
+
+// Create a Serie of points
+df::Serie&lt;Point&gt; points{
+    {1.0, 2.0}, {-3.0, 4.0}, {5.0, -6.0}, {-7.0, -8.0}, {9.0, 10.0}
+};
+
+// Reflect points that have a negative x-coordinate across the y-axis
+auto reflected = df::if_then_else&lt;Point, Point&gt;(points,
+    [](const Point& p) { return p.x < 0; },       // condition: negative x?
+    [](const Point& p) { return Point{-p.x, p.y}; }, // true transform: reflect x
+    [](const Point& p) { return p; });            // false transform: keep original
+// reflected = {{1.0, 2.0}, {3.0, 4.0}, {5.0, -6.0}, {7.0, -8.0}, {9.0, 10.0}}
+
+// Compute distance from origin or norm depending on quadrant
+auto metrics = df::if_then_else&lt;Point, double&gt;(points,
+    [](const Point& p) { return p.x >= 0 && p.y >= 0; },  // condition: first quadrant?
+    [](const Point& p) {                                  // true transform: distance
+        return std::sqrt(p.x * p.x + p.y * p.y);
+    },
+    [](const Point& p) {                                  // false transform: norm
+        return std::abs(p.x) + std::abs(p.y);
+    });
+// metrics = {2.236..., 7.0, 11.0, 15.0, 13.453...}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Pipeline Examples</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;double&gt; values{-5.5, 3.2, -1.7, 0.0, 4.8, -3.3, 2.1};
+
+// Use bind_if_then_else in a pipeline
+auto processed = values
+    | df::bind_map([](double x, size_t) { return x * 2; })  // Double all values
+    | df::bind_if_then_else&lt;double, double&gt;(
+        [](double x) { return x < 0; },                     // condition: negative?
+        [](double x) { return x * x; },                     // true transform: square
+        [](double x) { return x; }                          // false transform: keep as is
+    );
+// processed = {121.0, 6.4, 11.56, 0.0, 9.6, 43.56, 4.2}
+
+// Chain multiple if_then_else operations
+auto multi_conditions = values
+    | df::bind_if_then_else&lt;double, double&gt;(
+        [](double x) { return x < 0; },                     // condition: negative?
+        [](double x) { return -x; },                        // true transform: absolute value
+        [](double x) { return x; }                          // false transform: keep as is
+    )
+    | df::bind_if_then_else&lt;double, std::string&gt;(
+        [](double x) { return x > 3.0; },                   // condition: greater than 3?
+        [](double x) { return "High: " + std::to_string(x); },  // true transform
+        [](double x) { return "Low: " + std::to_string(x); }    // false transform
+    );
+// multi_conditions = {"High: 5.5", "High: 3.2", "Low: 1.7", "Low: 0", "High: 4.8", "High: 3.3", "Low: 2.1"}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>The if_then_else function creates a new Serie without modifying the original Serie.</li>
+                    <li>Both transformation functions are applied to every element; the condition determines which result is kept.</li>
+                    <li>The input and output types can be different, allowing for type conversions (e.g., numbers to strings).</li>
+                    <li>The condition and transformation functions can use the element index when needed.</li>
+                    <li>Multiple if_then_else operations can be chained in a pipeline to create complex conditional logic.</li>
+                    <li>Both transformation functions must return the same type (R), but this type can differ from the input Serie's type (T).</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="filter.html" class="related-function">filter</a>
+                    <a href="map.html" class="related-function">map</a>
+                    <a href="switch_case.html" class="related-function">switch_case</a>
+                    <a href="forEach.html" class="related-function">forEach</a>
+                    <a href="pipe.html" class="related-function">pipe</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

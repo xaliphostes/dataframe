@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zip Function - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">zip</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>The zip function combines multiple Series into a single Serie of tuples. Each tuple contains corresponding 
+                elements from the input Series at the same index position. This is useful for processing related data together 
+                or for combining separate but related Series into a unified structure that maintains the relationship 
+                between corresponding elements.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Function Signatures</h2>
+                <pre><code class="cpp">
+          // Binary zip (two Series)
+          template &lt;typename T, typename U&gt;
+          auto zip(const Serie&lt;T&gt; &serie1, const Serie&lt;U&gt; &serie2);
+          
+          // Variadic zip (multiple Series)
+          template &lt;typename T, typename... Args&gt;
+          auto zip(const Serie&lt;T&gt; &first, const Args &...rest);
+        </code></pre>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Parameters</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">serie1, serie2</span></td>
+                            <td><span class="param-type">const Serie&lt;T&gt;&, const Serie&lt;U&gt;&</span></td>
+                            <td>Two Series to zip together (binary version).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">first, rest...</span></td>
+                            <td><span class="param-type">const Serie&lt;T&gt;&, const Args&...</span></td>
+                            <td>Multiple Series to zip together (variadic version).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>A new Serie where each element is a tuple containing corresponding elements from all input Series.
+                   For the binary version, the return type is <code>Serie&lt;std::tuple&lt;T, U&gt;&gt;</code>. For the variadic version, 
+                   the return type is <code>Serie&lt;std::tuple&lt;T, Args::value_type...&gt;&gt;</code>.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Zipping of Two Series</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create two Series
+df::Serie&lt;std::string&gt; names{"Alice", "Bob", "Charlie"};
+df::Serie&lt;int&gt; ages{25, 32, 28};
+
+// Zip them together
+auto people = df::zip(names, ages);
+// people is a Serie&lt;std::tuple&lt;std::string, int&gt;&gt; containing:
+// {{"Alice", 25}, {"Bob", 32}, {"Charlie", 28}}
+
+// Access the tuples using structured binding
+people.forEach([](const auto& tuple, size_t idx) {
+    auto [name, age] = tuple;
+    std::cout << "Person " << idx << ": " << name << ", " << age << " years old" << std::endl;
+});
+
+// Output:
+// Person 0: Alice, 25 years old
+// Person 1: Bob, 32 years old
+// Person 2: Charlie, 28 years old</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Zipping Multiple Series</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create three Series representing different attributes
+df::Serie&lt;std::string&gt; names{"Alice", "Bob", "Charlie", "Diana"};
+df::Serie&lt;int&gt; ages{25, 32, 28, 41};
+df::Serie&lt;double&gt; heights{165.5, 180.2, 175.0, 162.8};
+
+// Zip all three Series together
+auto people = df::zip(names, ages, heights);
+// people is a Serie&lt;std::tuple&lt;std::string, int, double&gt;&gt;
+
+// Process the combined data
+people.forEach([](const auto& tuple, size_t) {
+    auto [name, age, height] = tuple;
+    std::cout << name << " is " << age << " years old and " 
+              << height << " cm tall" << std::endl;
+});
+
+// Output:
+// Alice is 25 years old and 165.5 cm tall
+// Bob is 32 years old and 180.2 cm tall
+// Charlie is 28 years old and 175 cm tall
+// Diana is 41 years old and 162.8 cm tall</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Processing Zipped Series with map</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create coordinate Series
+df::Serie&lt;double&gt; x_coords{1.0, 2.0, 3.0, 4.0, 5.0};
+df::Serie&lt;double&gt; y_coords{4.0, 5.0, 6.0, 7.0, 8.0};
+
+// Zip coordinates and calculate distances from origin
+auto points = df::zip(x_coords, y_coords);
+auto distances = points.map([](const auto& point, size_t) {
+    auto [x, y] = point;
+    return std::sqrt(x*x + y*y);  // Euclidean distance
+});
+// distances = {4.123, 5.385, 6.708, 8.062, 9.434}
+
+// Calculate 2D vector operations
+auto vector_sums = df::zip(x_coords, y_coords).map([](const auto& tuple, size_t) {
+    auto [x, y] = tuple;
+    return x + y;  // Sum of x and y components
+});
+// vector_sums = {5.0, 7.0, 9.0, 11.0, 13.0}
+
+// Create projected coordinates
+auto scaled_points = df::zip(x_coords, y_coords).map([](const auto& tuple, size_t) {
+    auto [x, y] = tuple;
+    return std::make_tuple(x * 2.0, y * 0.5);  // Scale x and y differently
+});
+// scaled_points is a Serie&lt;std::tuple&lt;double, double&gt;&gt; with scaled coordinates</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Working with Different Types</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Combining different data types
+df::Serie&lt;std::string&gt; categories{"A", "B", "C", "D"};
+df::Serie&lt;double&gt; values{10.5, 20.3, 15.7, 8.2};
+df::Serie&lt;bool&gt; flags{true, false, true, false};
+
+// Zip diverse types together
+auto mixed_data = df::zip(categories, values, flags);
+
+// Process heterogeneous data
+auto processed = mixed_data.map([](const auto& tuple, size_t) {
+    auto [category, value, flag] = tuple;
+    
+    // Create a formatted string based on tuple contents
+    std::string result = "Category " + category + ": ";
+    
+    if (flag) {
+        result += "Priority item, value = " + std::to_string(value);
+    } else {
+        result += "Regular item, value = " + std::to_string(value);
+    }
+    
+    return result;
+});
+// processed is a Serie&lt;std::string&gt; containing formatted descriptions
+
+// Filter zipped data
+auto filtered = mixed_data.filter([](const auto& tuple, size_t) {
+    auto [_, value, flag] = tuple;  // Underscore for unused category
+    return flag && value > 10.0;    // Select only priority items with high value
+});
+// filtered contains only elements where flag is true and value > 10.0</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Time Series Example</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create timestamp and measurement Series for a time series
+df::Serie&lt;double&gt; timestamps{0.0, 1.0, 2.0, 3.0, 4.0, 5.0};  // In seconds
+df::Serie&lt;double&gt; temperatures{20.5, 21.0, 21.5, 21.3, 20.8, 20.6};  // In Celsius
+
+// Zip time series data
+auto time_series = df::zip(timestamps, temperatures);
+
+// Calculate temperature changes (derivative)
+auto temperature_changes = time_series.map([](const auto& point, size_t idx, const auto& serie) {
+    if (idx == 0) return 0.0;  // No previous point for the first element
+    
+    auto [current_time, current_temp] = point;
+    auto [prev_time, prev_temp] = serie[idx-1];
+    
+    double time_delta = current_time - prev_time;
+    double temp_delta = current_temp - prev_temp;
+    
+    return temp_delta / time_delta;  // Temperature change rate (°C/s)
+});
+// temperature_changes = {0.0, 0.5, 0.5, -0.2, -0.5, -0.2}
+
+// Find periods of increasing temperature
+auto increasing_periods = df::zip(timestamps, temperature_changes)
+    .filter([](const auto& tuple, size_t) {
+        auto [_, rate] = tuple;
+        return rate > 0.0;
+    });
+// increasing_periods contains time points where temperature was increasing</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>All input Series must have the same size. If sizes differ, a runtime_error will be thrown.</li>
+                    <li>The order of elements in the input Series is preserved in the output Serie of tuples.</li>
+                    <li>The zip function is often used together with map to process related data points as a unit.</li>
+                    <li>The element types of the input Series can be completely different.</li>
+                    <li>To extract the individual Series back from a zipped Serie, use the unzip function.</li>
+                    <li>Tuples created by zip are read-only; to modify values, you'll need to create new tuples with map.</li>
+                    <li>When accessing tuple elements, you can use structured bindings (C++17 feature) for clearer code.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="unzip.html" class="related-function">unzip</a>
+                    <a href="map.html" class="related-function">map</a>
+                    <a href="filter.html" class="related-function">filter</a>
+                    <a href="forEach.html" class="related-function">forEach</a>
+                    <a href="pipe.html" class="related-function">pipe</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

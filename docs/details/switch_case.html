@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>switch_case Function - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">switch_case</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>The switch_case function applies different transformations to elements in a Serie based on multiple conditions.
+                   It evaluates a series of conditions for each element and applies the first matching transformation. If no
+                   condition matches, a default transformation is applied. This provides a powerful way to implement multi-branched
+                   conditional logic similar to a switch statement in imperative programming.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Function Signatures</h2>
+                <pre><code class="cpp">
+          // Main function
+          template &lt;typename T, typename R&gt;
+          Serie&lt;R&gt; switch_case(
+              const Serie&lt;T&gt; &serie,
+              const std::vector&lt;std::pair&lt;std::function&lt;bool(const T &)&gt;,
+                                      std::function&lt;R(const T &)&gt;&gt;&gt; &cases,
+              std::function&lt;R(const T &)&gt; default_case);
+          
+          // Bound version for pipeline operations
+          template &lt;typename T, typename R&gt;
+          auto bind_switch_case(
+              const std::vector&lt;std::pair&lt;std::function&lt;bool(const T &)&gt;,
+                                      std::function&lt;R(const T &)&gt;&gt;&gt; &cases,
+              std::function&lt;R(const T &)&gt; default_case);
+        </code></pre>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Parameters</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">serie</span></td>
+                            <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+                            <td>The input Serie to apply conditional transformations to.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">cases</span></td>
+                            <td><span class="param-type">std::vector&lt;std::pair&lt;condition, transform&gt;&gt;</span></td>
+                            <td>A vector of condition-transformation pairs. Each pair consists of:
+                                <ul>
+                                    <li>A condition function that takes an element and returns a boolean</li>
+                                    <li>A transformation function that takes an element and returns a transformed value</li>
+                                </ul>
+                                The pairs are evaluated in order, and the first matching condition's transformation is applied.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">default_case</span></td>
+                            <td><span class="param-type">std::function&lt;R(const T &)&gt;</span></td>
+                            <td>Default transformation to apply when no condition matches.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>A new Serie where each element has been transformed according to the first matching condition, or by the
+                   default transformation if no condition matches. The type of elements in the returned Serie (type R) may be
+                   different from the input Serie's element type.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Example: Grading System</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of test scores
+df::Serie&lt;double&gt; scores{95.0, 82.5, 67.0, 45.5, 78.0, 91.5, 59.0};
+
+// Convert scores to letter grades
+auto letter_grades = df::switch_case&lt;double, std::string&gt;(scores,
+    {
+        {[](double score) { return score >= 90.0; }, [](double) { return "A"; }},
+        {[](double score) { return score >= 80.0; }, [](double) { return "B"; }},
+        {[](double score) { return score >= 70.0; }, [](double) { return "C"; }},
+        {[](double score) { return score >= 60.0; }, [](double) { return "D"; }}
+    },
+    [](double) { return "F"; }  // default case
+);
+// letter_grades = {"A", "B", "C", "F", "C", "A", "F"}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Complex Example: Data Categorization</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Define a data point structure
+struct DataPoint {
+    double value;
+    std::string category;
+    bool is_valid;
+};
+
+// Create a Serie of data points
+df::Serie&lt;DataPoint&gt; data_points{
+    {1.2, "temperature", true},
+    {-5.0, "temperature", false},
+    {75.3, "humidity", true},
+    {101.2, "pressure", true},
+    {0.0, "pressure", false},
+    {42.8, "humidity", true}
+};
+
+// Process data points based on multiple criteria
+auto processed = df::switch_case&lt;DataPoint, std::string&gt;(data_points,
+    {
+        // Invalid data
+        {[](const DataPoint& d) { return !d.is_valid; }, 
+         [](const DataPoint& d) { return "Invalid " + d.category + " reading"; }},
+        
+        // Temperature criteria
+        {[](const DataPoint& d) { return d.category == "temperature" && d.value > 30.0; }, 
+         [](const DataPoint&) { return "High temperature"; }},
+        
+        {[](const DataPoint& d) { return d.category == "temperature"; }, 
+         [](const DataPoint&) { return "Normal temperature"; }},
+        
+        // Humidity criteria
+        {[](const DataPoint& d) { return d.category == "humidity" && d.value > 70.0; }, 
+         [](const DataPoint&) { return "High humidity"; }},
+        
+        {[](const DataPoint& d) { return d.category == "humidity"; }, 
+         [](const DataPoint&) { return "Normal humidity"; }}
+    },
+    [](const DataPoint& d) { return "Other reading: " + d.category; }  // default case
+);
+// processed = {"Normal temperature", "Invalid temperature reading", "High humidity", 
+//              "Other reading: pressure", "Invalid pressure reading", "Normal humidity"}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Numerical Processing Example</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of numbers
+df::Serie&lt;double&gt; values{-5.2, 0.0, 3.7, -2.1, 10.5, 0.01, -8.3, 25.0};
+
+// Apply different mathematical transformations based on value ranges
+auto transformed = df::switch_case&lt;double, double&gt;(values,
+    {
+        // For large positive values (> 10), take the square root
+        {[](double x) { return x > 10.0; }, 
+         [](double x) { return std::sqrt(x); }},
+        
+        // For small positive values (0 < x <= 10), square the value
+        {[](double x) { return x > 0.0 && x <= 10.0; }, 
+         [](double x) { return x * x; }},
+        
+        // For zero values, return 0
+        {[](double x) { return x == 0.0; }, 
+         [](double) { return 0.0; }}
+    },
+    // For negative values, take the absolute value and negate
+    [](double x) { return -std::abs(x); }
+);
+// transformed = {-5.2, 0.0, 13.69, -2.1, 3.24, 0.0001, -8.3, 5.0}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Pipeline Example</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of integers
+df::Serie&lt;int&gt; numbers{-10, -5, 0, 3, 7, 12, 15, 20};
+
+// Use bind_switch_case in a pipeline
+auto result = numbers
+    | df::bind_map([](int x, size_t) { return x * 2; })  // Double all values
+    | df::bind_switch_case&lt;int, std::string&gt;(
+        {
+            {[](int x) { return x < 0; }, 
+             [](int x) { return "Negative: " + std::to_string(x); }},
+             
+            {[](int x) { return x == 0; }, 
+             [](int) { return "Zero"; }},
+             
+            {[](int x) { return x > 0 && x < 20; }, 
+             [](int x) { return "Small Positive: " + std::to_string(x); }},
+             
+            {[](int x) { return x >= 20 && x < 30; }, 
+             [](int x) { return "Medium Positive: " + std::to_string(x); }}
+        },
+        [](int x) { return "Large Positive: " + std::to_string(x); }
+    );
+// result = {"Negative: -20", "Negative: -10", "Zero", "Small Positive: 6", 
+//           "Small Positive: 14", "Small Positive: 24", "Medium Positive: 30", "Large Positive: 40"}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>The switch_case function creates a new Serie without modifying the original Serie.</li>
+                    <li>The conditions are evaluated in order, and only the first matching condition's transformation is applied.</li>
+                    <li>If no condition matches, the default transformation is applied.</li>
+                    <li>All transformations (including the default case) must return the same type (R).</li>
+                    <li>The return type R can be different from the input Serie's element type T.</li>
+                    <li>The switch_case function is more flexible than if_then_else for handling multiple conditions.</li>
+                    <li>For performance reasons, avoid defining complex lambda functions inside the switch_case call for large Series.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="if_then_else.html" class="related-function">if_then_else</a>
+                    <a href="filter.html" class="related-function">filter</a>
+                    <a href="map.html" class="related-function">map</a>
+                    <a href="forEach.html" class="related-function">forEach</a>
+                    <a href="pipe.html" class="related-function">pipe</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

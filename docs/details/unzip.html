@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>unzip Function - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#tutorial">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">unzip</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>The unzip function splits a Serie of tuples into multiple individual Series, with each Serie
+                    containing
+                    the values from a specific component of the tuples. This is the reverse operation of the zip
+                    function and
+                    is useful for decomposing combined data back into separate Series for individual processing.</p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Function Signatures</h2>
+                <pre><code class="cpp">
+          // Main unzip function
+          template &lt;typename Tuple&gt; 
+          auto unzip(const Serie&lt;Tuple&gt; &serie);
+        </code></pre>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Parameters</h2>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">serie</span></td>
+                            <td><span class="param-type">const Serie&lt;Tuple&gt;&</span></td>
+                            <td>A Serie of tuples to be split into separate Series. The Tuple type is typically
+                                <code>std::tuple&lt;T1, T2, ...&gt;</code> where T1, T2, etc. are the types of the tuple
+                                components.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>A <code>std::tuple</code> of Series, where each Serie contains the values from one component of the
+                    input
+                    tuples. For a Serie of <code>std::tuple&lt;T1, T2, ...&gt;</code>, the return type will be
+                    <code>std::tuple&lt;Serie&lt;T1&gt;, Serie&lt;T2&gt;, ...&gt;</code>.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Unzipping of a Serie of Tuples</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of tuples (person data: name, age)
+using PersonTuple = std::tuple&lt;std::string, int&gt;;
+df::Serie&lt;PersonTuple&gt; people{
+    {"Alice", 25},
+    {"Bob", 32},
+    {"Charlie", 28},
+    {"Diana", 41}
+};
+
+// Unzip into separate Series
+auto unzipped = df::unzip(people);
+
+// Access individual Series from the tuple
+auto names = std::get&lt;0&gt;(unzipped);  // Serie&lt;std::string&gt; containing names
+auto ages = std::get&lt;1&gt;(unzipped);   // Serie&lt;int&gt; containing ages
+
+// Now we can work with each Serie separately
+std::cout << "Names: ";
+names.forEach([](const std::string& name, size_t) {
+    std::cout << name << " ";
+});
+// Output: Names: Alice Bob Charlie Diana
+
+std::cout << "\nAges: ";
+ages.forEach([](int age, size_t) {
+    std::cout << age << " ";
+});
+// Output: Ages: 25 32 28 41</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Unzipping Results of map Operations</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create Series for original data
+df::Serie&lt;double&gt; values{10.5, 20.3, 15.7, 8.2, 30.0};
+
+// Map to create derived data as tuples
+auto calculated = values.map([](double value, size_t) {
+    return std::make_tuple(
+        value,                  // Original value
+        value * 2,              // Doubled value
+        std::sqrt(value),       // Square root
+        value > 15.0            // Threshold check
+    );
+});
+// calculated is a Serie&lt;std::tuple&lt;double, double, double, bool&gt;&gt;
+
+// Unzip to separate individual results
+auto [originals, doubled, roots, above_threshold] = df::unzip(calculated);
+
+// Now we can work with each derived Serie
+auto sum_doubled = doubled.reduce([](double acc, double val, size_t) {
+    return acc + val;
+}, 0.0);
+// sum_doubled = 169.4
+
+auto valid_roots = df::zip(roots, above_threshold)
+    .filter([](const auto& tuple, size_t) {
+        auto [_, is_valid] = tuple;
+        return is_valid;
+    })
+    .map([](const auto& tuple, size_t) {
+        auto [root_value, _] = tuple;
+        return root_value;
+    });
+// valid_roots contains the square roots of values > 15.0</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Processing Time Series Data</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Serie of time-value pairs (simulating recorded data)
+using TimeValuePair = std::tuple&lt;double, double&gt;;
+df::Serie&lt;TimeValuePair&gt; recordings{
+    {0.0, 20.5},   // time (s), temperature (°C)
+    {1.0, 21.0},
+    {2.0, 21.5},
+    {3.0, 21.3},
+    {4.0, 20.8},
+    {5.0, 20.6}
+};
+
+// Unzip into separate time and value Series
+auto [times, temperatures] = df::unzip(recordings);
+
+// Calculate statistics on just the temperature values
+double avg_temp = temperatures.reduce([](double acc, double temp, size_t idx, const auto& serie) {
+    return acc + temp / serie.size();
+}, 0.0);
+// avg_temp ≈ 20.95
+
+double max_temp = temperatures.reduce([](double max_so_far, double temp, size_t) {
+    return std::max(max_so_far, temp);
+}, std::numeric_limits&lt;double&gt;::lowest());
+// max_temp = 21.5
+
+// Find timestamps where temperature exceeded a threshold
+auto high_temp_times = df::zip(times, temperatures)
+    .filter([](const auto& tuple, size_t) {
+        auto [_, temp] = tuple;
+        return temp > 21.0;
+    })
+    .map([](const auto& tuple, size_t) {
+        auto [time, _] = tuple;
+        return time;
+    });
+// high_temp_times = {2.0, 3.0}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Combining zip and unzip Operations</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create three coordinate Series for 3D points
+df::Serie&lt;double&gt; x{1.0, 2.0, 3.0, 4.0, 5.0};
+df::Serie&lt;double&gt; y{1.5, 2.5, 3.5, 4.5, 5.5};
+df::Serie&lt;double&gt; z{2.0, 3.0, 4.0, 5.0, 6.0};
+
+// Zip coordinates into 3D points
+auto points_3d = df::zip(x, y, z);
+// points_3d is a Serie&lt;std::tuple&lt;double, double, double&gt;&gt;
+
+// Project 3D points to 2D by dropping the z-coordinate
+auto points_2d = points_3d.map([](const auto& point, size_t) {
+    auto [x, y, _] = point;  // Ignore z-coordinate
+    return std::make_tuple(x, y);
+});
+// points_2d is a Serie&lt;std::tuple&lt;double, double&gt;&gt;
+
+// Unzip 2D points back to separate coordinate Series
+auto [new_x, new_y] = df::unzip(points_2d);
+
+// Compute distances from origin in 2D
+auto distances_2d = df::zip(new_x, new_y).map([](const auto& point, size_t) {
+    auto [x, y] = point;
+    return std::sqrt(x*x + y*y);
+});
+// distances_2d contains the Euclidean distances of the 2D points from origin
+
+// Transform and regroup data
+auto transformed_points = df::zip(x, y, z).map([](const auto& point, size_t) {
+    auto [x, y, z] = point;
+    // Scale x, rotate y and z
+    double new_x = x * 2.0;
+    double new_y = y * std::cos(0.5) - z * std::sin(0.5);
+    double new_z = y * std::sin(0.5) + z * std::cos(0.5);
+    return std::make_tuple(new_x, new_y, new_z);
+});
+
+// Extract new coordinates
+auto [scaled_x, rotated_y, rotated_z] = df::unzip(transformed_points);</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Working with Structures Using Derived Tuples</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Define a data structure
+struct Measurement {
+    double timestamp;
+    double temperature;
+    double pressure;
+    double humidity;
+    bool is_valid;
+};
+
+// Create a Serie of measurements
+df::Serie&lt;Measurement&gt; measurements{
+    {0.0, 25.3, 1013.2, 65.4, true},
+    {1.0, 25.7, 1012.8, 66.0, true},
+    {2.0, 26.1, 1012.5, 67.2, true},
+    {3.0, 26.5, 1012.0, 68.1, false},  // Invalid measurement
+    {4.0, 26.8, 1011.6, 68.5, true}
+};
+
+// Convert structures to tuples for unzipping
+auto measurement_tuples = measurements.map([](const Measurement& m, size_t) {
+    return std::make_tuple(m.timestamp, m.temperature, m.pressure, m.humidity, m.is_valid);
+});
+
+// Unzip into separate Series
+auto [timestamps, temperatures, pressures, humidities, validity_flags] = df::unzip(measurement_tuples);
+
+// Filter out invalid measurements while preserving data relationships
+auto valid_data = df::zip(timestamps, temperatures, pressures, humidities, validity_flags)
+    .filter([](const auto& tuple, size_t) {
+        return std::get&lt;4&gt;(tuple);  // Check validity flag
+    })
+    .map([](const auto& tuple, size_t) {
+        auto [t, temp, press, humid, _] = tuple;
+        return std::make_tuple(t, temp, press, humid);  // Exclude validity flag
+    });
+
+// Calculate temperature/humidity correlation for valid measurements
+auto [valid_times, valid_temps, valid_pressures, valid_humidities] = df::unzip(valid_data);
+
+// Process each measurement type independently
+auto temp_derivatives = calculateDerivatives(valid_times, valid_temps);
+auto pressure_derivatives = calculateDerivatives(valid_times, valid_pressures);
+auto humidity_derivatives = calculateDerivatives(valid_times, valid_humidities);
+
+// Where calculateDerivatives is a function like:
+template &lt;typename T&gt;
+df::Serie&lt;double&gt; calculateDerivatives(const df::Serie&lt;double&gt;& times, const df::Serie&lt;T&gt;& values) {
+    return df::zip(times, values).map([](auto tuple, size_t idx, const auto& series) {
+        if (idx == 0) return 0.0;  // No derivative for first point
+        auto [current_time, current_value] = tuple;
+        auto [prev_time, prev_value] = series[idx-1];
+        return (current_value - prev_value) / (current_time - prev_time);
+    });
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>The unzip function creates new Series without modifying the original Serie of tuples.</li>
+                    <li>The number of Series returned by unzip matches the number of components in each tuple.</li>
+                    <li>All tuples in the input Serie must have the same structure (same number and types of elements).
+                    </li>
+                    <li>The unzip function is the inverse of the zip function and is often used to separate combined
+                        data.</li>
+                    <li>When using the unzip function's return value, structured binding (C++17 feature) is recommended
+                        for clearer code.</li>
+                    <li>The tuple returned by unzip is a value, not a reference. Each Serie in the tuple is independent.
+                    </li>
+                    <li>The implementation uses template metaprogramming to handle tuples of any size efficiently.</li>
+                    <li>There is no bound version (bind_unzip) since unzip is typically used as a direct function call.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="zip.html" class="related-function">zip</a>
+                    <a href="map.html" class="related-function">map</a>
+                    <a href="filter.html" class="related-function">filter</a>
+                    <a href="forEach.html" class="related-function">forEach</a>
+                    <a href="reduce.html" class="related-function">reduce</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>
