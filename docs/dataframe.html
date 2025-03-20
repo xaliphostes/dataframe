@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataframe - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">API Reference</a></li>
+                    <li><a href="examples.html">Examples</a></li>
+                    <li><a href="tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">Dataframe</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>
+                    The <code>Dataframe</code> class is a collection of named <code>Serie</code> objects that can have
+                    different element types.
+                    It provides a convenient way to manage related data series with typed access, similar to a table or
+                    spreadsheet where
+                    each column can have a different data type.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Class Definition</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Dataframe Class Definition</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+namespace df {
+
+/**
+ * @brief A Dataframe is a collection of series.
+ */
+class Dataframe {
+  public:
+    Dataframe() = default;
+    ~Dataframe() = default;
+
+    /**
+     * @brief Add a serie to the Dataframe with the given name
+     * @throws std::runtime_error if a serie with this name already exists
+     */
+    template &lt;typename T&gt;
+    void add(const std::string &name, const Serie&lt;T&gt; &serie);
+
+    /**
+     * @brief Add a serie to the Dataframe with the given name
+     */
+    template &lt;typename T&gt;
+    void add(const std::string &name, const ArrayType&lt;T&gt; &array);
+
+    /**
+     * Remove a serie from the Dataframe
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    void remove(const std::string &name);
+
+    /**
+     * Get a serie by name and type
+     * @throws std::runtime_error if the serie doesn't exist or if there's a
+     * type mismatch
+     */
+    template &lt;typename T&gt; const Serie&lt;T&gt; &get(const std::string &name) const;
+
+    /**
+     * Get the type info for a serie
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    std::type_index type(const std::string &name) const;
+
+    /**
+     * Get the type name for a serie
+     * @throws std::runtime_error if the serie doesn't exist
+     */
+    String type_name(const std::string &name) const;
+
+    /**
+     * Check if a serie exists with the given name
+     */
+    bool has(const std::string &name) const;
+
+    /**
+     * Get the number of series in the Dataframe
+     */
+    size_t size() const;
+
+    /**
+     * Get all serie names in the Dataframe
+     */
+    std::vector&lt;std::string&gt; names() const;
+
+    /**
+     * Clear all series from the Dataframe
+     */
+    void clear();
+};
+
+} // namespace df</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Usage</h2>
+                <p>
+                    The Dataframe class provides methods to add, access, and manage multiple Series with different data
+                    types.
+                    Each Serie is identified by a unique name, and you must specify the correct type when accessing a
+                    Serie.
+                </p>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Dataframe Usage</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    // Create a Dataframe
+    df::Dataframe data;
+    
+    // Add Series with different types
+    data.add("ages", df::Serie&lt;int&gt;{25, 32, 41, 28, 35});
+    data.add("names", df::Serie&lt;std::string&gt;{"Alice", "Bob", "Charlie", "Diana", "Edward"});
+    data.add("heights", df::Serie&lt;double&gt;{165.5, 180.2, 175.0, 162.8, 183.5});
+    data.add("weights", df::Serie&lt;double&gt;{60.2, 78.5, 82.1, 58.7, 85.3});
+    
+    // Get all Serie names
+    std::cout << "Series in Dataframe: ";
+    for (const auto& name : data.names()) {
+        std::cout << name << " ";
+    }
+    std::cout << std::endl;
+    
+    // Check if a Serie exists
+    if (data.has("ages")) {
+        std::cout << "Ages Serie exists in the Dataframe" << std::endl;
+    }
+    
+    // Get Serie type
+    std::cout << "Type of 'heights' Serie: " << data.type_name("heights") << std::endl;
+    
+    // Access Series with the correct type
+    const auto& names = data.get&lt;std::string&gt;("names");
+    const auto& ages = data.get&lt;int&gt;("ages");
+    
+    // Print some values
+    std::cout << "Names: " << names << std::endl;
+    std::cout << "Ages: " << ages << std::endl;
+    
+    // Remove a Serie
+    data.remove("weights");
+    std::cout << "After removing 'weights', number of Series: " << data.size() << std::endl;
+    
+    // Clear the Dataframe
+    data.clear();
+    std::cout << "After clearing, number of Series: " << data.size() << std::endl;
+    
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Working with Series in a Dataframe</h2>
+                <p>
+                    Dataframes are especially useful when working with related data that needs to be processed together.
+                    You can combine data from multiple Series to perform calculations and analysis.
+                </p>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Advanced Dataframe Usage</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/zip.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    // Create a Dataframe with student data
+    df::Dataframe students;
+    
+    // Add Series for different attributes
+    students.add("names", df::Serie&lt;std::string&gt;{"Alice", "Bob", "Charlie", "Diana", "Edward"});
+    students.add("math_scores", df::Serie&lt;int&gt;{85, 72, 91, 65, 78});
+    students.add("science_scores", df::Serie&lt;int&gt;{92, 68, 83, 77, 85});
+    students.add("english_scores", df::Serie&lt;int&gt;{78, 82, 75, 89, 70});
+    
+    // Calculate average scores and add as a new Serie
+    auto math = students.get&lt;int&gt;("math_scores");
+    auto science = students.get&lt;int&gt;("science_scores");
+    auto english = students.get&lt;int&gt;("english_scores");
+    
+    auto avg_scores = df::zip(math, science, english).map([](const auto& scores, size_t) {
+        auto [m, s, e] = scores;
+        return (m + s + e) / 3.0;
+    });
+    
+    students.add("avg_scores", avg_scores);
+    
+    // Get names of students with average score above 80
+    auto good_students = df::zip(students.get&lt;std::string&gt;("names"), students.get&lt;double&gt;("avg_scores"))
+        .filter([](const auto& tuple, size_t) {
+            auto [_, avg] = tuple;
+            return avg > 80.0;
+        })
+        .map([](const auto& tuple, size_t) {
+            auto [name, _] = tuple;
+            return name;
+        });
+    
+    std::cout << "Students with average score above 80: " << good_students << std::endl;
+    
+    // Find the student with the highest math score
+    int highest_math = 0;
+    size_t top_student_idx = 0;
+    
+    students.get&lt;int&gt;("math_scores").forEach([&](int score, size_t idx) {
+        if (score > highest_math) {
+            highest_math = score;
+            top_student_idx = idx;
+        }
+    });
+    
+    std::cout << "Student with highest math score: " 
+              << students.get&lt;std::string&gt;("names")[top_student_idx]
+              << " (" << highest_math << ")" << std::endl;
+    
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Creating Dataframes from Data Sources</h2>
+                <p>
+                    Dataframes can be populated from various data sources like CSV files or JSON data using the IO
+                    functionalities.
+                </p>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Loading Data into a Dataframe</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/io/csv.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main() {
+    try {
+        // Load data from a CSV file
+        df::Dataframe data = df::io::read_csv("data.csv");
+        
+        // Print information about the loaded data
+        std::cout << "Loaded " << data.size() << " series from CSV." << std::endl;
+        std::cout << "Series names: ";
+        for (const auto& name : data.names()) {
+            std::cout << name << " ";
+        }
+        std::cout << std::endl;
+        
+        // Access specific columns by name
+        if (data.has("temperature")) {
+            std::cout << "Temperature data: " << data.get&lt;double&gt;("temperature") << std::endl;
+        }
+        
+        if (data.has("date")) {
+            std::cout << "First date: " << data.get&lt;std::string&gt;("date")[0] << std::endl;
+        }
+        
+        // Process the data
+        if (data.has("temperature") && data.has("humidity")) {
+            // Calculate a heat index (simplified)
+            auto temps = data.get&lt;double&gt;("temperature");
+            auto humidity = data.get&lt;double&gt;("humidity");
+            
+            auto heat_index = df::zip(temps, humidity).map([](const auto& tuple, size_t) {
+                auto [t, h] = tuple;
+                return t + 0.05 * h;  // Simplified formula
+            });
+            
+            // Add the new Serie to the Dataframe
+            data.add("heat_index", heat_index);
+            
+            std::cout << "Added heat index calculations." << std::endl;
+        }
+        
+        // Save the modified data back to CSV
+        df::io::write_csv(data, "processed_data.csv");
+        std::cout << "Saved processed data to CSV." << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>Each Serie in a Dataframe is stored with type information, allowing type-safe access.</li>
+                    <li>Series in a Dataframe can have different element types.</li>
+                    <li>Accessing a Serie with the wrong type will throw a runtime_error.</li>
+                    <li>Adding a Serie with a name that already exists will throw a runtime_error.</li>
+                    <li>Removing a Serie that doesn't exist will throw a runtime_error.</li>
+                    <li>Dataframe does not modify the Series it contains; it only stores references to them.</li>
+                    <li>The Dataframe class uses type erasure to store Series of different types.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Related Classes and Functions</h2>
+                <div class="related-functions">
+                    <a href="serie.html" class="related-function">Serie</a>
+                    <a href="details/zip.html" class="related-function">zip</a>
+                    <a href="details/unzip.html" class="related-function">unzip</a>
+                    <a href="grid2d.html" class="related-function">Grid2D</a>
+                    <a href="grid3d.html" class="related-function">Grid3D</a>
+                    <a href="details/csv.html" class="related-function">CSV I/O</a>
+                    <a href="details/json.html" class="related-function">JSON I/O</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2024 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
