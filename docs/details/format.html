@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>format Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">format</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The format function converts a Serie of objects to a formatted string representation. It allows customizing separators, prefixes, and suffixes to control the output format, making it useful for display, logging, or generating formatted text output.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+// Format a Serie with prefix, separator, and suffix
+template &lt;typename T&gt;
+std::string format(const Serie&lt;T&gt;& serie, 
+                  const std::string& prefix = "[",
+                  const std::string& separator = ", ",
+                  const std::string& suffix = "]");
+
+// Create a pipeline-compatible formatter
+template &lt;typename... Args&gt;
+auto bind_format(const Args&... args);
+</code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+              <td><span class="param-default">-</span></td>
+              <td>The Serie to format as a string.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">prefix</span></td>
+              <td><span class="param-type">const std::string&</span></td>
+              <td><span class="param-default">"["</span></td>
+              <td>String to prepend to the formatted output.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">separator</span></td>
+              <td><span class="param-type">const std::string&</span></td>
+              <td><span class="param-default">", "</span></td>
+              <td>String to insert between elements in the formatted output.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">suffix</span></td>
+              <td><span class="param-type">const std::string&</span></td>
+              <td><span class="param-default">"]"</span></td>
+              <td>String to append to the formatted output.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">args</span></td>
+              <td><span class="param-type">const Args&...</span></td>
+              <td><span class="param-default">-</span></td>
+              <td>For bind_format: objects to include in the formatted output.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>The <code>format</code> function returns a <code>std::string</code> containing the formatted representation of the Serie.</p>
+        <p>The <code>bind_format</code> function returns a callable object that can be used in a pipeline to format values.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Formatting</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create numeric Series
+df::Serie&lt;int&gt; integers{1, 2, 3, 4, 5};
+df::Serie&lt;double&gt; decimals{1.1, 2.2, 3.3, 4.4, 5.5};
+
+// Format with default options (square brackets and comma separator)
+std::string int_str = df::format(integers);
+std::cout << int_str << std::endl;
+// Output: [1, 2, 3, 4, 5]
+
+// Format with custom separator
+std::string dec_str = df::format(decimals, "[", " | ", "]");
+std::cout << dec_str << std::endl;
+// Output: [1.1 | 2.2 | 3.3 | 4.4 | 5.5]
+
+// Without brackets
+std::string plain = df::format(integers, "", ", ", "");
+std::cout << plain << std::endl;
+// Output: 1, 2, 3, 4, 5
+
+// With parentheses instead of brackets
+std::string parens = df::format(integers, "(", ", ", ")");
+std::cout << parens << std::endl;
+// Output: (1, 2, 3, 4, 5)</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Formatting Complex Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// String Series
+df::Serie&lt;std::string&gt; names{"Alice", "Bob", "Charlie", "David"};
+std::string name_list = df::format(names, "Names: [", ", ", "]");
+std::cout << name_list << std::endl;
+// Output: Names: [Alice, Bob, Charlie, David]
+
+// Vector Series (using std::array in the Serie)
+df::Serie&lt;Vector2&gt; points{
+    {1.0, 2.0},
+    {3.0, 4.0},
+    {5.0, 6.0}
+};
+std::string coords = df::format(points);
+std::cout << coords << std::endl;
+// Output: [[1,2], [3,4], [5,6]]
+
+// Custom types (requires operator<< to be defined)
+struct Person {
+    std::string name;
+    int age;
+    
+    friend std::ostream& operator<<(std::ostream& os, const Person& p) {
+        return os << p.name << " (" << p.age << ")";
+    }
+};
+
+df::Serie&lt;Person&gt; people{
+    {"Alice", 30},
+    {"Bob", 25},
+    {"Charlie", 35}
+};
+
+std::string people_str = df::format(people, "People: ", "\n- ", "");
+std::cout << people_str << std::endl;
+// Output:
+// People: 
+// - Alice (30)
+// - Bob (25)
+// - Charlie (35)</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Using bind_format in Pipelines</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+
+// Simple pipeline formatting
+std::string result = numbers 
+    | df::bind_map([](int x, size_t) { return x * 2; })  // Double each number
+    | df::bind_format("{", ", ", "}");                  // Format with custom delimiters
+std::cout << result << std::endl;
+// Output: {2, 4, 6, 8, 10}
+
+// More complex pipeline with multiple operations
+std::string complex_result = numbers
+    | df::bind_filter([](int x, size_t) { return x % 2 == 1; })  // Keep odd numbers
+    | df::bind_map([](int x, size_t) { return x * x; })          // Square each number
+    | df::bind_format("Odd squares: ", " ~ ", "");              // Format with custom delimiters
+std::cout << complex_result << std::endl;
+// Output: Odd squares: 1 ~ 9 ~ 25
+
+// Concatenating strings in a pipeline
+std::string greeting = "Hello"
+    | df::bind_format(", ", "world", "!")
+    | df::bind_format("(", "Greeting: ", ")");
+std::cout << greeting << std::endl;
+// Output: (Greeting: Hello, world!)</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Practical Applications</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Creating CSV rows from a Serie
+df::Serie&lt;std::string&gt; csv_fields{"name", "age", "city"};
+std::string csv_header = df::format(csv_fields, "", ",", "");
+std::cout << csv_header << std::endl;
+// Output: name,age,city
+
+// Building SQL queries
+df::Serie&lt;std::string&gt; columns{"id", "name", "age"};
+std::string select_clause = "SELECT " + df::format(columns, "", ", ", "");
+std::cout << select_clause << " FROM users" << std::endl;
+// Output: SELECT id, name, age FROM users
+
+// Constructing HTML lists
+df::Serie&lt;std::string&gt; items{"apple", "banana", "cherry"};
+std::string html_list = df::format(items, "&lt;ul>\n  &lt;li>", "&lt;/li>\n  &lt;li>", "&lt;/li>\n&lt;/ul>");
+std::cout << html_list << std::endl;
+// Output:
+// <ul>
+//   <li>apple</li>
+//   <li>banana</li>
+//   <li>cherry</li>
+// </ul>
+
+// Creating JSON array
+df::Serie&lt;std::string&gt; json_values{"\"Alice\"", "\"Bob\"", "\"Charlie\""};
+std::string json_array = df::format(json_values, "[", ", ", "]");
+std::cout << json_array << std::endl;
+// Output: ["Alice", "Bob", "Charlie"]</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The <code>format</code> function relies on <code>operator&lt;&lt;</code> being defined for the type <code>T</code> of the Serie elements.</li>
+          <li>For empty Series, the result will be the concatenation of the prefix and suffix (e.g., <code>[]</code> with default parameters).</li>
+          <li>The function handles all types that can be converted to strings via the stream insertion operator.</li>
+          <li>For custom types, ensure that <code>operator&lt;&lt;</code> is properly defined to control how the type is converted to a string.</li>
+          <li>The <code>bind_format</code> function is particularly useful in pipeline expressions where it can be combined with other operations like <code>map</code>, <code>filter</code>, etc.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Performance Considerations</h2>
+        <ul>
+          <li>For large Series, string concatenation can be expensive. The function uses <code>std::ostringstream</code> internally to minimize allocations.</li>
+          <li>Consider the size of the Serie when choosing separator, prefix, and suffix strings, as these will affect the final string size.</li>
+          <li>When using the function in performance-critical code, prefer direct iteration over the Serie for very large datasets.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="csv.html" class="related-function">csv</a>
+          <a href="json.html" class="related-function">json</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

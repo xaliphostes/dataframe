@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>split Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">split</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The split function divides a Serie (or multiple Series) into a specified number of approximately equal-sized parts. This is particularly useful for partitioning data for parallel processing, creating training/test sets, or performing k-fold cross-validation.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+// Single Serie version
+template &lt;typename T&gt;
+std::vector&lt;Serie&lt;T&gt;&gt; split(size_t n, const Serie&lt;T&gt;&amp; serie);
+
+// Multiple Series version
+template &lt;typename T, typename... Ts&gt;
+auto split(size_t n, const Serie&lt;T&gt;&amp; first, const Serie&lt;Ts&gt;&amp;... rest);
+
+// Pipeline operation (bound version)
+template &lt;typename T&gt;
+auto bind_split(size_t n);
+        </code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">n</span></td>
+              <td><span class="param-type">size_t</span></td>
+              <td>Number of parts to split the Serie(s) into. If n is larger than the Serie size, it will be adjusted to the Serie size.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&amp;</span></td>
+              <td>The Serie to split (single Serie version).</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">first, rest...</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&amp;, const Serie&lt;Ts&gt;&amp;...</span></td>
+              <td>Multiple Series to split in parallel (multiple Series version). All Series must have the same size.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <ul>
+          <li><strong>Single Serie version:</strong> Returns a vector of Serie&lt;T&gt; objects, each containing a portion of the original Serie.</li>
+          <li><strong>Multiple Series version:</strong> Returns a vector of tuples, where each tuple contains corresponding portions from each input Serie.</li>
+        </ul>
+        <p>Each returned portion will have approximately the same size. If the Serie size is not evenly divisible by n, the first remainder parts will each have one additional element.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Single Serie Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie with 10 elements
+df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+// Split into 3 parts
+auto parts = df::split(3, numbers);
+
+// Output the parts
+for (size_t i = 0; i < parts.size(); ++i) {
+    std::cout << "Part " << i + 1 << ": ";
+    parts[i].forEach([](int val, size_t) {
+        std::cout << val << " ";
+    });
+    std::cout << std::endl;
+}
+
+// Output:
+// Part 1: 1 2 3 4 
+// Part 2: 5 6 7 
+// Part 3: 8 9 10</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Multiple Series Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create multiple Series with the same length
+df::Serie&lt;std::string&gt; names{"Alice", "Bob", "Charlie", "Diana", "Eve"};
+df::Serie&lt;int&gt; ages{25, 30, 35, 28, 42};
+df::Serie&lt;double&gt; scores{95.5, 88.0, 76.5, 91.0, 85.5};
+
+// Split into 2 parts (e.g., for training/test split)
+auto splits = df::split(2, names, ages, scores);
+
+// Process each split
+for (size_t i = 0; i < splits.size(); ++i) {
+    // Destructure the tuple for each split
+    auto& [names_part, ages_part, scores_part] = splits[i];
+    
+    std::cout << "Split " << i + 1 << ":" << std::endl;
+    for (size_t j = 0; j < names_part.size(); ++j) {
+        std::cout << "  " << names_part[j] << ", " 
+                  << ages_part[j] << " years, "
+                  << scores_part[j] << " points" << std::endl;
+    }
+}
+
+// Output:
+// Split 1:
+//   Alice, 25 years, 95.5 points
+//   Bob, 30 years, 88 points
+//   Charlie, 35 years, 76.5 points
+// Split 2:
+//   Diana, 28 years, 91 points
+//   Eve, 42 years, 85.5 points</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;double&gt; values{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8};
+
+// Use bind_split in a pipeline
+auto parts = values | df::bind_split&lt;double&gt;(4);
+
+// Process each part independently
+std::vector&lt;double&gt; part_sums;
+for (const auto& part : parts) {
+    double sum = part.reduce([](double acc, double val, size_t) {
+        return acc + val;
+    }, 0.0);
+    part_sums.push_back(sum);
+}
+
+// Output part sums
+for (size_t i = 0; i < part_sums.size(); ++i) {
+    std::cout << "Sum of part " << i + 1 << ": " << part_sums[i] << std::endl;
+}
+
+// Output:
+// Sum of part 1: 3.3
+// Sum of part 2: 7.7
+// Sum of part 3: 12.1
+// Sum of part 4: 16.5</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>K-Fold Cross-Validation Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create data for a machine learning task
+df::Serie&lt;Vector2&gt; features{{0.1, 0.2}, {0.3, 0.4}, {0.5, 0.6}, 
+                            {0.7, 0.8}, {0.9, 1.0}, {1.1, 1.2}, 
+                            {1.3, 1.4}, {1.5, 1.6}, {1.7, 1.8}, {1.9, 2.0}};
+df::Serie&lt;int&gt; labels{0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
+
+// Perform 5-fold cross-validation
+auto folds = df::split(5, features, labels);
+
+for (size_t i = 0; i < folds.size(); ++i) {
+    // Use fold i as test set, all others as training set
+    auto& [test_features, test_labels] = folds[i];
+    
+    df::Serie&lt;Vector2&gt; train_features;
+    df::Serie&lt;int&gt; train_labels;
+    
+    for (size_t j = 0; j < folds.size(); ++j) {
+        if (j != i) {
+            // Add fold j to training set
+            auto& [fold_features, fold_labels] = folds[j];
+            // Here you'd append fold_features to train_features
+            // and fold_labels to train_labels
+            // Implementation depends on how you'd merge Series
+        }
+    }
+    
+    // Now train a model on train_features, train_labels
+    // and evaluate it on test_features, test_labels
+    std::cout << "Fold " << i + 1 << ": "
+              << "Training on " << train_features.size() << " samples, "
+              << "Testing on " << test_features.size() << " samples" << std::endl;
+}</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The algorithm ensures that all parts have approximately equal sizes. If the Serie size is not evenly divisible by n, extra elements are distributed among the first parts.</li>
+          <li>When splitting multiple Series, the function ensures that corresponding elements from each Serie are kept together in the same split.</li>
+          <li>If n is greater than the Serie size, it will be adjusted to the Serie size (resulting in one element per part).</li>
+          <li>For multiple Series, all input Series must have the same size, or an exception will be thrown.</li>
+          <li>The split function creates copies of the data, not views. This means modifications to the split parts do not affect the original Serie(s).</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Common Use Cases</h2>
+        <ul>
+          <li><strong>Parallel Processing:</strong> Split a large dataset into chunks for parallel processing or multi-threading.</li>
+          <li><strong>Data Partitioning:</strong> Create training/validation/test splits for machine learning models.</li>
+          <li><strong>Cross-Validation:</strong> Implement k-fold cross-validation by splitting data into k parts.</li>
+          <li><strong>Batch Processing:</strong> Process large datasets in manageable chunks to reduce memory usage.</li>
+          <li><strong>Data Sampling:</strong> Split data to create representative samples for analysis.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="zip.html" class="related-function">zip</a>
+          <a href="unzip.html" class="related-function">unzip</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

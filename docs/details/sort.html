@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sort Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">sort</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The sort function creates an ordered copy of a Serie based on various sorting criteria. It supports both ascending and descending order, custom comparator functions, sorting by a key function, and special handling for NaN values. The function is designed with immutability in mind, returning a new Serie instead of modifying the original.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">// Basic sort with order control
+template &lt;typename T&gt;
+Serie&lt;T&gt; sort(const Serie&lt;T&gt;& serie, 
+                SortOrder order = SortOrder::ASCENDING,
+                ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+// Sort with custom comparator
+template &lt;typename T, typename Compare&gt;
+Serie&lt;T&gt; sort(const Serie&lt;T&gt;& serie, 
+                Compare comp,
+                ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+// Sort by key function
+template &lt;typename T, typename KeyFunc&gt;
+Serie&lt;T&gt; sort_by(const Serie&lt;T&gt;& serie, 
+                   KeyFunc key_func,
+                   SortOrder order = SortOrder::ASCENDING,
+                   ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+// Sort with NaN handling
+template &lt;typename T&gt;
+Serie&lt;T&gt; sort_nan(const Serie&lt;T&gt;& serie, 
+                    SortOrder order = SortOrder::ASCENDING,
+                    bool nan_first = false,
+                    ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+// Pipeline binding functions
+template &lt;typename T&gt;
+auto bind_sort(SortOrder order = SortOrder::ASCENDING,
+               ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+template &lt;typename Compare&gt;
+auto bind_sort_with(Compare comp, 
+                    ExecutionPolicy exec = ExecutionPolicy::SEQ);
+
+template &lt;typename KeyFunc&gt;
+auto bind_sort_by(KeyFunc key_func, 
+                  SortOrder order = SortOrder::ASCENDING,
+                  ExecutionPolicy exec = ExecutionPolicy::SEQ);</code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+              <td>The input Serie to sort.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">order</span></td>
+              <td><span class="param-type">SortOrder</span></td>
+              <td>The sort direction: ASCENDING or DESCENDING. Default is ASCENDING.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">comp</span></td>
+              <td><span class="param-type">Compare</span></td>
+              <td>Custom comparison function that should return true if the first element is less than the second.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">key_func</span></td>
+              <td><span class="param-type">KeyFunc</span></td>
+              <td>Function that extracts a key for comparison from each element.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">nan_first</span></td>
+              <td><span class="param-type">bool</span></td>
+              <td>If true, NaN values will be placed at the beginning; if false, at the end. Default is false.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">exec</span></td>
+              <td><span class="param-type">ExecutionPolicy</span></td>
+              <td>Execution policy for parallel algorithms (SEQ, PAR). Default is SEQ (sequential).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>All sort functions return a new Serie containing the same elements as the input Serie, but in sorted order. The returned Serie has the same type as the input Serie.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Sorting</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Create a Serie with unsorted values
+df::Serie&lt;double&gt; values{5.2, 1.7, 3.9, 2.1, 4.4};
+
+// Sort in ascending order (default)
+auto asc_values = df::sort(values);
+// asc_values: {1.7, 2.1, 3.9, 4.4, 5.2}
+
+// Sort in descending order
+auto desc_values = df::sort(values, df::SortOrder::DESCENDING);
+// desc_values: {5.2, 4.4, 3.9, 2.1, 1.7}
+
+// Sort strings (lexicographically)
+df::Serie&lt;std::string&gt; names{"Charlie", "Alice", "Bob", "Dave"};
+auto sorted_names = df::sort(names);
+// sorted_names: {"Alice", "Bob", "Charlie", "Dave"}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Custom Comparators</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Sort by absolute value
+df::Serie&lt;double&gt; numbers{-5.0, 3.0, -1.0, 4.0, -2.0};
+auto abs_sorted = df::sort(numbers, [](double a, double b) {
+    return std::abs(a) < std::abs(b);
+});
+// abs_sorted: {-1.0, -2.0, 3.0, 4.0, -5.0}
+
+// Case-insensitive string sorting
+df::Serie&lt;std::string&gt; words{"Apple", "banana", "Cat", "dog"};
+auto case_insensitive = df::sort(words, [](const std::string& a, const std::string& b) {
+    std::string a_lower = a, b_lower = b;
+    std::transform(a.begin(), a.end(), a_lower.begin(), ::tolower);
+    std::transform(b.begin(), b.end(), b_lower.begin(), ::tolower);
+    return a_lower < b_lower;
+});
+// case_insensitive: {"Apple", "banana", "Cat", "dog"}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Sorting Complex Types with Key Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Define a Person struct
+struct Person {
+    std::string name;
+    int age;
+    double salary;
+};
+
+// Create a Serie of Person objects
+df::Serie&lt;Person&gt; people{
+    {"Alice", 32, 75000.0},
+    {"Bob", 25, 65000.0},
+    {"Charlie", 45, 85000.0},
+    {"Dave", 32, 72000.0}
+};
+
+// Sort by age (ascending)
+auto by_age = df::sort_by(people, [](const Person& p) { return p.age; });
+// Result: Bob (25), Alice/Dave (32), Charlie (45)
+
+// Sort by name (descending)
+auto by_name = df::sort_by(people, 
+                          [](const Person& p) { return p.name; },
+                          df::SortOrder::DESCENDING);
+// Result: Dave, Charlie, Bob, Alice
+
+// Sort by salary (ascending)
+auto by_salary = df::sort_by(people, [](const Person& p) { return p.salary; });
+// Result: Bob, Dave, Alice, Charlie</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Handling NaN Values</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Create a Serie with NaN values
+df::Serie&lt;double&gt; data{5.0, std::nan(""), 3.0, std::nan(""), 1.0, 4.0};
+
+// Sort with NaN values at the end (default)
+auto sorted1 = df::sort_nan(data);
+// sorted1: {1.0, 3.0, 4.0, 5.0, NaN, NaN}
+
+// Sort with NaN values at the beginning
+auto sorted2 = df::sort_nan(data, df::SortOrder::ASCENDING, true);
+// sorted2: {NaN, NaN, 1.0, 3.0, 4.0, 5.0}
+
+// Sort descending with NaN values at the end
+auto sorted3 = df::sort_nan(data, df::SortOrder::DESCENDING);
+// sorted3: {5.0, 4.0, 3.0, 1.0, NaN, NaN}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Usage</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Create a Serie
+df::Serie&lt;double&gt; values{5.2, 1.7, 3.9, 2.1, 4.4};
+
+// Use in pipeline with bind_sort
+auto sorted_squared = values
+    | df::bind_map([](double x, size_t) { return x * x; })  // Square values
+    | df::bind_sort&lt;double&gt;(df::SortOrder::ASCENDING);     // Sort squared values
+// sorted_squared: {2.89, 4.41, 15.21, 19.36, 27.04}
+
+// Use with custom comparator in pipeline
+auto abs_sorted = df::Serie&lt;double&gt;{-5.0, 3.0, -1.0, 4.0, -2.0}
+    | df::bind_sort_with([](double a, double b) {
+        return std::abs(a) < std::abs(b);
+      });
+// abs_sorted: {-1.0, -2.0, 3.0, 4.0, -5.0}
+
+// Complex pipeline with key function
+auto result = people
+    | df::bind_sort_by([](const Person& p) { return p.age; })  // Sort by age
+    | df::bind_map([](const Person& p, size_t) {               // Extract names
+        return p.name;
+      });
+// result: {"Bob", "Alice", "Dave", "Charlie"}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Parallel Sorting</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">// Create a large Serie
+df::Serie&lt;int&gt; large_serie = df::random_uniform&lt;int&gt;(100000, 0, 1000000);
+
+// Sort using parallel execution policy
+auto sorted_parallel = df::sort(large_serie, df::SortOrder::ASCENDING, df::ExecutionPolicy::PAR);
+
+// Parallel sort with custom comparator
+auto parallel_custom = df::sort(large_serie, 
+                               [](int a, int b) { return a % 10 < b % 10; },  // Sort by last digit
+                               df::ExecutionPolicy::PAR);
+
+// Parallel sort by key in pipeline
+auto result = large_serie
+    | df::bind_sort_by([](int x) { return x % 100; },  // Sort by last two digits
+                      df::SortOrder::ASCENDING,
+                      df::ExecutionPolicy::PAR);
+</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>All sort operations create a new Serie rather than modifying the input Serie in place.</li>
+          <li>The sort algorithm has an average case complexity of O(n log n), where n is the size of the Serie.</li>
+          <li>For small Series, parallel sorting may actually be slower due to overhead. Consider using sequential execution for small datasets.</li>
+          <li>NaN handling is particularly useful for floating-point data with missing values.</li>
+          <li>The sort implementation relies on std::sort internally and respects the C++ standard library guarantees.</li>
+          <li>The parallel execution policy is only effective when the library is compiled with parallel algorithms support.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="bounds.html" class="related-function">bounds</a>
+          <a href="random.html" class="related-function">random</a>
+          <a href="zip.html" class="related-function">zip</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
