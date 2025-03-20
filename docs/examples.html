@@ -28,7 +28,7 @@
                     <li><a href="index.html">API Reference</a></li>
                     <li><a href="examples.html" class="active">Examples</a></li>
                     <li><a href="tutorial.html">Tutorial</a></li>
-                    <li><a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
                 </ul>
             </nav>
         </div>
@@ -61,6 +61,7 @@
 #include &lt;dataframe/map.h&gt;
 #include &lt;dataframe/filter.h&gt;
 #include &lt;dataframe/reduce.h&gt;
+#include &lt;dataframe/stats/avg.h&gt;
 #include &lt;iostream&gt;
 
 int main() {
@@ -77,9 +78,7 @@ int main() {
         | df::bind_filter&lt;double&gt;([](double score) { return score >= 60; })
         | df::bind_map([](double score, size_t) { return score + 5; })
         | df::bind_map([](double score, size_t) { return std::min(100.0, score); })
-        | df::bind_reduce([](double sum, double score, size_t idx, const auto& serie) {
-            return sum + score / serie.size();
-        }, 0.0);
+        | df::bind_avg&lt;double>();
     
     // Print original scores
     std::cout << "Original scores: ";
@@ -510,7 +509,7 @@ Coefficient of determination (R²): 0.9924
             <div class="footer-links">
                 <a href="index.html">Home</a>
                 <a href="#about">About</a>
-                <a href="https://github.com/fmaerten/dataframe" target="_blank">GitHub</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
             </div>
             <div class="copyright">
                 &copy; 2024 DataFrame Library. MIT License.

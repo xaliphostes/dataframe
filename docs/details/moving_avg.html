@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>moving_avg Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="#examples">Examples</a></li>
+          <li><a href="#tutorial">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">moving_avg</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The moving_avg function calculates a sliding window average over a Serie. For each position, it computes the average of the current value and the previous (window_size - 1) values. At the beginning of the serie where there are fewer than window_size previous values, it calculates the average of the available values.</p>
+        <p>This function is useful for smoothing data, identifying trends, and reducing noise in time series data.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+// Main function
+template &lt;typename T&gt; 
+Serie&lt;T&gt; moving_avg(const Serie&lt;T&gt;& serie, size_t window_size);
+
+// For pipeline operations
+template &lt;typename T&gt; 
+auto bind_moving_avg(size_t window_size);
+
+// Macro-generated binding function
+MAKE_OP(moving_avg);
+        </code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+              <td>The input Serie to compute moving averages for.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">window_size</span></td>
+              <td><span class="param-type">size_t</span></td>
+              <td>The size of the sliding window. Must be greater than zero.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>A new Serie containing the moving averages. The returned Serie has the same size as the input Serie.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Usage</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0};
+
+// Calculate 3-point moving average
+auto ma3 = df::moving_avg(values, 3);
+// ma3 = {1.0, 1.5, 2.0, 3.0, 4.0}
+
+// The calculation for each position:
+// Position 0: (1.0) / 1 = 1.0 (only one value available)
+// Position 1: (1.0 + 2.0) / 2 = 1.5 (two values available)
+// Position 2: (1.0 + 2.0 + 3.0) / 3 = 2.0 (window complete)
+// Position 3: (2.0 + 3.0 + 4.0) / 3 = 3.0 (sliding window)
+// Position 4: (3.0 + 4.0 + 5.0) / 3 = 4.0 (sliding window)
+
+// Calculate 2-point moving average
+auto ma2 = df::moving_avg(values, 2);
+// ma2 = {1.0, 1.5, 2.5, 3.5, 4.5}
+          </code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Usage</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Using in a pipeline
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0};
+
+// Simple pipeline with moving average
+auto result = values | df::bind_moving_avg&lt;double&gt;(3);
+// result = {1.0, 1.5, 2.0, 3.0, 4.0}
+
+// More complex pipeline
+auto transformed = values
+    | df::bind_map([](double x, size_t) { return x * 2; })  // Double values
+    | df::bind_moving_avg&lt;double&gt;(3)                    // Apply moving average
+    | df::bind_map([](double x, size_t) { return x + 1; }); // Add 1 to each value
+// transformed = {3.0, 4.0, 5.0, 7.0, 9.0}
+          </code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Working with Vector Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie of 3D vectors
+df::Serie&lt;Vector3&gt; points{
+    {1.0, 2.0, 3.0},
+    {4.0, 5.0, 6.0},
+    {7.0, 8.0, 9.0},
+    {10.0, 11.0, 12.0}
+};
+
+// Calculate 2-point moving average
+auto ma = df::moving_avg(points, 2);
+// ma[0] = {1.0, 2.0, 3.0}      // First point (only one value)
+// ma[1] = {2.5, 3.5, 4.5}      // Average of points 0 and 1
+// ma[2] = {5.5, 6.5, 7.5}      // Average of points 1 and 2
+// ma[3] = {8.5, 9.5, 10.5}     // Average of points 2 and 3
+
+// Smoothing trajectory data
+auto smoothed_path = points | df::bind_moving_avg&lt;Vector3&gt;(3);
+          </code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Practical Application: Noise Reduction</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Simulate noisy data
+df::Serie&lt;double&gt; signal = df::random_uniform&lt;double&gt;(100, -1.0, 1.0);
+
+// Apply moving average to smooth the noise
+// A larger window gives more smoothing but reduces responsiveness
+auto smoothed_short = df::moving_avg(signal, 5);  // Light smoothing
+auto smoothed_medium = df::moving_avg(signal, 15); // Medium smoothing
+auto smoothed_long = df::moving_avg(signal, 30);  // Heavy smoothing
+
+// Using different window sizes in sequence (multi-pass smoothing)
+auto multi_pass = signal
+    | df::bind_moving_avg&lt;double&gt;(3)   // First pass
+    | df::bind_moving_avg&lt;double&gt;(2);  // Second pass
+          </code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The function efficiently handles the beginning of the serie where the full window is not available by using the available values.</li>
+          <li>For window size 1, the function returns a copy of the original serie (no averaging is performed).</li>
+          <li>The implementation works with both scalar types (int, double, etc.) and array/vector types (Vector2, Vector3, etc.).</li>
+          <li>Using too large a window size can smooth out important features in your data, while too small a window may not effectively reduce noise.</li>
+          <li>The function will throw an exception if the serie is empty or if the window size is zero.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Performance Considerations</h2>
+        <p>The moving_avg function has a time complexity of O(n * w), where n is the number of elements in the serie and w is the window size. For very large series or window sizes, consider these optimizations:</p>
+        <ul>
+          <li>For uniform window weights, a more efficient implementation using a sliding accumulator is used internally.</li>
+          <li>When applying multiple operations, use the pipeline syntax to avoid creating intermediate Series objects.</li>
+          <li>For extremely large datasets, you might consider chunking the data and processing each chunk separately.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="avg.html" class="related-function">avg</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
