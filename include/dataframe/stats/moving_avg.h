@@ -16,6 +16,7 @@
 #include <dataframe/Serie.h>
 
 namespace df {
+namespace stats {
 
 /**
  * @brief Compute moving average of a Serie with specified window size
@@ -62,6 +63,7 @@ template <typename T> auto bind_moving_avg(size_t window_size);
  */
 MAKE_OP(moving_avg);
 
+} // namespace stats
 } // namespace df
 
 #include "inline/moving_avg.hxx"

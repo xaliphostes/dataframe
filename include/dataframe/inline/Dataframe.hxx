@@ -24,8 +24,7 @@
 // Dataframe.hxx
 #include "../utils/utils.h"
 #include <dataframe/math/bounds.h>
-#include <dataframe/stats/avg.h>
-#include <dataframe/stats/quantile.h>
+#include <dataframe/stats/stats.h>
 
 namespace df {
 
@@ -168,12 +167,12 @@ template <typename T> struct SerieStats {
         stats.max = max_val;
 
         // Calculate mean
-        stats.mean = avg(serie);
+        stats.mean = df::stats::avg(serie);
 
         // Calculate quantiles
-        stats.q1 = quantile(serie, 0.25);
-        stats.median = quantile(serie, 0.50);
-        stats.q3 = quantile(serie, 0.75);
+        stats.q1 = df::stats::quantile(serie, 0.25);
+        stats.median = df::stats::quantile(serie, 0.50);
+        stats.q3 = df::stats::quantile(serie, 0.75);
 
         // Count special values
         stats.num_zeros = 0;

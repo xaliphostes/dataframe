@@ -19,6 +19,7 @@
 #include <vector>
 
 namespace df {
+namespace stats {
 
 template <typename Vec, typename T>
 inline std::pair<Serie<double>, Serie<double>>
@@ -153,4 +154,5 @@ inline std::pair<Serie<T>, Serie<double>> ordinary_kriging(
     return {Serie<T>(estimates), Serie<double>(variances)};
 }
 
+} // namespace stats
 } // namespace df

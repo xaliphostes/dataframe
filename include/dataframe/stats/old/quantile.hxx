@@ -16,40 +16,41 @@
 #include <algorithm>
 #include <dataframe/Serie.h>
 #include <dataframe/utils/utils.h>
+#include <dataframe/stats/stats.h>
 #include <type_traits>
 #include <vector>
 
 namespace df {
 
-template <typename T> inline T quantile(const Serie<T> &serie, double p) {
-    static_assert(std::is_arithmetic<T>::value,
-                  "Quantile only works with arithmetic types");
+// template <typename T> inline T quantile(const Serie<T> &serie, double p) {
+//     static_assert(std::is_arithmetic<T>::value,
+//                   "Quantile only works with arithmetic types");
 
-    if (serie.empty()) {
-        throw std::runtime_error("Cannot compute quantile of empty serie");
-    }
-    if (p < 0.0 || p > 1.0) {
-        throw std::invalid_argument("Quantile value must be between 0 and 1");
-    }
+//     if (serie.empty()) {
+//         throw std::runtime_error("Cannot compute quantile of empty serie");
+//     }
+//     if (p < 0.0 || p > 1.0) {
+//         throw std::invalid_argument("Quantile value must be between 0 and 1");
+//     }
 
-    std::vector<T> sorted = serie.asArray();
-    std::sort(sorted.begin(), sorted.end());
+//     std::vector<T> sorted = serie.asArray();
+//     std::sort(sorted.begin(), sorted.end());
 
-    if (p == 0.0)
-        return sorted.front();
-    if (p == 1.0)
-        return sorted.back();
+//     if (p == 0.0)
+//         return sorted.front();
+//     if (p == 1.0)
+//         return sorted.back();
 
-    const double h = (sorted.size() - 1) * p;
-    const size_t i = static_cast<size_t>(h);
-    const double remainder = h - i;
+//     const double h = (sorted.size() - 1) * p;
+//     const size_t i = static_cast<size_t>(h);
+//     const double remainder = h - i;
 
-    if (i + 1 >= sorted.size())
-        return sorted.back();
+//     if (i + 1 >= sorted.size())
+//         return sorted.back();
 
-    return static_cast<T>(sorted[i] * (1.0 - remainder) +
-                          sorted[i + 1] * remainder);
-}
+//     return static_cast<T>(sorted[i] * (1.0 - remainder) +
+//                           sorted[i + 1] * remainder);
+// }
 
 template <typename T> inline T q25(const Serie<T> &serie) {
     return quantile(serie, 0.25);

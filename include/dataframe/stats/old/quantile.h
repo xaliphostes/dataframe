@@ -21,13 +21,13 @@
 
 namespace df {
 
-/**
- * Calculate quantile value for a Serie
- * @param serie Input Serie
- * @param p Quantile value (0 to 1)
- * @return Quantile value
- */
-template <typename T> T quantile(const Serie<T> &serie, double p);
+// /**
+//  * Calculate quantile value for a Serie
+//  * @param serie Input Serie
+//  * @param p Quantile value (0 to 1)
+//  * @return Quantile value
+//  */
+// template <typename T> T quantile(const Serie<T> &serie, double p);
 
 /**
  * Calculate first quartile (Q1)
@@ -61,7 +61,7 @@ template <typename T> Serie<bool> isOutlier(const Serie<T> &serie);
 template <typename T> Serie<bool> notOutlier(const Serie<T> &serie);
 
 // Enable pipe operations
-template <typename T> auto bind_quantile(double p);
+// template <typename T> auto bind_quantile(double p);
 template <typename T> auto bind_q25();
 template <typename T> auto bind_q50();
 template <typename T> auto bind_q75();

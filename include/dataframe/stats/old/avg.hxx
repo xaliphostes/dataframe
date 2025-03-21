@@ -13,6 +13,7 @@
  */
 
 namespace df {
+namespace stats {
 
 namespace detail {
 
@@ -85,4 +86,5 @@ template <typename T> inline auto bind_avg() {
     return [](const Serie<T> &serie) { return avg(serie); };
 }
 
+} // namespace stats
 } // namespace df

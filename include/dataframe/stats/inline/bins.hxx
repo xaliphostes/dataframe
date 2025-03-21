@@ -13,6 +13,7 @@
  */
 
 namespace df {
+namespace stats {
 
 namespace detail {
 
@@ -98,4 +99,5 @@ template <typename T> inline auto bind_bins(uint nb, T min, T max) {
     };
 }
 
+} // namespace stats
 } // namespace df

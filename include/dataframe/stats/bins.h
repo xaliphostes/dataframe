@@ -19,6 +19,7 @@
 #include <type_traits>
 
 namespace df {
+namespace stats {
 
 /**
  * Bin data from a Serie into specified number of bins with automatic range
@@ -45,6 +46,7 @@ template <typename T> auto bind_bins(uint nb);
 
 template <typename T> auto bind_bins(uint nb, T min, T max);
 
+} // namespace stats
 } // namespace df
 
 #include "inline/bins.hxx"

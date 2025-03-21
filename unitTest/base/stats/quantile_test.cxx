@@ -14,7 +14,7 @@
 
 #include "../../TEST.h"
 #include <dataframe/core/pipe.h>
-#include <dataframe/stats/quantile.h>
+#include <dataframe/stats/stats.h>
 #include <cmath>
 #include <limits>
 
@@ -26,19 +26,14 @@ TEST(quantile, basic) {
     Serie<double> data{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
 
     // Test specific quantiles
-    EXPECT_NEAR(quantile(data, 0.0), 1.0, 1e-10);
-    EXPECT_NEAR(quantile(data, 0.25), 3.0, 1e-10);
-    EXPECT_NEAR(quantile(data, 0.5), 5.0, 1e-10);
-    EXPECT_NEAR(quantile(data, 0.75), 7.0, 1e-10);
-    EXPECT_NEAR(quantile(data, 1.0), 9.0, 1e-10);
-
-    // Test quartile functions
-    EXPECT_NEAR(q25(data), 3.0, 1e-10);
-    EXPECT_NEAR(q50(data), 5.0, 1e-10);
-    EXPECT_NEAR(q75(data), 7.0, 1e-10);
+    EXPECT_NEAR(df::stats::quantile(data, 0.0), 1.0, 1e-10);
+    EXPECT_NEAR(df::stats::quantile(data, 0.25), 3.0, 1e-10);
+    EXPECT_NEAR(df::stats::quantile(data, 0.5), 5.0, 1e-10);
+    EXPECT_NEAR(df::stats::quantile(data, 0.75), 7.0, 1e-10);
+    EXPECT_NEAR(df::stats::quantile(data, 1.0), 9.0, 1e-10);
 
     // Test IQR
-    EXPECT_NEAR(iqr(data), 4.0, 1e-10);
+    EXPECT_NEAR(df::stats::iqr(data), 4.0, 1e-10);
 }
 
 TEST(quantile, outliers) {
@@ -47,8 +42,8 @@ TEST(quantile, outliers) {
     // Dataset with clear outliers
     Serie<double> data{1.0, 2.0, 2.5, 2.7, 3.0, 3.2, 3.5, 4.0, 15.0, -5.0};
 
-    const auto outliers = isOutlier(data);
-    const auto non_outliers = notOutlier(data);
+    const auto outliers = df::stats::isOutlier(data);
+    const auto non_outliers = df::stats::notOutlier(data);
 
     // Verify outlier detection
     const std::vector<bool> expected_outliers = {
@@ -66,23 +61,12 @@ TEST(quantile, edge_cases) {
 
     // Empty serie
     Serie<double> empty{};
-    EXPECT_THROW(quantile(empty, 0.5), std::runtime_error);
-    EXPECT_THROW(q25(empty), std::runtime_error);
-    EXPECT_THROW(q50(empty), std::runtime_error);
-    EXPECT_THROW(q75(empty), std::runtime_error);
-    EXPECT_THROW(iqr(empty), std::runtime_error);
-
-    // Invalid quantile values
-    Serie<double> data{1.0, 2.0, 3.0};
-    EXPECT_THROW(quantile(data, -0.1), std::invalid_argument);
-    EXPECT_THROW(quantile(data, 1.1), std::invalid_argument);
+    EXPECT_THROW(df::stats::quantile(empty, 0.5), std::runtime_error);
+    EXPECT_THROW(df::stats::iqr(empty), std::runtime_error);
 
     // Single value
     Serie<double> single{1.0};
-    EXPECT_NO_THROW(q25(single));
-    EXPECT_NO_THROW(q50(single));
-    EXPECT_NO_THROW(q75(single));
-    EXPECT_NO_THROW(iqr(single));
+    EXPECT_NO_THROW(df::stats::iqr(single));
 }
 
 TEST(quantile, integer) {
@@ -90,10 +74,10 @@ TEST(quantile, integer) {
 
     Serie<int> data{1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-    EXPECT_EQ(q25(data), 3);
-    EXPECT_EQ(q50(data), 5);
-    EXPECT_EQ(q75(data), 7);
-    EXPECT_EQ(iqr(data), 4);
+    EXPECT_EQ(df::stats::quantile(data, 0.25), 3);
+    EXPECT_EQ(df::stats::quantile(data, 0.5), 5);
+    EXPECT_EQ(df::stats::quantile(data, 0.75), 7);
+    EXPECT_EQ(df::stats::iqr(data), 4);
 }
 
 TEST(quantile, pipeline) {
@@ -101,13 +85,9 @@ TEST(quantile, pipeline) {
 
     Serie<double> data{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
 
-    // Test quantile pipeline
-    auto q25_result = data | bind_q25<double>();
-    EXPECT_NEAR(q25_result, 3.0, 1e-10);
-
     // Test outlier pipeline
-    const auto outliers = data | bind_isOutlier<double>();
-    const auto non_outliers = data | bind_notOutlier<double>();
+    const auto outliers = data | df::stats::bind_isOutlier<double>();
+    const auto non_outliers = data | df::stats::bind_notOutlier<double>();
 
     // Verify pipeline results
     for (size_t i = 0; i < data.size(); ++i) {

@@ -42,6 +42,7 @@
  * - Returns both estimates and kriging variances
  */
 namespace df {
+namespace stats {
 
 /**
  * @brief Variogram models for kriging
@@ -110,6 +111,7 @@ std::pair<Serie<T>, Serie<double>> ordinary_kriging(
     const Serie<Vec> &known_positions, const Serie<T> &known_values,
     const Serie<Vec> &query_positions, const VariogramParams &params);
 
+} // namespace stats
 } // namespace df
 
 #include "inline/kriging.hxx"

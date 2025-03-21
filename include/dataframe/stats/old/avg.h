@@ -20,6 +20,7 @@
 #include <type_traits>
 
 namespace df {
+namespace stats {
 
 /**
  * Compute arithmetic average of a Serie
@@ -39,6 +40,7 @@ template <typename T> Serie<T> avg_serie(const Serie<T> &serie);
 
 template <typename T> auto bind_avg();
 
+} // namespace stats
 } // namespace df
 
 #include "inline/avg.hxx"

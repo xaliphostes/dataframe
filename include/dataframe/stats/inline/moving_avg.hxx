@@ -19,6 +19,7 @@
 #include <type_traits>
 
 namespace df {
+namespace stats {
 
 namespace detail {
 
@@ -111,4 +112,5 @@ template <typename T> inline auto bind_moving_avg(size_t window_size) {
     };
 }
 
+} // namespace stats
 } // namespace df

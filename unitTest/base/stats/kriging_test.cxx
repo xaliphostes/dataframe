@@ -29,7 +29,7 @@ TEST(ExperimentalVariogram, Basic) {
     double lag_distance = 0.2;
     size_t n_lags = 10;
 
-    auto [distances, variogram] = calculate_experimental_variogram(
+    auto [distances, variogram] = df::stats::calculate_experimental_variogram(
         positions, values, lag_distance, n_lags);
 
     // Check output sizes
@@ -53,13 +53,13 @@ TEST(ExperimentalVariogram, Basic) {
 TEST(VariogramModel, Models) {
     MSG("Testing theoretical variogram models");
 
-    VariogramParams params;
+    df::stats::VariogramParams params;
     params.nugget = 0.1;
     params.sill = 1.0;
     params.range = 2.0;
 
     // Test Spherical model
-    params.model = VariogramModel::Spherical;
+    params.model = df::stats::VariogramModel::Spherical;
     EXPECT_NEAR(variogram_model(0.0, params), 0.0, 1e-10);
     EXPECT_NEAR(variogram_model(params.range, params),
                 params.nugget + params.sill, 1e-10);
@@ -67,13 +67,13 @@ TEST(VariogramModel, Models) {
                 params.nugget + params.sill, 1e-10);
 
     // Test Exponential model
-    params.model = VariogramModel::Exponential;
+    params.model = df::stats::VariogramModel::Exponential;
     EXPECT_NEAR(variogram_model(0.0, params), 0.0, 1e-10);
     EXPECT_GT(variogram_model(params.range, params),
               0.95 * (params.nugget + params.sill));
 
     // Test Gaussian model
-    params.model = VariogramModel::Gaussian;
+    params.model = df::stats::VariogramModel::Gaussian;
     EXPECT_NEAR(variogram_model(0.0, params), 0.0, 1e-10);
     EXPECT_GT(variogram_model(params.range, params),
               0.95 * (params.nugget + params.sill));
@@ -88,11 +88,11 @@ TEST(OrdinaryKriging, Interpolation) {
     // Create query points
     Serie<Vector2> query_positions = {{0.25, 0.25}, {0.75, 0.75}, {0.5, 0.5}};
 
-    VariogramParams params;
+    df::stats::VariogramParams params;
     params.nugget = 0.001;
     params.sill = 1.0;
     params.range = 1.0;
-    params.model = VariogramModel::Spherical;
+    params.model = df::stats::VariogramModel::Spherical;
 
     auto [estimates, variances] = ordinary_kriging(
         known_positions, known_values, query_positions, params);
@@ -121,11 +121,11 @@ TEST(OrdinaryKriging, CrossValidation) {
 
     auto [positions, values] = create_test_dataset();
 
-    VariogramParams params;
+    df::stats::VariogramParams params;
     params.nugget = 0.001;
     params.sill = 1.0;
     params.range = 1.0;
-    params.model = VariogramModel::Spherical;
+    params.model = df::stats::VariogramModel::Spherical;
 
     // Perform leave-one-out cross-validation
     std::vector<double> errors;
