@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistical Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Statistical Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>df::stats</code> namespace provides a comprehensive set of statistical functions for analyzing and summarizing data in Series. These functions support both scalar types (like <code>int</code>, <code>double</code>) and array types (like <code>Vector2</code>, <code>Vector3</code>), making them versatile for various data analysis tasks.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Basic Statistical Functions</h2>
+        
+        <h3>Mean and Average</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mean and Average Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate mean of a Serie
+template &lt;typename T&gt; T mean(const Serie&lt;T&gt; &serie);
+
+// Legacy function for mean - same as mean()
+template &lt;typename T&gt; T avg(const Serie&lt;T&gt; &serie);
+
+// Return a Serie containing the average value (useful for pipeline operations)
+template &lt;typename T&gt; Serie&lt;T&gt; avg_serie(const Serie&lt;T&gt; &serie);</code></pre>
+        </div>
+        <p>
+          The <code>mean</code> and <code>avg</code> functions calculate the arithmetic average of all elements in a Serie. For vector types, they calculate the average component-wise.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mean/Average Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate mean of numeric values
+df::Serie&lt;double&gt; values{1.5, 2.5, 3.5, 4.5, 5.5};
+double mean_val = df::stats::mean(values);  // 3.5
+
+// For vector Serie, mean is calculated component-wise
+df::Serie&lt;Vector2&gt; points{{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}};
+Vector2 mean_point = df::stats::mean(points);  // {3.0, 4.0}
+
+// Using in a pipeline
+auto result = values | df::stats::bind_mean&lt;double&gt;();</code></pre>
+        </div>
+
+        <h3>Variance and Standard Deviation</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Variance and Standard Deviation Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate variance
+template &lt;typename T&gt;
+auto variance(const Serie&lt;T&gt; &serie, bool population = false);
+
+// Calculate standard deviation
+template &lt;typename T&gt;
+auto std_dev(const Serie&lt;T&gt; &serie, bool population = false);</code></pre>
+        </div>
+        <p>
+          These functions calculate the variance and standard deviation of a Serie. The <code>population</code> parameter controls whether to calculate the population statistics (dividing by n) or sample statistics (dividing by n-1).
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Variance and Standard Deviation Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate variance and standard deviation
+df::Serie&lt;double&gt; values{2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0};
+
+// Population statistics (dividing by n)
+double var_pop = df::stats::variance(values, true); 
+double std_pop = df::stats::std_dev(values, true);
+
+// Sample statistics (dividing by n-1, default)
+double var_sample = df::stats::variance(values); 
+double std_sample = df::stats::std_dev(values);
+
+// Using in a pipeline
+auto std_values = values | df::stats::bind_std_dev&lt;double&gt;();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Order Statistics</h2>
+        
+        <h3>Median and Quantiles</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Median and Quantile Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate median (middle value) of a Serie
+template &lt;typename T&gt; auto median(Serie&lt;T&gt; serie);
+
+// Calculate any quantile (value at a specific percentile)
+template &lt;typename T&gt; auto quantile(Serie&lt;T&gt; serie, double q);
+
+// Calculate Interquartile Range (IQR = Q3 - Q1)
+template &lt;typename T&gt; T iqr(const Serie&lt;T&gt; &serie);</code></pre>
+        </div>
+        <p>
+          These functions calculate order statistics, which are based on the sorted values of a Serie:
+        </p>
+        <ul>
+          <li><code>median</code> - The middle value (50th percentile) of the sorted Serie. For even-sized Series, it's the average of the two middle values.</li>
+          <li><code>quantile</code> - Any percentile from 0 to 1. For example, 0.25 gives the first quartile (Q1), 0.5 gives the median, and 0.75 gives the third quartile (Q3).</li>
+          <li><code>iqr</code> - The Interquartile Range, which is Q3 - Q1, a measure of statistical dispersion.</li>
+        </ul>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Median and Quantile Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate median
+df::Serie&lt;int&gt; values{5, 1, 8, 4, 3};
+int median_val = df::stats::median(values);  // 4
+
+// For even-sized Series, median is average of two middle values
+df::Serie&lt;double&gt; even_values{2.5, 1.0, 8.5, 3.5, 4.5, 6.0};
+double even_median = df::stats::median(even_values);  // 4.0 (avg of 3.5 and 4.5)
+
+// Calculate quartiles
+df::Serie&lt;double&gt; sorted_values{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+double q1 = df::stats::quantile(sorted_values, 0.25);  // First quartile
+double q2 = df::stats::quantile(sorted_values, 0.5);   // Second quartile (median)
+double q3 = df::stats::quantile(sorted_values, 0.75);  // Third quartile
+
+// Calculate Interquartile Range
+double iqr_val = df::stats::iqr(sorted_values);        // Q3 - Q1</code></pre>
+        </div>
+
+        <h3>Outlier Detection</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Outlier Detection Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Identify outliers using the 1.5 * IQR criterion
+template &lt;typename T&gt; Serie&lt;bool&gt; isOutlier(const Serie&lt;T&gt; &serie);
+
+// Identify non-outliers
+template &lt;typename T&gt; Serie&lt;bool&gt; notOutlier(const Serie&lt;T&gt; &serie);</code></pre>
+        </div>
+        <p>
+          These functions detect outliers using the common 1.5 × IQR criterion:
+        </p>
+        <ul>
+          <li>A value is considered an outlier if it is below Q1 - 1.5 × IQR or above Q3 + 1.5 × IQR.</li>
+          <li><code>isOutlier</code> returns a Serie of boolean values indicating which elements are outliers.</li>
+          <li><code>notOutlier</code> returns the complement, indicating which elements are not outliers.</li>
+        </ul>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Outlier Detection Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie with outliers
+df::Serie&lt;double&gt; data{1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 10.0};
+
+// Detect outliers
+df::Serie&lt;bool&gt; outliers = df::stats::isOutlier(data);
+// outliers might be {false, false, false, false, false, false, true}
+
+// Filter the data to keep only non-outliers
+df::Serie&lt;bool&gt; regular_values = df::stats::notOutlier(data);
+
+// Use with filter to remove outliers
+auto cleaned_data = data | df::filter([&](double, size_t idx) {
+    return !outliers[idx];
+});</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Advanced Statistics</h2>
+        
+        <h3>Mode</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mode Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate the mode (most frequent value)
+template &lt;typename T&gt; T mode(const Serie&lt;T&gt; &serie);</code></pre>
+        </div>
+        <p>
+          The <code>mode</code> function finds the most frequently occurring value in a Serie. If multiple values have the same highest frequency, it returns the first (lowest) such value.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mode Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate mode
+df::Serie&lt;int&gt; values{1, 2, 2, 3, 3, 3, 4, 4, 5};
+int mode_val = df::stats::mode(values);  // 3 (appears three times)</code></pre>
+        </div>
+
+        <h3>Z-Scores</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Z-Score Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate z-scores (standardized values)
+template &lt;typename T&gt;
+Serie&lt;double&gt; z_score(const Serie&lt;T&gt; &serie, bool population = false);</code></pre>
+        </div>
+        <p>
+          The <code>z_score</code> function standardizes a Serie by subtracting the mean and dividing by the standard deviation. The result shows how many standard deviations each value is from the mean.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Z-Score Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate z-scores
+df::Serie&lt;double&gt; values{2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0};
+df::Serie&lt;double&gt; z_scores = df::stats::z_score(values);
+
+// Values near zero are close to the mean
+// Values > 2 or < -2 are usually considered outliers
+
+// Using in a pipeline
+auto standardized = values | df::stats::bind_z_score&lt;double&gt;();</code></pre>
+        </div>
+
+        <h3>Correlation and Covariance</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Correlation and Covariance Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate covariance between two Series
+template &lt;typename T, typename U&gt;
+double covariance(const Serie&lt;T&gt; &serie1, const Serie&lt;U&gt; &serie2,
+                  bool population = false);
+
+// Calculate Pearson correlation coefficient
+template &lt;typename T, typename U&gt;
+double correlation(const Serie&lt;T&gt; &serie1, const Serie&lt;U&gt; &serie2);</code></pre>
+        </div>
+        <p>
+          These functions measure relationships between two Serie objects:
+        </p>
+        <ul>
+          <li><code>covariance</code> - Measures how two variables change together. Positive values indicate that they tend to increase together, negative values indicate that one tends to decrease as the other increases.</li>
+          <li><code>correlation</code> - The Pearson correlation coefficient, which is a normalized measure of covariance that always falls between -1 and 1. A value of 1 indicates perfect positive correlation, -1 indicates perfect negative correlation, and 0 indicates no linear correlation.</li>
+        </ul>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Correlation and Covariance Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate covariance and correlation
+df::Serie&lt;double&gt; x{1.0, 2.0, 3.0, 4.0, 5.0};
+df::Serie&lt;double&gt; y{5.0, 4.0, 3.0, 2.0, 1.0};
+
+// Calculate covariance
+double cov = df::stats::covariance(x, y);  // -2.5 (negative covariance)
+
+// Calculate correlation
+double corr = df::stats::correlation(x, y);  // -1.0 (perfect negative correlation)
+
+// Positive correlation example
+df::Serie&lt;double&gt; z{1.0, 2.0, 3.0, 4.0, 5.0};
+double pos_corr = df::stats::correlation(x, z);  // 1.0 (perfect positive correlation)</code></pre>
+        </div>
+
+        <h3>Summary Statistics</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Summary Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Calculate a vector of summary statistics
+template &lt;typename T&gt; auto summary(const Serie&lt;T&gt; &serie);</code></pre>
+        </div>
+        <p>
+          The <code>summary</code> function calculates multiple statistics at once and returns them in a map, similar to the summary function in R or Python's pandas.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Summary Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Get summary statistics
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+auto stats = df::stats::summary(values);
+
+// The summary map contains:
+// stats["count"] - Number of elements
+// stats["min"] - Minimum value
+// stats["q1"] - First quartile (25th percentile)
+// stats["median"] - Median (50th percentile)
+// stats["q3"] - Third quartile (75th percentile)
+// stats["max"] - Maximum value
+// stats["mean"] - Arithmetic mean
+// stats["std_dev"] - Standard deviation
+
+// Print the summary
+for (const auto& [key, value] : stats) {
+    std::cout << key << ": " << value << std::endl;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Pipeline Operations</h2>
+        <p>
+          All statistical functions have corresponding <code>bind_*</code> versions for use in pipelines. These allow you to chain operations together with the pipe operator <code>|</code>.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Binding Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Pipeline binding functions
+template &lt;typename T&gt; auto bind_avg();
+template &lt;typename T&gt; auto bind_mean();
+template &lt;typename T&gt; auto bind_variance(bool population = false);
+template &lt;typename T&gt; auto bind_std_dev(bool population = false);
+template &lt;typename T&gt; auto bind_median();
+template &lt;typename T&gt; auto bind_quantile(double q);
+template &lt;typename T&gt; auto bind_iqr();
+template &lt;typename T&gt; auto bind_isOutlier();
+template &lt;typename T&gt; auto bind_notOutlier();
+template &lt;typename T&gt; auto bind_mode();
+template &lt;typename T&gt; auto bind_z_score(bool population = false);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Serie
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 100.0};
+
+// Complex pipeline with multiple operations
+auto result = values
+    | df::stats::bind_isOutlier&lt;double&gt;()            // Detect outliers
+    | df::bind_map([&values](bool is_outlier, size_t i) {
+        return is_outlier ? NAN : values[i];        // Replace outliers with NaN
+      })
+    | df::filter([](double v, size_t) {
+        return !std::isnan(v);                      // Remove NaN values
+      })
+    | df::stats::bind_z_score&lt;double&gt;();            // Standardize remaining values
+
+// Calculate statistics through a pipeline
+double mean_val = values | df::stats::bind_mean&lt;double&gt;();
+double std_val = values | df::stats::bind_std_dev&lt;double&gt;();
+double median_val = values | df::stats::bind_median&lt;double&gt;();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>Most functions throw <code>std::runtime_error</code> if the input Serie is empty.</li>
+          <li>Functions that operate on multiple Series (like <code>correlation</code>) require both Series to have the same length.</li>
+          <li>For array types (vectors, matrices), functions typically operate component-wise.</li>
+          <li>The <code>population</code> parameter in variance and standard deviation controls whether to use n (population) or n-1 (sample) in the denominator.</li>
+          <li>When calculating quantiles, linear interpolation is used for quantiles that fall between data points.</li>
+          <li>For outlier detection, the standard 1.5 × IQR criterion is used.</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Complex Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Complete Analysis Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/stats.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;dataframe/filter.h&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+int main() {
+    // Create a Serie with some outliers
+    df::Serie&lt;double&gt; temperatures{
+        22.5, 23.1, 21.8, 22.7, 23.5, 22.9, 23.2, 35.6, 22.0, 23.4, 22.8, 10.2
+    };
+    
+    std::cout << "Temperature data analysis:\n";
+    
+    // Get summary statistics
+    auto stats = df::stats::summary(temperatures);
+    
+    // Print summary
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "Number of measurements: " << stats["count"] << std::endl;
+    std::cout << "Min temperature: " << stats["min"] << "°C" << std::endl;
+    std::cout << "Max temperature: " << stats["max"] << "°C" << std::endl;
+    std::cout << "Mean temperature: " << stats["mean"] << "°C" << std::endl;
+    std::cout << "Median temperature: " << stats["median"] << "°C" << std::endl;
+    std::cout << "Standard deviation: " << stats["std_dev"] << "°C" << std::endl;
+    
+    // Detect outliers
+    auto outliers = df::stats::isOutlier(temperatures);
+    
+    // Count outliers
+    int outlier_count = outliers.reduce([](int acc, bool is_outlier, size_t) {
+        return acc + (is_outlier ? 1 : 0);
+    }, 0);
+    
+    std::cout << "Number of outliers detected: " << outlier_count << std::endl;
+    
+    // Show outlier values
+    std::cout << "Outlier values: ";
+    for (size_t i = 0; i < temperatures.size(); ++i) {
+        if (outliers[i]) {
+            std::cout << temperatures[i] << "°C ";
+        }
+    }
+    std::cout << std::endl;
+    
+    // Remove outliers and recalculate statistics
+    auto cleaned_data = temperatures | df::filter([&outliers](double, size_t idx) {
+        return !outliers[idx];
+    });
+    
+    std::cout << "\nAfter removing outliers:\n";
+    std::cout << "Mean temperature: " << df::stats::mean(cleaned_data) << "°C" << std::endl;
+    std::cout << "Median temperature: " << df::stats::median(cleaned_data) << "°C" << std::endl;
+    std::cout << "Standard deviation: " << df::stats::std_dev(cleaned_data) << "°C" << std::endl;
+    
+    // Calculate z-scores for the cleaned data
+    auto z_scores = df::stats::z_score(cleaned_data);
+    
+    std::cout << "\nZ-scores for non-outlier temperatures:\n";
+    for (size_t i = 0; i < cleaned_data.size(); ++i) {
+        std::cout << "Temperature " << cleaned_data[i] << "°C: z-score = " 
+                  << z_scores[i] << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="bounds.html" class="related-function">bounds</a>
+          <a href="kde.html" class="related-function">Kernel Density Estimation</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

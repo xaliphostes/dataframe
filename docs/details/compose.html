@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>compose Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">compose</h1>
+      </div>
+      
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>compose</code> function creates a new operation by chaining multiple operations together in a functional programming style. Unlike <code>pipe</code> which applies operations in left-to-right order, <code>compose</code> applies them in right-to-left order (mathematical composition). This function provides an alternative way to combine operations when working with Serie objects.
+        </p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+// Base case for compose - just returns the value
+template &lt;typename T&gt; 
+auto compose(T&& value);
+
+// Apply operation and then recursively apply the rest
+template &lt;typename T, typename F, typename... Rest&gt;
+auto compose(T&& value, F&& operation, Rest&&... rest);
+
+// Create a composition of operations (base case - single operation)
+template &lt;typename F&gt; 
+auto make_compose(F&& operation);
+
+// Create a composition of multiple operations
+template &lt;typename F, typename... Rest&gt;
+auto make_compose(F&& first, Rest&&... rest);
+        </code></pre>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">value</span></td>
+              <td><span class="param-type">T&&</span></td>
+              <td>The initial value to be transformed by the operations.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">operation</span></td>
+              <td><span class="param-type">F&& (callable)</span></td>
+              <td>A function or callable object that transforms the value.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">rest...</span></td>
+              <td><span class="param-type">Rest&&...</span></td>
+              <td>Additional operations to be applied in sequence.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">first</span></td>
+              <td><span class="param-type">F&& (callable)</span></td>
+              <td>The first operation to apply in the composition.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>Returns the result of applying all the operations to the input value in right-to-left order. The exact return type depends on the operations and the input value type.</p>
+        <p>For <code>make_compose</code>, returns a callable object that represents the composition of the provided operations. When this callable is invoked with a value, it will apply all operations in the composition to that value in right-to-left order.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Composition Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/core/compose.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Create a Serie of numbers
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5};
+    
+    // Define operations
+    auto add_one = [](int x) { return x + 1; };
+    auto multiply_by_two = [](int x) { return x * 2; };
+    auto square = [](int x) { return x * x; };
+    
+    // Use compose directly (operations applied right-to-left)
+    // This is equivalent to: square(multiply_by_two(add_one(3)))
+    // add_one: 3 -> 4
+    // multiply_by_two: 4 -> 8
+    // square: 8 -> 64
+    auto result = df::compose(3, square, multiply_by_two, add_one);
+    std::cout << "Result: " << result << std::endl;  // Output: 64
+    
+    return 0;
+}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Composition with Serie Objects</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/core/compose.h&gt;
+#include &lt;dataframe/core/map.h&gt;
+#include &lt;dataframe/core/filter.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Create a Serie of numbers
+    df::Serie&lt;int&gt; numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    
+    // Define Serie transformations
+    auto double_values = [](const df::Serie&lt;int&gt;& s) {
+        return s.map([](int x, size_t) { return x * 2; });
+    };
+    
+    auto keep_even = [](const df::Serie&lt;int&gt;& s) {
+        return df::filter([](int x, size_t) { return x % 2 == 0; }, s);
+    };
+    
+    auto add_ten = [](const df::Serie&lt;int&gt;& s) {
+        return s.map([](int x, size_t) { return x + 10; });
+    };
+    
+    // Use compose with Serie transformations (right-to-left order)
+    // First add_ten, then keep_even, then double_values
+    auto result = df::compose(numbers, double_values, keep_even, add_ten);
+    
+    // Print result
+    std::cout << "Result: ";
+    result.forEach([](int x, size_t) {
+        std::cout << x << " ";
+    });
+    std::cout << std::endl;
+    // Output: Result: 24 28 32 36 40
+    
+    return 0;
+}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Using make_compose</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/core/compose.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Create a Serie
+    df::Serie&lt;double&gt; values{1.1, 2.2, 3.3, 4.4, 5.5};
+    
+    // Define operations for individual elements
+    auto add_one = [](double x) { return x + 1.0; };
+    auto multiply_by_two = [](double x) { return x * 2.0; };
+    auto square = [](double x) { return x * x; };
+    
+    // Create a composed operation
+    auto composed_op = df::make_compose(square, multiply_by_two, add_one);
+    
+    // Apply the composed operation to each element
+    auto result = values.map([&composed_op](double x, size_t) {
+        return composed_op(x);
+    });
+    
+    // Print result
+    std::cout << "Original values: ";
+    values.forEach([](double x, size_t) { std::cout << x << " "; });
+    std::cout << std::endl;
+    
+    std::cout << "After composed operation: ";
+    result.forEach([](double x, size_t) { std::cout << x << " "; });
+    std::cout << std::endl;
+    // For each element x:
+    // add_one: x -> x+1
+    // multiply_by_two: (x+1) -> 2*(x+1)
+    // square: 2*(x+1) -> (2*(x+1))²
+    
+    return 0;
+}</code></pre>
+        </div>
+        
+        <div class="code-container">
+          <div class="code-header">
+            <span>Composition with Series Transformations</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/core/compose.h&gt;
+#include &lt;dataframe/math/random.h&gt;
+#include &lt;dataframe/core/map.h&gt;
+#include &lt;dataframe/core/filter.h&gt;
+#include &lt;dataframe/core/sort.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Generate a Serie of random values
+    auto random_data = df::random_uniform&lt;double&gt;(100, 0.0, 100.0);
+    
+    // Define Serie transformations
+    auto keep_above_50 = [](const df::Serie&lt;double&gt;& s) {
+        return df::filter([](double x, size_t) { return x > 50.0; }, s);
+    };
+    
+    auto sort_ascending = [](const df::Serie&lt;double&gt;& s) {
+        return df::sort(s, df::SortOrder::ASCENDING);
+    };
+    
+    auto take_top_10 = [](const df::Serie&lt;double&gt;& s) {
+        size_t count = std::min(size_t(10), s.size());
+        std::vector&lt;double&gt; top;
+        for (size_t i = s.size() - count; i < s.size(); ++i) {
+            top.push_back(s[i]);
+        }
+        return df::Serie&lt;double&gt;(top);
+    };
+    
+    auto round_values = [](const df::Serie&lt;double&gt;& s) {
+        return s.map([](double x, size_t) { return std::round(x * 10.0) / 10.0; });
+    };
+    
+    // Create a pipeline using make_compose
+    auto data_pipeline = df::make_compose(
+        round_values,      // Round to one decimal place
+        take_top_10,       // Take the top 10 values
+        sort_ascending,    // Sort in ascending order
+        keep_above_50      // Filter values > 50
+    );
+    
+    // Run the pipeline
+    auto result = data_pipeline(random_data);
+    
+    // Print result
+    std::cout << "Top 10 values above 50 (rounded): ";
+    result.forEach([](double x, size_t) {
+        std::cout << x << " ";
+    });
+    std::cout << std::endl;
+    
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Comparison to pipe</h2>
+        <p>The DataFrame library provides two ways to chain operations: <code>compose</code> and <code>pipe</code>. Both have their use cases:</p>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th><code>compose</code></th>
+              <th><code>pipe</code></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Operation Order</td>
+              <td>Right-to-left (mathematical composition)</td>
+              <td>Left-to-right (sequential processing)</td>
+            </tr>
+            <tr>
+              <td>Readability</td>
+              <td>Better for mathematical transformations where composition order is natural</td>
+              <td>Better for sequential data processing workflows</td>
+            </tr>
+            <tr>
+              <td>Syntax</td>
+              <td><code>compose(value, op1, op2, op3)</code></td>
+              <td><code>pipe(value, op1, op2, op3)</code> or <code>value | op1 | op2 | op3</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Choose the approach that best matches your mental model of the data transformation process.</p>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The <code>compose</code> function applies operations in reverse order compared to <code>pipe</code> (right-to-left).</li>
+          <li>Perfect forwarding is used to preserve value categories and avoid unnecessary copies.</li>
+          <li>The <code>make_compose</code> function creates a reusable composition that can be applied to multiple values.</li>
+          <li>Composition works with any compatible operations where the output of one can be used as input to the next.</li>
+          <li>Type deduction automatically determines the return type based on the operations and input value.</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="forEach.html" class="related-function">forEach</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

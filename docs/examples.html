@@ -35,32 +35,56 @@
     </header>
 
     <main>
-        <div class="container">
-            <h1 class="page-title animate-fade-in">DataFrame Library Examples</h1>
+        <div class="examples-container">
+            <aside class="examples-sidebar">
+                <nav>
+                    <ul>
+                        <li><a href="#data-processing">Data Processing</a>
+                            <ul>
+                                <li><a href="#basic-operations-pipeline">Basic Operations Pipeline</a></li>
+                                <li><a href="#time-series-analysis">Time Series Analysis</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#data-visualization">Data Visualization</a>
+                            <ul>
+                                <li><a href="#geographic-nearest-neighbors">Geographic Nearest Neighbors</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#advanced-applications">Advanced Applications</a>
+                            <ul>
+                                <li><a href="#scientific-data-processing">Scientific Data Processing</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
 
-            <div class="search-container animate-fade-in delay-100">
-                <input type="text" class="search-box" placeholder="Search examples...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
+                <!-- <div class="search-box-container">
+                    <input type="text" class="search-box" placeholder="Search examples...">
+                    <i class="fas fa-search search-icon"></i>
+                </div> -->
+            </aside>
 
-            <!-- Data Processing Examples -->
-            <div class="category-container animate-slide-up" data-delay="200">
-                <h2 class="category-title">Data Processing Examples</h2>
+            <div class="examples-content">
+                <h1 class="page-title animate-fade-in">DataFrame Library Examples</h1>
 
-                <div class="example-card">
-                    <h3>Basic Operations Pipeline</h3>
-                    <p>This example shows how to chain multiple operations on numerical data using pipelines.</p>
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>Data Pipeline</span>
-                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
-                        </div>
-                        <pre><code class="cpp">
+                <!-- Data Processing Examples -->
+                <div id="data-processing" class="category-container animate-slide-up" data-delay="200">
+                    <h2 class="category-title">Data Processing Examples</h2>
+
+                    <div id="basic-operations-pipeline" class="example-card">
+                        <h3>Basic Operations Pipeline</h3>
+                        <p>This example shows how to chain multiple operations on numerical data using pipelines.</p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span>Data Pipeline</span>
+                                <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <pre><code class="cpp">
 #include &lt;dataframe/Serie.h&gt;
-#include &lt;dataframe/pipe.h&gt;
-#include &lt;dataframe/map.h&gt;
-#include &lt;dataframe/filter.h&gt;
-#include &lt;dataframe/reduce.h&gt;
+#include &lt;dataframe/core/pipe.h&gt;
+#include &lt;dataframe/core/map.h&gt;
+#include &lt;dataframe/core/filter.h&gt;
+#include &lt;dataframe/core/reduce.h&gt;
 #include &lt;dataframe/stats/avg.h&gt;
 #include &lt;iostream&gt;
 
@@ -93,59 +117,35 @@ int main() {
     return 0;
 }
 </code></pre>
-                    </div>
+                        </div>
 
-                    <p>Output:</p>
-                    <pre class="output">
+                        <p>Output:</p>
+                        <pre class="output">
 Original scores: 42 65 87 91 55 78 93 60 32 88 
 Average after processing: 85.71
 </pre>
-                </div>
+                    </div>
 
-                <div class="example-card">
-                    <h3>Time Series Analysis</h3>
-                    <p>This example demonstrates how to use DataFrame to analyze time series data by calculating moving
-                        averages and detecting trends.</p>
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>Time Series Analysis</span>
-                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
-                        </div>
-                        <pre><code class="cpp">
+                    <div id="time-series-analysis" class="example-card">
+                        <h3>Time Series Analysis</h3>
+                        <p>This example demonstrates how to use DataFrame to analyze time series data by calculating
+                            moving
+                            averages and detecting trends.</p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span>Time Series Analysis</span>
+                                <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <pre><code class="cpp">
 #include &lt;dataframe/Serie.h&gt;
-#include &lt;dataframe/zip.h&gt;
-#include &lt;dataframe/unzip.h&gt;
-#include &lt;dataframe/map.h&gt;
-#include &lt;dataframe/forEach.h&gt;
+#include &lt;dataframe/core/zip.h&gt;
+#include &lt;dataframe/core/unzip.h&gt;
+#include &lt;dataframe/core/map.h&gt;
+#include &lt;dataframe/core/forEach.h&gt;
+#include &lt;dataframe/stats/moving_avg.h&gt;
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
 #include &lt;numeric&gt;
-
-// Calculate moving average with window size
-template &lt;typename T&gt;
-df::Serie&lt;double&gt; movingAverage(const df::Serie&lt;T&gt;& serie, size_t window) {
-    if (serie.size() < window) {
-        throw std::runtime_error("Serie is smaller than window size");
-    }
-    
-    return serie.map([window](double val, size_t idx, const auto& s) {
-        if (idx < window - 1) {
-            // For the first (window-1) elements, average fewer values
-            double sum = 0.0;
-            for (size_t i = 0; i <= idx; ++i) {
-                sum += s[i];
-            }
-            return sum / (idx + 1);
-        } else {
-            // For the rest, use the full window
-            double sum = 0.0;
-            for (size_t i = idx - window + 1; i <= idx; ++i) {
-                sum += s[i];
-            }
-            return sum / window;
-        }
-    });
-}
 
 // Calculate if value is increasing compared to previous
 df::Serie&lt;bool&gt; isTrending(const df::Serie&lt;double&gt;& serie) {
@@ -168,7 +168,7 @@ int main() {
     auto time_series = df::zip(timestamps, prices);
     
     // Calculate moving average (window size 3)
-    auto ma3 = movingAverage(prices, 3);
+    auto ma3 = df::moving_avg(prices, 3);
     
     // Detect upward trends in the moving average
     auto trends = isTrending(ma3);
@@ -195,10 +195,10 @@ int main() {
     return 0;
 }
 </code></pre>
-                    </div>
+                        </div>
 
-                    <p>Output:</p>
-                    <pre class="output">
+                        <p>Output:</p>
+                        <pre class="output">
 Day     Price   MA(3)   Trending Up
 ------------------------------------
 1       100.25  100.25  No
@@ -219,23 +219,24 @@ Day     Price   MA(3)   Trending Up
 
 Days with upward trend: 13 out of 15 (86.6667%)
 </pre>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Data Visualization Examples -->
-            <div class="category-container animate-slide-up" data-delay="300">
-                <h2 class="category-title">Data Visualization Examples</h2>
+                <!-- Data Visualization Examples -->
+                <div id="data-visualization" class="category-container animate-slide-up" data-delay="300">
+                    <h2 class="category-title">Data Visualization Examples</h2>
 
-                <div class="example-card">
-                    <h3>Combining DataFrame with KDTree for Geographic Data</h3>
-                    <p>This example demonstrates how to use the KDTree class to efficiently find the nearest neighbors
-                        in a geographic dataset.</p>
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>Geographic Nearest Neighbors</span>
-                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
-                        </div>
-                        <pre><code class="cpp">
+                    <div id="geographic-nearest-neighbors" class="example-card">
+                        <h3>Combining DataFrame with KDTree for Geographic Data</h3>
+                        <p>This example demonstrates how to use the KDTree class to efficiently find the nearest
+                            neighbors
+                            in a geographic dataset.</p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span>Geographic Nearest Neighbors</span>
+                                <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <pre><code class="cpp">
 #include &lt;dataframe/Serie.h&gt;
 #include &lt;dataframe/geo/kdtree.h&gt;
 #include &lt;dataframe/types.h&gt;
@@ -311,10 +312,10 @@ int main() {
     return 0;
 }
 </code></pre>
-                    </div>
+                        </div>
 
-                    <p>Output:</p>
-                    <pre class="output">
+                        <p>Output:</p>
+                        <pre class="output">
 Query Location: Austin, TX (30.2672, -97.7431)
 
 Nearest city: San Antonio
@@ -325,35 +326,36 @@ Top 3 nearest cities:
 - Houston (Distance: 234.15 km)
 - Dallas (Distance: 297.35 km)
 </pre>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Advanced Applications -->
-            <div class="category-container animate-slide-up" data-delay="400">
-                <h2 class="category-title">Advanced Applications</h2>
+                <!-- Advanced Applications -->
+                <div id="advanced-applications" class="category-container animate-slide-up" data-delay="400">
+                    <h2 class="category-title">Advanced Applications</h2>
 
-                <div class="example-card">
-                    <h3>Scientific Data Processing with DataFrame</h3>
-                    <p>
-                        This example demonstrates using DataFrame for scientific data processing with vector operations
-                        and statistics.
-                        <br>
-                        It does not use the existing <b>stats</b> package from this library, but instead calculates
-                        statistics manually for educational purposes.
-                    </p>
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>Scientific Data Processing</span>
-                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
-                        </div>
-                        <pre><code class="cpp">
+                    <div id="scientific-data-processing" class="example-card">
+                        <h3>Scientific Data Processing with DataFrame</h3>
+                        <p>
+                            This example demonstrates using DataFrame for scientific data processing with vector
+                            operations
+                            and statistics.
+                            <br>
+                            It does not use the existing <b>stats</b> package from this library, but instead calculates
+                            statistics manually for educational purposes.
+                        </p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span>Scientific Data Processing</span>
+                                <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                            </div>
+                            <pre><code class="cpp">
 #include &lt;dataframe/Serie.h&gt;
 #include &lt;dataframe/math/random.h&gt;
 #include &lt;dataframe/math/bounds.h&gt;
-#include &lt;dataframe/zip.h&gt;
-#include &lt;dataframe/map.h&gt;
-#include &lt;dataframe/reduce.h&gt;
-#include &lt;dataframe/filter.h&gt;
+#include &lt;dataframe/core/zip.h&gt;
+#include &lt;dataframe/core/map.h&gt;
+#include &lt;dataframe/core/reduce.h&gt;
+#include &lt;dataframe/core/filter.h&gt;
 #include &lt;iostream&gt;
 #include &lt;iomanip&gt;
 #include &lt;cmath&gt;
@@ -466,10 +468,10 @@ int main() {
     return 0;
 }
 </code></pre>
-                    </div>
+                        </div>
 
-                    <p>Output:</p>
-                    <pre class="output">
+                        <p>Output:</p>
+                        <pre class="output">
 ---- Statistics for Normal Distribution Data ----
 Count: 1000
 Min: 49.1287
@@ -499,6 +501,7 @@ Covariance: 9.9826
 Correlation coefficient: 0.9962
 Coefficient of determination (R²): 0.9924
 </pre>
+                    </div>
                 </div>
             </div>
         </div>
@@ -517,32 +520,240 @@ Coefficient of determination (R²): 0.9924
         </div>
     </footer>
 
+    <style>
+        /* Additional styles for the examples page with sidebar */
+        .examples-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .examples-sidebar {
+            width: 220px;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .examples-sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: block; 
+        }
+
+        .examples-sidebar nav>ul>li {
+            margin-bottom: 15px;
+        }
+
+        .examples-sidebar nav>ul>li>a {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all var(--transition-speed);
+        }
+
+        .examples-sidebar nav>ul>li>a:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .examples-sidebar nav>ul>li>ul {
+            padding-left: 15px;
+            margin-top: 5px;
+        }
+
+        .examples-sidebar nav>ul>li>ul>li {
+            margin-bottom: 5px;
+        }
+
+        .examples-sidebar nav>ul>li>ul>li>a {
+            display: block;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all var(--transition-speed);
+        }
+
+        .examples-sidebar nav>ul>li>ul>li>a:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        .examples-content {
+            flex: 1;
+            max-width: 900px;
+            padding-left: 30px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .search-box-container {
+            position: relative;
+        }
+
+        .examples-sidebar .search-box {
+            width: 100%;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+        }
+
+        .examples-sidebar .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+            pointer-events: none;
+        }
+
+        /* Highlight the current example */
+        .active-example {
+            background-color: rgba(74, 111, 165, 0.1);
+            font-weight: 600;
+        }
+
+        /* Adding IDs to example cards for navigation */
+        .example-card {
+            scroll-margin-top: 100px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .examples-container {
+                flex-direction: column;
+            }
+
+            .examples-sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                padding-right: 0;
+                margin-bottom: 30px;
+            }
+
+            .examples-content {
+                padding-left: 0;
+                border-left: none;
+            }
+        }
+    </style>
+
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize search functionality
-            const searchBox = document.querySelector('.search-box');
+            // Search functionality
+            const searchBox = document.querySelector('.examples-sidebar .search-box');
             const exampleCards = document.querySelectorAll('.example-card');
             const categories = document.querySelectorAll('.category-container');
+            const sidebarLinks = document.querySelectorAll('.examples-sidebar a[href^="#"]');
 
             searchBox.addEventListener('input', function (e) {
                 const term = e.target.value.toLowerCase();
 
+                // First, reset all visibility
                 exampleCards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const content = card.querySelector('p').textContent.toLowerCase();
-                    const code = card.querySelector('code').textContent.toLowerCase();
-                    const isMatch = title.includes(term) || content.includes(term) || code.includes(term);
-
-                    card.style.display = isMatch ? 'block' : 'none';
+                    card.style.display = 'block';
+                });
+                categories.forEach(category => {
+                    category.style.display = 'block';
                 });
 
-                // Hide empty categories
-                categories.forEach(category => {
-                    const visibleCards = Array.from(category.querySelectorAll('.example-card')).filter(
-                        card => card.style.display !== 'none'
-                    );
-                    category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+                if (term.trim() !== '') {
+                    exampleCards.forEach(card => {
+                        const title = card.querySelector('h3').textContent.toLowerCase();
+                        const content = card.querySelector('p').textContent.toLowerCase();
+                        const code = card.querySelector('code').textContent.toLowerCase();
+                        const isMatch = title.includes(term) || content.includes(term) || code.includes(term);
+
+                        card.style.display = isMatch ? 'block' : 'none';
+                    });
+
+                    // Hide empty categories
+                    categories.forEach(category => {
+                        const visibleCards = Array.from(category.querySelectorAll('.example-card')).filter(
+                            card => card.style.display !== 'none'
+                        );
+                        category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+                    });
+                }
+            });
+
+            // Smooth scrolling for sidebar links
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Smooth scroll to the target
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+
+                        // Update active state
+                        sidebarLinks.forEach(link => link.classList.remove('active-example'));
+                        this.classList.add('active-example');
+                    }
+                });
+            });
+
+            // Update active link based on scroll position
+            function updateActiveLink() {
+                let scrollPosition = window.scrollY + 100;
+
+                exampleCards.forEach(card => {
+                    if (card.offsetTop <= scrollPosition && card.offsetTop + card.offsetHeight > scrollPosition) {
+                        const id = card.id;
+                        // Remove active class from all links
+                        sidebarLinks.forEach(link => link.classList.remove('active-example'));
+                        // Add active class to corresponding link
+                        const activeLink = document.querySelector(`.examples-sidebar a[href="#${id}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('active-example');
+                        }
+                    }
+                });
+            }
+
+            // Call updateActiveLink on scroll and on page load
+            window.addEventListener('scroll', updateActiveLink);
+            updateActiveLink();
+
+            // Initially expand all sections in the sidebar
+            const categoryLinks = document.querySelectorAll('.examples-sidebar > nav > ul > li > a');
+            categoryLinks.forEach(link => {
+                const subMenu = link.nextElementSibling;
+                if (subMenu && subMenu.tagName === 'UL') {
+                    subMenu.style.display = 'block';
+                }
+            });
+
+            // Add toggle functionality to category links (optional feature)
+            categoryLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    const isDirectLink = this.getAttribute('href').startsWith('#');
+                    if (!isDirectLink) {
+                        e.preventDefault();
+                        const subMenu = this.nextElementSibling;
+                        if (subMenu && subMenu.tagName === 'UL') {
+                            const isVisible = subMenu.style.display !== 'none';
+                            subMenu.style.display = isVisible ? 'none' : 'block';
+                        }
+                    }
                 });
             });
         });

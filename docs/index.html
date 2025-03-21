@@ -4,23 +4,539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dataframe Library Documentation</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>DataFrame Library Documentation</title>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #9aceff;
+            --accent-color: #ff6b6b;
+            --background-color: #f8f9fa;
+            --code-background: #272822;
+            --text-color: #333;
+            --light-text: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --radius: 4px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            padding: 20px 0;
+            color: white;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-text {
+            letter-spacing: 1px;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: var(--radius);
+            transition: all var(--transition-speed) ease;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content Styles */
+        main {
+            flex: 1;
+            display: flex;
+            padding-bottom: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: #f0f4f8;
+            padding: 20px;
+            height: calc(100vh - 80px);
+            /* Adjust based on header height */
+            position: sticky;
+            top: 80px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 8px 10px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: all var(--transition-speed) ease;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .sidebar-submenu {
+            list-style: none;
+            margin-left: 15px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .sidebar-menu li.expanded .sidebar-submenu {
+            display: block;
+        }
+
+        .sidebar-submenu a {
+            font-size: 0.9rem;
+            padding: 6px 10px;
+        }
+
+        .has-submenu {
+            position: relative;
+        }
+
+        .has-submenu::after {
+            content: '\f105';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform var(--transition-speed);
+        }
+
+        .has-submenu.expanded::after {
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+        .mobile-nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Grid Layout for Index */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-container {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            padding: 20px;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border-left: 4px solid var(--primary-color);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 50%, rgba(74, 111, 165, 0.1) 50%);
+            background-size: 200% 200%;
+            background-position: 0 0;
+            transition: background-position var(--transition-speed) ease;
+        }
+
+        .card:hover::before {
+            background-position: 100% 100%;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .tag-core {
+            background-color: var(--primary-color);
+        }
+
+        .tag-math {
+            background-color: var(--info-color);
+        }
+
+        .tag-utility {
+            background-color: var(--success-color);
+        }
+
+        .tag-advanced {
+            background-color: var(--warning-color);
+        }
+
+        .tag-io {
+            background-color: var(--danger-color);
+        }
+
+        .card-description {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color var(--transition-speed);
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Search Box */
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Animated Elements */
+        .animate-fade-in {
+            animation: fadeIn var(--transition-speed) ease forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideInUp var(--transition-speed) ease forwards;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft var(--transition-speed) ease forwards;
+        }
+
+        /* Delay Classes */
+        .delay-100 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-300 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-400 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-500 {
+            animation-delay: 0.5s;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                gap: 10px;
+            }
+
+            .mobile-nav-toggle {
+                display: block;
+                position: absolute;
+                right: 20px;
+                top: 20px;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                height: 100vh;
+                z-index: 200;
+                transition: left var(--transition-speed);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            main {
+                flex-direction: column;
+            }
+
+            .content-area {
+                width: 100%;
+            }
+
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 150;
+                display: none;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <header>
+        <button class="mobile-nav-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
         <div class="container">
             <a href="index.html" class="logo">
                 <span class="logo-icon"><i class="fas fa-table"></i></span>
-                <span class="logo-text">Dataframe</span>
+                <span class="logo-text">DataFrame</span>
             </a>
             <nav>
                 <ul>
-                    <li><a href="index.html">API Reference</a></li>
+                    <li><a href="index.html" class="active">API Reference</a></li>
                     <li><a href="examples.html">Examples</a></li>
                     <li><a href="tutorial.html">Tutorial</a></li>
                     <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
@@ -29,9 +545,94 @@
         </div>
     </header>
 
+    <div class="overlay"></div>
+
     <main>
-        <div class="container">
-            <h1 class="page-title animate-fade-in">Dataframe Library API Reference</h1>
+        <aside class="sidebar animate-slide-left">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Getting Started</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="index.html" class="active">API Reference</a></li>
+                    <li><a href="examples.html">Examples</a></li>
+                    <li><a href="tutorial.html">Tutorial</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Core Components</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="details/serie.html">Serie</a></li>
+                    <li><a href="details/dataframe.html">Dataframe</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Functional Operations</h3>
+                <ul class="sidebar-menu">
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Element Processing</a>
+                        <ul class="sidebar-submenu">
+                            <li><a href="details/forEach.html">forEach</a></li>
+                            <li><a href="details/map.html">map</a></li>
+                            <li><a href="details/reduce.html">reduce</a></li>
+                            <li><a href="details/filter.html">filter</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Control Flow</a>
+                        <ul class="sidebar-submenu">
+                            <li><a href="details/if_then_else.html">if_then_else</a></li>
+                            <li><a href="details/switch_case.html">switch_case</a></li>
+                            <li><a href="details/pipe.html">pipe</a></li>
+                            <li><a href="details/compose.html">compose</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Series Manipulation</a>
+                        <ul class="sidebar-submenu">
+                            <li><a href="details/zip.html">zip</a></li>
+                            <li><a href="details/unzip.html">unzip</a></li>
+                            <li><a href="details/split.html">split</a></li>
+                            <li><a href="details/chain.html">chain</a></li>
+                            <li><a href="details/sort.html">sort</a></li>
+                            <li><a href="details/format.html">format</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Mathematical Operations</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="details/add.html">add</a></li>
+                    <li><a href="details/bounds.html">bounds</a></li>
+                    <li><a href="details/random.html">random</a></li>
+                    <li><a href="details/stats.html">statistics</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Advanced Components</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="details/kdtree.html">KDTree</a></li>
+                    <li><a href="details/grid.html">Grid2D/Grid3D</a></li>
+                    <li><a href="details/mesh.html">Mesh</a></li>
+                    <li><a href="details/attributes.html">Attributes Manager</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">I/O Operations</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="details/csv.html">CSV</a></li>
+                    <li><a href="details/json.html">JSON</a></li>
+                    <li><a href="details/binary_serialization.html">Binary Serialization</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <div class="content-area">
+            <h1 class="page-title animate-fade-in">DataFrame Library API Reference</h1>
 
             <div class="search-container animate-fade-in delay-100">
                 <input type="text" class="search-box" placeholder="Search for functions, classes, or keywords...">
@@ -45,7 +646,7 @@
                     <!-- Serie -->
                     <a href="details/serie.html" class="card">
                         <h3 class="card-title">Serie</h3>
-                        <!-- <span class="card-tag tag-core">Core</span> -->
+                        <span class="card-tag tag-core">Core</span>
                         <p class="card-description">A column of data with elements of the same type, providing the
                             fundamental
                             building block of the library.</p>
@@ -54,7 +655,7 @@
                     <!-- Dataframe -->
                     <a href="details/dataframe.html" class="card">
                         <h3 class="card-title">Dataframe</h3>
-                        <!-- <span class="card-tag tag-core">Core</span> -->
+                        <span class="card-tag tag-core">Core</span>
                         <p class="card-description">A collection of named Series that can have different element types.
                         </p>
                     </a>
@@ -146,38 +747,30 @@
                         <p class="card-description">Divides a Serie into multiple equal-sized parts.</p>
                     </a>
 
-                    <!-- format -->
-                    <a href="details/format.html" class="card">
-                        <h3 class="card-title">format</h3>
+                    <!-- chain -->
+                    <a href="details/chain.html" class="card">
+                        <h3 class="card-title">chain</h3>
                         <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Converts a Serie to a formatted string representation.</p>
-                    </a>
-
-                    <!-- sort -->
-                    <a href="details/sort.html" class="card">
-                        <h3 class="card-title">sort</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Creates a sorted copy of a Serie in ascending or descending order.
-                        </p>
+                        <p class="card-description">Concatenates multiple Series into a single Serie.</p>
                     </a>
                 </div>
             </div>
 
             <!-- Stats Functions -->
-            <div class="category-container animate-slide-up" data-delay="500">
+            <div class="category-container animate-slide-up" data-delay="400">
                 <h2 class="category-title">Statistical Functions</h2>
                 <div class="grid-container">
-                    <a href="details/moving_avg.html" class="card">
-                        <h3 class="card-title">moving_avg</h3>
+                    <a href="details/stats.html" class="card">
+                        <h3 class="card-title">Statistics</h3>
                         <span class="card-tag tag-utility">Stats</span>
-                        <p class="card-description">Compute moving average of a Serie with specified window size.</p>
+                        <p class="card-description">Statistical functions including mean, variance, standard deviation,
+                            median, quantiles, and more.</p>
                     </a>
-
                 </div>
             </div>
 
             <!-- Mathematical Operations -->
-            <div class="category-container animate-slide-up" data-delay="400">
+            <div class="category-container animate-slide-up" data-delay="500">
                 <h2 class="category-title">Mathematical Operations</h2>
                 <div class="grid-container">
                     <!-- add -->
@@ -200,12 +793,38 @@
                         <span class="card-tag tag-math">Math</span>
                         <p class="card-description">Finds the minimum and maximum values in a Serie.</p>
                     </a>
+                </div>
+            </div>
 
+            <!-- I/O Operations -->
+            <div class="category-container animate-slide-up" data-delay="600">
+                <h2 class="category-title">I/O Operations</h2>
+                <div class="grid-container">
+                    <!-- CSV -->
+                    <a href="details/csv.html" class="card">
+                        <h3 class="card-title">CSV</h3>
+                        <span class="card-tag tag-io">I/O</span>
+                        <p class="card-description">Read and write CSV files with automatic type detection.</p>
+                    </a>
+
+                    <!-- JSON -->
+                    <a href="details/json.html" class="card">
+                        <h3 class="card-title">JSON</h3>
+                        <span class="card-tag tag-io">I/O</span>
+                        <p class="card-description">Read and write JSON data with DataFrame integration.</p>
+                    </a>
+
+                    <!-- Binary Serialization -->
+                    <a href="details/binary_serialization.html" class="card">
+                        <h3 class="card-title">Binary Serialization</h3>
+                        <span class="card-tag tag-io">I/O</span>
+                        <p class="card-description">Efficient binary serialization of Series with type preservation.</p>
+                    </a>
                 </div>
             </div>
 
             <!-- Advanced Components -->
-            <div class="category-container animate-slide-up" data-delay="600">
+            <div class="category-container animate-slide-up" data-delay="700">
                 <h2 class="category-title">Advanced Components</h2>
                 <div class="grid-container">
                     <!-- KDTree -->
@@ -249,12 +868,112 @@
                 <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
             </div>
             <div class="copyright">
-                &copy; 2025 Dataframe Library. MIT License.
+                &copy; 2025 DataFrame Library. MIT License.
             </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle sidebar on mobile
+            const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            mobileNavToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+
+            // Submenu toggle
+            const submenuItems = document.querySelectorAll('.has-submenu');
+
+            submenuItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    if (e.target.tagName === 'A' && e.target.classList.contains('has-submenu')) {
+                        e.preventDefault();
+                        this.classList.toggle('expanded');
+                    }
+                });
+            });
+
+            // Search functionality
+            const searchBox = document.querySelector('.search-box');
+            const cards = document.querySelectorAll('.card');
+            const categories = document.querySelectorAll('.category-container');
+
+            searchBox.addEventListener('input', function () {
+                const term = this.value.toLowerCase();
+
+                if (term === '') {
+                    // Show all cards and categories if search is empty
+                    cards.forEach(card => card.style.display = 'block');
+                    categories.forEach(category => category.style.display = 'block');
+                    return;
+                }
+
+                // Hide/show cards based on search term
+                cards.forEach(card => {
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    const description = card.querySelector('.card-description').textContent.toLowerCase();
+                    const tags = Array.from(card.querySelectorAll('.card-tag'))
+                        .map(tag => tag.textContent.toLowerCase());
+
+                    const isMatch = title.includes(term) ||
+                        description.includes(term) ||
+                        tags.some(tag => tag.includes(term));
+
+                    card.style.display = isMatch ? 'block' : 'none';
+                });
+
+                // Hide categories with no visible cards
+                categories.forEach(category => {
+                    const visibleCards = Array.from(category.querySelectorAll('.card'))
+                        .filter(card => card.style.display !== 'none');
+
+                    category.style.display = visibleCards.length > 0 ? 'block' : 'none';
+                });
+            });
+
+            // Animate elements on page load
+            const fadeElements = document.querySelectorAll('.animate-fade-in');
+            const slideUpElements = document.querySelectorAll('.animate-slide-up');
+            const slideLeftElements = document.querySelectorAll('.animate-slide-left');
+
+            fadeElements.forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.classList.add('animated');
+                }, 100);
+            });
+
+            slideUpElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                    el.classList.add('animated');
+                }, 100 + (parseInt(el.dataset.delay || 0)));
+            });
+
+            slideLeftElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateX(0)';
+                    el.classList.add('animated');
+                }, 100);
+            });
+        });
+    </script>
 </body>
 
 </html>
