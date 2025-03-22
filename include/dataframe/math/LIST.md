@@ -1,0 +1,12 @@
+- add
+- bounds
+- div
+- equals
+- mult
+- negate
+- normalize
+- random
+- scale
+- sub
+- weightedSum
+- operators *, /, +, -

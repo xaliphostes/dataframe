@@ -24,7 +24,7 @@
 #pragma once
 #include <dataframe/Serie.h>
 #include <dataframe/core/pipe.h>
-#include <dataframe/utils/print.h>
+#include <dataframe/core/print.h>
 #include <dataframe/types.h>
 #include <dataframe/math/random.h>
 

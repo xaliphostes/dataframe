@@ -24,7 +24,7 @@
 #include <dataframe/Serie.h>
 #include <dataframe/geo/mesh/uv_mapping.h>
 #include <dataframe/types.h>
-#include <dataframe/utils/print.h>
+#include <dataframe/core/print.h>
 #include <iostream>
 
 int main() {

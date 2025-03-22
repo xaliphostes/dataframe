@@ -24,7 +24,7 @@
 #include <cmath>
 #include <dataframe/geo/mesh/mesh_optimizer.h>
 #include <dataframe/geo/mesh/uv_mapping.h>
-#include <dataframe/utils/print.h>
+#include <dataframe/core/print.h>
 #include <fstream>
 #include <iostream>
 

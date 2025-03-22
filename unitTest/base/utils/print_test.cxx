@@ -23,7 +23,7 @@
 
 #include "../../TEST.h"
 #include <dataframe/core/zip.h>
-#include <dataframe/utils/print.h>
+#include <dataframe/core/print.h>
 
 using namespace df;
 

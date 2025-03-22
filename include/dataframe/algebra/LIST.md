@@ -1,0 +1,8 @@
+- cross
+- det
+- dot
+- eigen
+- inv
+- norm
+- solve
+- transpose

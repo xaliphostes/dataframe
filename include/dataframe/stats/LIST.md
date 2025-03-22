@@ -1,0 +1,17 @@
+- avg
+- mean
+- bins
+- covariance
+- quantile
+- variance
+- std_dev
+- median
+- iqr
+- isOulier
+- notOutlier
+- mode
+- z_score
+- moving_avg
+- variogram_model
+- calculate_experimental_variogram
+- ordinary_kriging
