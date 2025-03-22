@@ -196,7 +196,7 @@
             position: relative;
         }
 
-        .has-submenu::after {
+        .has-submenu>a::after {
             content: '\f105';
             font-family: 'Font Awesome 5 Free';
             font-weight: 900;
@@ -207,7 +207,7 @@
             transition: transform var(--transition-speed);
         }
 
-        .has-submenu.expanded::after {
+        .has-submenu.expanded>a::after {
             transform: translateY(-50%) rotate(90deg);
         }
 
@@ -303,24 +303,33 @@
         }
 
         .tag-core {
-            background-color: var(--primary-color);
+            background-color: blue;
         }
 
-        .tag-math {
-            background-color: var(--info-color);
+        .tag-process {
+            background-color: rgb(134, 134, 249);
         }
 
-        .tag-utility {
-            background-color: var(--success-color);
+        .tag-flow {
+            background-color: #04fa8b;
         }
 
-        .tag-advanced {
-            background-color: var(--warning-color);
+        .tag-create {
+            background-color: #e39000;
         }
 
-        .tag-io {
-            background-color: var(--danger-color);
+        .tag-manip {
+            background-color: #c0c783;
         }
+
+        .tag-group {
+            background-color: #f90612;
+        }
+
+        .tag-format {
+            background-color: #e300bd;
+        }
+
 
         .card-description {
             margin-top: 10px;
@@ -574,61 +583,72 @@
                         <ul class="sidebar-submenu">
                             <li><a href="details/forEach.html">forEach</a></li>
                             <li><a href="details/map.html">map</a></li>
+                            <li><a href="details/parallel_map.html">parallel_map</a></li>
                             <li><a href="details/reduce.html">reduce</a></li>
                             <li><a href="details/filter.html">filter</a></li>
+                            <li><a href="details/find.html">find</a></li>
+                            <li><a href="details/reject.html">reject</a></li>
+                            <li><a href="details/where.html">where</a></li>
+                            <li><a href="details/print.html">print</a></li>
                         </ul>
                     </li>
                     <li class="has-submenu">
                         <a href="#" class="has-submenu">Control Flow</a>
                         <ul class="sidebar-submenu">
+                            <li><a href="details/if.html">if</a></li>
                             <li><a href="details/if_then_else.html">if_then_else</a></li>
-                            <li><a href="details/switch_case.html">switch_case</a></li>
+                            <li><a href="details/map_if.html">map_if</a></li>
+                            <li><a href="details/switch.html">switch</a></li>
                             <li><a href="details/pipe.html">pipe</a></li>
                             <li><a href="details/compose.html">compose</a></li>
+                            <li><a href="details/whenAll.html">whenAll</a></li>
+                            <li><a href="details/memoise.html">memoise</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Series Creation</a>
+                        <ul class="sidebar-submenu">
+                            <li><a href="details/range.html">range</a></li>
+                            <li><a href="details/ones.html">ones</a></li>
+                            <li><a href="details/zeros.html">zeros</a></li>
+                            <li><a href="details/for.html">for</a></li>
                         </ul>
                     </li>
                     <li class="has-submenu">
                         <a href="#" class="has-submenu">Series Manipulation</a>
                         <ul class="sidebar-submenu">
+                            <li><a href="details/chain.html">chain</a></li>
+                            <li><a href="details/concat.html">concat</a></li>
                             <li><a href="details/zip.html">zip</a></li>
                             <li><a href="details/unzip.html">unzip</a></li>
                             <li><a href="details/split.html">split</a></li>
-                            <li><a href="details/chain.html">chain</a></li>
+                            <li><a href="details/chunk.html">chunk</a></li>
+                            <li><a href="details/take.html">take</a></li>
+                            <li><a href="details/skip.html">skip</a></li>
+                            <li><a href="details/slice.html">slice</a></li>
+                            <li><a href="details/flatten.html">flatten</a></li>
+                            <li><a href="details/merge.html">merge</a></li>
+                            <li><a href="details/partition.html">partition</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Ordering & Grouping</a>
+                        <ul class="sidebar-submenu">
                             <li><a href="details/sort.html">sort</a></li>
+                            <li><a href="details/orderBy.html">orderBy</a></li>
+                            <li><a href="details/groupBy.html">groupBy</a></li>
+                            <li><a href="details/unique.html">unique</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Formatting</a>
+                        <ul class="sidebar-submenu">
                             <li><a href="details/format.html">format</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
 
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Mathematical Operations</h3>
-                <ul class="sidebar-menu">
-                    <li><a href="details/add.html">add</a></li>
-                    <li><a href="details/bounds.html">bounds</a></li>
-                    <li><a href="details/random.html">random</a></li>
-                    <li><a href="details/stats.html">statistics</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Advanced Components</h3>
-                <ul class="sidebar-menu">
-                    <li><a href="details/kdtree.html">KDTree</a></li>
-                    <li><a href="details/grid.html">Grid2D/Grid3D</a></li>
-                    <li><a href="details/mesh.html">Mesh</a></li>
-                    <li><a href="details/attributes.html">Attributes Manager</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">I/O Operations</h3>
-                <ul class="sidebar-menu">
-                    <li><a href="details/csv.html">CSV</a></li>
-                    <li><a href="details/json.html">JSON</a></li>
-                    <li><a href="details/binary_serialization.html">Binary Serialization</a></li>
-                </ul>
-            </div>
         </aside>
 
         <div class="content-area">
@@ -648,8 +668,7 @@
                         <h3 class="card-title">Serie</h3>
                         <span class="card-tag tag-core">Core</span>
                         <p class="card-description">A column of data with elements of the same type, providing the
-                            fundamental
-                            building block of the library.</p>
+                            fundamental building block of the library.</p>
                     </a>
 
                     <!-- Dataframe -->
@@ -662,132 +681,343 @@
                 </div>
             </div>
 
-            <!-- Functional Operations -->
+            <!-- Element Processing -->
             <div class="category-container animate-slide-up" data-delay="300">
-                <h2 class="category-title">Functional Operations</h2>
+                <h2 class="category-title">Element Processing</h2>
                 <div class="grid-container">
                     <!-- forEach -->
                     <a href="details/forEach.html" class="card">
                         <h3 class="card-title">forEach</h3>
-                        <span class="card-tag tag-core">Core</span>
+                        <span class="card-tag tag-process">Processing</span>
                         <p class="card-description">Iterates over each element in a Serie to perform an operation
-                            without changing
-                            the Serie.</p>
+                            without changing the Serie.</p>
                     </a>
 
                     <!-- map -->
                     <a href="details/map.html" class="card">
                         <h3 class="card-title">map</h3>
-                        <span class="card-tag tag-core">Core</span>
+                        <span class="card-tag tag-process">Processing</span>
                         <p class="card-description">Transforms each element in a Serie using a callback function,
-                            returning a new
-                            Serie.</p>
+                            returning a new Serie.</p>
+                    </a>
+
+                    <!-- parallel_map -->
+                    <a href="details/parallel_map.html" class="card">
+                        <h3 class="card-title">parallel_map</h3>
+                        <span class="card-tag tag-process">Processing</span>
+                        <p class="card-description">Transforms elements in parallel using multiple threads for better
+                            performance.</p>
                     </a>
 
                     <!-- reduce -->
                     <a href="details/reduce.html" class="card">
                         <h3 class="card-title">reduce</h3>
-                        <span class="card-tag tag-core">Core</span>
+                        <span class="card-tag tag-process">Processing</span>
                         <p class="card-description">Reduces a Serie to a single value by applying a function against an
-                            accumulator.
-                        </p>
-                    </a>
-
-                    <!-- pipe -->
-                    <a href="details/pipe.html" class="card">
-                        <h3 class="card-title">pipe</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Composes multiple operations into a single processing pipeline for
-                            Series.</p>
+                            accumulator.</p>
                     </a>
 
                     <!-- filter -->
                     <a href="details/filter.html" class="card">
                         <h3 class="card-title">filter</h3>
-                        <span class="card-tag tag-core">Core</span>
+                        <span class="card-tag tag-process">Processing</span>
                         <p class="card-description">Creates a new Serie containing only elements that satisfy a
-                            predicate function.
+                            predicate function.</p>
+                    </a>
+
+                    <!-- find -->
+                    <a href="details/find.html" class="card">
+                        <h3 class="card-title">find</h3>
+                        <span class="card-tag tag-process">Processing</span>
+                        <p class="card-description">Finds the first element that matches a predicate function.</p>
+                    </a>
+
+                    <!-- reject -->
+                    <a href="details/reject.html" class="card">
+                        <h3 class="card-title">reject</h3>
+                        <span class="card-tag tag-process">Processing</span>
+                        <p class="card-description">Creates a new Serie excluding elements that satisfy a predicate
+                            function.</p>
+                    </a>
+
+                    <!-- where -->
+                    <a href="details/where.html" class="card">
+                        <h3 class="card-title">where</h3>
+                        <span class="card-tag tag-process">Processing</span>
+                        <p class="card-description">Alternative to filter for selecting elements that match specified
+                            criteria.</p>
+                    </a>
+
+                    <!-- print -->
+                    <a href="details/print.html" class="card">
+                        <h3 class="card-title">print</h3>
+                        <span class="card-tag tag-process">Processing</span>
+                        <p class="card-description">Outputs Serie contents to the console for debugging and inspection.
                         </p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Control Flow -->
+            <div class="category-container animate-slide-up" data-delay="350">
+                <h2 class="category-title">Control Flow</h2>
+                <div class="grid-container">
+                    <!-- if -->
+                    <a href="details/if.html" class="card">
+                        <h3 class="card-title">if</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Conditionally executes operations based on a predicate.</p>
                     </a>
 
                     <!-- if_then_else -->
                     <a href="details/if_then_else.html" class="card">
                         <h3 class="card-title">if_then_else</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Conditionally transforms elements in a Serie based on a predicate
-                            function.</p>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Conditionally transforms elements based on a predicate with
+                            true/false paths.</p>
                     </a>
 
-                    <!-- switch_case -->
-                    <a href="details/switch_case.html" class="card">
-                        <h3 class="card-title">switch_case</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Applies different transformations to elements based on multiple
-                            conditions.</p>
+                    <!-- map_if -->
+                    <a href="details/map_if.html" class="card">
+                        <h3 class="card-title">map_if</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Conditionally applies a transformation to elements that match a
+                            condition.</p>
+                    </a>
+
+                    <!-- switch -->
+                    <a href="details/switch.html" class="card">
+                        <h3 class="card-title">switch</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Selects from multiple transformations based on element values.</p>
+                    </a>
+
+                    <!-- pipe -->
+                    <a href="details/pipe.html" class="card">
+                        <h3 class="card-title">pipe</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Composes multiple operations into a reusable processing pipeline.
+                        </p>
+                    </a>
+
+                    <!-- compose -->
+                    <a href="details/compose.html" class="card">
+                        <h3 class="card-title">compose</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Creates a new function by composing multiple functions together.</p>
+                    </a>
+
+                    <!-- whenAll -->
+                    <a href="details/whenAll.html" class="card">
+                        <h3 class="card-title">whenAll</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Executes a function when all conditions are satisfied.</p>
+                    </a>
+
+                    <!-- memoise -->
+                    <a href="details/memoise.html" class="card">
+                        <h3 class="card-title">memoise</h3>
+                        <span class="card-tag tag-flow">Flow</span>
+                        <p class="card-description">Caches function results to avoid redundant computation on repeated
+                            calls.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Series Creation -->
+            <div class="category-container animate-slide-up" data-delay="400">
+                <h2 class="category-title">Series Creation</h2>
+                <div class="grid-container">
+                    <!-- range -->
+                    <a href="details/range.html" class="card">
+                        <h3 class="card-title">range</h3>
+                        <span class="card-tag tag-create">Create</span>
+                        <p class="card-description">Creates a Serie with a sequence of numbers in a specified range.</p>
+                    </a>
+
+                    <!-- ones -->
+                    <a href="details/ones.html" class="card">
+                        <h3 class="card-title">ones</h3>
+                        <span class="card-tag tag-create">Create</span>
+                        <p class="card-description">Creates a Serie filled with ones of a specified length.</p>
+                    </a>
+
+                    <!-- zeros -->
+                    <a href="details/zeros.html" class="card">
+                        <h3 class="card-title">zeros</h3>
+                        <span class="card-tag tag-create">Create</span>
+                        <p class="card-description">Creates a Serie filled with zeros of a specified length.</p>
+                    </a>
+
+                    <!-- for -->
+                    <a href="details/for.html" class="card">
+                        <h3 class="card-title">for</h3>
+                        <span class="card-tag tag-create">Create</span>
+                        <p class="card-description">Creates a Serie by applying a function to each index in a range.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Series Manipulation -->
+            <div class="category-container animate-slide-up" data-delay="450">
+                <h2 class="category-title">Series Manipulation</h2>
+                <div class="grid-container">
+                    <!-- chain -->
+                    <a href="details/chain.html" class="card">
+                        <h3 class="card-title">chain</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Combines multiple Series sequentially into a single Serie.</p>
+                    </a>
+
+                    <!-- concat -->
+                    <a href="details/concat.html" class="card">
+                        <h3 class="card-title">concat</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Concatenates multiple Series into a single Serie.</p>
                     </a>
 
                     <!-- zip -->
                     <a href="details/zip.html" class="card">
                         <h3 class="card-title">zip</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Combines multiple Series into a single Serie of tuples.</p>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Combines elements from multiple Series into tuples based on
+                            position.</p>
                     </a>
 
                     <!-- unzip -->
                     <a href="details/unzip.html" class="card">
                         <h3 class="card-title">unzip</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Splits a Serie of tuples into multiple Series.</p>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Separates a Serie of tuples into multiple Series.</p>
                     </a>
 
                     <!-- split -->
                     <a href="details/split.html" class="card">
                         <h3 class="card-title">split</h3>
-                        <span class="card-tag tag-core">Core</span>
+                        <span class="card-tag tag-manip">Manipulation</span>
                         <p class="card-description">Divides a Serie into multiple equal-sized parts.</p>
                     </a>
 
-                    <!-- chain -->
-                    <a href="details/chain.html" class="card">
-                        <h3 class="card-title">chain</h3>
-                        <span class="card-tag tag-core">Core</span>
-                        <p class="card-description">Concatenates multiple Series into a single Serie.</p>
+                    <!-- chunk -->
+                    <a href="details/chunk.html" class="card">
+                        <h3 class="card-title">chunk</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Splits a Serie into chunks of a specified size.</p>
+                    </a>
+
+                    <!-- take -->
+                    <a href="details/take.html" class="card">
+                        <h3 class="card-title">take</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Creates a Serie with the first n elements from the source Serie.</p>
+                    </a>
+
+                    <!-- skip -->
+                    <a href="details/skip.html" class="card">
+                        <h3 class="card-title">skip</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Creates a Serie that skips the first n elements from the source
+                            Serie.</p>
+                    </a>
+
+                    <!-- slice -->
+                    <a href="details/slice.html" class="card">
+                        <h3 class="card-title">slice</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Creates a Serie from a subset of elements specified by start and end
+                            indices.</p>
+                    </a>
+
+                    <!-- flatten -->
+                    <a href="details/flatten.html" class="card">
+                        <h3 class="card-title">flatten</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Converts a Serie of arrays or nested Series into a flat Serie.</p>
+                    </a>
+
+                    <!-- merge -->
+                    <a href="details/merge.html" class="card">
+                        <h3 class="card-title">merge</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Combines multiple Series with a custom merge function.</p>
+                    </a>
+
+                    <!-- partition -->
+                    <a href="details/partition.html" class="card">
+                        <h3 class="card-title">partition</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">Divides a Serie into two Series based on a predicate function.</p>
                     </a>
                 </div>
             </div>
 
-            <!-- Stats Functions -->
-            <div class="category-container animate-slide-up" data-delay="400">
-                <h2 class="category-title">Statistical Functions</h2>
+            <!-- Ordering & Grouping -->
+            <div class="category-container animate-slide-up" data-delay="500">
+                <h2 class="category-title">Ordering & Grouping</h2>
                 <div class="grid-container">
-                    <a href="details/stats.html" class="card">
-                        <h3 class="card-title">Statistics</h3>
-                        <span class="card-tag tag-utility">Stats</span>
-                        <p class="card-description">Statistical functions including mean, variance, standard deviation,
-                            median, quantiles, and more.</p>
+                    <!-- sort -->
+                    <a href="details/sort.html" class="card">
+                        <h3 class="card-title">sort</h3>
+                        <span class="card-tag tag-group">Group</span>
+                        <p class="card-description">Creates a sorted copy of a Serie in ascending or descending order.
+                        </p>
+                    </a>
+
+                    <!-- orderBy -->
+                    <a href="details/orderBy.html" class="card">
+                        <h3 class="card-title">orderBy</h3>
+                        <span class="card-tag tag-group">Group</span>
+                        <p class="card-description">Sorts a Serie based on a key function that determines the sorting
+                            order.</p>
+                    </a>
+
+                    <!-- groupBy -->
+                    <a href="details/groupBy.html" class="card">
+                        <h3 class="card-title">groupBy</h3>
+                        <span class="card-tag tag-group">Group</span>
+                        <p class="card-description">Groups Serie elements by a key function and returns a map of keys to
+                            Series.</p>
+                    </a>
+
+                    <!-- unique -->
+                    <a href="details/unique.html" class="card">
+                        <h3 class="card-title">unique</h3>
+                        <span class="card-tag tag-group">Group</span>
+                        <p class="card-description">Creates a Serie with duplicate elements removed.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formatting -->
+            <div class="category-container animate-slide-up" data-delay="550">
+                <h2 class="category-title">Formatting</h2>
+                <div class="grid-container">
+                    <!-- format -->
+                    <a href="details/format.html" class="card">
+                        <h3 class="card-title">format</h3>
+                        <span class="card-tag tag-format">Format</span>
+                        <p class="card-description">Converts a Serie to a formatted string representation with
+                            customizable options.</p>
                     </a>
                 </div>
             </div>
 
             <!-- Mathematical Operations -->
-            <div class="category-container animate-slide-up" data-delay="500">
+            <!-- <div class="category-container animate-slide-up" data-delay="600">
                 <h2 class="category-title">Mathematical Operations</h2>
                 <div class="grid-container">
-                    <!-- add -->
                     <a href="details/add.html" class="card">
                         <h3 class="card-title">add</h3>
                         <span class="card-tag tag-math">Math</span>
                         <p class="card-description">Element-wise addition of two Series.</p>
                     </a>
 
-                    <!-- Random -->
                     <a href="details/random.html" class="card">
                         <h3 class="card-title">random</h3>
                         <span class="card-tag tag-math">Math</span>
                         <p class="card-description">Generates random number Series with various distributions.</p>
                     </a>
 
-                    <!-- bounds -->
                     <a href="details/bounds.html" class="card">
                         <h3 class="card-title">bounds</h3>
                         <span class="card-tag tag-math">Math</span>
@@ -796,38 +1026,9 @@
                 </div>
             </div>
 
-            <!-- I/O Operations -->
-            <div class="category-container animate-slide-up" data-delay="600">
-                <h2 class="category-title">I/O Operations</h2>
-                <div class="grid-container">
-                    <!-- CSV -->
-                    <a href="details/csv.html" class="card">
-                        <h3 class="card-title">CSV</h3>
-                        <span class="card-tag tag-io">I/O</span>
-                        <p class="card-description">Read and write CSV files with automatic type detection.</p>
-                    </a>
-
-                    <!-- JSON -->
-                    <a href="details/json.html" class="card">
-                        <h3 class="card-title">JSON</h3>
-                        <span class="card-tag tag-io">I/O</span>
-                        <p class="card-description">Read and write JSON data with DataFrame integration.</p>
-                    </a>
-
-                    <!-- Binary Serialization -->
-                    <a href="details/binary_serialization.html" class="card">
-                        <h3 class="card-title">Binary Serialization</h3>
-                        <span class="card-tag tag-io">I/O</span>
-                        <p class="card-description">Efficient binary serialization of Series with type preservation.</p>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Advanced Components -->
             <div class="category-container animate-slide-up" data-delay="700">
                 <h2 class="category-title">Advanced Components</h2>
                 <div class="grid-container">
-                    <!-- KDTree -->
                     <a href="details/kdtree.html" class="card">
                         <h3 class="card-title">KDTree</h3>
                         <span class="card-tag tag-advanced">Advanced</span>
@@ -835,28 +1036,25 @@
                         </p>
                     </a>
 
-                    <!-- Grid2D/Grid3D -->
                     <a href="details/grid.html" class="card">
                         <h3 class="card-title">Grid2D/Grid3D</h3>
                         <span class="card-tag tag-advanced">Advanced</span>
                         <p class="card-description">Structured grids for 2D and 3D data with associated attributes.</p>
                     </a>
 
-                    <!-- Mesh -->
                     <a href="details/mesh.html" class="card">
                         <h3 class="card-title">Mesh</h3>
                         <span class="card-tag tag-advanced">Advanced</span>
                         <p class="card-description">Triangulated surface mesh with vertex and triangle attributes.</p>
                     </a>
 
-                    <!-- Attributes Manager -->
                     <a href="details/attributes.html" class="card">
                         <h3 class="card-title">Attributes Manager</h3>
                         <span class="card-tag tag-advanced">Advanced</span>
                         <p class="card-description">Manages and decomposes complex attributes in dataframes.</p>
                     </a>
                 </div>
-            </div>
+            </div> -->
         </div>
     </main>
 

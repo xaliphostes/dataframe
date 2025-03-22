@@ -167,11 +167,13 @@ main {
   margin-bottom: 5px;
 }
 
-.tag-core { background-color: var(--primary-color); }
-.tag-math { background-color: var(--info-color); }
-.tag-utility { background-color: var(--success-color); }
-.tag-advanced { background-color: var(--warning-color); }
-.tag-io { background-color: var(--danger-color); }
+.tag-core { background-color:blue; }
+.tag-process { background-color:rgb(134, 134, 249); }
+.tag-flow { background-color:#04fa8b; }
+.tag-create { background-color:#e39000; }
+.tag-manip { background-color:#c0c783; }
+.tag-group { background-color:#f90612; }
+.tag-format { background-color:#e300bd; }
 
 .card-description {
   margin-top: 10px;
