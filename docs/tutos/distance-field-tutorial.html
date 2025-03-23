@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distance Field Tutorial - DataFrame Library</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="../examples.html">Examples</a></li>
+                    <li><a href="../tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="tutorial-container">
+            <aside class="tutorial-sidebar">
+                <nav>
+                    <ul>
+                        <li><a href="#introduction">Introduction</a></li>
+                        <li><a href="#understanding-distance-fields">Understanding Distance Fields</a></li>
+                        <li><a href="#project-overview">Project Overview</a></li>
+                        <li><a href="#step1">Step 1: Generate Random Points</a></li>
+                        <li><a href="#step2">Step 2: Create Regular Grid</a></li>
+                        <li><a href="#step3">Step 3: Compute Distance Field</a></li>
+                        <li><a href="#step4">Step 4: Export to CSV</a></li>
+                        <li><a href="#step5">Step 5: Visualize with Python</a></li>
+                        <li><a href="#visualization-analysis">Visualization Analysis</a></li>
+                        <li><a href="#applications">Applications of Distance Fields</a></li>
+                        <li><a href="#conclusion">Conclusion</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="tutorial-content">
+                <h1 class="tutorial-title">Creating and Visualizing Distance Fields with DataFrame</h1>
+                <p class="tutorial-subtitle">A guide to spatial data processing and visualization</p>
+
+                <section id="introduction">
+                    <h2>Introduction</h2>
+                    <p>
+                        Distance fields are a powerful representation of spatial data that have applications in computer graphics, 
+                        computational geometry, path planning, and scientific visualization. They define, for each point in a space, 
+                        the minimum distance to a set of reference objects or points.
+                    </p>
+                    <p>
+                        In this tutorial, we'll explore how to:
+                    </p>
+                    <ul>
+                        <li>Generate a set of random reference points</li>
+                        <li>Create a regular sampling grid</li>
+                        <li>Compute a distance field relative to the reference points</li>
+                        <li>Export the results to CSV files</li>
+                        <li>Visualize the distance field using Python and Matplotlib</li>
+                    </ul>
+                    <p>
+                        We'll use the DataFrame library, which provides powerful tools for working with spatial data and 
+                        creates an elegant pipeline for processing and visualization.
+                    </p>
+                </section>
+
+                <section id="understanding-distance-fields">
+                    <h2>Understanding Distance Fields</h2>
+                    <p>
+                        A distance field is a scalar field that specifies the minimum distance from any point to the closest object in a set. 
+                        For each location in space, the distance field stores the distance to the nearest object. This creates a 
+                        smooth gradient of values that:
+                    </p>
+                    <ul>
+                        <li>Equals zero at the objects themselves</li>
+                        <li>Gradually increases as you move away from objects</li>
+                        <li>Creates "ridges" of equidistant points between objects</li>
+                    </ul>
+                    
+                    <p>
+                        This representation is particularly useful because:
+                    </p>
+                    <ul>
+                        <li>It encodes spatial relationships efficiently</li>
+                        <li>It simplifies many geometric operations like collision detection</li>
+                        <li>It can be used to create smooth transitions and blends</li>
+                        <li>It enables efficient path planning by following the gradient</li>
+                    </ul>
+                    
+                    <div class="info-box">
+                        <p><strong>Note:</strong> In this tutorial, we'll create a 2D distance field from a set of reference points. 
+                        The same concepts can be extended to 3D or higher dimensions, and to more complex objects beyond simple points.</p>
+                    </div>
+                </section>
+
+                <section id="project-overview">
+                    <h2>Project Overview</h2>
+                    <p>
+                        Our project consists of two main parts:
+                    </p>
+                    <ol>
+                        <li>A C++ program using the DataFrame library to generate the distance field data</li>
+                        <li>A Python script that visualizes the results using Matplotlib</li>
+                    </ol>
+                    
+                    <p>
+                        Here's the workflow we'll follow:
+                    </p>
+                    <ol>
+                        <li>Generate random reference points in a 2D space</li>
+                        <li>Create a regular grid of sample points</li>
+                        <li>Calculate the distance from each grid point to the nearest reference point</li>
+                        <li>Export the grid points, reference points, and distances to CSV files</li>
+                        <li>Visualize the distance field as a 2D color map and a 3D surface</li>
+                    </ol>
+                    
+                    <div class="image-container">
+                        <img src="distance_field_2d.png" alt="Distance Field 2D Visualization" style="max-width: 100%; height: auto;">
+                        <p class="image-caption">Distance Field with Reference Points</p>
+                    </div>
+                </section>
+
+                <section id="step1">
+                    <h2>Step 1: Generate Random Points</h2>
+                    <p>
+                        First, we'll generate a set of random reference points in a 2D space. These points will be the "objects" 
+                        that our distance field will measure distance from.
+                    </p>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Generating Random Reference Points</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Generate random reference points (nb_pts, min, max)
+Serie<Vector2> reference_points =
+    random_uniform(10, Vector2{-1.0, -1.0}, Vector2{1.0, 1.0});</code></pre>
+                    </div>
+                    
+                    <p>
+                        This code uses the <code>random_uniform</code> function from the DataFrame library to create 10 random 2D points 
+                        within a square area from (-1,-1) to (1,1). The points are stored in a <code>Serie&lt;Vector2&gt;</code>, which 
+                        is a collection of 2D vectors.
+                    </p>
+                    
+                    <p>
+                        The <code>random_uniform</code> function provides a convenient way to generate random data for testing and 
+                        simulation. The DataFrame library offers various random distributions, including:
+                    </p>
+                    <ul>
+                        <li><code>random_uniform</code>: Uniform distribution (equal probability across the range)</li>
+                        <li><code>random_normal</code>: Normal (Gaussian) distribution</li>
+                        <li><code>random_poisson</code>: Poisson distribution</li>
+                        <li><code>random_bernoulli</code>: Bernoulli distribution</li>
+                    </ul>
+                </section>
+
+                <section id="step2">
+                    <h2>Step 2: Create Regular Grid</h2>
+                    <p>
+                        Next, we'll create a regular grid of points where we'll sample the distance field. This grid will define 
+                        the resolution of our visualization.
+                    </p>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Creating a Regular Grid</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Create a regular grid for sampling (nb_pts, center, dimensions)
+auto grid_points =
+    grid::cartesian::from_dims<2>({100, 100}, {0.0, 0.0}, {2.0, 2.0});</code></pre>
+                    </div>
+                    
+                    <p>
+                        This code creates a 100×100 regular grid centered at (0,0) with dimensions 2×2. This means the grid spans 
+                        from (-1,-1) to (1,1), matching the domain of our reference points.
+                    </p>
+                    
+                    <p>
+                        The <code>from_dims</code> function is part of the <code>grid::cartesian</code> namespace in the DataFrame library. 
+                        It provides a convenient way to create uniform grids for sampling and visualization. The template parameter <code><2></code> 
+                        specifies that we're creating a 2D grid.
+                    </p>
+                </section>
+
+                <section id="step3">
+                    <h2>Step 3: Compute Distance Field</h2>
+                    <p>
+                        With our reference points and sampling grid, we can now compute the distance field. For each point in the grid, 
+                        we'll calculate the minimum distance to any reference point.
+                    </p>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Computing the Distance Field</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Compute distance field (at, ref)
+auto distances = distance_field<2>(grid_points, reference_points);</code></pre>
+                    </div>
+                    
+                    <p>
+                        The <code>distance_field</code> function calculates the Euclidean distance from each grid point to the nearest 
+                        reference point. It returns a <code>Serie&lt;double&gt;</code> containing these distances, which can be used 
+                        for visualization and further analysis.
+                    </p>
+                    
+                    <p>
+                        The template parameter <code><2></code> specifies the dimensionality of the space. The same function can be used 
+                        for 3D or higher-dimensional distance fields by changing this parameter.
+                    </p>
+                </section>
+
+                <section id="step4">
+                    <h2>Step 4: Export to CSV</h2>
+                    <p>
+                        To visualize our distance field, we'll export the data to CSV files. We'll create two files:
+                    </p>
+                    <ul>
+                        <li><code>grid_points.csv</code>: Contains the grid points with their calculated distances</li>
+                        <li><code>reference_points.csv</code>: Contains the reference points</li>
+                    </ul>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Exporting Grid Points with Distances</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Export results to CSV
+std::ofstream out_grid("grid_points.csv");
+out_grid << "x,y,distance\n";
+for (size_t i = 0; i < grid_points.size(); ++i) {
+    out_grid << grid_points[i][0] << "," << grid_points[i][1] << ","
+             << distances[i] << "\n";
+}
+out_grid.close();</code></pre>
+                    </div>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Exporting Reference Points</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Export reference points
+std::ofstream out_ref("reference_points.csv");
+out_ref << "x,y\n";
+for (const auto &p : reference_points.data()) {
+    out_ref << p[0] << "," << p[1] << "\n";
+}
+out_ref.close();</code></pre>
+                    </div>
+                    
+                    <p>
+                        These code snippets write the data to CSV files in a simple format:
+                    </p>
+                    <ul>
+                        <li><code>grid_points.csv</code> has columns for x, y, and distance</li>
+                        <li><code>reference_points.csv</code> has columns for x and y</li>
+                    </ul>
+                    
+                    <p>
+                        Note that while the DataFrame library includes IO capabilities for CSV and other formats, 
+                        we're using standard C++ file output here for simplicity.
+                    </p>
+                </section>
+
+                <section id="step5">
+                    <h2>Step 5: Visualize with Python</h2>
+                    <p>
+                        Finally, we'll use Python with Matplotlib to create visualizations of our distance field. 
+                        We'll create both a 2D contour plot and a 3D surface plot.
+                    </p>
+                    
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Python Visualization Script</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import argparse
+import sys
+
+def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Visualize distance field from grid and reference points')
+    parser.add_argument('grid_file', help='CSV file containing grid points and distances')
+    parser.add_argument('ref_file', help='CSV file containing reference points')
+    parser.add_argument('--output', '-o', default='distance_field', help='Base name for output files (default: distance_field)')
+    args = parser.parse_args()
+
+    try:
+        # Read the data
+        grid_data = pd.read_csv(args.grid_file)
+        ref_points = pd.read_csv(args.ref_file)
+    except FileNotFoundError as e:
+        print(f"Error: Could not find input file: {e.filename}")
+        sys.exit(1)
+    except pd.errors.EmptyDataError:
+        print(f"Error: File is empty")
+        sys.exit(1)
+    except pd.errors.ParserError:
+        print(f"Error: File is not in the expected CSV format")
+        sys.exit(1)
+
+    # Reshape the data into a grid
+    n = int(np.sqrt(len(grid_data)))  # Assuming square grid
+    X = grid_data['x'].values.reshape(n, n)
+    Y = grid_data['y'].values.reshape(n, n)
+    Z = grid_data['distance'].values.reshape(n, n)
+
+    # Create custom colormap
+    colors = ['yellow', 'blue', 'lightblue', 'white', 'yellow', 'orange', 'red']
+    n_bins = 100
+    cmap = LinearSegmentedColormap.from_list("custom", colors, N=n_bins)
+
+    # Create the 2D plot
+    plt.figure(figsize=(12, 10))
+
+    # Plot the distance field
+    plt.contourf(X, Y, Z, levels=50, cmap=cmap)
+    plt.colorbar(label='Distance')
+
+    # Plot the reference points
+    plt.scatter(ref_points['x'], ref_points['y'], 
+               color='black', marker='o', s=30, 
+               label='Reference Points')
+
+    plt.title('Distance Field with Reference Points')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.axis('equal')
+    plt.legend()
+    plt.grid(True)
+
+    # Save the 2D plot
+    plt.savefig(f'{args.output}_2d.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+    # Create a 3D surface plot
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    surf = ax.plot_surface(X, Y, Z, cmap=cmap)
+    ax.scatter(ref_points['x'], ref_points['y'], 
+              np.zeros_like(ref_points['x']), 
+              color='black', marker='o', s=30)
+
+    plt.colorbar(surf, label='Distance')
+    ax.set_title('3D View of Distance Field')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Distance')
+
+    # Save the 3D plot
+    plt.savefig(f'{args.output}_3d.png', dpi=300, bbox_inches='tight')
+    plt.close()
+
+if __name__ == '__main__':
+    main()</code></pre>
+                    </div>
+                    
+                    <p>
+                        This Python script:
+                    </p>
+                    <ol>
+                        <li>Takes the paths to our CSV files as command-line arguments</li>
+                        <li>Reads the data using pandas</li>
+                        <li>Reshapes the grid data into a 2D grid for visualization</li>
+                        <li>Creates a custom colormap for better visualization</li>
+                        <li>Generates a 2D contour plot with reference points</li>
+                        <li>Generates a 3D surface plot with reference points</li>
+                        <li>Saves both plots as high-resolution PNG files</li>
+                    </ol>
+                    
+                    <p>
+                        To run the visualization, execute the following command:
+                    </p>
+                    <div class="code-container">
+                        <pre><code class="bash">python3 plot.py grid_points.csv reference_points.csv</code></pre>
+                    </div>
+                </section>
+
+                <section id="visualization-analysis">
+                    <h2>Visualization Analysis</h2>
+                    <p>
+                        Let's analyze the visualization we've created:
+                    </p>
+                    
+                    <div class="image-container">
+                        <img src="../../media/distance_field_2d.png" alt="Distance Field 2D Visualization" style="max-width: 100%; height: auto;">
+                        <p class="image-caption">Distance Field with Reference Points</p>
+                    </div>
+                    
+                    <p>
+                        In this 2D visualization, we can observe several key features:
+                    </p>
+                    <ul>
+                        <li><strong>Reference Points (Black Dots):</strong> These are the randomly generated points from which distances are measured.</li>
+                        <li><strong>Yellow Centers:</strong> Areas immediately around reference points have distances approaching zero.</li>
+                        <li><strong>Blue Regions:</strong> These represent areas with intermediate distances from reference points.</li>
+                        <li><strong>Red/Orange Areas:</strong> Regions furthest from any reference point, typically in the corners of the domain.</li>
+                        <li><strong>Contour Lines:</strong> Lines of equal distance that form concentric patterns around reference points.</li>
+                        <li><strong>"Ridges":</strong> Blue regions between reference points where the distance function has local maxima.</li>
+                    </ul>
+                    
+                    <p>
+                        The visualization clearly shows how the distance field creates a smooth gradient of values. The color 
+                        transitions represent how the distance changes continuously throughout the space. The "ridges" 
+                        between reference points are particularly interesting — they represent points that are equidistant from 
+                        multiple reference points.
+                    </p>
+                    
+                    <p>
+                        This type of visualization helps us understand the spatial relationship between points in our dataset 
+                        and can reveal patterns that might not be obvious from the raw data.
+                    </p>
+                </section>
+
+                <section id="applications">
+                    <h2>Applications of Distance Fields</h2>
+                    <p>
+                        Distance fields have numerous applications across various domains:
+                    </p>
+                    
+                    <h3>Computer Graphics</h3>
+                    <ul>
+                        <li><strong>Font Rendering:</strong> Signed distance fields allow for high-quality text rendering at multiple scales.</li>
+                        <li><strong>Ray Marching:</strong> Efficient rendering of complex 3D scenes using distance fields.</li>
+                        <li><strong>Soft Shadows:</strong> Creating realistic soft shadows using distance information.</li>
+                    </ul>
+                    
+                    <h3>Computational Geometry</h3>
+                    <ul>
+                        <li><strong>Voronoi Diagrams:</strong> Distance fields are closely related to Voronoi diagrams.</li>
+                        <li><strong>Medial Axis Extraction:</strong> Finding the "skeleton" of a shape using distance fields.</li>
+                        <li><strong>Collision Detection:</strong> Quick proximity queries for game physics and simulations.</li>
+                    </ul>
+                    
+                    <h3>Path Planning</h3>
+                    <ul>
+                        <li><strong>Robot Navigation:</strong> Planning paths that maintain safe distances from obstacles.</li>
+                        <li><strong>Potential Fields:</strong> Creating attractive/repulsive forces for agent navigation.</li>
+                        <li><strong>Path Optimization:</strong> Finding smooth paths through complex environments.</li>
+                    </ul>
+                    
+                    <h3>Scientific Visualization</h3>
+                    <ul>
+                        <li><strong>Field Visualization:</strong> Representing electromagnetic, gravitational, or other fields.</li>
+                        <li><strong>Isosurface Extraction:</strong> Identifying surfaces of equal value in volumetric data.</li>
+                        <li><strong>Data Interpolation:</strong> Creating continuous representations from discrete samples.</li>
+                    </ul>
+                </section>
+
+                <section id="conclusion">
+                    <h2>Conclusion</h2>
+                    <p>
+                        In this tutorial, we've explored how to create and visualize distance fields using the DataFrame library 
+                        and Python. We've seen how to:
+                    </p>
+                    <ul>
+                        <li>Generate random reference points in a 2D space</li>
+                        <li>Create a regular sampling grid</li>
+                        <li>Compute distances from grid points to reference points</li>
+                        <li>Export the data to CSV files</li>
+                        <li>Create visualizations of the distance field</li>
+                    </ul>
+                    
+                    <p>
+                        Distance fields are a powerful representation for spatial data that can simplify many geometric operations 
+                        and enable efficient algorithms for path planning, collision detection, and visualization. By combining 
+                        the computational capabilities of the DataFrame library with the visualization power of Python and Matplotlib, 
+                        we can create informative and visually appealing representations of complex spatial relationships.
+                    </p>
+                    
+                    <p>
+                        The techniques we've explored can be extended to higher dimensions, different distance metrics, and more 
+                        complex reference objects, making distance fields a versatile tool for a wide range of applications.
+                    </p>
+                    
+                    <div class="next-steps">
+                        <h3>Next Steps</h3>
+                        <ul>
+                            <li>Experiment with different distributions of reference points</li>
+                            <li>Try different distance metrics (Manhattan, Chebyshev, etc.)</li>
+                            <li>Extend to 3D distance fields</li>
+                            <li>Use distance fields for path planning or collision avoidance</li>
+                            <li>Implement signed distance fields for representing solid objects</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Additional styles for this tutorial */
+        .tutorial-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tutorial-sidebar {
+            width: 250px;
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 20px;
+        }
+
+        .tutorial-sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            display: block;
+        }
+
+        .tutorial-sidebar nav li {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .tutorial-sidebar nav a {
+            display: block;
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all var(--transition-speed);
+        }
+
+        .tutorial-sidebar nav a:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        .tutorial-content {
+            flex: 1;
+            max-width: 900px;
+            padding-left: 30px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .tutorial-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 30px;
+        }
+
+        .tutorial-content section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tutorial-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+        }
+
+        .tutorial-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .tutorial-content ul, .tutorial-content ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+
+        .tutorial-content li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .image-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .image-caption {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-top: 8px;
+        }
+
+        .info-box {
+            background-color: rgba(74, 111, 165, 0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: var(--radius);
+        }
+
+        .next-steps {
+            background-color: rgba(74, 111, 165, 0.1);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary-color);
+            margin-top: 30px;
+        }
+
+        .next-steps h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .tutorial-container {
+                flex-direction: column;
+            }
+
+            .tutorial-sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+                padding-right: 0;
+                margin-bottom: 30px;
+            }
+
+            .tutorial-content {
+                padding-left: 0;
+                border-left: none;
+            }
+        }
+    </style>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('.tutorial-sidebar a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Copy button functionality
+            document.querySelectorAll('.copy-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.closest('.code-container').querySelector('pre code');
+                    const textToCopy = codeBlock.textContent;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 2000);
+                    });
+                });
+            });
+
+            // Active section highlighting based on scroll position
+            const sections = document.querySelectorAll('.tutorial-content section');
+            const navLinks = document.querySelectorAll('.tutorial-sidebar nav a');
+
+            function highlightActiveSection() {
+                let scrollPosition = window.scrollY;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 120;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        const targetLink = document.querySelector(`.tutorial-sidebar nav a[href="#${section.id}"]`);
+
+                        navLinks.forEach(link => {
+                            link.style.fontWeight = '400';
+                            link.style.backgroundColor = 'transparent';
+                        });
+
+                        if (targetLink) {
+                            targetLink.style.fontWeight = '600';
+                            targetLink.style.backgroundColor = 'rgba(74, 111, 165, 0.1)';
+                        }
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', highlightActiveSection);
+            highlightActiveSection(); // Initial check
+        });
+    </script>
+</body>
+
+</html>

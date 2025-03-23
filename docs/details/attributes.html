@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attribute Decomposition Tutorial - DataFrame Library</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="../examples.html">Examples</a></li>
+                    <li><a href="../tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="tutorial-container">
+            <aside class="tutorial-sidebar">
+                <nav>
+                    <ul>
+                        <li><a href="#introduction">Introduction</a></li>
+                        <li><a href="#what-is-attribute-decomposition">What is Attribute Decomposition?</a></li>
+                        <li><a href="#the-manager-class">The Manager Class</a></li>
+                        <li><a href="#decomposer-basics">Decomposer Basics</a></li>
+                        <li><a href="#built-in-decomposers">Built-in Decomposers</a></li>
+                        <li><a href="#usage-example">Usage Example</a></li>
+                        <li><a href="#creating-custom-decomposers">Creating Custom Decomposers</a></li>
+                        <li><a href="#advanced-usage">Advanced Usage</a></li>
+                        <li><a href="#conclusion">Conclusion</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <div class="tutorial-content">
+                <h1 class="tutorial-title">Understanding Attribute Decomposition in DataFrame</h1>
+                <p class="tutorial-subtitle">A guide to extracting and managing components from complex data</p>
+
+                <section id="introduction">
+                    <h2>Introduction</h2>
+                    <p>
+                        When working with scientific, engineering, or geospatial data, we often encounter complex data
+                        structures like vectors,
+                        tensors, or specialized objects. While these structures are perfect for calculations, there are
+                        times when we need to
+                        access their individual components for visualization, statistical analysis, or other
+                        component-specific operations.
+                    </p>
+                    <p>
+                        The DataFrame library provides a powerful mechanism called <strong>Attribute
+                            Decomposition</strong> that allows you to:
+                    </p>
+                    <ul>
+                        <li>Access individual components of complex data types without losing the original structure
+                        </li>
+                        <li>Create different views or interpretations of the same data</li>
+                        <li>Perform transformations on decomposed data and reflect changes back to the original</li>
+                        <li>Simplify the handling of multi-dimensional or multi-attribute data</li>
+                    </ul>
+                    <p>
+                        This tutorial will guide you through the attribute decomposition system in DataFrame, showing
+                        you how to use it
+                        effectively in your data analysis workflows.
+                    </p>
+                </section>
+
+                <section id="what-is-attribute-decomposition">
+                    <h2>What is Attribute Decomposition?</h2>
+                    <p>
+                        Attribute decomposition is the process of breaking down complex data types into simpler, more
+                        accessible components while maintaining
+                        the relationships between them. For example:
+                    </p>
+                    <ul>
+                        <li>A 3D vector can be decomposed into its x, y, and z components</li>
+                        <li>A tensor can be decomposed into its individual elements or principal components</li>
+                        <li>A color value might be decomposed into RGB or HSL components</li>
+                        <li>Geospatial coordinates might be decomposed into latitude, longitude, and elevation</li>
+                    </ul>
+
+                    <p>
+                        The DataFrame library provides a flexible system for attribute decomposition through two main
+                        classes:
+                    </p>
+                    <ul>
+                        <li><strong>Manager</strong>: Coordinates the decomposition process and provides a unified
+                            interface</li>
+                        <li><strong>Decomposer</strong>: Implements the actual decomposition logic for specific data
+                            types</li>
+                    </ul>
+
+                    <p>
+                        Additionally, the library comes with several built-in decomposers for common scenarios:
+                    </p>
+                    <ul>
+                        <li><strong>Components</strong>: Extracts individual elements from vectors, matrices, and arrays
+                        </li>
+                        <li><strong>Coordinates</strong>: Specialized decomposer for working with spatial coordinates
+                        </li>
+                    </ul>
+                </section>
+
+                <section id="the-manager-class">
+                    <h2>The Manager Class</h2>
+                    <p>
+                        The <code>df::attributes::Manager</code> class is the main interface for attribute
+                        decomposition. It manages a collection of decomposers
+                        and provides methods to extract and work with decomposed attributes.
+                    </p>
+
+                    <h3>Key Manager Methods</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Manager Class API</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">namespace df {
+namespace attributes {
+
+class Manager {
+public:
+    // Constructor taking a dataframe to manage
+    explicit Manager(const Dataframe &df);
+    
+    // Copy constructor
+    Manager(const Manager &other);
+    
+    // Register a decomposer
+    void addDecomposer(const Decomposer &decomposer);
+    
+    // Get all attribute names for a target dimension
+    std::vector<std::string> getNames(DecompDimension targetDim) const;
+    
+    // Get a specific Serie by name
+    template <typename T> Serie<T> getSerie(const std::string &name) const;
+    
+    // Check if an attribute exists
+    bool hasAttribute(DecompDimension, const std::string &) const;
+    
+    // Clear all decomposers
+    void clear();
+    
+    // Get the number of registered decomposers
+    size_t decomposerCount() const;
+};
+
+// Helper function to create a Manager
+template <typename... Ts>
+Manager createManager(const std::vector<std::string> &names,
+                      const Serie<Ts> &...series);
+
+} // namespace attributes
+} // namespace df</code></pre>
+                    </div>
+
+                    <h3>DecompDimension Enum</h3>
+                    <p>
+                        The <code>DecompDimension</code> enum defines the target dimension for decomposition:
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>DecompDimension Enum</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">// Mathematical decomposition dimension
+enum class DecompDimension {
+    Scalar = 1, // Individual components (x, y, z, etc.)
+    Vector,     // N-dimensional vectors
+    Matrix      // N-dimensional matrices/tensors
+};</code></pre>
+                    </div>
+
+                    <p>
+                        This enum allows you to specify the dimensionality of the decomposed attributes you want to
+                        retrieve.
+                    </p>
+                </section>
+
+                <section id="decomposer-basics">
+                    <h2>Decomposer Basics</h2>
+                    <p>
+                        The <code>Decomposer</code> class is the base class for all decomposers in the DataFrame
+                        library. It defines the interface
+                        that all concrete decomposers must implement.
+                    </p>
+
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Decomposer Base Class</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">class Decomposer {
+public:
+    virtual ~Decomposer() = default;
+
+    // Create a clone of this decomposer
+    virtual std::unique_ptr<Decomposer> clone() const = 0;
+
+    // Get the names of all decomposed attributes for a given serie
+    virtual Strings names(const Dataframe &dataframe, DecompDimension targetDim,
+                        const SerieBase &serie, const String &name) const = 0;
+
+    // Get a specific decomposed serie
+    virtual Serie<double> serie(const Dataframe &dataframe,
+                            DecompDimension targetDim,
+                            const std::string &name) const = 0;
+
+protected:
+    // Helper methods for derived classes
+    template <typename T> static size_t getComponentCount();
+    template <typename T> static Serie<double> extractComponent(const Serie<T> &serie, size_t index);
+};</code></pre>
+                    </div>
+
+                    <p>
+                        To make it easier to create custom decomposers, DataFrame provides a generic decomposer
+                        template:
+                    </p>
+
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Generic Decomposer Template</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">template <typename C> class GenDecomposer : public Decomposer {
+public:
+    std::unique_ptr<Decomposer> clone() const override;
+
+    Strings names(const Dataframe &dataframe, DecompDimension targetDim,
+                const SerieBase &serie, const String &name) const override;
+
+    Serie<double> serie(const Dataframe &dataframe, DecompDimension targetDim,
+                      const std::string &name) const override;
+};</code></pre>
+                    </div>
+
+                    <p>
+                        This template handles the common boilerplate and delegates the actual implementation
+                        to the derived class.
+                    </p>
+                </section>
+
+                <section id="built-in-decomposers">
+                    <h2>Built-in Decomposers</h2>
+                    <p>
+                        The DataFrame library includes several built-in decomposers for common use cases:
+                    </p>
+
+                    <h3>Components Decomposer</h3>
+                    <p>
+                        The <code>Components</code> decomposer extracts individual elements from arrays, vectors,
+                        and matrices. It's useful for working with geometric data, tensors, or any array-like structure.
+                    </p>
+
+                    <p>
+                        For example, with a Serie of Vector3 objects, the Components decomposer would generate
+                        attributes named:
+                    </p>
+                    <ul>
+                        <li><code>P_x</code></li>
+                        <li><code>P_y</code></li>
+                        <li><code>P_z</code></li>
+                    </ul>
+
+                    <h3>Coordinates Decomposer</h3>
+                    <p>
+                        The <code>Coordinates</code> decomposer is specialized for working with spatial coordinates.
+                        It can decompose coordinates into different representations:
+                    </p>
+
+                    <ul>
+                        <li>Cartesian (x, y, z)</li>
+                        <li>Spherical (r, theta, phi)</li>
+                        <li>Cylindrical (r, theta, z)</li>
+                    </ul>
+
+                    <p>
+                        This is particularly useful for geospatial data, physics simulations, or any application
+                        where multiple coordinate representations are needed.
+                    </p>
+                </section>
+
+                <section id="usage-example">
+                    <h2>Usage Example</h2>
+                    <p>
+                        Let's walk through a complete example of using attribute decomposition to work with
+                        a dataframe containing 3D vectors:
+                    </p>
+
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>Basic Attribute Decomposition Example</span>
+                            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                        <pre><code class="cpp">#include <dataframe/Dataframe.h>
+#include <dataframe/Serie.h>
+#include <dataframe/attributes/Manager.h>
+#include <dataframe/attributes/Components.h>
+#include <iostream>
+
+int main() {
+    // Create a dataframe with 3D vectors
+    df::Dataframe data;
+    
+    // Create a Serie of 3D position vectors
+    df::Serie<df::Vector3> positions{
+        {1.0, 0.0, 0.0},
+        {0.0, 1.0, 0.0},
+        {0.0, 0.0, 1.0},
+        {1.0, 1.0, 1.0},
+        {2.0, 3.0, 4.0}
+    };
+    
+    // Add the position Serie to the dataframe
+    data.add("P", positions);
+    
+    // Create a Serie of velocity vectors
+    df::Serie<df::Vector3> velocities{
+        {0.1, 0.0, 0.0},
+        {0.0, 0.1, 0.0},
+        {0.0, 0.0, 0.1},
+        {0.1, 0.1, 0.1},
+        {0.2, 0.3, 0.4}
+    };
+    
+    // Add the velocity Serie to the dataframe
+    data.add("V", velocities);
+    
+    // Create an attribute manager for the dataframe
+    df::attributes::Manager manager(data);
+    
+    // Add a Components decomposer
+    manager.addDecomposer(df::attributes::Components());
+    
+    // Get all scalar attribute names
+    auto scalar_names = manager.getNames(df::attributes::DecompDimension::Scalar);
+    
+    // Print the available scalar attributes
+    std::cout << "Available scalar attributes:" << std::endl;
+    for (const auto& name : scalar_names) {
+        std::cout << "  - " << name << std::endl;
+    }
+    
+    // Get the x-component of position
+    auto P_x = manager.getSerie<double>("P_x");
+    
+    // Get the z-component of velocity
+    auto V_z = manager.getSerie<double>("V_z");
+    
+    // Print the extracted components
+    std::cout << "\nPosition X: " << P_x << std::endl;
+    std::cout << "Velocity Z: " << V_z << std::endl;
+    
+    // Check if a specific attribute exists
+    if (manager.hasAttribute(df::attributes::DecompDimension::Scalar, "P_y")) {
+        std::cout << "\nThe P_y attribute exists." << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+                    </div>
+
+                    <p>
+                        The output of this example would be:
+                    </p>
+
+                    <pre class="output">
+Available scalar attributes:
+  - P_x
+  - P_y
+  - P_z
+  - V_x
+  - V_y
+  - V_z
+                    </pre>
+                </section>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
