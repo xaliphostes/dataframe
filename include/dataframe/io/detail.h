@@ -42,7 +42,8 @@ std::vector<std::string> split_line(const std::string &line, char delimiter,
 template <typename T>
 Serie<T> parse_column(const std::vector<std::string> &values);
 
-std::type_index infer_column_type(const std::vector<std::string> &values);
+std::type_index infer_column_type(const std::vector<std::string> &values,
+                                  bool all_double = false);
 
 template <typename T> std::string format_value(const T &value);
 

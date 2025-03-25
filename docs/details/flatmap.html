@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>flatMap Function - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">flatMap</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>The <code>flatMap</code> function applies a transformation to each element in a Serie, where the transformation returns a Serie for each element, and then flattens all those Series into a single Serie. It's essentially a combination of <code>map</code> followed by a <code>flatten</code> operation.</p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <pre><code class="language-cpp">
+// With index parameter
+template &lt;typename T, typename R&gt;
+Serie&lt;R&gt; flatMap(const Serie&lt;T&gt;& serie, 
+                 std::function&lt;Serie&lt;R&gt;(const T&, size_t)&gt; callback);
+
+// Without index parameter
+template &lt;typename T, typename R&gt;
+Serie&lt;R&gt; flatMap(const Serie&lt;T&gt;& serie, 
+                 std::function&lt;Serie&lt;R&gt;(const T&)&gt; callback);
+
+// Member function version
+template &lt;typename T&gt;
+template &lt;typename R&gt;
+Serie&lt;R&gt; Serie&lt;T&gt;::flatMap(std::function&lt;Serie&lt;R&gt;(const T&, size_t)&gt; callback) const;
+
+// Bound version for pipeline operations with index
+template &lt;typename T, typename R&gt;
+auto bind_flatMap(std::function&lt;Serie&lt;R&gt;(const T&, size_t)&gt; callback);
+
+// Bound version for pipeline operations without index
+template &lt;typename T, typename R&gt;
+auto bind_flatMap(std::function&lt;Serie&lt;R&gt;(const T&)&gt; callback);
+        </code></pre>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Parameters</h2>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="param-name">serie</span></td>
+              <td><span class="param-type">const Serie&lt;T&gt;&</span></td>
+              <td>The input Serie to process.</td>
+            </tr>
+            <tr>
+              <td><span class="param-name">callback</span></td>
+              <td><span class="param-type">std::function&lt;Serie&lt;R&gt;(const T&, size_t)&gt;</span></td>
+              <td>Function to apply to each element, returning a Serie&lt;R&gt;. The function receives the element value and optionally its index.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Return Value</h2>
+        <p>A new Serie of type R containing all elements from the Series returned by the callback function, flattened into a single Serie.</p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Example Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Basic Example: Expanding Strings to Characters</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/flatMap.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+int main() {
+    // Create a Serie of strings
+    df::Serie&lt;std::string&gt; words{"hello", "world"};
+    
+    // Use flatMap to split each string into characters
+    auto characters = df::flatMap&lt;std::string, char&gt;(words, [](const std::string& word, size_t) {
+        std::vector&lt;char&gt; chars(word.begin(), word.end());
+        return df::Serie&lt;char&gt;(chars);
+    });
+    
+    // Print the result
+    std::cout << "Original words: " << words << std::endl;
+    std::cout << "Flattened characters: " << characters << std::endl;
+    
+    return 0;
+}
+
+// Output:
+// Original words: [hello, world]
+// Flattened characters: [h, e, l, l, o, w, o, r, l, d]</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Complex Example: Generating Multiple Elements per Input</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/flatMap.h&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main() {
+    // Create a Serie of numbers
+    df::Serie&lt;int&gt; numbers{1, 2, 3};
+    
+    // Use flatMap to repeat each number according to its value
+    auto repeated = df::flatMap&lt;int, int&gt;(numbers, [](int n) {
+        std::vector&lt;int&gt; repeats(n, n);
+        return df::Serie&lt;int&gt;(repeats);
+    });
+    
+    // Print the result
+    std::cout << "Original numbers: " << numbers << std::endl;
+    std::cout << "Repeated values: " << repeated << std::endl;
+    
+    return 0;
+}
+
+// Output:
+// Original numbers: [1, 2, 3]
+// Repeated values: [1, 2, 2, 3, 3, 3]</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Example: Sentence Splitting</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/flatMap.h&gt;
+#include &lt;dataframe/pipe.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;sstream&gt;
+
+// Split a sentence into words
+std::vector&lt;std::string&gt; splitSentence(const std::string& sentence) {
+    std::vector&lt;std::string&gt; words;
+    std::istringstream iss(sentence);
+    std::string word;
+    while (iss >> word) {
+        words.push_back(word);
+    }
+    return words;
+}
+
+int main() {
+    // Create a Serie of sentences
+    df::Serie&lt;std::string&gt; sentences{
+        "Hello world",
+        "This is a test",
+        "DataFrame library is awesome"
+    };
+    
+    // Create a pipeline to:
+    // 1. Split each sentence into words
+    // 2. Filter out short words (less than 4 characters)
+    auto long_words = sentences
+        | df::bind_flatMap&lt;std::string, std::string&gt;([](const std::string& sentence) {
+            return df::Serie&lt;std::string&gt;(splitSentence(sentence));
+        })
+        | df::bind_filter&lt;std::string&gt;([](const std::string& word) {
+            return word.length() >= 4;
+        });
+    
+    // Print the result
+    std::cout << "Original sentences: " << sentences << std::endl;
+    std::cout << "Long words: " << long_words << std::endl;
+    
+    return 0;
+}
+
+// Output:
+// Original sentences: [Hello world, This is a test, DataFrame library is awesome]
+// Long words: [Hello, world, This, test, DataFrame, library, awesome]</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The <code>flatMap</code> function applies a transformation to each element and concatenates all the resulting Series.</li>
+          <li>Unlike <code>map</code>, which produces a one-to-one mapping, <code>flatMap</code> allows for one-to-many mappings.</li>
+          <li>If any of the Series returned by the callback is empty, no elements will be added to the result for that input element.</li>
+          <li>The callback function can return Series of different sizes for different input elements.</li>
+          <li>The function preserves the relative order of elements: all elements from the first input element come first, followed by elements from the second input element, and so on.</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Common Use Cases</h2>
+        <ul>
+          <li><strong>String Tokenization:</strong> Splitting strings into words or characters.</li>
+          <li><strong>Exploding Nested Data:</strong> Flattening collections of collections into a single collection.</li>
+          <li><strong>Data Expansion:</strong> Generating multiple output elements for each input element.</li>
+          <li><strong>Many-to-Many Transformations:</strong> When each input element maps to a variable number of output elements.</li>
+          <li><strong>Path Expansion:</strong> Generating all possible paths from a tree or graph structure.</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="map.html" class="related-function">map</a>
+          <a href="flatten.html" class="related-function">flatten</a>
+          <a href="filter.html" class="related-function">filter</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="forEach.html" class="related-function">forEach</a>
+          <a href="reduce.html" class="related-function">reduce</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2024 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

@@ -245,13 +245,8 @@ auto distances = distance_field<2>(grid_points, reference_points);</code></pre>
                             <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
                         </div>
                         <pre><code class="cpp">// Export results to CSV
-std::ofstream out_grid("grid_points.csv");
-out_grid << "x,y,distance\n";
-for (size_t i = 0; i < grid_points.size(); ++i) {
-    out_grid << grid_points[i][0] << "," << grid_points[i][1] << ","
-             << distances[i] << "\n";
-}
-out_grid.close();</code></pre>
+df::io::write_csv(grid_points, "grid_points.csv");
+</code></pre>
                     </div>
                     
                     <div class="code-container">
@@ -260,12 +255,8 @@ out_grid.close();</code></pre>
                             <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
                         </div>
                         <pre><code class="cpp">// Export reference points
-std::ofstream out_ref("reference_points.csv");
-out_ref << "x,y\n";
-for (const auto &p : reference_points.data()) {
-    out_ref << p[0] << "," << p[1] << "\n";
-}
-out_ref.close();</code></pre>
+df::io::write_csv(reference_points, "reference_points.csv");
+</code></pre>
                     </div>
                     
                     <p>

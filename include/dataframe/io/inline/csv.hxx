@@ -92,7 +92,7 @@ inline Dataframe read_csv(const std::string &filename,
     // Convert columns to Series
     for (const auto &header : headers) {
         const auto &values = columns[header];
-        auto type = detail::infer_column_type(values);
+        auto type = detail::infer_column_type(values, options.all_double);
 
         if (type == typeid(int64_t)) {
             df.add(header, detail::parse_column<int64_t>(values));

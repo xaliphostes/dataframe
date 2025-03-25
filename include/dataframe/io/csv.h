@@ -37,6 +37,7 @@ struct CSVOptions {
     char delimiter = ',';
     char quote_char = '"';
     bool has_header = true;
+    bool all_double = false;
     bool trim_whitespace = true;
     bool skip_empty_lines = true;
     std::string null_value = "NA";

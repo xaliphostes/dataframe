@@ -14,18 +14,35 @@
 
 #pragma once
 #include <dataframe/Serie.h>
+#include <dataframe/Dataframe.h>
 
 namespace df {
 
-// Split a single series into n approximately equal parts
+/**
+ * Split a single series into n approximately equal parts
+ */
 template <typename T>
 std::vector<Serie<T>> split(size_t n, const Serie<T> &serie);
 
-// Split multiple series into n approximately equal parts
+/**
+ * Split multiple series into n approximately equal parts
+ */
 template <typename T, typename... Ts>
 auto split(size_t n, const Serie<T> &first, const Serie<Ts> &...rest);
 
-// Helper function to create a bound split operation
+/**
+ * @brief Splits a Dataframe into n approximately equal parts
+ *
+ * @param n Number of parts to split the Dataframe into
+ * @param dataframe The Dataframe to split
+ * @return std::vector<Dataframe> Vector of n Dataframes with the same structure
+ */
+template <typename T>
+std::vector<Serie<T>> split(size_t n, const Dataframe &dataframe);
+
+/**
+ * Helper function to create a bound split operation
+ */
 template <typename T> auto bind_split(size_t n);
 
 } // namespace df

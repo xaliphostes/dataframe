@@ -77,9 +77,13 @@ inline Serie<T> parse_column(const std::vector<std::string> &values) {
 }
 
 inline std::type_index
-infer_column_type(const std::vector<std::string> &values) {
+infer_column_type(const std::vector<std::string> &values, bool all_double) {
     bool could_be_int = true;
     bool could_be_double = true;
+
+    if (all_double) {
+        return typeid(double);
+    }
 
     for (const auto &value : values) {
         if (value.empty())

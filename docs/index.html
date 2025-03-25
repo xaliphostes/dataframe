@@ -333,6 +333,11 @@
         .tag-attribute {
             background-color: #020202;
         }
+
+        .tag-ml {
+            background-color: #209632;
+        }
+
         .tag-decomp {
             background-color: #717071;
         }
@@ -640,6 +645,7 @@
                             <li><a href="details/chain.html">chain</a></li>
                             <li><a href="details/concat.html">concat</a></li>
                             <li><a href="details/chunk.html">chunk</a></li>
+                            <li><a href="details/flatmap.html">flatMap</a></li>
                             <li><a href="details/flatten.html">flatten</a></li>
                             <li><a href="details/merge.html">merge</a></li>
                             <li><a href="details/partition.html">partition</a></li>
@@ -702,6 +708,12 @@
                         <a href="#" class="has-submenu">Geophysics</a>
                         <ul class="sidebar-submenu">
                             <li><a href="#">Coming soon...</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#" class="has-submenu">Maching learning</a>
+                        <ul class="sidebar-submenu">
+                            <li><a href="details/random_forest.html">Random forest</a></li>
                         </ul>
                     </li>
                     <li class="has-submenu">
@@ -970,6 +982,17 @@
                         <p class="card-description">Splits a Serie into chunks of a specified size.</p>
                     </a>
 
+                    <!-- flatmap -->
+                    <a href="details/flatmap.html" class="card">
+                        <h3 class="card-title">flatMap</h3>
+                        <span class="card-tag tag-manip">Manipulation</span>
+                        <p class="card-description">function applies a transformation to each element in a Serie, where
+                            the transformation returns a Serie for each element, and then flattens all those Series into
+                            a single Serie. It's essentially a combination of <code>map</code> followed by a
+                            <code>flatten</code> operation.
+                        </p>
+                    </a>
+
                     <!-- flatten -->
                     <a href="details/flatten.html" class="card">
                         <h3 class="card-title">flatten</h3>
@@ -1165,6 +1188,18 @@
             <div class="category-container animate-slide-up" data-delay="700">
                 <h2 class="category-title">Interpolation</h2>
                 <div class="grid-container">Coming soon...</div>
+            </div>
+
+            <div class="category-container animate-slide-up" data-delay="700">
+                <h2 class="category-title">Maching learning</h2>
+                <div class="grid-container">
+                    <a href="details/random_forest.html" class="card">
+                        <h3 class="card-title">RandomForest</h3>
+                        <span class="card-tag tag-ml">Maching Learning</span>
+                        <p class="card-description">The <code>RandomForest</code> class provides an implementation of
+                            the Random Forest algorithm integrated with the DataFrame library.</p>
+                    </a>
+                </div>
             </div>
 
             <div class="category-container animate-slide-up" data-delay="700">

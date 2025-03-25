@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RandomForest - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="../examples.html">Examples</a></li>
+                    <li><a href="../tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">RandomForest</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>
+                    The <code>RandomForest</code> class provides an implementation of the Random Forest algorithm
+                    integrated with the DataFrame library. Random Forest is an ensemble learning method for
+                    classification and regression tasks that operates by constructing multiple decision trees during
+                    training and outputting the class (classification) or mean prediction (regression) of the individual
+                    trees.
+                </p>
+                <p>
+                    This implementation supports both regression and classification tasks, allowing customization of
+                    various hyperparameters such as the number of trees, maximum depth, and minimum samples required for
+                    splitting.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Class Definition</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>RandomForest Class Definition</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+namespace ml {
+
+enum class TaskType { REGRESSION, CLASSIFICATION };
+
+class RandomForest {
+  public:
+    // Constructor
+    RandomForest(size_t num_trees = 100,
+                 TaskType task_type = TaskType::REGRESSION,
+                 size_t max_features = 0,
+                 size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+                 size_t min_samples_split = 2, size_t n_classes = 0);
+
+    void fit(const df::Dataframe &data, const std::string &target_column);
+
+    df::Serie&lt;double&gt; predict(const df::Dataframe &data);
+
+    df::Serie&lt;double&gt; feature_importance(const df::Dataframe &data,
+                                         const std::string &target_column);
+
+    double oob_error(const df::Dataframe &data,
+                     const std::string &target_column);
+
+    df::Serie&lt;double&gt; permutation_importance(const df::Dataframe &data,
+                                             const std::string &target_column,
+                                             size_t n_repeats = 10);
+
+    std::vector&lt;std::string&gt;
+    get_feature_names(const df::Dataframe &data,
+                      const std::string &target_column) const;
+
+    df::Dataframe feature_importance_df(const df::Dataframe &data,
+                                        const std::string &target_column);
+
+    size_t get_num_trees() const { return num_trees; }
+
+    TaskType get_task_type() const { return task_type; }
+
+    std::map&lt;std::string, double&gt; evaluate(const df::Dataframe &data,
+                                           const std::string &target_column);
+};
+
+// Utility function to create a Random Forest Regressor
+RandomForest create_random_forest_regressor(
+    size_t num_trees = 100, size_t max_features = 0,
+    size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+    size_t min_samples_split = 2);
+
+// Utility function to create a Random Forest Classifier
+RandomForest create_random_forest_classifier(
+    size_t num_trees = 100, size_t n_classes = 0, size_t max_features = 0,
+    size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+    size_t min_samples_split = 2);
+
+} // namespace ml</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Constructor</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>RandomForest Constructor</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+RandomForest(size_t num_trees = 100,
+             TaskType task_type = TaskType::REGRESSION,
+             size_t max_features = 0,
+             size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+             size_t min_samples_split = 2, 
+             size_t n_classes = 0);</code></pre>
+                </div>
+
+                <h3>Parameters</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">num_trees</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>The number of trees in the forest. Increasing this generally improves performance at the cost of more training time. Default is 100.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">task_type</span></td>
+                            <td><span class="param-type">TaskType</span></td>
+                            <td>Type of task to perform, either <code>REGRESSION</code> or <code>CLASSIFICATION</code>. Default is <code>REGRESSION</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">max_features</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>The number of features to consider when looking for the best split. If 0, all features are considered. Default is 0.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">max_depth</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>The maximum depth of the tree. Default is unlimited (std::numeric_limits&lt;size_t&gt;::max()).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">min_samples_split</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>The minimum number of samples required to split an internal node. Default is 2.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">n_classes</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>Number of classes for classification tasks. Only used when task_type is CLASSIFICATION. Default is 0 (auto-detect).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Utility Factory Functions</h2>
+                <p>
+                    The library provides two convenience functions for creating RandomForest instances configured for either regression or classification:
+                </p>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>RandomForest Factory Functions</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Create a Random Forest Regressor
+RandomForest create_random_forest_regressor(
+    size_t num_trees = 100, 
+    size_t max_features = 0,
+    size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+    size_t min_samples_split = 2);
+
+// Create a Random Forest Classifier
+RandomForest create_random_forest_classifier(
+    size_t num_trees = 100, 
+    size_t n_classes = 0, 
+    size_t max_features = 0,
+    size_t max_depth = std::numeric_limits&lt;size_t&gt;::max(),
+    size_t min_samples_split = 2);</code></pre>
+                </div>
+
+                <p>
+                    These functions simplify the creation of RandomForest instances with appropriate defaults for either regression or classification tasks.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Core Methods</h2>
+
+                <h3>fit</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>fit Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">void fit(const df::Dataframe &data, const std::string &target_column);</code></pre>
+                </div>
+                <p>
+                    Trains the random forest model using the provided data. The <code>target_column</code> specifies which column in the DataFrame contains the target values to predict.
+                </p>
+
+                <h3>predict</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>predict Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">df::Serie&lt;double&gt; predict(const df::Dataframe &data);</code></pre>
+                </div>
+                <p>
+                    Makes predictions on the provided data using the trained random forest model. Returns a Serie of predicted values.
+                </p>
+
+                <h3>evaluate</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>evaluate Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">std::map&lt;std::string, double&gt; evaluate(const df::Dataframe &data, const std::string &target_column);</code></pre>
+                </div>
+                <p>
+                    Evaluates the model's performance on the provided data. Returns a map of evaluation metrics. For regression tasks, this typically includes metrics like MSE, RMSE, and R². For classification tasks, it includes metrics like accuracy, precision, recall, and F1-score.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Feature Importance Methods</h2>
+
+                <h3>feature_importance</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>feature_importance Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">df::Serie&lt;double&gt; feature_importance(const df::Dataframe &data, const std::string &target_column);</code></pre>
+                </div>
+                <p>
+                    Calculates and returns the importance of each feature in the model. This is based on how much each feature contributes to the decrease in impurity or error across all trees in the forest.
+                </p>
+
+                <h3>permutation_importance</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>permutation_importance Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">df::Serie&lt;double&gt; permutation_importance(
+    const df::Dataframe &data,
+    const std::string &target_column,
+    size_t n_repeats = 10);</code></pre>
+                </div>
+                <p>
+                    Calculates feature importance via the permutation importance method. This method measures the decrease in model accuracy when a single feature's values are randomly shuffled, indicating how much the model depends on that feature.
+                </p>
+
+                <h3>feature_importance_df</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>feature_importance_df Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">df::Dataframe feature_importance_df(const df::Dataframe &data, const std::string &target_column);</code></pre>
+                </div>
+                <p>
+                    Returns a DataFrame containing feature names and their importance scores, providing a more structured output for analyzing feature importance.
+                </p>
+
+                <h3>get_feature_names</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>get_feature_names Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">std::vector&lt;std::string&gt; get_feature_names(
+    const df::Dataframe &data,
+    const std::string &target_column) const;</code></pre>
+                </div>
+                <p>
+                    Returns a vector of feature names from the DataFrame, excluding the target column. This is useful for mapping feature indices to their original names in the dataset.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Model Assessment Methods</h2>
+
+                <h3>oob_error</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>oob_error Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">double oob_error(const df::Dataframe &data, const std::string &target_column);</code></pre>
+                </div>
+                <p>
+                    Calculates the out-of-bag (OOB) error estimate for the random forest model. This provides an unbiased estimate of the generalization error without requiring a separate validation set.
+                </p>
+
+                <h3>get_num_trees</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>get_num_trees Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">size_t get_num_trees() const;</code></pre>
+                </div>
+                <p>
+                    Returns the number of trees in the random forest.
+                </p>
+
+                <h3>get_task_type</h3>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>get_task_type Method</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">TaskType get_task_type() const;</code></pre>
+                </div>
+                <p>
+                    Returns the task type (REGRESSION or CLASSIFICATION) that the random forest is configured for.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="700">
+                <h2 class="doc-section-title">Usage Example</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Complete Usage Example</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/io/csv.h&gt;
+#include &lt;dataframe/core/split.h&gt;
+#include &lt;dataframe/ml/random_forest.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Load data from CSV
+    df::Dataframe data = df::io::read_csv("iris.csv");
+    
+    // Print dataset info
+    std::cout << "Dataset columns: ";
+    for (const auto& name : data.names()) {
+        std::cout << name << " ";
+    }
+    std::cout << "\nTotal samples: " << data.get&lt;double&gt;("sepal_length").size() << std::endl;
+    
+    // Split data into training and testing sets (80/20)
+    auto splits = df::split(5, data);
+    
+    // Combine first 4 parts for training (80%)
+    df::Dataframe train_data;
+    for (size_t i = 0; i < 4; ++i) {
+        // Merge split data into train_data
+        // Implementation depends on specific merge function
+    }
+    
+    // Use the 5th part for testing (20%)
+    df::Dataframe test_data = splits[4];
+    
+    // Create and train a random forest classifier
+    ml::RandomForest rf = ml::create_random_forest_classifier(
+        100,    // num_trees
+        3,      // n_classes
+        0,      // max_features (auto)
+        10,     // max_depth
+        2       // min_samples_split
+    );
+    
+    // Train the model
+    rf.fit(train_data, "species");
+    std::cout << "Model trained successfully with " << rf.get_num_trees() << " trees." << std::endl;
+    
+    // Make predictions
+    df::Serie&lt;double&gt; predictions = rf.predict(test_data);
+    
+    // Calculate feature importance
+    df::Dataframe importance = rf.feature_importance_df(train_data, "species");
+    
+    // Print feature importance
+    std::cout << "\nFeature Importance:" << std::endl;
+    for (const auto& name : importance.names()) {
+        std::cout << name << ": " << importance.get&lt;double&gt;(name)[0] << std::endl;
+    }
+    
+    // Evaluate the model
+    auto metrics = rf.evaluate(test_data, "species");
+    std::cout << "\nModel Evaluation:" << std::endl;
+    for (const auto& [metric, value] : metrics) {
+        std::cout << metric << ": " << value << std::endl;
+    }
+    
+    // Calculate OOB error
+    double oob = rf.oob_error(train_data, "species");
+    std::cout << "Out-of-bag error: " << oob << std::endl;
+    
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="800">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li>The implementation uses bootstrap sampling to create diverse training sets for each decision tree in the forest.</li>
+                    <li>Out-of-bag (OOB) samples are used to provide an unbiased estimate of the generalization error.</li>
+                    <li>For classification tasks, the model outputs class labels based on majority voting among the trees.</li>
+                    <li>For regression tasks, the model outputs the average prediction of all trees.</li>
+                    <li>The implementation supports feature importance calculation, which helps identify the most influential features in the model.</li>
+                    <li>Permutation importance provides an alternative method to assess feature importance by measuring the impact of shuffling each feature's values.</li>
+                    <li>When <code>max_features</code> is set to 0, all features are considered for each split, which can be computationally intensive for datasets with many features.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="900">
+                <h2 class="doc-section-title">Related Classes and Functions</h2>
+                <div class="related-functions">
+                    <a href="decision_tree.html" class="related-function">DecisionTree</a>
+                    <a href="../dataframe.html" class="related-function">Dataframe</a>
+                    <a href="../serie.html" class="related-function">Serie</a>
+                    <a href="split.html" class="related-function">split</a>
+                    <a href="csv.html" class="related-function">CSV I/O</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>
