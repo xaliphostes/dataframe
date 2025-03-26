@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIME - DataFrame Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="../index.html" class="logo">
+                <span class="logo-icon"><i class="fas fa-table"></i></span>
+                <span class="logo-text">DataFrame</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">API Reference</a></li>
+                    <li><a href="../examples.html">Examples</a></li>
+                    <li><a href="../tutorial.html">Tutorial</a></li>
+                    <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="doc-container">
+            <div class="doc-header animate-fade-in">
+                <a href="../index.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <h1 class="doc-title">LIME (Local Interpretable Model-agnostic Explanations)</h1>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Overview</h2>
+                <p>
+                    LIME (Local Interpretable Model-agnostic Explanations) is a technique designed to explain the
+                    predictions of
+                    any
+                    machine learning model by approximating it locally with an interpretable model. This implementation
+                    integrates
+                    seamlessly with the DataFrame library and can explain predictions from any model that accepts
+                    DataFrame
+                    inputs.
+                </p>
+                <p>
+                    While complex machine learning models like Random Forests or Neural Networks can achieve high
+                    accuracy, they
+                    often
+                    function as "black boxes" that don't reveal why they made specific predictions. LIME addresses this
+                    problem by
+                    creating simple, interpretable explanations for individual predictions.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">How LIME Works</h2>
+                <p>
+                    LIME works on the principle that while a model may be globally complex, its behavior can be
+                    approximated
+                    locally
+                    with a simpler model. For a specific prediction, LIME follows these steps:
+                </p>
+                <ol>
+                    <li>Generates perturbed samples around the instance being explained</li>
+                    <li>Gets predictions from the original "black box" model for these samples</li>
+                    <li>Weights samples based on their proximity to the original instance</li>
+                    <li>Fits a simple, interpretable model (like linear regression) to this local dataset</li>
+                    <li>Extracts feature weights from this interpretable model as the explanation</li>
+                </ol>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>LIME Algorithm Core Concept</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Conceptual overview of the LIME algorithm:
+1. Given an instance x to explain and a black box model f:
+   - Generate perturbed samples z around x
+   - Get model predictions f(z) for these samples
+   - Weight samples based on proximity to x: w = exp(-d(x,z)²/width²)
+   - Fit an interpretable model g to minimize Σw·(f(z)-g(z))²
+   - Extract feature weights from g as the explanation
+
+// This gives us a local explanation of how the model behaves around x
+</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Class Definition</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Lime Class Definition</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+namespace ml {
+
+/**
+ * @brief LIME (Local Interpretable Model-agnostic Explanations) implementation
+ * for explaining individual predictions of any black-box model.
+ */
+class Lime {
+public:
+    /**
+     * @brief Construct a Lime explainer
+     * 
+     * @param training_data The training data used for generating explanations
+     * @param target_column The name of the target column in the training data
+     * @param categorical_features Optional set of feature names that should be treated as categorical
+     * @param kernel_width Width of the exponential kernel (default: 0.75)
+     * @param verbose Whether to print progress information (default: false)
+     */
+    Lime(const df::Dataframe& training_data, 
+         const std::string& target_column,
+         const std::set<std::string>& categorical_features = {},
+         double kernel_width = 0.75,
+         bool verbose = false);
+    
+    /**
+     * @brief Generate an explanation for a specific instance
+     * 
+     * @param instance The instance to explain
+     * @param predict_fn A function that takes a Dataframe of samples and returns predictions
+     * @param num_features Number of features to include in the explanation (default: 5)
+     * @param num_samples Number of samples to generate for local approximation (default: 5000)
+     * @return std::vector<std::pair<std::string, double>> Feature names and their weights in the explanation
+     */
+    std::vector<std::pair<std::string, double>> explain(
+        const df::Dataframe& instance,
+        std::function<df::Serie<double>(const df::Dataframe&)> predict_fn,
+        size_t num_features = 5,
+        size_t num_samples = 5000);
+    
+    // Additional methods for advanced usage...
+};
+
+// Utility function to create a LIME explainer
+inline Lime create_lime_explainer(
+    const df::Dataframe& training_data,
+    const std::string& target_column,
+    const std::set<std::string>& categorical_features = {}) {
+    
+    return Lime(training_data, target_column, categorical_features);
+}
+
+} // namespace ml</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Parameters</h2>
+                <h3>Constructor</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">training_data</span></td>
+                            <td><span class="param-type">const df::Dataframe&</span></td>
+                            <td>The training data used to understand feature distributions. This helps in generating
+                                meaningful
+                                perturbations.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">target_column</span></td>
+                            <td><span class="param-type">const std::string&</span></td>
+                            <td>The name of the target column in the training data.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">categorical_features</span></td>
+                            <td><span class="param-type">const std::set<std::string>&</span></td>
+                            <td>Set of feature names that should be treated as categorical. Optional (default: empty
+                                set).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">kernel_width</span></td>
+                            <td><span class="param-type">double</span></td>
+                            <td>Width of the exponential kernel used for weighting perturbed samples. A smaller value
+                                makes the
+                                explanation more local, while a larger value considers a broader area. Optional
+                                (default: 0.75).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">verbose</span></td>
+                            <td><span class="param-type">bool</span></td>
+                            <td>Whether to print progress information during explanation generation. Optional (default:
+                                false).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>explain() Method</h3>
+                <table class="params-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="param-name">instance</span></td>
+                            <td><span class="param-type">const df::Dataframe&</span></td>
+                            <td>The specific instance (single row) to explain.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">predict_fn</span></td>
+                            <td><span class="param-type">std::function<df::Serie<double>(const df::Dataframe&)></span>
+                            </td>
+                            <td>A prediction function that takes a Dataframe of samples and returns predictions as a
+                                Serie<double>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">num_features</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>Number of features to include in the explanation. Optional (default: 5).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="param-name">num_samples</span></td>
+                            <td><span class="param-type">size_t</span></td>
+                            <td>Number of perturbed samples to generate for the local approximation. More samples may
+                                give more stable
+                                explanations but take longer to process. Optional (default: 5000).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Return Value</h2>
+                <p>
+                    The <code>explain()</code> method returns a <code>std::vector<std::pair<std::string, double>></code>
+                    containing feature names and their corresponding weights in the explanation. Features are sorted by
+                    importance
+                    (magnitude of weight), but the actual values indicate the direction and magnitude of influence:
+                </p>
+                <ul>
+                    <li><strong>Positive weights</strong>: The feature increases the predicted value (or likelihood of
+                        the
+                        predicted class)</li>
+                    <li><strong>Negative weights</strong>: The feature decreases the predicted value (or likelihood of
+                        the
+                        predicted class)</li>
+                    <li><strong>Magnitude</strong>: The absolute value indicates how strongly the feature influences the
+                        prediction</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Understanding the Output</h2>
+                <p>
+                    When you analyze the results from a LIME (Local Interpretable Model-agnostic Explanations) analysis,
+                    you're seeing a window into why your model made a specific prediction. A typical LIME result
+                    contains:
+                </p>
+                <ul>
+                    <li><strong>Features</strong>: The input variables that influenced the prediction</li>
+                    <li><strong>Weights/Coefficients</strong>: Numerical values indicating the strength and direction of
+                        each
+                        feature's influence</li>
+                </ul>
+                <p>For example, you might see something like:</p>
+                <div class="code-container">
+                    <pre><code>Feature                 Weight
+----------------------------------------
+sepal_length             0.3542
+petal_length             0.2874
+categorical=setosa       0.1953
+petal_width             -0.1421
+sepal_width             -0.0895</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="100">
+                <h2 class="doc-section-title">Key Interpretation Points</h2>
+
+                <h3>Direction of Influence</h3>
+                <ul>
+                    <li><strong>Positive weights</strong> indicate that the feature pushed the prediction toward the
+                        predicted
+                        class</li>
+                    <li><strong>Negative weights</strong> indicate that the feature pushed the prediction away from the
+                        predicted
+                        class</li>
+                </ul>
+
+                <h3>Magnitude of Influence</h3>
+                <ul>
+                    <li>Larger absolute values (whether positive or negative) indicate stronger influence</li>
+                    <li>Features are typically sorted by their importance (absolute weight)</li>
+                </ul>
+
+                <h3>Feature Types</h3>
+                <ul>
+                    <li>Original numerical features appear as-is (<code>sepal_length</code>)</li>
+                    <li>Categorical features appear with specific values (<code>categorical=setosa</code>)</li>
+                </ul>
+
+                <h3>Context Matters</h3>
+                <ul>
+                    <li>The explanation is only valid for this specific prediction and nearby instances</li>
+                    <li>Different instances may have different explanations even for the same predicted class</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="200">
+                <h2 class="doc-section-title">Practical Example</h2>
+                <p>
+                    Let's say you're predicting iris flower species and LIME gives you these results for a "virginica"
+                    prediction:
+                </p>
+                <div class="code-container">
+                    <pre><code>petal_length             2.3541   (Long petals → supports virginica)
+petal_width              1.8724   (Wide petals → supports virginica)
+sepal_length             0.4532   (Long sepals → slightly supports virginica)
+sepal_width             -0.3217   (Wide sepals → slightly against virginica)</code></pre>
+                </div>
+                <p>This tells you:</p>
+                <ol>
+                    <li>Petal dimensions are the most important factors for this prediction</li>
+                    <li>Long, wide petals strongly indicate virginica</li>
+                    <li>Sepal dimensions play a smaller role</li>
+                    <li>Wide sepals actually provide evidence against this being virginica</li>
+                </ol>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="300">
+                <h2 class="doc-section-title">Common Interpretation Scenarios</h2>
+
+                <h3>For Classification Tasks</h3>
+                <ul>
+                    <li><strong>Dominant Features</strong>: Look for features with significantly larger weights than
+                        others—these
+                        are driving the prediction</li>
+                    <li><strong>Feature Conflicts</strong>: Features with opposite signs show competing evidence that
+                        the model is
+                        weighing</li>
+                    <li><strong>Surprising Influences</strong>: Features you wouldn't expect to be important might
+                        reveal model
+                        biases or data issues</li>
+                </ul>
+
+                <h3>For Regression Tasks</h3>
+                <ul>
+                    <li><strong>Direction of Impact</strong>: Positive weights increase the predicted value; negative
+                        weights
+                        decrease it</li>
+                    <li><strong>Relative Importance</strong>: Compare magnitudes to understand which features have the
+                        biggest
+                        impact on the prediction</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="400">
+                <h2 class="doc-section-title">Best Practices</h2>
+                <ol>
+                    <li><strong>Compare Multiple Instances</strong>: Look at explanations across several examples to
+                        identify
+                        patterns</li>
+                    <li><strong>Sanity Check</strong>: Verify if the explanations align with domain knowledge</li>
+                    <li><strong>Look for Biases</strong>: If unexpected features have high importance, investigate
+                        potential
+                        biases in your training data</li>
+                    <li><strong>Consider Feature Interactions</strong>: LIME examines features independently, so be
+                        aware that it
+                        might miss complex interactions</li>
+                    <li><strong>Use Alongside Other Methods</strong>: Combine with global explanations (like feature
+                        importance or
+                        partial dependence plots) for a more complete picture</li>
+                </ol>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">What LIME Doesn't Tell You</h2>
+                <ul>
+                    <li><strong>Global Behavior</strong>: LIME only explains individual predictions, not the model's
+                        overall
+                        behavior</li>
+                    <li><strong>Feature Interactions</strong>: Complex interactions between features may not be fully
+                        captured
+                    </li>
+                    <li><strong>Causality</strong>: LIME shows correlation, not causation—high importance doesn't mean
+                        changing
+                        that feature will necessarily change the prediction</li>
+                    <li><strong>Confidence</strong>: The explanation itself doesn't indicate how confident the model is
+                        in its
+                        prediction</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Taking Action on LIME Results</h2>
+                <ul>
+                    <li><strong>Model Improvement</strong>: If important features don't make sense, consider retraining
+                        with
+                        different features</li>
+                    <li><strong>Feature Engineering</strong>: Insights about important features can guide creation of
+                        new, more
+                        informative features</li>
+                    <li><strong>Detecting Biases</strong>: Consistently high importance for sensitive attributes may
+                        indicate bias
+                    </li>
+                    <li><strong>Domain Validation</strong>: Use explanations to verify that the model's reasoning aligns
+                        with
+                        domain knowledge</li>
+                </ul>
+                <p>
+                    By carefully analyzing LIME results, you can gain valuable insights into your model's
+                    decision-making process
+                    and use this understanding to improve both your model and your trust in its predictions.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="700">
+                <h2 class="doc-section-title">Related Functions</h2>
+                <div class="related-functions">
+                    <a href="details/lime.html" class="related-function">Lime</a>
+                    <a href="details/random_forest.html" class="related-function">RandomForest</a>
+                    <a href="details/dataframe.html" class="related-function">Dataframe</a>
+                    <a href="examples.html" class="related-function">Examples</a>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="500">
+                <h2 class="doc-section-title">Example Usage</h2>
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Basic Example with Random Forest</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+#include <dataframe/Dataframe.h>
+#include <dataframe/Serie.h>
+#include <dataframe/io/csv.h>
+#include <dataframe/ml/random_forest.h>
+#include <dataframe/ml/lime.h>
+#include <iostream>
+#include <set>
+
+int main() {
+    // Load data and train a model
+    df::Dataframe data = df::io::read_csv("iris.csv");
+    
+    // Define categorical features
+    std::set<std::string> categorical_features;
+    categorical_features.insert("species");
+    
+    // Split data into training and test sets (80/20 split)
+    // ... [code to split data] ...
+    
+    // Create and train a random forest classifier
+    ml::RandomForest rf = ml::create_random_forest_classifier(
+        100,    // num_trees
+        3,      // n_classes (3 species for iris)
+        0,      // max_features (auto)
+        10,     // max_depth
+        2       // min_samples_split
+    );
+    
+    rf.fit(train_data, "species");
+    
+    // Create a LIME explainer
+    ml::Lime lime_explainer(train_data, "species", categorical_features);
+    
+    // Choose an instance to explain (e.g., first test instance)
+    df::Dataframe instance = get_row(test_data, 0);
+    
+    // Create a prediction function for the random forest
+    auto predict_fn = [&rf](const df::Dataframe& samples) {
+        return rf.predict(samples);
+    };
+    
+    // Get the explanation
+    auto explanation = lime_explainer.explain(
+        instance,
+        predict_fn,
+        4,      // Show top 4 features
+        1000    // Use 1000 samples
+    );
+    
+    // Display the explanation
+    std::cout << "Instance predicted as: " << rf.predict(instance)[0] << std::endl;
+    std::cout << "LIME Explanation:" << std::endl;
+    
+    for (const auto& [feature, weight] : explanation) {
+        std::cout << feature << ": " << weight << std::endl;
+    }
+    
+    return 0;
+}</code></pre>
+                </div>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Example with Custom Model</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// Example using LIME with a custom model (not just RandomForest)
+// This could be any model that can produce predictions for DataFrame inputs
+
+// Define a custom model's prediction function
+auto custom_model_predict = [&your_model](const df::Dataframe& samples) {
+    // Process the samples with your custom model
+    // ...
+    // Return predictions as a Serie<double>
+    return your_model.predict(samples);
+};
+
+// Create a LIME explainer
+ml::Lime explainer(training_data, "target", categorical_features);
+
+// Get explanation for an instance
+auto explanation = explainer.explain(
+    instance_to_explain,
+    custom_model_predict,
+    5,    // num_features
+    2000  // num_samples
+);
+
+// Print explanation
+for (const auto& [feature, weight] : explanation) {
+    std::cout << feature << ": " << weight << std::endl;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="600">
+                <h2 class="doc-section-title">Handling Different Data Types</h2>
+                <p>
+                    LIME treats numerical and categorical features differently to generate meaningful perturbations:
+                </p>
+
+                <h3>Numerical Features</h3>
+                <ul>
+                    <li><strong>Perturbation</strong>: Adds Gaussian noise based on the feature's distribution in the
+                        training
+                        data</li>
+                    <li><strong>Distance Calculation</strong>: Uses normalized squared difference, accounting for the
+                        feature's
+                        variance</li>
+                    <li><strong>Interpretable Model</strong>: Used directly as numeric values in the linear model</li>
+                </ul>
+
+                <h3>Categorical Features</h3>
+                <ul>
+                    <li><strong>Perturbation</strong>: Randomly samples from the set of possible values seen in the
+                        training data
+                    </li>
+                    <li><strong>Distance Calculation</strong>: Uses a simple 0/1 distance metric (same/different)</li>
+                    <li><strong>Interpretable Model</strong>: Converted to binary features (one-hot encoding minus one
+                        category to
+                        avoid collinearity)</li>
+                </ul>
+
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>Working with Categorical Features</span>
+                        <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <pre><code class="cpp">
+// When creating a LIME explainer, specify which features are categorical
+std::set<std::string> categorical_features;
+categorical_features.insert("species");
+categorical_features.insert("region");
+categorical_features.insert("color");
+
+// The explainer will handle these features appropriately
+ml::Lime explainer(data, "target", categorical_features);
+
+// In the explanation, categorical features will appear as "feature=value"
+// For example: "color=red" with a positive or negative weight</code></pre>
+                </div>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="700">
+                <h2 class="doc-section-title">Implementation Notes</h2>
+                <ul>
+                    <li><strong>Memory Efficiency</strong>: The implementation generates perturbed samples on demand
+                        rather than
+                        storing all training data in memory.</li>
+                    <li><strong>Performance</strong>: The most computationally intensive part is generating and
+                        predicting
+                        perturbed samples, so the <code>num_samples</code> parameter controls the trade-off between
+                        explanation
+                        quality and computation time.</li>
+                    <li><strong>Regularization</strong>: The interpretable model uses a small regularization term to
+                        handle
+                        potential collinearity in the feature matrix.</li>
+                    <li><strong>Sampling</strong>: For numerical features, the standard deviation is estimated from the
+                        training
+                        data, making perturbations adaptive to each feature's scale and distribution.</li>
+                    <li><strong>Missing Values</strong>: The current implementation does not explicitly handle missing
+                        values.
+                        Ensure your data is properly pre-processed before using LIME.</li>
+                </ul>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="800">
+                <h2 class="doc-section-title">Applications</h2>
+                <p>
+                    LIME is particularly valuable in scenarios where understanding model decisions is crucial:
+                </p>
+
+                <h3>Model Debugging</h3>
+                <p>
+                    Explanations can reveal when models are making predictions based on spurious correlations or biases
+                    in the
+                    training data.
+                    If the features with high importance don't make sense for the problem domain, it may indicate issues
+                    with the
+                    model.
+                </p>
+
+                <h3>Trust and Transparency</h3>
+                <p>
+                    In domains like healthcare, finance, or legal applications, stakeholders need to understand why a
+                    model made a
+                    specific
+                    prediction. LIME provides simple, interpretable explanations that non-technical users can
+                    understand.
+                </p>
+
+                <h3>Feature Engineering</h3>
+                <p>
+                    By examining what features are most important across multiple explanations, you can gain insights
+                    for feature
+                    engineering
+                    or feature selection in subsequent modeling iterations.
+                </p>
+
+                <h3>Regulatory Compliance</h3>
+                <p>
+                    In regulated industries, there may be requirements to explain automated decisions. LIME can help
+                    satisfy these
+                    requirements
+                    by providing transparent explanations for individual predictions.
+                </p>
+            </div>
+
+            <div class="doc-section animate-slide-up" data-delay="900">
+                <h2 class="doc-section-title">Related Concepts</h2>
+                <div class="related-functions">
+                    <a href="random_forest.html" class="related-function">RandomForest</a>
+                    <a href="https://github.com/marcotcr/lime" class="related-function" target="_blank">Original LIME
+                        Paper</a>
+                    <a href="https://github.com/slundberg/shap" class="related-function" target="_blank">SHAP
+                        (Alternative
+                        Explanation Method)</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="#about">About</a>
+                <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DataFrame Library. MIT License.
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+
+</html>

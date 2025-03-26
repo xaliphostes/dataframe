@@ -145,4 +145,7 @@ add_subdirectory(examples/harmonic-diffusion)
 add_subdirectory(examples/attributes)
 add_subdirectory(examples/algebra)
 add_subdirectory(examples/serializer)
+
+# ML
 add_subdirectory(examples/random-forest)
+add_subdirectory(examples/lime)

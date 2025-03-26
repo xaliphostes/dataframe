@@ -59,6 +59,87 @@
                 </p>
             </div>
 
+            <div class="doc-section animate-slide-up">
+                <h2 class="doc-section-title">Applications in geosciences</h2>
+                <p>
+                    The random forest algorithm is well-suited for many geological and geophysical applications where
+                    there's a need to model complex relationships in data with many variables. Here are some interesting
+                    examples in these domains:
+                <ul>
+                    <li><b>Mineral Exploration and Resource Estimation</b>:
+                        <ul>
+                            <li>Predicting mineral deposit locations using geochemical, geophysical, and geological
+                                features</li>
+                            <li>Estimating ore grade or resource quantity based on drilling samples and geophysical
+                                measurements</li>
+                            <li>Classifying rock types from geophysical logs and core sample data</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Seismic Event Classification</b>:
+                        <ul>
+                            <li>Distinguishing between different types of seismic events (earthquakes, explosions,
+                                mining blasts)</li>
+                            <li>Predicting earthquake magnitudes from early-wave characteristics</li>
+                            <li>Identifying volcanic eruption precursors from seismic signal patterns</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Reservoir Characterization</b>:
+                        <ul>
+                            <li>Predicting porosity, permeability, and fluid content in oil and gas reservoirs</li>
+                            <li>Classifying lithology from well log data</li>
+                            <li>Estimating reservoir connectivity based on pressure and production data</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Landslide Susceptibility Mapping</b>:
+                        <ul>
+                            <li>Predicting landslide-prone areas using topography, geology, precipitation, and land
+                                cover data</li>
+                            <li>Estimating landslide volume or runout distance based on terrain characteristics</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Groundwater Modeling</b>:
+                        <ul>
+                            <li>Predicting groundwater quality parameters based on hydrogeological conditions</li>
+                            <li>Estimating aquifer transmissivity and storage coefficients</li>
+                            <li>Identifying zones of potential groundwater contamination</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Geohazard Assessment</b>:
+                        <ul>
+                            <li>Assessing risk levels for various geohazards (sinkholes, soil liquefaction, etc.)</li>
+                            <li>Predicting coastal erosion rates based on geological and oceanographic factors</li>
+                            <li>Mapping subsidence risk from mining or fluid extraction</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Weather and Climate Applications in Geoscience</b>:
+                        <ul>
+                            <li>Downscaling climate model outputs for local geological applications</li>
+                            <li>Predicting extreme precipitation events and their geomorphic impacts</li>
+                            <li>Assessing climate change impacts on geological processes</li>
+                        </ul>
+                    </li>
+
+                    <li><b>Remote Sensing and Geological Mapping</b>:
+                        <ul>
+                            <li>Automated geological feature extraction from satellite or drone imagery</li>
+                            <li>Mapping hydrothermal alteration zones from multispectral satellite data</li>
+                            <li>Classifying land cover/land use with geological significance</li>
+                        </ul>
+                    </li>
+                </ul><br/>
+                These applications typically involve multivariate datasets with complex, non-linear relationships -
+                exactly the type of problems where random forests excel due to their ability to handle
+                high-dimensional
+                data, capture non-linear relationships, and provide feature importance rankings.
+                </p>
+            </div>
+
             <div class="doc-section animate-slide-up" data-delay="100">
                 <h2 class="doc-section-title">Class Definition</h2>
                 <div class="code-container">
@@ -154,22 +235,26 @@ RandomForest(size_t num_trees = 100,
                         <tr>
                             <td><span class="param-name">num_trees</span></td>
                             <td><span class="param-type">size_t</span></td>
-                            <td>The number of trees in the forest. Increasing this generally improves performance at the cost of more training time. Default is 100.</td>
+                            <td>The number of trees in the forest. Increasing this generally improves performance at the
+                                cost of more training time. Default is 100.</td>
                         </tr>
                         <tr>
                             <td><span class="param-name">task_type</span></td>
                             <td><span class="param-type">TaskType</span></td>
-                            <td>Type of task to perform, either <code>REGRESSION</code> or <code>CLASSIFICATION</code>. Default is <code>REGRESSION</code>.</td>
+                            <td>Type of task to perform, either <code>REGRESSION</code> or <code>CLASSIFICATION</code>.
+                                Default is <code>REGRESSION</code>.</td>
                         </tr>
                         <tr>
                             <td><span class="param-name">max_features</span></td>
                             <td><span class="param-type">size_t</span></td>
-                            <td>The number of features to consider when looking for the best split. If 0, all features are considered. Default is 0.</td>
+                            <td>The number of features to consider when looking for the best split. If 0, all features
+                                are considered. Default is 0.</td>
                         </tr>
                         <tr>
                             <td><span class="param-name">max_depth</span></td>
                             <td><span class="param-type">size_t</span></td>
-                            <td>The maximum depth of the tree. Default is unlimited (std::numeric_limits&lt;size_t&gt;::max()).</td>
+                            <td>The maximum depth of the tree. Default is unlimited
+                                (std::numeric_limits&lt;size_t&gt;::max()).</td>
                         </tr>
                         <tr>
                             <td><span class="param-name">min_samples_split</span></td>
@@ -179,7 +264,8 @@ RandomForest(size_t num_trees = 100,
                         <tr>
                             <td><span class="param-name">n_classes</span></td>
                             <td><span class="param-type">size_t</span></td>
-                            <td>Number of classes for classification tasks. Only used when task_type is CLASSIFICATION. Default is 0 (auto-detect).</td>
+                            <td>Number of classes for classification tasks. Only used when task_type is CLASSIFICATION.
+                                Default is 0 (auto-detect).</td>
                         </tr>
                     </tbody>
                 </table>
@@ -188,7 +274,8 @@ RandomForest(size_t num_trees = 100,
             <div class="doc-section animate-slide-up" data-delay="300">
                 <h2 class="doc-section-title">Utility Factory Functions</h2>
                 <p>
-                    The library provides two convenience functions for creating RandomForest instances configured for either regression or classification:
+                    The library provides two convenience functions for creating RandomForest instances configured for
+                    either regression or classification:
                 </p>
 
                 <div class="code-container">
@@ -214,7 +301,8 @@ RandomForest create_random_forest_classifier(
                 </div>
 
                 <p>
-                    These functions simplify the creation of RandomForest instances with appropriate defaults for either regression or classification tasks.
+                    These functions simplify the creation of RandomForest instances with appropriate defaults for either
+                    regression or classification tasks.
                 </p>
             </div>
 
@@ -230,7 +318,8 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">void fit(const df::Dataframe &data, const std::string &target_column);</code></pre>
                 </div>
                 <p>
-                    Trains the random forest model using the provided data. The <code>target_column</code> specifies which column in the DataFrame contains the target values to predict.
+                    Trains the random forest model using the provided data. The <code>target_column</code> specifies
+                    which column in the DataFrame contains the target values to predict.
                 </p>
 
                 <h3>predict</h3>
@@ -242,7 +331,8 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">df::Serie&lt;double&gt; predict(const df::Dataframe &data);</code></pre>
                 </div>
                 <p>
-                    Makes predictions on the provided data using the trained random forest model. Returns a Serie of predicted values.
+                    Makes predictions on the provided data using the trained random forest model. Returns a Serie of
+                    predicted values.
                 </p>
 
                 <h3>evaluate</h3>
@@ -254,7 +344,9 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">std::map&lt;std::string, double&gt; evaluate(const df::Dataframe &data, const std::string &target_column);</code></pre>
                 </div>
                 <p>
-                    Evaluates the model's performance on the provided data. Returns a map of evaluation metrics. For regression tasks, this typically includes metrics like MSE, RMSE, and R². For classification tasks, it includes metrics like accuracy, precision, recall, and F1-score.
+                    Evaluates the model's performance on the provided data. Returns a map of evaluation metrics. For
+                    regression tasks, this typically includes metrics like MSE, RMSE, and R². For classification tasks,
+                    it includes metrics like accuracy, precision, recall, and F1-score.
                 </p>
             </div>
 
@@ -270,7 +362,8 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">df::Serie&lt;double&gt; feature_importance(const df::Dataframe &data, const std::string &target_column);</code></pre>
                 </div>
                 <p>
-                    Calculates and returns the importance of each feature in the model. This is based on how much each feature contributes to the decrease in impurity or error across all trees in the forest.
+                    Calculates and returns the importance of each feature in the model. This is based on how much each
+                    feature contributes to the decrease in impurity or error across all trees in the forest.
                 </p>
 
                 <h3>permutation_importance</h3>
@@ -285,7 +378,9 @@ RandomForest create_random_forest_classifier(
     size_t n_repeats = 10);</code></pre>
                 </div>
                 <p>
-                    Calculates feature importance via the permutation importance method. This method measures the decrease in model accuracy when a single feature's values are randomly shuffled, indicating how much the model depends on that feature.
+                    Calculates feature importance via the permutation importance method. This method measures the
+                    decrease in model accuracy when a single feature's values are randomly shuffled, indicating how much
+                    the model depends on that feature.
                 </p>
 
                 <h3>feature_importance_df</h3>
@@ -297,7 +392,8 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">df::Dataframe feature_importance_df(const df::Dataframe &data, const std::string &target_column);</code></pre>
                 </div>
                 <p>
-                    Returns a DataFrame containing feature names and their importance scores, providing a more structured output for analyzing feature importance.
+                    Returns a DataFrame containing feature names and their importance scores, providing a more
+                    structured output for analyzing feature importance.
                 </p>
 
                 <h3>get_feature_names</h3>
@@ -311,7 +407,8 @@ RandomForest create_random_forest_classifier(
     const std::string &target_column) const;</code></pre>
                 </div>
                 <p>
-                    Returns a vector of feature names from the DataFrame, excluding the target column. This is useful for mapping feature indices to their original names in the dataset.
+                    Returns a vector of feature names from the DataFrame, excluding the target column. This is useful
+                    for mapping feature indices to their original names in the dataset.
                 </p>
             </div>
 
@@ -327,7 +424,8 @@ RandomForest create_random_forest_classifier(
                     <pre><code class="cpp">double oob_error(const df::Dataframe &data, const std::string &target_column);</code></pre>
                 </div>
                 <p>
-                    Calculates the out-of-bag (OOB) error estimate for the random forest model. This provides an unbiased estimate of the generalization error without requiring a separate validation set.
+                    Calculates the out-of-bag (OOB) error estimate for the random forest model. This provides an
+                    unbiased estimate of the generalization error without requiring a separate validation set.
                 </p>
 
                 <h3>get_num_trees</h3>
@@ -438,13 +536,19 @@ int main() {
             <div class="doc-section animate-slide-up" data-delay="800">
                 <h2 class="doc-section-title">Implementation Notes</h2>
                 <ul>
-                    <li>The implementation uses bootstrap sampling to create diverse training sets for each decision tree in the forest.</li>
-                    <li>Out-of-bag (OOB) samples are used to provide an unbiased estimate of the generalization error.</li>
-                    <li>For classification tasks, the model outputs class labels based on majority voting among the trees.</li>
+                    <li>The implementation uses bootstrap sampling to create diverse training sets for each decision
+                        tree in the forest.</li>
+                    <li>Out-of-bag (OOB) samples are used to provide an unbiased estimate of the generalization error.
+                    </li>
+                    <li>For classification tasks, the model outputs class labels based on majority voting among the
+                        trees.</li>
                     <li>For regression tasks, the model outputs the average prediction of all trees.</li>
-                    <li>The implementation supports feature importance calculation, which helps identify the most influential features in the model.</li>
-                    <li>Permutation importance provides an alternative method to assess feature importance by measuring the impact of shuffling each feature's values.</li>
-                    <li>When <code>max_features</code> is set to 0, all features are considered for each split, which can be computationally intensive for datasets with many features.</li>
+                    <li>The implementation supports feature importance calculation, which helps identify the most
+                        influential features in the model.</li>
+                    <li>Permutation importance provides an alternative method to assess feature importance by measuring
+                        the impact of shuffling each feature's values.</li>
+                    <li>When <code>max_features</code> is set to 0, all features are considered for each split, which
+                        can be computationally intensive for datasets with many features.</li>
                 </ul>
             </div>
 

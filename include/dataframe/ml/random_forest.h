@@ -1,12 +1,21 @@
-/**
- * RandomForest.h
- * A C++ implementation of Random Forest algorithm integrated with the DataFrame
- * library
+/*
+ * Copyright (c) 2024-now fmaerten@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  */
 
 #pragma once
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
+#include <dataframe/utils/label_encoder.h>
 
 namespace ml {
 
@@ -15,6 +24,9 @@ class DecisionTree;
 enum class TaskType { REGRESSION, CLASSIFICATION };
 
 /**
+ * @brief A C++ implementation of Random Forest algorithm integrated with the
+ * DataFrame library
+ *
  * Example of using the RandomForest implementation with the DataFrame library:
  * @code
  * #include <dataframe/Serie.h>
@@ -58,7 +70,8 @@ enum class TaskType { REGRESSION, CLASSIFICATION };
  *     df::Serie<double> predictions = rf.predict(test_data);
  *
  *     // Calculate feature importance
- *     df::Dataframe importance = rf.feature_importance_df(train_data, "species");
+ *     df::Dataframe importance = rf.feature_importance_df(train_data,
+ * "species");
  *
  *     // Print feature importance
  *     importance.forEach([](const std::string& feature, double imp) {
@@ -119,12 +132,18 @@ class RandomForest {
     size_t min_samples_split;
     size_t n_classes; // For classification
 
+    std::map<std::string, df::LabelEncoder> feature_encoders_;
+    df::LabelEncoder target_encoder_;
+    std::vector<std::string> feature_names_;
+    bool has_string_target_ = false;
+    df::Serie<std::string> predict_categorical(const df::Dataframe &data);
+
     std::tuple<std::vector<std::vector<double>>, std::vector<double>>
     bootstrapSample(const std::vector<std::vector<double>> &,
                     const std::vector<double> &) const;
 
     std::tuple<std::vector<std::vector<double>>, std::vector<double>>
-    extractFeatures(const df::Dataframe &, const std::string &) const;
+    extractFeatures(const df::Dataframe &, const std::string &);
 
     std::vector<std::vector<double>>
     extractFeaturesForPrediction(const df::Dataframe &) const;

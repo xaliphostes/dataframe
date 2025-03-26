@@ -1,7 +1,15 @@
-/**
- * RandomForest.h
- * A C++ implementation of Random Forest algorithm integrated with the DataFrame
- * library
+/*
+ * Copyright (c) 2024-now fmaerten@gmail.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  */
 
 #include <algorithm>
@@ -517,44 +525,114 @@ RandomForest::bootstrapSample(const std::vector<std::vector<double>> &X,
 // Helper method to extract features and target from dataframe
 inline std::tuple<std::vector<std::vector<double>>, std::vector<double>>
 RandomForest::extractFeatures(const df::Dataframe &data,
-                              const std::string &target_column) const {
+                              const std::string &target_column) {
     std::vector<std::vector<double>> features;
     std::vector<double> target;
 
-    // Get all feature column names except the target
+    size_t num_samples = 0;
     std::vector<std::string> feature_columns;
+
+    // Identify feature columns (all columns except the target)
     for (const auto &name : data.names()) {
         if (name != target_column) {
             feature_columns.push_back(name);
         }
     }
 
-    // Extract target values
-    target = convertToDoubleVector(data.get<double>(target_column).data());
+    if (feature_columns.empty()) {
+        throw std::runtime_error("No feature columns found");
+    }
 
-    // Extract feature values for each sample
-    size_t n_samples = target.size();
-    features.resize(n_samples);
+    // First pass: determine sizes and handle string target if needed
+    if (data.has(target_column)) {
+        std::type_index target_type = data.type(target_column);
 
+        // Check if target is a string type
+        if (target_type == typeid(df::Serie<std::string>)) {
+            has_string_target_ = true;
+
+            // Get string target
+            const df::Serie<std::string> &string_target =
+                data.get<std::string>(target_column);
+            num_samples = string_target.size();
+
+            // Encode the target
+            target_encoder_.fit(string_target);
+
+            // If classification, update n_classes based on number of unique
+            // values
+            if (task_type == TaskType::CLASSIFICATION && n_classes == 0) {
+                n_classes = target_encoder_.num_categories();
+            }
+
+            // Transform target to numeric values
+            df::Serie<double> encoded_target =
+                target_encoder_.transform(string_target);
+            target = encoded_target.data();
+        } else {
+            // Handle numeric target types
+            has_string_target_ = false;
+
+            if (target_type == typeid(df::Serie<int>)) {
+                const df::Serie<int> &int_target = data.get<int>(target_column);
+                num_samples = int_target.size();
+                target = convertToDoubleVector(int_target.data());
+            } else if (target_type == typeid(df::Serie<double>)) {
+                const df::Serie<double> &double_target =
+                    data.get<double>(target_column);
+                num_samples = double_target.size();
+                target = double_target.data();
+            } else {
+                throw std::runtime_error("Unsupported target type");
+            }
+        }
+    } else {
+        throw std::runtime_error("Target column not found: " + target_column);
+    }
+
+    // Initialize features array
+    features.resize(num_samples);
+
+    // Process each feature column
     for (const auto &col_name : feature_columns) {
-        // Check column type and extract values
-        try {
-            auto col_data = data.get<double>(col_name).data();
-            for (size_t i = 0; i < n_samples && i < col_data.size(); ++i) {
-                features[i].push_back(col_data[i]);
+        feature_names_.push_back(col_name);
+
+        std::type_index feature_type = data.type(col_name);
+
+        if (feature_type == typeid(df::Serie<std::string>)) {
+            // Handle string feature
+            const df::Serie<std::string> &string_feature =
+                data.get<std::string>(col_name);
+
+            // Create and fit encoder for this feature
+            df::LabelEncoder encoder;
+            encoder.fit(string_feature);
+            feature_encoders_[col_name] = encoder;
+
+            // Transform feature to numeric values
+            df::Serie<double> encoded_feature =
+                encoder.transform(string_feature);
+
+            // Add to features matrix
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(encoded_feature[i]);
             }
-        } catch (const std::exception &e) {
-            // Column might be of different type, try others
-            try {
-                auto col_data = data.get<int>(col_name).data();
-                for (size_t i = 0; i < n_samples && i < col_data.size(); ++i) {
-                    features[i].push_back(static_cast<double>(col_data[i]));
-                }
-            } catch (const std::exception &e) {
-                // Skip columns that can't be converted to numeric
-                std::cerr << "Warning: Column " << col_name
-                          << " could not be used as a feature." << std::endl;
+        } else if (feature_type == typeid(df::Serie<int>)) {
+            // Handle integer feature
+            const df::Serie<int> &int_feature = data.get<int>(col_name);
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(static_cast<double>(int_feature[i]));
             }
+        } else if (feature_type == typeid(df::Serie<double>)) {
+            // Handle double feature
+            const df::Serie<double> &double_feature =
+                data.get<double>(col_name);
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(double_feature[i]);
+            }
+        } else {
+            throw std::runtime_error("Unsupported feature type for column: " +
+                                     col_name);
         }
     }
 
@@ -564,48 +642,81 @@ RandomForest::extractFeatures(const df::Dataframe &data,
 // Helper method to extract features for prediction (no target column)
 inline std::vector<std::vector<double>>
 RandomForest::extractFeaturesForPrediction(const df::Dataframe &data) const {
-    std::vector<std::vector<double>> features;
-
-    // Get all column names
-    std::vector<std::string> feature_columns = data.names();
-
-    // Determine number of samples
-    size_t n_samples = 0;
-    if (!feature_columns.empty()) {
-        try {
-            n_samples = data.get<double>(feature_columns[0]).size();
-        } catch (const std::exception &e) {
-            try {
-                n_samples = data.get<int>(feature_columns[0]).size();
-            } catch (const std::exception &e) {
-                // Empty dataframe or unsupported column type
-                return features;
-            }
-        }
+    if (feature_names_.empty()) {
+        throw std::runtime_error(
+            "Model not fitted. Call fit() before predict()");
     }
 
-    // Extract feature values for each sample
-    features.resize(n_samples);
+    size_t num_samples = 0;
+    bool size_initialized = false;
 
-    for (const auto &col_name : feature_columns) {
-        // Check column type and extract values
-        try {
-            auto col_data = data.get<double>(col_name).data();
-            for (size_t i = 0; i < n_samples && i < col_data.size(); ++i) {
-                features[i].push_back(col_data[i]);
+    // Initialize features array
+    std::vector<std::vector<double>> features;
+
+    // Process each feature column in the same order as during training
+    for (const auto &col_name : feature_names_) {
+        if (!data.has(col_name)) {
+            throw std::runtime_error("Feature column not found: " + col_name);
+        }
+
+        std::type_index feature_type = data.type(col_name);
+
+        if (feature_type == typeid(df::Serie<std::string>)) {
+            // Handle string feature
+            const df::Serie<std::string> &string_feature =
+                data.get<std::string>(col_name);
+
+            if (!size_initialized) {
+                num_samples = string_feature.size();
+                features.resize(num_samples);
+                size_initialized = true;
             }
-        } catch (const std::exception &e) {
-            // Column might be of different type, try others
-            try {
-                auto col_data = data.get<int>(col_name).data();
-                for (size_t i = 0; i < n_samples && i < col_data.size(); ++i) {
-                    features[i].push_back(static_cast<double>(col_data[i]));
-                }
-            } catch (const std::exception &e) {
-                // Skip columns that can't be converted to numeric
-                std::cerr << "Warning: Column " << col_name
-                          << " could not be used as a feature." << std::endl;
+
+            // Check if we have an encoder for this feature
+            auto encoder_it = feature_encoders_.find(col_name);
+            if (encoder_it == feature_encoders_.end()) {
+                throw std::runtime_error(
+                    "No encoder found for string feature: " + col_name);
             }
+
+            // Transform feature to numeric values
+            df::Serie<double> encoded_feature =
+                encoder_it->second.transform(string_feature);
+
+            // Add to features matrix
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(encoded_feature[i]);
+            }
+        } else if (feature_type == typeid(df::Serie<int>)) {
+            // Handle integer feature
+            const df::Serie<int> &int_feature = data.get<int>(col_name);
+
+            if (!size_initialized) {
+                num_samples = int_feature.size();
+                features.resize(num_samples);
+                size_initialized = true;
+            }
+
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(static_cast<double>(int_feature[i]));
+            }
+        } else if (feature_type == typeid(df::Serie<double>)) {
+            // Handle double feature
+            const df::Serie<double> &double_feature =
+                data.get<double>(col_name);
+
+            if (!size_initialized) {
+                num_samples = double_feature.size();
+                features.resize(num_samples);
+                size_initialized = true;
+            }
+
+            for (size_t i = 0; i < num_samples; ++i) {
+                features[i].push_back(double_feature[i]);
+            }
+        } else {
+            throw std::runtime_error("Unsupported feature type for column: " +
+                                     col_name);
         }
     }
 
@@ -794,6 +905,19 @@ RandomForest::feature_importance(const df::Dataframe &data,
     }
 
     return df::Serie<double>(importance);
+}
+
+// Return string predictions when target was string type
+df::Serie<std::string> RandomForest::predict_categorical(const df::Dataframe& data) {
+    if (!has_string_target_) {
+        throw std::runtime_error("Target was not a string type. Use predict() instead.");
+    }
+    
+    // Get numeric predictions
+    df::Serie<double> numeric_predictions = predict(data);
+    
+    // Convert back to original string labels
+    return target_encoder_.inverse_transform(numeric_predictions);
 }
 
 // Calculate out-of-bag (OOB) error
