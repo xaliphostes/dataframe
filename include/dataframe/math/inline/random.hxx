@@ -22,6 +22,7 @@
  */
 
 #include <dataframe/utils/meta.h>
+#include <numeric>
 
 namespace df {
 

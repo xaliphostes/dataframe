@@ -22,7 +22,7 @@
  */
 
 #include "../utils/utils.h"
-#include <cxxabi.h>
+#include "../utils/demangle.h"
 #include <memory>
 #include <ostream>
 #include <regex>
@@ -58,10 +58,11 @@ inline std::string cleanup_type_name(const std::string &name) {
 
 template <typename T> inline std::string type_name() {
     const char *mangled = typeid(T).name();
-    int status = 0;
-    std::unique_ptr<char, void (*)(void *)> demangled(
-        abi::__cxa_demangle(mangled, nullptr, nullptr, &status), std::free);
-    return cleanup_type_name(status == 0 ? demangled.get() : mangled);
+    //int status = 0;
+    //std::unique_ptr<char, void (*)(void *)> demangled(
+    //    abi::__cxa_demangle(mangled, nullptr, nullptr, &status), std::free);
+    //return cleanup_type_name(status == 0 ? demangled.get() : mangled);
+    return cleanup_type_name(utils::demangle(mangled));
 }
 
 // ------------------------------------------------

@@ -23,6 +23,8 @@
 
 #pragma once
 #include <dataframe/attributes/Manager.h>
+#include <optional>
+
 
 namespace df {
 namespace attributes {

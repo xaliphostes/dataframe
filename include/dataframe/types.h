@@ -27,10 +27,16 @@
 #include <string>
 #include <vector>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 template <typename T> using ArrayType = std::vector<T>;
 
 using String = std::string;
 using Strings = std::vector<String>;
+using uint = unsigned int;
+using ushort = unsigned short;
 
 using iVector2 = std::array<uint, 2>;
 using iVector3 = std::array<uint, 3>;

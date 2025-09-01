@@ -25,6 +25,7 @@
 #include <dataframe/Serie.h>
 #include <random>
 #include <utility>
+#include <functional>
 
 namespace ml {
 
