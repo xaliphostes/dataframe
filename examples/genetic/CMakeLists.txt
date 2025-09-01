@@ -1,3 +1,3 @@
-include(custom-operator)
-include(numerical-optimization)
-include(traveling-salesman)
+add_subdirectory(custom-operator)
+add_subdirectory(numerical-optimization)
+add_subdirectory(traveling-salesman)

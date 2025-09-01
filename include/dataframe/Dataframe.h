@@ -143,6 +143,7 @@ class Dataframe {
      * type mismatch
      */
     template <typename T> const Serie<T> &get(const std::string &name) const;
+    template <typename T> Serie<T> &get(const std::string &name);
 
     /**
      * Get the type info for a serie

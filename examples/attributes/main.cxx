@@ -31,17 +31,17 @@ int main() {
     // --------------------------------------------
 
     // Get all available attribute names
-    MSG("------------1-----------");
+    MSG("------------ scalars -----------");
     for (auto name :
          manager.getNames(df::attributes::DecompDimension::Scalar)) {
         std::cout << name << std::endl;
     }
-    MSG("------------2-----------");
+    MSG("------------ vectors -----------");
     for (auto name :
          manager.getNames(df::attributes::DecompDimension::Vector)) {
         std::cout << name << std::endl;
     }
-    MSG("------------3-----------");
+    MSG("------------ matrices -----------");
     for (auto name :
          manager.getNames(df::attributes::DecompDimension::Matrix)) {
         std::cout << name << std::endl;

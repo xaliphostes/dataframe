@@ -1,6 +1,4 @@
 /**
- * wine_quality_prediction.cpp
- *
  * This example demonstrates how to use the Random Forest implementation
  * to predict wine quality based on physiochemical properties.
  *

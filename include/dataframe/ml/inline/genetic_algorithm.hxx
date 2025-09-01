@@ -29,7 +29,6 @@
 #include <limits>
 #include <map>
 #include <numeric>
-#include <random>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -272,7 +271,7 @@ GeneticAlgorithm::get_population_metrics() const {
     std::map<std::string, double> metrics;
 
     // Extract metrics from the last generation in the evolution history
-    if (!evolution_history_.size() == 0 &&
+    if (evolution_history_.size() != 0 &&
         evolution_history_.get<size_t>("generation").size() > 0) {
         size_t last_idx =
             evolution_history_.get<size_t>("generation").size() - 1;

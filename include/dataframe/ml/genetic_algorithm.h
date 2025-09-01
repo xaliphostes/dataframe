@@ -23,7 +23,8 @@
 #pragma once
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
-#include <utility> 
+#include <random>
+#include <utility>
 
 namespace ml {
 

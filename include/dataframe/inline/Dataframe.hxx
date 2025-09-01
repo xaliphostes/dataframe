@@ -69,6 +69,28 @@ const Serie<T> &Dataframe::get(const std::string &name) const {
     return *typed_ptr;
 }
 
+template <typename T> Serie<T> &Dataframe::get(const std::string &name) {
+    // return const_cast<const Serie<T> &>(this->get(name));
+    if (!has(name)) {
+        throw std::runtime_error(
+            concat("Serie '", name, "' does not exist in Dataframe"));
+    }
+
+    auto &info = series_.at(name);
+
+    // Option 1: Safe cast with runtime check
+    auto typed_ptr = std::dynamic_pointer_cast<Serie<T>>(info.data);
+    if (!typed_ptr) {
+        throw std::runtime_error(concat(
+            "Type mismatch for Serie '", name, "': expected type '",
+            typeid(Serie<T>).name(), "' but got '", info.type.name(), "'"));
+    }
+    return *typed_ptr;
+
+    // Option 2: Fast cast (use only if you're certain of the type)
+    // return *std::static_pointer_cast<Serie<T>>(info.data);
+}
+
 inline std::type_index Dataframe::type(const std::string &name) const {
     if (!has(name)) {
         throw std::runtime_error(

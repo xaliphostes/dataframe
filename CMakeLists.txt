@@ -25,35 +25,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS on)
 
-# Find Doxygen package
-find_package(Doxygen)
-
-if(DOXYGEN_FOUND)
-    # Set input and output files
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-
-    # Request to configure the file
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-    
-    # Copy custom CSS file
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/custom_doxygen.css
-        ${CMAKE_CURRENT_BINARY_DIR}/custom_doxygen.css
-        COPYONLY
-    )
-
-    # Add a custom target for building the documentation
-    add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating API documentation with Doxygen"
-        VERBATIM
-    )
-else()
-    message(STATUS "Doxygen not found, documentation will not be built")
-endif()
-
 # Add option for CGAL
 option(USE_CGAL "Enable CGAL functionality" OFF)
 
@@ -145,7 +116,10 @@ add_subdirectory(examples/harmonic-diffusion)
 add_subdirectory(examples/attributes)
 add_subdirectory(examples/algebra)
 add_subdirectory(examples/serializer)
+add_subdirectory(examples/superposition)
 
 # ML
 add_subdirectory(examples/random-forest)
 add_subdirectory(examples/lime)
+add_subdirectory(examples/genetic)
+add_subdirectory(examples/bee)
