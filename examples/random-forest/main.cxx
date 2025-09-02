@@ -99,7 +99,7 @@ df::Dataframe load_wine_data(const std::string &filename) {
                       << std::setprecision(2) << stats["mean"]
                       << " | Std: " << std::setw(8) << std::fixed
                       << std::setprecision(2) << stats["std_dev"] << std::endl;
-        } catch (const std::exception &e) {
+        } catch (const std::exception &) {
             // Skip non-numeric columns for summary
         }
     }
@@ -172,7 +172,7 @@ df::Dataframe preprocess_data(const df::Dataframe &data) {
                     std::cout << std::endl;
                 }
             }
-        } catch (const std::exception &e) {
+        } catch (const std::exception &) {
             // If column is not numeric, try to convert it or skip
             try {
                 auto string_column = data.get<std::string>(col_name);

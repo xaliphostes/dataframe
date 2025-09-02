@@ -10,14 +10,17 @@
 
 using namespace df;
 
-TEST(eigen_analysis, matrix2x2) {
+TEST(eigen_analysis, matrix2x2)
+{
     MSG("Testing 2x2 symmetric matrix eigen decomposition");
 
     // Identity matrix - eigenvalues should be 1,1 and eigenvectors orthonormal
-    Serie<SMatrix2D> identity{{1.0, 0.0, 1.0}}; // [1 0; 0 1]
+    Serie<SMatrix2D> identity { { 1.0, 0.0, 1.0 } }; // [1 0; 0 1]
 
     auto id_values = eigenValues(identity);
-    EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({1.0, 1.0}), 1e-10);
+    EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({ 1.0, 1.0 }), 1e-10);
+
+    std::cout << "Identity matrix eigenvalues ok" << std::endl;
 
     auto id_vectors = eigenVectors(identity);
 
@@ -31,29 +34,29 @@ TEST(eigen_analysis, matrix2x2) {
 
     auto diag_values = eigenValues(diagonal);
     EXPECT_ARRAY_NEAR(diag_values[0], std::vector<double>({3.0, 2.0}), 1e-10);
+    std::cout << "Diag matrix eigenvalues ok" << std::endl;
+    
 
     // General symmetric matrix
-    Serie<SMatrix2D> general{{4.0, 1.0, 3.0}}; // [4 1; 1 3]
+    Serie<SMatrix2D> general { { 4.0, 1.0, 3.0 } }; // [4 1; 1 3]
 
     auto [vectors, values] = eigenSystem(general);
 
-    // Verify eigendecomposition: A*v = lambda*v
-    for (size_t i = 0; i < 2; ++i) {
-        double left_x = 4.0 * vectors[0][0] + 1.0 * vectors[0][1];
-        double left_y = 1.0 * vectors[0][0] + 3.0 * vectors[0][2];
-        double right_x = values[0][i] * vectors[0][0];
-        double right_y = values[0][i] * vectors[0][1];
-        EXPECT_NEAR(left_x, right_x, 1e-10);
-        EXPECT_NEAR(left_y, right_y, 1e-10);
-    }
+    // Verify eigendecomposition
+
+    std::cout << vectors << std::endl;
+    std::cout << values << std::endl;
+
+    // Verification here...
+    throw std::runtime_error("TODO: add verification of eigendecomposition");
 }
 
-TEST(eigen_analysis, matrix3x3) {
+TEST(eigen_analysis, matrix3x3)
+{
     MSG("Testing 3x3 symmetric matrix eigen decomposition");
 
     MSG("  Identity matrix");
-    Serie<SMatrix3D> identity{
-        {1.0, 0.0, 0.0, 1.0, 0.0, 1.0}}; // [1 0 0; 0 1 0; 0 0 1]
+    Serie<SMatrix3D> identity { { 1.0, 0.0, 0.0, 1.0, 0.0, 1.0 } }; // [1 0 0; 0 1 0; 0 0 1]
 
     auto id_values = eigenValues(identity);
     df::print(id_values);
@@ -61,8 +64,7 @@ TEST(eigen_analysis, matrix3x3) {
     //                   1e-10);
 
     MSG("  Diagonal matrix");
-    Serie<SMatrix3D> diagonal{
-        {2.0, 0.0, 0.0, 3.0, 0.0, 4.0}}; // [2 0 0; 0 3 0; 0 0 4]
+    Serie<SMatrix3D> diagonal { { 2.0, 0.0, 0.0, 3.0, 0.0, 4.0 } }; // [2 0 0; 0 3 0; 0 0 4]
 
     auto diag_values = eigenValues(diagonal);
     df::print(diag_values);
@@ -71,11 +73,10 @@ TEST(eigen_analysis, matrix3x3) {
 
     MSG("  General symmetric matrix");
     df::Serie<SMatrix3D> serie(
-        {{2, 4, 6, 3, 6, 9}, {1, 2, 3, 4, 5, 6}, {9, 8, 7, 6, 5, 4}});
+        { { 2, 4, 6, 3, 6, 9 }, { 1, 2, 3, 4, 5, 6 }, { 9, 8, 7, 6, 5, 4 } });
 
-    std::vector<Vector3> vals{{16.3328, -0.658031, -1.67482},
-                              {11.3448, 0.170914, -0.515728},
-                              {20.1911, -0.043142, -1.14795}};
+    std::vector<Vector3> vals { { 16.3328, -0.658031, -1.67482 }, { 11.3448, 0.170914, -0.515728 },
+        { 20.1911, -0.043142, -1.14795 } };
 
     // std::vector<Array> vecs{{0.449309, 0.47523, 0.75649, 0.194453, 0.774452,
     //                          -0.602007, 0.871957, -0.417589, -0.255559},
@@ -93,7 +94,7 @@ TEST(eigen_analysis, matrix3x3) {
         df::print(values);
 
         df::forEach(
-            [](const EigenVectorType<3> &v, size_t) {
+            [](const std::array<Vector3,3>& v, size_t) {
                 std::cout << "1st eigen vector: " << v[0] << std::endl;
                 std::cout << "2nd eigen vector: " << v[1] << std::endl;
                 std::cout << "3rd eigen vector: " << v[2] << std::endl;

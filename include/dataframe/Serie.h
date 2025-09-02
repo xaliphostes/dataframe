@@ -98,6 +98,7 @@ template <typename T> class Serie : public SerieBase {
 
     // Element access
     T &operator[](size_t index);
+    void set(size_t index, const T &value);
     const T &operator[](size_t index) const;
     void add(const T &value);
     const ArrayType &data() const;

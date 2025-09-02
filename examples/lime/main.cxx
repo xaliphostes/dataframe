@@ -26,26 +26,28 @@
 #include <string>
 
 // Helper function to get a single row from a Dataframe
-df::Dataframe get_dataframe_row(const df::Dataframe &df, size_t row_index) {
+df::Dataframe get_dataframe_row(const df::Dataframe& df, size_t row_index)
+{
     df::Dataframe result;
 
-    for (const auto &col_name : df.names()) {
+    for (const auto& col_name : df.names()) {
         if (df.type_name(col_name) == "double") {
             auto value = df.get<double>(col_name)[row_index];
-            result.add(col_name, df::Serie<double>{value});
+            result.add(col_name, df::Serie<double> { value });
         } else if (df.type_name(col_name) == "int") {
             auto value = df.get<int>(col_name)[row_index];
-            result.add(col_name, df::Serie<int>{value});
+            result.add(col_name, df::Serie<int> { value });
         } else if (df.type_name(col_name) == "string") {
             auto value = df.get<std::string>(col_name)[row_index];
-            result.add(col_name, df::Serie<std::string>{value});
+            result.add(col_name, df::Serie<std::string> { value });
         }
     }
 
     return result;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
     std::string filename = "iris.csv";
 
     // Allow user to specify a different filename
@@ -74,27 +76,23 @@ int main(int argc, char *argv[]) {
         df::Dataframe test_data;
 
         // Create training data
-        for (const auto &col_name : data.names()) {
+        for (const auto& col_name : data.names()) {
             // MSG(data.type_name(col_name));
             if (data.type_name(col_name) == "double") {
                 auto full_col = data.get<double>(col_name);
-                std::vector<double> train_values(full_col.data().begin(),
-                                                 full_col.data().begin() +
-                                                     train_size);
-                std::vector<double> test_values(full_col.data().begin() +
-                                                    train_size,
-                                                full_col.data().end());
+                std::vector<double> train_values(
+                    full_col.data().begin(), full_col.data().begin() + train_size);
+                std::vector<double> test_values(
+                    full_col.data().begin() + train_size, full_col.data().end());
 
                 train_data.add(col_name, df::Serie<double>(train_values));
                 test_data.add(col_name, df::Serie<double>(test_values));
             } else if (data.type_name(col_name) == "string") {
                 auto full_col = data.get<std::string>(col_name);
-                std::vector<std::string> train_values(full_col.data().begin(),
-                                                      full_col.data().begin() +
-                                                          train_size);
-                std::vector<std::string> test_values(full_col.data().begin() +
-                                                         train_size,
-                                                     full_col.data().end());
+                std::vector<std::string> train_values(
+                    full_col.data().begin(), full_col.data().begin() + train_size);
+                std::vector<std::string> test_values(
+                    full_col.data().begin() + train_size, full_col.data().end());
 
                 train_data.add(col_name, df::Serie<std::string>(train_values));
                 test_data.add(col_name, df::Serie<std::string>(test_values));
@@ -112,8 +110,8 @@ int main(int argc, char *argv[]) {
             n_classes = unique_values.size();
         }
 
-        std::cout << "Training Random Forest classifier with " << n_classes
-                  << " classes..." << std::endl;
+        std::cout << "Training Random Forest classifier with " << n_classes << " classes..."
+                  << std::endl;
 
         // Create and train a random forest classifier
         ml::RandomForest rf =
@@ -141,10 +139,8 @@ int main(int argc, char *argv[]) {
                 unique_values.insert(target_values[j]);
             }
 
-            std::vector<std::string> class_names(unique_values.begin(),
-                                                 unique_values.end());
-            if (pred_class >= 0 &&
-                pred_class < static_cast<int>(class_names.size())) {
+            std::vector<std::string> class_names(unique_values.begin(), unique_values.end());
+            if (pred_class >= 0 && pred_class < static_cast<int>(class_names.size())) {
                 pred_class_name = class_names[pred_class];
             }
 
@@ -154,53 +150,42 @@ int main(int argc, char *argv[]) {
         }
 
         double accuracy = static_cast<double>(correct) / predictions.size();
-        std::cout << "Random Forest accuracy: " << std::fixed
-                  << std::setprecision(4) << accuracy * 100.0 << "%"
-                  << std::endl;
+        std::cout << "Random Forest accuracy: " << std::fixed << std::setprecision(4)
+                  << accuracy * 100.0 << "%" << std::endl;
 
         // Create LIME explainer
         std::cout << "Creating LIME explainer..." << std::endl;
-        ml::Lime lime_explainer(train_data, target_column, categorical_features,
-                                0.75, true);
+        ml::Lime lime_explainer(train_data, target_column, categorical_features, 0.75, true);
 
         // Choose an instance to explain
         size_t instance_idx = 0; // Choose the first test instance
-        df::Dataframe instance_to_explain =
-            get_dataframe_row(test_data, instance_idx);
+        df::Dataframe instance_to_explain = get_dataframe_row(test_data, instance_idx);
 
         // Display the instance
         std::cout << "\nExplaining instance:\n";
-        for (const auto &col_name : instance_to_explain.names()) {
+        for (const auto& col_name : instance_to_explain.names()) {
             // MSG("col_name: ",col_name);
             if (col_name != target_column) {
                 if (instance_to_explain.type_name(col_name) == "double") {
                     std::cout << "  " << col_name << ": "
-                              << instance_to_explain.get<double>(col_name)[0]
-                              << std::endl;
-                } else if (instance_to_explain.type_name(col_name) ==
-                           "string") {
-                    std::cout
-                        << "  " << col_name << ": "
-                        << instance_to_explain.get<std::string>(col_name)[0]
-                        << std::endl;
+                              << instance_to_explain.get<double>(col_name)[0] << std::endl;
+                } else if (instance_to_explain.type_name(col_name) == "string") {
+                    std::cout << "  " << col_name << ": "
+                              << instance_to_explain.get<std::string>(col_name)[0] << std::endl;
                 }
             }
         }
 
         std::cout << "  " << target_column << ": "
-                  << instance_to_explain.get<std::string>(target_column)[0]
-                  << std::endl;
+                  << instance_to_explain.get<std::string>(target_column)[0] << std::endl;
 
         // Create a prediction function for the random forest
-        auto predict_fn = [&rf](const df::Dataframe &samples) {
-            return rf.predict(samples);
-        };
+        auto predict_fn = [&rf](const df::Dataframe& samples) { return rf.predict(samples); };
 
         // Get the explanation
         std::cout << "\nGenerating explanation..." << std::endl;
-        auto explanation = lime_explainer.explain(
-            instance_to_explain, predict_fn,
-            5,   // Number of features to include in explanation
+        auto explanation = lime_explainer.explain(instance_to_explain, predict_fn,
+            5, // Number of features to include in explanation
             1000 // Number of samples to generate
         );
 
@@ -209,14 +194,13 @@ int main(int argc, char *argv[]) {
         std::cout << "Feature                 Weight" << std::endl;
         std::cout << "----------------------------------------" << std::endl;
 
-        for (const auto &[feature, weight] : explanation) {
-            std::cout << std::left << std::setw(24) << feature << std::right
-                      << std::setw(10) << std::fixed << std::setprecision(4)
-                      << weight << std::endl;
+        for (const auto& [feature, weight] : explanation) {
+            std::cout << std::left << std::setw(24) << feature << std::right << std::setw(10)
+                      << std::fixed << std::setprecision(4) << weight << std::endl;
         }
 
         return 0;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }

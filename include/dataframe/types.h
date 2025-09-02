@@ -90,7 +90,7 @@ std::ostream &operator<<(std::ostream &o, const std::array<T, N> &m) {
     for (size_t i = 0; i < N - 1; ++i) {
         o << m[i] << ",";
     }
-    o << m[m.size() - 1] << "]";
+    o << m[N - 1] << "]";
 
     return o;
 }

@@ -163,7 +163,7 @@ void tsp_example() {
     ml::BeeAlgorithm ba(40, 20, 20, 200, 40, 1.0, true);
 
     // Solve the TSP
-    auto [best_route, min_distance] = ba.optimize_combinatorial(
+    auto [best_route, min_distance] = ba.optimize_combinatorial<int>(
         calculate_distance, indices, indices.size(), false, true);
 
     // Print results

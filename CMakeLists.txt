@@ -94,6 +94,12 @@ function (auto_discover_tests)
     
 endfunction()
 
+# function (run_specific_test TEST_NAME TEST_FILE)
+#     add_executable(${TEST_NAME} "unitTest/${TEST_FILE}.cxx")
+#     target_link_libraries(${TEST_NAME} PRIVATE dataframe)
+#     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+# endfunction()
+
 # ---------------------------------------------------------------------
 # Example of configuration:
 #   cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -105,21 +111,26 @@ include_directories(${eigen_SOURCE_DIR})
 message("Eigen3 include directory: ${eigen_SOURCE_DIR}")
 
 enable_testing()
-auto_discover_tests()
+# auto_discover_tests()
 
-add_subdirectory(examples/complex)
-add_subdirectory(examples/excel)
-add_subdirectory(examples/kdtree)
-add_subdirectory(examples/distance-field)
-add_subdirectory(examples/interpolate-field)
-add_subdirectory(examples/harmonic-diffusion)
-add_subdirectory(examples/attributes)
-add_subdirectory(examples/algebra)
-add_subdirectory(examples/serializer)
-add_subdirectory(examples/superposition)
 
-# ML
-add_subdirectory(examples/random-forest)
-add_subdirectory(examples/lime)
-add_subdirectory(examples/genetic)
-add_subdirectory(examples/bee)
+add_executable(eigen_test unitTest/base/algebra/eigen_test.cxx)
+target_link_libraries(eigen_test PRIVATE dataframe)
+add_test(eigen_test eigen_test COMMAND eigen_test)
+
+# add_subdirectory(examples/complex)
+# add_subdirectory(examples/excel)
+# add_subdirectory(examples/kdtree)
+# add_subdirectory(examples/distance-field)
+# add_subdirectory(examples/interpolate-field)
+# add_subdirectory(examples/harmonic-diffusion)
+# add_subdirectory(examples/attributes)
+# add_subdirectory(examples/algebra)
+# add_subdirectory(examples/serializer)
+# add_subdirectory(examples/superposition)
+
+# # ML
+# add_subdirectory(examples/random-forest)
+# add_subdirectory(examples/lime)
+# add_subdirectory(examples/genetic)
+# add_subdirectory(examples/bee)

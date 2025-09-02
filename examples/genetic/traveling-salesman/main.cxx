@@ -120,7 +120,7 @@ int main() {
               << std::endl;
 
     // Run the optimization (minimize total distance)
-    auto [best_route, best_distance] = ga.optimize_combinatorial(
+    auto [best_route, best_distance] = ga.optimize_combinatorial<int>(
         fitness_function, // Fitness function
         city_indices,     // Candidate set (city indices)
         cities.size(),    // Solution length (all cities)

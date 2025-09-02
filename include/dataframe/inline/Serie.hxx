@@ -21,245 +21,247 @@
  *
  */
 
-#include "../utils/utils.h"
 #include "../utils/demangle.h"
+#include "../utils/utils.h"
 #include <memory>
 #include <ostream>
 #include <regex>
 
 namespace df {
 
-// ------------------------------------------
+    // ------------------------------------------
 
-inline std::string cleanup_type_name(const std::string &name) {
-    std::string result = name;
+    inline std::string cleanup_type_name(const std::string& name)
+    {
+        std::string result = name;
 
-    // List of the substitutions to clean the name
-    static const std::vector<std::pair<std::string, std::string>>
-        substitutions = {
-            {"std::__1::", "std::"},     // Enlève le __1 de l'espace de nom std
-            {"std::vector<", "vector<"}, // Simplifie std::vector
-            {"std::array<", "array<"},   // Simplifie std::array
-            {", std::allocator<[^>]+>>", ">"}, // Enlève l'allocator
-            {", std::allocator<[^>]+>", ">"}, // Enlève l'allocator (cas simple)
-            {"ul", ""},
-            {"std::basic_string<char>", "string"}, // Simplifie basic_string
-            {"std::basic_string<char, std::char_traits<char>>",
-             "string"}, // Autre forme de string
+        // List of the substitutions to clean the name
+        static const std::vector<std::pair<std::string, std::string>> substitutions = {
+            { "std::__1::", "std::" }, // Enlève le __1 de l'espace de nom std
+            { "std::vector<", "vector<" }, // Simplifie std::vector
+            { "std::array<", "array<" }, // Simplifie std::array
+            { ", std::allocator<[^>]+>>", ">" }, // Enlève l'allocator
+            { ", std::allocator<[^>]+>", ">" }, // Enlève l'allocator (cas simple)
+            { "ul", "" }, { "std::basic_string<char>", "string" }, // Simplifie basic_string
+            { "std::basic_string<char, std::char_traits<char>>",
+                "string" }, // Autre forme de string
         };
 
-    // Apply every substitution
-    for (const auto &[pattern, replacement] : substitutions) {
-        result = std::regex_replace(result, std::regex(pattern), replacement);
+        // Apply every substitution
+        for (const auto& [pattern, replacement] : substitutions) {
+            result = std::regex_replace(result, std::regex(pattern), replacement);
+        }
+
+        return result;
     }
 
-    return result;
-}
-
-template <typename T> inline std::string type_name() {
-    const char *mangled = typeid(T).name();
-    //int status = 0;
-    //std::unique_ptr<char, void (*)(void *)> demangled(
-    //    abi::__cxa_demangle(mangled, nullptr, nullptr, &status), std::free);
-    //return cleanup_type_name(status == 0 ? demangled.get() : mangled);
-    return cleanup_type_name(utils::demangle(mangled));
-}
-
-// ------------------------------------------------
-
-template <typename T> inline Serie<T>::iterator Serie<T>::begin() {
-    return data_.begin();
-}
-
-template <typename T> inline Serie<T>::const_iterator Serie<T>::begin() const {
-    return data_.begin();
-}
-
-template <typename T> inline Serie<T>::const_iterator Serie<T>::cbegin() const {
-    return data_.cbegin();
-}
-
-template <typename T> inline Serie<T>::iterator Serie<T>::end() {
-    return data_.end();
-}
-
-template <typename T> inline Serie<T>::const_iterator Serie<T>::end() const {
-    return data_.end();
-}
-
-template <typename T> inline Serie<T>::const_iterator Serie<T>::cend() const {
-    return data_.cend();
-}
-
-template <typename T> inline void Serie<T>::reserve(size_t n) {
-    data_.reserve(n);
-}
-
-template <typename T> inline void Serie<T>::add(const T &value) {
-    data_.push_back(value);
-}
-
-template <typename T> inline Serie<T>::Serie(const ArrayType &values) {
-    data_.reserve(values.size());
-    for (const auto &v : values) {
-        data_.push_back(v);
-    }
-}
-
-template <typename T>
-inline Serie<T>::Serie(const std::initializer_list<T> &values) {
-    data_.reserve(values.size());
-    for (auto &v : values) {
-        data_.push_back(v);
-    }
-}
-
-template <typename T> inline const Serie<T>::ArrayType &Serie<T>::data() const {
-    return data_;
-}
-
-template <typename T>
-inline const Serie<T>::ArrayType &Serie<T>::asArray() const {
-    return data_;
-}
-
-template <typename T> inline bool Serie<T>::empty() const {
-    return data_.empty();
-}
-
-template <typename T>
-template <typename U>
-inline Serie<U> Serie<T>::as() const {
-    // Handle same type case
-    if constexpr (std::is_same_v<T, U>) {
-        return *this;
+    template <typename T> inline std::string type_name()
+    {
+        const char* mangled = typeid(T).name();
+        // int status = 0;
+        // std::unique_ptr<char, void (*)(void *)> demangled(
+        //     abi::__cxa_demangle(mangled, nullptr, nullptr, &status), std::free);
+        // return cleanup_type_name(status == 0 ? demangled.get() : mangled);
+        return cleanup_type_name(utils::demangle(mangled));
     }
 
-    // Create new serie with converted values
-    Serie<U> result;
-    result.data_.reserve(data_.size());
+    // ------------------------------------------------
 
-    for (const auto &value : data_) {
-        if constexpr (std::is_constructible_v<U, T>) {
-            // Use constructor if available
-            result.data_.push_back(U(value));
+    template <typename T> inline typename Serie<T>::iterator Serie<T>::begin()
+    {
+        return data_.begin();
+    }
+
+    template <typename T> inline typename Serie<T>::const_iterator Serie<T>::begin() const
+    {
+        return data_.begin();
+    }
+
+    template <typename T> inline typename Serie<T>::const_iterator Serie<T>::cbegin() const
+    {
+        return data_.cbegin();
+    }
+
+    template <typename T> inline typename Serie<T>::iterator Serie<T>::end() { return data_.end(); }
+
+    template <typename T> inline typename Serie<T>::const_iterator Serie<T>::end() const
+    {
+        return data_.end();
+    }
+
+    template <typename T> inline typename Serie<T>::const_iterator Serie<T>::cend() const
+    {
+        return data_.cend();
+    }
+
+    template <typename T> inline void Serie<T>::reserve(size_t n) { data_.reserve(n); }
+
+    template <typename T> inline void Serie<T>::add(const T& value) { data_.push_back(value); }
+
+    template <typename T> inline Serie<T>::Serie(const ArrayType& values)
+    {
+        data_.reserve(values.size());
+        for (const auto& v : values) {
+            data_.push_back(v);
+        }
+    }
+
+    template <typename T> inline Serie<T>::Serie(const std::initializer_list<T>& values)
+    {
+        data_.reserve(values.size());
+        for (auto& v : values) {
+            data_.push_back(v);
+        }
+    }
+
+    template <typename T> inline const typename Serie<T>::ArrayType& Serie<T>::data() const
+    {
+        return data_;
+    }
+
+    template <typename T> inline const typename Serie<T>::ArrayType& Serie<T>::asArray() const
+    {
+        return data_;
+    }
+
+    template <typename T> inline bool Serie<T>::empty() const { return data_.empty(); }
+
+    template <typename T> template <typename U> inline Serie<U> Serie<T>::as() const
+    {
+        // Handle same type case
+        if constexpr (std::is_same_v<T, U>) {
+            return *this;
+        }
+
+        // Create new serie with converted values
+        Serie<U> result;
+        result.data_.reserve(data_.size());
+
+        for (const auto& value : data_) {
+            if constexpr (std::is_constructible_v<U, T>) {
+                // Use constructor if available
+                result.data_.push_back(U(value));
+            } else {
+                // Fallback to static_cast
+                result.data_.push_back(static_cast<U>(value));
+            }
+        }
+
+        return result;
+    }
+
+    template <typename T> inline std::string Serie<T>::type() const { return type_name<T>(); }
+
+    template <typename T> inline T& Serie<T>::operator[](size_t index)
+    {
+        if (index >= data_.size()) {
+            throw std::out_of_range(concat("Index ", index, " is out of bounds (max is ",
+                data_.size(), ") in Serie::operator[]"));
+        }
+        return data_[index];
+    }
+
+    template <typename T> inline const T& Serie<T>::operator[](size_t index) const
+    {
+        if (index >= data_.size()) {
+            throw std::out_of_range(concat("Index ", index, " is out of bounds (max is ",
+                data_.size(), ") in Serie::operator[]"));
+        }
+        return data_[index];
+    }
+
+    template <typename T> inline void Serie<T>::set(size_t index, const T& value)
+    {
+        if (index >= data_.size()) {
+            throw std::out_of_range(concat("Index ", index, " is out of bounds (max is ",
+                data_.size(), ") in Serie::set"));
+        }
+        data_[index] = value;
+    }
+
+    template <typename T> inline size_t Serie<T>::size() const { return data_.size(); }
+
+    template <typename T> template <typename F> inline void Serie<T>::forEach(F&& callback) const
+    {
+        if constexpr (std::is_invocable_v<F, const T&, size_t>) {
+            // Callback takes both value and index
+            for (size_t i = 0; i < data_.size(); ++i) {
+                callback(data_[i], i);
+            }
+        } else if constexpr (std::is_invocable_v<F, const T&>) {
+            // Callback takes only value
+            for (const auto& value : data_) {
+                callback(value);
+            }
         } else {
-            // Fallback to static_cast
-            result.data_.push_back(static_cast<U>(value));
+            static_assert(
+                std::is_invocable_v<F, const T&> || std::is_invocable_v<F, const T&, size_t>,
+                "Callback must accept either (value) or (value, index)");
         }
     }
 
-    return result;
-}
+    // map with optional index
+    template <typename T> template <typename F> inline auto Serie<T>::map(F&& callback) const
+    {
+        if constexpr (std::is_invocable_v<F, const T&, size_t>) {
+            using ResultType = decltype(callback(data_[0], size_t { 0 }));
+            std::vector<ResultType> result(data_.size());
 
-template <typename T> inline std::string Serie<T>::type() const {
-    return type_name<T>();
-}
+            for (size_t i = 0; i < data_.size(); ++i) {
+                result[i] = callback(data_[i], i);
+            }
+            return Serie<ResultType>(result);
+        } else if constexpr (std::is_invocable_v<F, const T&>) {
+            using ResultType = decltype(callback(data_[0]));
+            std::vector<ResultType> result(data_.size());
 
-template <typename T> inline T &Serie<T>::operator[](size_t index) {
-    if (index >= data_.size()) {
-        throw std::out_of_range(concat("Index ", index,
-                                       " is out of bounds (max is ",
-                                       data_.size(), ") in Serie::operator[]"));
+            for (size_t i = 0; i < data_.size(); ++i) {
+                result[i] = callback(data_[i]);
+            }
+            return Serie<ResultType>(result);
+        } else {
+            static_assert(
+                std::is_invocable_v<F, const T&> || std::is_invocable_v<F, const T&, size_t>,
+                "Callback must accept either (value) or (value, index)");
+        }
     }
-    return data_[index];
-}
 
-template <typename T> inline const T &Serie<T>::operator[](size_t index) const {
-    if (index >= data_.size()) {
-        throw std::out_of_range(concat("Index ", index,
-                                       " is out of bounds (max is ",
-                                       data_.size(), ") in Serie::operator[]"));
+    // reduce with optional index
+    template <typename T>
+    template <typename F, typename AccT>
+    inline auto Serie<T>::reduce(F&& callback, AccT initial) const
+    {
+        if constexpr (std::is_invocable_v<F, AccT, const T&, size_t>) {
+            AccT result = initial;
+            for (size_t i = 0; i < data_.size(); ++i) {
+                result = callback(result, data_[i], i);
+            }
+            return result;
+        } else if constexpr (std::is_invocable_v<F, AccT, const T&>) {
+            AccT result = initial;
+            for (const auto& value : data_) {
+                result = callback(result, value);
+            }
+            return result;
+        } else {
+            static_assert(std::is_invocable_v<F, AccT, const T&>
+                    || std::is_invocable_v<F, AccT, const T&, size_t>,
+                "Callback must accept either (accumulator, value) or "
+                "(accumulator, value, index)");
+        }
     }
-    return data_[index];
-}
-
-template <typename T> inline size_t Serie<T>::size() const {
-    return data_.size();
-}
-
-template <typename T>
-template <typename F>
-inline void Serie<T>::forEach(F &&callback) const {
-    if constexpr (std::is_invocable_v<F, const T &, size_t>) {
-        // Callback takes both value and index
-        for (size_t i = 0; i < data_.size(); ++i) {
-            callback(data_[i], i);
-        }
-    } else if constexpr (std::is_invocable_v<F, const T &>) {
-        // Callback takes only value
-        for (const auto &value : data_) {
-            callback(value);
-        }
-    } else {
-        static_assert(std::is_invocable_v<F, const T &> ||
-                          std::is_invocable_v<F, const T &, size_t>,
-                      "Callback must accept either (value) or (value, index)");
-    }
-}
-
-// map with optional index
-template <typename T>
-template <typename F>
-inline auto Serie<T>::map(F &&callback) const {
-    if constexpr (std::is_invocable_v<F, const T &, size_t>) {
-        using ResultType = decltype(callback(data_[0], size_t{0}));
-        std::vector<ResultType> result(data_.size());
-
-        for (size_t i = 0; i < data_.size(); ++i) {
-            result[i] = callback(data_[i], i);
-        }
-        return Serie<ResultType>(result);
-    } else if constexpr (std::is_invocable_v<F, const T &>) {
-        using ResultType = decltype(callback(data_[0]));
-        std::vector<ResultType> result(data_.size());
-
-        for (size_t i = 0; i < data_.size(); ++i) {
-            result[i] = callback(data_[i]);
-        }
-        return Serie<ResultType>(result);
-    } else {
-        static_assert(std::is_invocable_v<F, const T &> ||
-                          std::is_invocable_v<F, const T &, size_t>,
-                      "Callback must accept either (value) or (value, index)");
-    }
-}
-
-// reduce with optional index
-template <typename T>
-template <typename F, typename AccT>
-inline auto Serie<T>::reduce(F &&callback, AccT initial) const {
-    if constexpr (std::is_invocable_v<F, AccT, const T &, size_t>) {
-        AccT result = initial;
-        for (size_t i = 0; i < data_.size(); ++i) {
-            result = callback(result, data_[i], i);
-        }
-        return result;
-    } else if constexpr (std::is_invocable_v<F, AccT, const T &>) {
-        AccT result = initial;
-        for (const auto &value : data_) {
-            result = callback(result, value);
-        }
-        return result;
-    } else {
-        static_assert(std::is_invocable_v<F, AccT, const T &> ||
-                          std::is_invocable_v<F, AccT, const T &, size_t>,
-                      "Callback must accept either (accumulator, value) or "
-                      "(accumulator, value, index)");
-    }
-}
 
 } // namespace df
 
 // -----------------------------------------------
 
-template <typename T>
-std::ostream &operator<<(std::ostream &o, const df::Serie<T> &s) {
-    o << "Serie<" << s.type_name() << ">" << std::endl;
+template <typename T> std::ostream& operator<<(std::ostream& o, const df::Serie<T>& s)
+{
+    o << "Serie<" << s.type() << ">" << std::endl;
     o << "  size    : " << s.size() << std::endl;
     if (s.size() > 0) {
         o << "  values   : [";
-        const auto &v = s.data();
+        const auto& v = s.data();
         for (size_t i = 0; i < v.size() - 1; ++i) {
             o << v[i] << ", ";
         }

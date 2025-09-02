@@ -23,440 +23,399 @@
 
 namespace df {
 
-namespace detail {
+    namespace eig {
 
-// Helper to get matrix dimension from storage size
-template <size_t N> constexpr size_t get_matrix_dim() {
-    if constexpr (N == 3)
-        return 2; // 2x2 symmetric
-    else if constexpr (N == 6)
-        return 3; // 3x3 symmetric
-    else if constexpr (N == 10)
-        return 4; // 4x4 symmetric
-    else
-        static_assert(N == 3 || N == 6 || N == 10,
-                      "Unsupported matrix dimension");
-}
+        template <size_t N> struct eigen_matrix_dim;
+        template <> struct eigen_matrix_dim<3> {
+            uint16_t size { 3 };
+            uint16_t dim { 2 };
+        };
+        template <> struct eigen_matrix_dim<6> {
+            uint16_t size { 6 };
+            uint16_t dim { 3 };
+        };
+        template <> struct eigen_matrix_dim<10> {
+            uint16_t size { 10 };
+            uint16_t dim { 4 };
+        };
 
-// Helper to convert column eigenvectors to array of vectors
-template <typename T, size_t N>
-void col_vectors_to_array(const T *col_vectors, T *array_vectors) {
-    if constexpr (N == 3) { // 2x2 -> array<Vector2,2>
-        // Input: [v11 v21 v12 v22]
-        // Output: [(v11,v21), (v12,v22)]
-        array_vectors[0] = col_vectors[0]; // v11
-        array_vectors[1] = col_vectors[1]; // v21
-        array_vectors[2] = col_vectors[2]; // v12
-        array_vectors[3] = col_vectors[3]; // v22
-    } else if constexpr (N == 6) {         // 3x3 -> array<Vector3,3>
-        // Input: [v11 v21 v31 v12 v22 v32 v13 v23 v33]
-        // Output: [(v11,v21,v31), (v12,v22,v32), (v13,v23,v33)]
-        array_vectors[0] = col_vectors[0]; // v11
-        array_vectors[1] = col_vectors[1]; // v21
-        array_vectors[2] = col_vectors[2]; // v31
-        array_vectors[3] = col_vectors[3]; // v12
-        array_vectors[4] = col_vectors[4]; // v22
-        array_vectors[5] = col_vectors[5]; // v32
-        array_vectors[6] = col_vectors[6]; // v13
-        array_vectors[7] = col_vectors[7]; // v23
-        array_vectors[8] = col_vectors[8]; // v33
-    } else if constexpr (N == 10) {        // 4x4 -> array<Vector4,4>
-        // Input: [v11 v21 v31 v41 v12 v22 v32 v42 v13 v23 v33 v43 v14 v24 v34
-        // v44] Output: [(v11,v21,v31,v41), (v12,v22,v32,v42),
-        // (v13,v23,v33,v43), (v14,v24,v34,v44)]
-        const size_t dim = 4;
-        for (size_t j = 0; j < dim; ++j) {     // for each eigenvector
-            for (size_t i = 0; i < dim; ++i) { // for each component
-                array_vectors[j * dim + i] = col_vectors[j * dim + i];
-            }
+        // Pack helpers (N -> n and expand packed to full M)
+        template <size_t N> inline constexpr int dim_from_N()
+        {
+            static_assert(N == 3 || N == 6 || N == 10, "Only N=3,6,10 supported");
+            return (N == 3 ? 2 : (N == 6 ? 3 : 4));
         }
-    }
-}
 
-// Convert from row symmetric to column symmetric storage
-template <typename T, size_t N>
-void row_to_col_symmetric(const T *row_sym, T *col_sym) {
-    if constexpr (N == 3) { // 2x2
-        // row:    [a11, a12, a22]
-        // column: [a11, a21, a22]
-        col_sym[0] = row_sym[0];   // a11
-        col_sym[1] = row_sym[1];   // a21 (=a12)
-        col_sym[2] = row_sym[2];   // a22
-    } else if constexpr (N == 6) { // 3x3
-        // row:    [a11, a12, a13, a22, a23, a33]
-        // column: [a11, a21, a31, a22, a32, a33]
-        col_sym[0] = row_sym[0];    // a11
-        col_sym[1] = row_sym[1];    // a21
-        col_sym[2] = row_sym[2];    // a31
-        col_sym[3] = row_sym[3];    // a22
-        col_sym[4] = row_sym[4];    // a32
-        col_sym[5] = row_sym[5];    // a33
-    } else if constexpr (N == 10) { // 4x4
-        // row:    [a11, a12, a13, a14, a22, a23, a24, a33, a34, a44]
-        // column: [a11, a21, a31, a41, a22, a32, a42, a33, a43, a44]
-        col_sym[0] = row_sym[0]; // a11
-        col_sym[1] = row_sym[1]; // a21
-        col_sym[2] = row_sym[2]; // a31
-        col_sym[3] = row_sym[3]; // a41
-        col_sym[4] = row_sym[4]; // a22
-        col_sym[5] = row_sym[5]; // a32
-        col_sym[6] = row_sym[6]; // a42
-        col_sym[7] = row_sym[7]; // a33
-        col_sym[8] = row_sym[8]; // a43
-        col_sym[9] = row_sym[9]; // a44
-    }
-}
+        template <size_t N> struct EigResult {
+            static_assert(
+                N == 3 || N == 6 || N == 10, "Supported N are 3 (2x2), 6 (3x3), 10 (4x4).");
+            static constexpr int dim = (N == 3 ? 2 : (N == 6 ? 3 : 4));
+            typename eigen_values_return_type<N>::type values;
+            // Column-major eigenvectors: vectors[i + dim*j] = component i of eigenvector j
+            typename eigen_vectors_return_type<N>::type vectors;
+        };
 
-// Convert from column symmetric back to row symmetric storage
-template <typename T, size_t N>
-void col_to_row_symmetric(const T *col_sym, T *row_sym) {
-    if constexpr (N == 3) {         // 2x2
-        row_sym[0] = col_sym[0];    // a11
-        row_sym[1] = col_sym[1];    // a12 (=a21)
-        row_sym[2] = col_sym[2];    // a22
-    } else if constexpr (N == 6) {  // 3x3
-        row_sym[0] = col_sym[0];    // a11
-        row_sym[1] = col_sym[1];    // a12
-        row_sym[2] = col_sym[2];    // a13
-        row_sym[3] = col_sym[3];    // a22
-        row_sym[4] = col_sym[4];    // a23
-        row_sym[5] = col_sym[5];    // a33
-    } else if constexpr (N == 10) { // 4x4
-        row_sym[0] = col_sym[0];    // a11
-        row_sym[1] = col_sym[1];    // a12
-        row_sym[2] = col_sym[2];    // a13
-        row_sym[3] = col_sym[3];    // a14
-        row_sym[4] = col_sym[4];    // a22
-        row_sym[5] = col_sym[5];    // a23
-        row_sym[6] = col_sym[6];    // a24
-        row_sym[7] = col_sym[7];    // a33
-        row_sym[8] = col_sym[8];    // a34
-        row_sym[9] = col_sym[9];    // a44
-    }
-}
+        // Internal: small fixed-size Jacobi for n<=4
+        inline void jacobiSymmetric(
+            double M[4][4], int n, double V[4][4], int maxIter = 50, double tol = 1e-12)
+        {
+            // Initialize V = I
+            for (int i = 0; i < n; ++i)
+                for (int j = 0; j < n; ++j)
+                    V[i][j] = (i == j ? 1.0 : 0.0);
 
-/**
- * \brief Computes the eigen values and eigen vectors
- * of a semi definite symmetric matrix
- * \param  matrix is stored in column symmetric storage, i.e.
- *     matrix = { m11, m12, m22, m13, m23, m33, m14, m24, m34, m44 ... }
- *     size = n(n+1)/2
- * \param eigen_vectors (return) = { v1, v2, v3, ..., vn }
- *   where vk = vk0, vk1, ..., vkn
- *   size = n^2, must be allocated by caller
- * \param eigen_values  (return) are in decreasing order
- *   size = n,   must be allocated by caller
- *
- * \note IMPORANT: Eigen -values and -vectors are ordered from the highest to
- * the lowest
- *
- * @example
- * ```c++
- * double eigen_vec[9] ;
- * double eigen_val[3] ;
- * double m[6] ;
- *  m[0] = ... ;
- * symmetricEigen(m, 3, eigen_vec, eigen_val) ;
- * ```
- */
-void symmetricEigen(const double *mat, int n, double *eigen_vec,
-                    double *eigen_val) {
-    static const double EPS = 0.00001;
-    static int MAX_ITER = 100;
-
-    int nb_iter = 0;
-    int nn = (n * (n + 1)) / 2;
-    double *a = new double[nn];
-    double *v = new double[n * n];
-    int *index = new int[n];
-
-    for (int ij = 0; ij < nn; ++ij) {
-        a[ij] = mat[ij];
-    }
-
-    --a;
-    int ij = 0;
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            if (i == j) {
-                v[ij++] = 1.0;
-            } else {
-                v[ij++] = 0.0;
-            }
-        }
-    }
-
-    --v;
-    ij = 1;
-    double a_norm = 0.0;
-
-    for (int i = 1; i <= n; ++i) {
-        for (int j = 1; j <= i; ++j) {
-            if (i != j) {
-                double a_ij = a[ij];
-                a_norm += a_ij * a_ij;
-            }
-            ++ij;
-        }
-    }
-
-    if (a_norm != 0.0) {
-        double a_normEPS = a_norm * EPS;
-        double thr = a_norm;
-
-        while (thr > a_normEPS && nb_iter < MAX_ITER) {
-            ++nb_iter;
-            double thr_nn = thr / nn;
-
-            for (int l = 1; l < n; ++l) {
-                for (int m = l + 1; m <= n; ++m) {
-                    int lq = (l * l - l) / 2;
-                    int mq = (m * m - m) / 2;
-                    int lm = l + mq;
-                    double a_lm = a[lm];
-                    double a_lm_2 = a_lm * a_lm;
-
-                    if (a_lm_2 < thr_nn) {
-                        continue;
-                    }
-
-                    int ll = l + lq;
-                    int mm = m + mq;
-                    double a_ll = a[ll];
-                    double a_mm = a[mm];
-                    double delta = a_ll - a_mm;
-
-                    double x = 0;
-                    if (delta == 0.0) {
-                        x = -M_PI / 4;
-                    } else {
-                        x = -std::atan((a_lm + a_lm) / delta) / 2.0;
-                    }
-
-                    double sinx = std::sin(x);
-                    double cosx = std::cos(x);
-                    double sinx_2 = sinx * sinx;
-                    double cosx_2 = cosx * cosx;
-                    double sincos = sinx * cosx;
-                    int ilv = n * (l - 1);
-                    int imv = n * (m - 1);
-
-                    for (int i = 1; i <= n; ++i) {
-                        if ((i != l) && (i != m)) {
-                            int iq = (i * i - i) / 2;
-                            int im = 0;
-                            if (i < m) {
-                                im = i + mq;
-                            } else {
-                                im = m + iq;
-                            }
-                            double a_im = a[im];
-                            int il = 0;
-                            if (i < l) {
-                                il = i + lq;
-                            } else {
-                                il = l + iq;
-                            }
-                            double a_il = a[il];
-                            a[il] = a_il * cosx - a_im * sinx;
-                            a[im] = a_il * sinx + a_im * cosx;
+            for (int iter = 0; iter < maxIter; ++iter) {
+                // Find largest off-diagonal entry
+                int p = 0, q = 1;
+                double maxOff = 0.0;
+                for (int i = 0; i < n; ++i)
+                    for (int j = i + 1; j < n; ++j) {
+                        double a = std::fabs(M[i][j]);
+                        if (a > maxOff) {
+                            maxOff = a;
+                            p = i;
+                            q = j;
                         }
-
-                        ++ilv;
-                        ++imv;
-                        double v_ilv = v[ilv];
-                        double v_imv = v[imv];
-                        v[ilv] = cosx * v_ilv - sinx * v_imv;
-                        v[imv] = sinx * v_ilv + cosx * v_imv;
                     }
-                    x = a_lm * sincos;
-                    x += x;
-                    a[ll] = a_ll * cosx_2 + a_mm * sinx_2 - x;
-                    a[mm] = a_ll * sinx_2 + a_mm * cosx_2 + x;
-                    a[lm] = 0.0;
-                    thr = std::fabs(thr - a_lm_2);
+                if (maxOff < tol)
+                    break;
+
+                // Jacobi rotation (stable tau formulation)
+                double app = M[p][p], aqq = M[q][q], apq = M[p][q];
+                double tau = (aqq - app) / (2.0 * apq);
+                double t = (tau >= 0.0) ? 1.0 / (tau + std::sqrt(1.0 + tau * tau))
+                                        : 1.0 / (tau - std::sqrt(1.0 + tau * tau));
+                double c = 1.0 / std::sqrt(1.0 + t * t);
+                double s = t * c;
+
+                // Update the rows/cols p and q (use old values once per k)
+                for (int k = 0; k < n; ++k) {
+                    if (k == p || k == q)
+                        continue;
+                    double mkp = M[k][p];
+                    double mkq = M[k][q];
+                    double pk = c * mkp - s * mkq;
+                    double qk = s * mkp + c * mkq;
+                    M[k][p] = M[p][k] = pk;
+                    M[k][q] = M[q][k] = qk;
+                }
+
+                // Update the 2x2 block
+                double app_new = c * c * app - 2.0 * s * c * apq + s * s * aqq;
+                double aqq_new = s * s * app + 2.0 * s * c * apq + c * c * aqq;
+                M[p][p] = app_new;
+                M[q][q] = aqq_new;
+                M[p][q] = M[q][p] = 0.0;
+
+                // Accumulate eigenvectors
+                for (int k = 0; k < n; ++k) {
+                    double vkp = V[k][p];
+                    double vkq = V[k][q];
+                    V[k][p] = c * vkp - s * vkq;
+                    V[k][q] = s * vkp + c * vkq;
                 }
             }
         }
-    }
 
-    ++a;
+        template <size_t N>
+        inline void packedToDense(const std::array<double, N>& a, double M[4][4], int& n)
+        {
+            n = dim_from_N<N>();
+            // zero initialize safe area
+            for (int i = 0; i < 4; ++i)
+                for (int j = 0; j < 4; ++j)
+                    M[i][j] = 0.0;
 
-    for (int i = 0; i < n; ++i) {
-        int k = i + (i * (i + 1)) / 2;
-        eigen_val[i] = a[k];
-    }
-
-    delete[] a;
-
-    for (int i = 0; i < n; ++i) {
-        index[i] = i;
-    }
-
-    for (int i = 0; i < (n - 1); ++i) {
-        double x = eigen_val[i];
-        int k = i;
-
-        for (int j = i + 1; j < n; ++j) {
-            if (x < eigen_val[j]) {
-                k = j;
-                x = eigen_val[j];
+            if constexpr (N == 3) {
+                // [xx, xy, yy]
+                M[0][0] = a[0];
+                M[0][1] = M[1][0] = a[1];
+                M[1][1] = a[2];
+            } else if constexpr (N == 6) {
+                // [xx, xy, xz, yy, yz, zz]
+                M[0][0] = a[0];
+                M[0][1] = M[1][0] = a[1];
+                M[0][2] = M[2][0] = a[2];
+                M[1][1] = a[3];
+                M[1][2] = M[2][1] = a[4];
+                M[2][2] = a[5];
+            } else { // N == 10
+                // [xx, xy, xz, xw, yy, yz, yw, zz, zw, ww]
+                M[0][0] = a[0];
+                M[0][1] = M[1][0] = a[1];
+                M[0][2] = M[2][0] = a[2];
+                M[0][3] = M[3][0] = a[3];
+                M[1][1] = a[4];
+                M[1][2] = M[2][1] = a[5];
+                M[1][3] = M[3][1] = a[6];
+                M[2][2] = a[7];
+                M[2][3] = M[3][2] = a[8];
+                M[3][3] = a[9];
             }
         }
 
-        eigen_val[k] = eigen_val[i];
-        eigen_val[i] = x;
+        template <size_t N>
+        inline void sortEigenpairs(std::array<double, dim_from_N<N>()>& evals,
+            std::array<double, dim_from_N<N>() * dim_from_N<N>()>& evecs)
+        {
+            constexpr int n = dim_from_N<N>();
+            // indices 0..n-1
+            int idx[n];
+            for (int i = 0; i < n; ++i)
+                idx[i] = i;
+            std::sort(
+                idx, idx + n, [&](int i, int j) { return evals[i] > evals[j]; }); // descending
 
-        int jj = index[k];
-        index[k] = index[i];
-        index[i] = jj;
-    }
+            std::array<double, n> evals_sorted;
+            std::array<double, n * n> evecs_sorted;
 
-    ++v;
-
-    ij = 0;
-    for (int k = 0; k < n; ++k) {
-        int ik = index[k] * n;
-        for (int i = 0; i < n; ++i) {
-            eigen_vec[ij++] = v[ik++];
+            for (int j = 0; j < n; ++j) {
+                int src = idx[j];
+                evals_sorted[j] = evals[src];
+                for (int i = 0; i < n; ++i) {
+                    evecs_sorted[i + n * j] = evecs[i + n * src];
+                }
+            }
+            evals = evals_sorted;
+            evecs = evecs_sorted;
         }
+
+        // Public API
+        template <size_t N>
+        inline EigResult<N> eigenSymmetricPacked(const std::array<double, N>& packed,
+            int maxIter = 50, double tol = 1e-12, bool sort_descending = true)
+        {
+            EigResult<N> out;
+            constexpr int n = EigResult<N>::dim;
+
+            // Expand to dense
+            double M[4][4];
+            int nn;
+            packedToDense(packed, M, nn); // nn == n
+
+            // Run Jacobi
+            double V[4][4];
+            jacobiSymmetric(M, n, V, maxIter, tol);
+
+            // Fill outputs
+            for (int i = 0; i < n; ++i)
+                out.values[i] = M[i][i];
+            for (int j = 0; j < n; ++j)
+                for (int i = 0; i < n; ++i)
+                    out.vectors[i + n * j] = V[i][j]; // column-major
+
+            if (sort_descending) {
+                sortEigenpairs<N>(out.values, out.vectors);
+            }
+            return out;
+        }
+
+        template <typename T, size_t N>
+        inline EigResult<N> eigenSymmetricPacked(const std::array<T, N>& packed, int maxIter = 50,
+            double tol = 1e-12, bool sort_descending = true)
+        {
+            std::array<double, N> d {};
+            for (size_t i = 0; i < N; ++i)
+                d[i] = static_cast<double>(packed[i]);
+            return eigenSymmetricPacked<N>(d, maxIter, tol, sort_descending);
+        }
+
+        // Assign one column of length D into a vector-like type Vec.
+        // Works if Vec is std::array<double,D> OR if Vec is constructible from D doubles.
+        template <int D, typename Vec> inline void assign_col(Vec& dst, const double* col)
+        {
+            if constexpr (std::is_same_v<Vec, std::array<double, D>>) {
+                for (int i = 0; i < D; ++i)
+                    dst[i] = col[i];
+            } else {
+                if constexpr (D == 2)
+                    dst = Vec { col[0], col[1] };
+                else if constexpr (D == 3)
+                    dst = Vec { col[0], col[1], col[2] };
+                else /* D==4 */
+                    dst = Vec { col[0], col[1], col[2], col[3] };
+            }
+        }
+
+        // Convert column-major raw (double) eigenvectors into your output container type.
+        template <size_t N, typename OutArray /* = typename eigen_vectors_return_type<N>::type */>
+        inline OutArray to_vec_columns(
+            const std::array<double, dim_from_N<N>() * dim_from_N<N>()>& raw)
+        {
+            constexpr int D = dim_from_N<N>();
+            OutArray out {};
+            for (int j = 0; j < D; ++j) {
+                auto& vj = out[j]; // VectorD
+                assign_col<D>(vj, &raw[D * j]); // raw[i + D*j] is component i of column j
+            }
+            return out;
+        }
+
+    } // namespace eig
+
+    template <typename T, size_t N>
+    Serie<typename eigen_vectors_return_type<N>::type> eigenVectors(
+        const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenVectors requires arithmetic type");
+        static_assert(
+            N == 3 || N == 6 || N == 10, "eigenVectors supports only N=3,6,10 for sym matrices");
+
+        Serie<typename eigen_vectors_return_type<N>::type> vectors(serie.size());
+
+        serie.forEach([&vectors](const std::array<T, N>& mat, size_t index) {
+            auto result = eig::eigenSymmetricPacked<N>(mat);
+            vectors.set(index, result.vectors);
+        });
+
+        return vectors;
     }
 
-    delete[] v;
-    delete[] index;
-}
+    template <typename T, size_t N>
+    inline Serie<typename eigen_values_return_type<N>::type> eigenValues(
+        const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenValues requires arithmetic type");
+        static_assert(
+            N == 3 || N == 6 || N == 10, "eigenValues supports only N=3,6,10 for sym matrices");
 
-} // namespace detail
+        Serie<typename eigen_values_return_type<N>::type> values(serie.size());
 
-/**
- * Get appropriate return type for eigenVectors based on matrix size
- */
-template <size_t N> struct eigen_vectors_return_type;
-template <> struct eigen_vectors_return_type<3> {
-    using type = std::array<Vector2, 2>;
-};
-template <> struct eigen_vectors_return_type<6> {
-    using type = std::array<Vector3, 3>;
-};
-template <> struct eigen_vectors_return_type<10> {
-    using type = std::array<Vector4, 4>;
-};
-
-/**
- * Compute eigenvectors of symmetric matrices
- * @param serie Input Serie containing symmetric matrices in row storage format
- * @return Serie containing array of eigenvectors where each element is a full
- * vector
- */
-template <typename T, size_t N>
-Serie<typename eigen_vectors_return_type<N>::type>
-eigenVectors(const Serie<std::array<T, N>> &serie) {
-    static_assert(std::is_arithmetic<T>::value,
-                  "eigenVectors requires arithmetic type");
-
-    constexpr size_t dim = detail::get_matrix_dim<N>();
-    using return_type = typename eigen_vectors_return_type<N>::type;
-
-    return serie.map([](const auto &mat, size_t) {
-        std::array<T, N> col_mat;
-        std::array<T, dim * dim> col_vectors;
-        std::array<T, dim> values;
-        return_type eigenvectors;
-
-        // Convert to column storage for symmetricEigen
-        detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
-
-        // Compute eigenvectors
-        detail::symmetricEigen(col_mat.data(), dim, col_vectors.data(),
-                               values.data());
-
-        // Convert column storage eigenvectors to array of vectors
-        detail::col_vectors_to_array<T, N>(
-            col_vectors.data(), reinterpret_cast<T *>(eigenvectors.data()));
-
-        return eigenvectors;
-    });
-}
-
-template <typename T, size_t N>
-inline Serie<std::array<T, detail::get_matrix_dim<N>()>>
-eigenValues(const Serie<std::array<T, N>> &serie) {
-    static_assert(std::is_arithmetic<T>::value,
-                  "eigenValues requires arithmetic type");
-
-    constexpr size_t dim = detail::get_matrix_dim<N>();
-
-    return serie.map([](const auto &mat, size_t) {
-        std::array<T, N> col_mat;
-        std::array<T, N> vectors;
-        std::array<T, dim> values;
-
-        // Convert to column storage for symmetricEigen
-        detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
-
-        // Compute eigenvalues
-        detail::symmetricEigen(col_mat.data(), dim, vectors.data(),
-                               values.data());
+        serie.forEach([&values](const auto& mat, size_t index) {
+            auto result = eig::eigenSymmetricPacked(mat);
+            values.set(index, result.values);
+        });
 
         return values;
-    });
-}
+    }
 
-template <typename T, size_t N>
-inline std::pair<Serie<std::array<T, N>>,
-                 Serie<std::array<T, detail::get_matrix_dim<N>()>>>
-eigenSystem(const Serie<std::array<T, N>> &serie) {
-    static_assert(std::is_arithmetic<T>::value,
-                  "eigenSystem requires arithmetic type");
+    template <typename T, size_t N>
+    inline std::pair<Serie<typename eigen_values_return_type<N>::type>,
+        Serie<typename eigen_vectors_return_type<N>::type>>
+    eigenSystem(const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenSystem requires arithmetic type");
+        static_assert(
+            N == 3 || N == 6 || N == 10, "eigenSystem supports only N=3,6,10 for sym matrices");
 
-    constexpr size_t dim = detail::get_matrix_dim<N>();
+        // constexpr size_t dim = eig::eigen_matrix_dim<N>::dim; // eig::dim_from_N<N>();
 
-    std::vector<std::array<T, N>> vectors;
-    std::vector<std::array<T, dim>> values;
-    vectors.reserve(serie.size());
-    values.reserve(serie.size());
+        Serie<typename eigen_values_return_type<N>::type> values(serie.size());
+        Serie<typename eigen_vectors_return_type<N>::type> vectors(serie.size());
 
-    serie.forEach([&](const auto &mat, size_t) {
-        std::array<T, N> col_mat;
-        std::array<T, N> col_vectors;
-        std::array<T, dim> eigenvalues;
-        std::array<T, N> row_vectors;
+        serie.forEach([&values, &vectors](const auto& mat, size_t index) {
+            auto result = eig::eigenSymmetricPacked(mat);
+            vectors.set(index, result.vectors);
+            values.set(index, result.values);
+        });
 
-        // Convert to column storage for symmetricEigen
-        detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
+        return std::make_pair(values, vectors);
+    }
 
-        // Compute eigensystem
-        detail::symmetricEigen(col_mat.data(), dim, col_vectors.data(),
-                               eigenvalues.data());
+    /*
+    template <typename T, size_t N>
+    Serie<typename eigen_vectors_return_type<N>::type> eigenVectors(
+        const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenVectors requires arithmetic type");
 
-        // Convert eigenvectors back to row storage
-        // detail::col_to_row_symmetric<T, N>(col_vectors.data(),
-        //                                    row_vectors.data());
+        constexpr size_t dim = detail::get_matrix_dim<N>();
+        using return_type = typename eigen_vectors_return_type<N>::type;
 
-        vectors.push_back(row_vectors);
-        values.push_back(eigenvalues);
-    });
+        return serie.map([](const auto& mat, size_t) {
+            std::array<T, N> col_mat;
+            std::array<T, dim * dim> col_vectors;
+            std::array<T, dim> values;
+            return_type eigenvectors;
 
-    return {Serie<std::array<T, N>>(vectors),
-            Serie<std::array<T, dim>>(values)};
-}
+            // Convert to column storage for symmetricEigen
+            detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
 
-// Binding functions for pipeline operations
-template <typename T, size_t N> inline auto bind_eigenVectors() {
-    return [](const Serie<std::array<T, N>> &serie) {
-        return eigenVectors(serie);
-    };
-}
+            // Compute eigenvectors
+            detail::symmetricEigen(col_mat.data(), dim, col_vectors.data(), values.data());
 
-template <typename T, size_t N> inline auto bind_eigenValues() {
-    return
-        [](const Serie<std::array<T, N>> &serie) { return eigenValues(serie); };
-}
+            // Convert column storage eigenvectors to array of vectors
+            detail::col_vectors_to_array<T, N>(
+                col_vectors.data(), reinterpret_cast<T*>(eigenvectors.data()));
 
-template <typename T, size_t N> inline auto bind_eigenSystem() {
-    return
-        [](const Serie<std::array<T, N>> &serie) { return eigenSystem(serie); };
-}
+            return eigenvectors;
+        });
+    }
+
+    template <typename T, size_t N>
+    inline Serie<std::array<T, detail::get_matrix_dim<N>()>> eigenValues(
+        const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenValues requires arithmetic type");
+
+        constexpr size_t dim = detail::get_matrix_dim<N>();
+
+        return serie.map([](const auto& mat, size_t) {
+            std::array<T, N> col_mat;
+            std::array<T, N> vectors;
+            std::array<T, dim> values;
+
+            // Convert to column storage for symmetricEigen
+            detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
+
+            // Compute eigenvalues
+            detail::symmetricEigen(col_mat.data(), dim, vectors.data(), values.data());
+
+            return values;
+        });
+    }
+
+    template <typename T, size_t N>
+    inline std::pair<Serie<std::array<T, N>>, Serie<std::array<T, detail::get_matrix_dim<N>()>>>
+    eigenSystem(const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(std::is_arithmetic<T>::value, "eigenSystem requires arithmetic type");
+
+        constexpr size_t dim = detail::get_matrix_dim<N>();
+
+        std::vector<std::array<T, N>> vectors;
+        std::vector<std::array<T, dim>> values;
+        vectors.reserve(serie.size());
+        values.reserve(serie.size());
+
+        serie.forEach([&](const auto& mat, size_t) {
+            std::array<T, N> col_mat;
+            std::array<T, N> col_vectors;
+            std::array<T, dim> eigenvalues;
+            std::array<T, N> row_vectors;
+
+            // Convert to column storage for symmetricEigen
+            detail::row_to_col_symmetric<T, N>(mat.data(), col_mat.data());
+
+            // Compute eigensystem
+            detail::symmetricEigen(col_mat.data(), dim, col_vectors.data(), eigenvalues.data());
+
+            // Convert eigenvectors back to row storage
+            // detail::col_to_row_symmetric<T, N>(col_vectors.data(),
+            //                                    row_vectors.data());
+
+            vectors.push_back(row_vectors);
+            values.push_back(eigenvalues);
+        });
+
+        return { Serie<std::array<T, N>>(vectors), Serie<std::array<T, dim>>(values) };
+    }
+    */
+
+    // Binding functions for pipeline operations
+    template <typename T, size_t N> inline auto bind_eigenVectors()
+    {
+        return [](const Serie<std::array<T, N>>& serie) { return eigenVectors(serie); };
+    }
+
+    template <typename T, size_t N> inline auto bind_eigenValues()
+    {
+        return [](const Serie<std::array<T, N>>& serie) { return eigenValues(serie); };
+    }
+
+    template <typename T, size_t N> inline auto bind_eigenSystem()
+    {
+        return [](const Serie<std::array<T, N>>& serie) { return eigenSystem(serie); };
+    }
 
 } // namespace df
