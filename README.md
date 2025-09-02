@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/C%2B%2B-20-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
 
@@ -151,7 +151,7 @@ auto s = (s1 + s2) * s3 / s4;
 #include <dataframe/types.h>
 
 // Three sym tensor in 3D
-// Row storage format, i.e., {xx, xy, xz, yy, yz, zz}
+// Storage format is {xx, xy, xz, yy, yz, zz}
 //
 df::Serie<SMatrix3D> serie({
     {2, 4, 6, 3, 6, 9}, 
@@ -296,7 +296,7 @@ Header-only library. Simply include the headers that you need in your project.
 
 ## Requirements
 
-- C++23 or later
+- C++20 or later
 - Modern C++ compiler (GCC, Clang, MSVC)
 
 ## License
