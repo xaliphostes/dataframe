@@ -286,7 +286,7 @@ Serie<double> z_score(const Serie<T> &serie, bool population = false);
  */
 template <typename T, typename U>
 double covariance(const Serie<T> &serie1, const Serie<U> &serie2,
-                  bool population = false);
+                  bool population = true);
 
 /**
  * @brief Calculate the correlation coefficient between two Series
@@ -312,7 +312,7 @@ double covariance(const Serie<T> &serie1, const Serie<U> &serie2,
  * @endcode
  */
 template <typename T, typename U>
-double correlation(const Serie<T> &serie1, const Serie<U> &serie2);
+double correlation(const Serie<T> &serie1, const Serie<U> &serie2, bool population = false);
 
 // Helper functions for pipeline operations
 

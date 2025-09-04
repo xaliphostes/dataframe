@@ -481,7 +481,7 @@ inline double covariance(const Serie<T> &serie1, const Serie<U> &serie2,
 }
 
 template <typename T, typename U>
-inline double correlation(const Serie<T> &serie1, const Serie<U> &serie2) {
+inline double correlation(const Serie<T> &serie1, const Serie<U> &serie2, bool population) {
     if (serie1.empty() || serie2.empty()) {
         throw std::runtime_error(
             "Cannot calculate correlation of empty Series");
@@ -496,7 +496,7 @@ inline double correlation(const Serie<T> &serie1, const Serie<U> &serie2) {
         // Calculate standard deviations and covariance
         double sd1 = std_dev(serie1);
         double sd2 = std_dev(serie2);
-        double cov = covariance(serie1, serie2);
+        double cov = covariance(serie1, serie2, population);
 
         if (sd1 == 0 || sd2 == 0) {
             throw std::runtime_error(

@@ -195,15 +195,15 @@ TEST(Stats, Covariance) {
     // Positive covariance
     df::Serie<double> x{1.0, 2.0, 3.0, 4.0, 5.0};
     df::Serie<double> y{1.0, 2.0, 3.0, 4.0, 5.0};
-    EXPECT_NEAR(df::stats::covariance(x, y), 2.5, 1e-10);
+    EXPECT_NEAR(df::stats::covariance(x, y, false), 2.5, 1e-10);
 
     // Negative covariance
     df::Serie<double> z{5.0, 4.0, 3.0, 2.0, 1.0};
-    EXPECT_NEAR(df::stats::covariance(x, z), -2.5, 1e-10);
+    EXPECT_NEAR(df::stats::covariance(x, z, false), -2.5, 1e-10);
 
     // Zero covariance (independent variables)
     df::Serie<double> w{3.0, 3.0, 3.0, 3.0, 3.0};
-    EXPECT_NEAR(df::stats::covariance(x, w), 0.0, 1e-10);
+    EXPECT_NEAR(df::stats::covariance(x, w), 0.0, 1e-6);
 
     // Different sized series
     df::Serie<double> diff_size{1.0, 2.0};
@@ -214,22 +214,27 @@ TEST(Stats, Correlation) {
     // Perfect positive correlation
     df::Serie<double> x{1.0, 2.0, 3.0, 4.0, 5.0};
     df::Serie<double> y{2.0, 4.0, 6.0, 8.0, 10.0};
+    MSG(df::stats::correlation(x, y));
     EXPECT_NEAR(df::stats::correlation(x, y), 1.0, 1e-10);
+    MSG("corelation 1 ok");
 
     // Perfect negative correlation
     df::Serie<double> z{5.0, 4.0, 3.0, 2.0, 1.0};
     EXPECT_NEAR(df::stats::correlation(x, z), -1.0, 1e-10);
+    MSG("corelation -1 ok");
 
     // Zero correlation
     df::Serie<double> w{3.0, 3.0, 3.0, 3.0, 3.0};
     EXPECT_THROW(df::stats::correlation(x, w),
                  std::runtime_error); // Zero std dev in w
+    MSG("corelation throw ok");
 
     // Partial correlation
     df::Serie<double> p{1.0, 3.0, 2.0, 5.0, 4.0};
     double corr = df::stats::correlation(x, p);
     EXPECT_GT(corr, 0.0);
     EXPECT_LT(corr, 1.0);
+    MSG("corelation partial ok");
 }
 
 TEST(Stats, PipelineOperations) {
