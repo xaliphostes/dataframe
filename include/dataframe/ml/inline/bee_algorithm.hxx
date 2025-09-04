@@ -104,7 +104,7 @@ namespace ml {
         std::map<std::string, double> metrics;
 
         // Extract metrics from the last cycle in the evolution history
-        if (!evolution_history_.size() == 0 && evolution_history_.get<size_t>("cycle").size() > 0) {
+        if (evolution_history_.size() != 0 && evolution_history_.get<size_t>("cycle").size() > 0) {
             size_t last_idx = evolution_history_.get<size_t>("cycle").size() - 1;
             metrics["best_fitness"] = evolution_history_.get<double>("best_fitness")[last_idx];
             metrics["avg_fitness"] = evolution_history_.get<double>("avg_fitness")[last_idx];
