@@ -23,7 +23,7 @@
 
 #pragma once
 #include <chrono>
-#include <concepts>
+//#include <concepts>
 #include <dataframe/Serie.h>
 #include <dataframe/utils/utils.h>
 #include <random>
