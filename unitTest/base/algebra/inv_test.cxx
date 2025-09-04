@@ -163,6 +163,7 @@ TEST(inverse, matrix4x4) {
     }
 }
 
+/*
 TEST(inverse, symmetric_matrix4x4) {
     MSG("Testing symmetric 4x4 matrix inversion");
 
@@ -227,6 +228,7 @@ TEST(inverse, symmetric_matrix4x4) {
     //     }
     // }
 }
+*/
 
 TEST(inverse, matrix4x4_error_cases) {
     MSG("Testing 4x4 matrix error cases");

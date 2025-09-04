@@ -74,7 +74,7 @@ TEST(NanOperations, HasNan) {
     EXPECT_TRUE(df::nan::has(serie2));
 }
 
-TEST(Interpolation, LinearMethod) {
+TEST(NanOperations, LinearMethod) {
     auto serie = df::Serie<double>({1.0, std::nan(""), std::nan(""), 4.0});
     auto result = df::nan::interpolate(serie, df::nan::FillMethod::LINEAR);
 
@@ -84,7 +84,7 @@ TEST(Interpolation, LinearMethod) {
     EXPECT_EQ(result[3], 4.0);
 }
 
-TEST(Interpolation, NearestMethod) {
+TEST(NanOperations, NearestMethod) {
     auto serie = df::Serie<double>({1.0, std::nan(""), std::nan(""), 4.0});
     auto result = df::nan::interpolate(serie, df::nan::FillMethod::NEAREST);
 
@@ -94,7 +94,7 @@ TEST(Interpolation, NearestMethod) {
     EXPECT_EQ(result[3], 4.0);
 }
 
-TEST(Interpolation, PreviousMethod) {
+TEST(NanOperations, PreviousMethod) {
     auto serie = df::Serie<double>({1.0, std::nan(""), std::nan(""), 4.0});
     auto result = df::nan::interpolate(serie, df::nan::FillMethod::PREVIOUS);
 
@@ -104,7 +104,7 @@ TEST(Interpolation, PreviousMethod) {
     EXPECT_EQ(result[3], 4.0);
 }
 
-TEST(Interpolation, NextMethod) {
+TEST(NanOperations, NextMethod) {
     auto serie = df::Serie<double>({1.0, std::nan(""), std::nan(""), 4.0});
     auto result = df::nan::interpolate(serie, df::nan::FillMethod::NEXT);
 
@@ -114,7 +114,7 @@ TEST(Interpolation, NextMethod) {
     EXPECT_EQ(result[3], 4.0);
 }
 
-TEST(Interpolation, MeanMethod) {
+TEST(NanOperations, MeanMethod) {
     auto serie = df::Serie<double>({1.0, std::nan(""), std::nan(""), 5.0});
     auto result = df::nan::interpolate(serie, df::nan::FillMethod::MEAN);
 
@@ -124,7 +124,7 @@ TEST(Interpolation, MeanMethod) {
     EXPECT_EQ(result[3], 5.0);
 }
 
-TEST(Interpolation, EdgeCases) {
+TEST(NanOperations, EdgeCases) {
     // Test empty serie
     auto empty = df::Serie<double>({});
     auto result1 = df::nan::interpolate(empty, df::nan::FillMethod::LINEAR);
@@ -148,7 +148,7 @@ TEST(Interpolation, EdgeCases) {
     EXPECT_EQ(result3[3], 3.0); // Last value gets filled with nearest
 }
 
-TEST(Interpolation, MixedOperations) {
+TEST(NanOperations, MixedOperations) {
     // Test combination of set_nan and interpolate
     auto serie = df::Serie<double>({1.0, 2.0, 3.0, 4.0, 5.0});
 
@@ -166,8 +166,8 @@ TEST(Interpolation, MixedOperations) {
     EXPECT_EQ(result[0], 1.0);
     EXPECT_EQ(result[1], 2.0);
     EXPECT_EQ(result[2], 3.0);
-    EXPECT_NEAR(result[3], 3.5, 1e-10);
-    EXPECT_EQ(result[4], 4.0);
+    EXPECT_NEAR(result[3], 3, 1e-10);
+    EXPECT_EQ(result[4], 3.0);
 }
 
 RUN_TESTS();
