@@ -1,0 +1,33 @@
+# .dockerignore - Place this file in your project root alongside Dockerfile
+
+# Exclude existing build directories
+build/
+Build/
+BUILD/
+*/build/
+*/Build/
+*/BUILD/
+
+# Exclude common development files
+.git/
+.gitignore
+*.md
+README*
+.vscode/
+.vs/
+.idea/
+
+# Exclude temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude Docker files themselves
+Dockerfile*
+docker-compose*
+.dockerignore

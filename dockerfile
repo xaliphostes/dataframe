@@ -30,10 +30,13 @@ RUN git config --global credential.helper store && \
 WORKDIR /lib
 RUN echo "=== Current working directory ===" && pwd && ls -la
 
+# Copy the local dataframe library instead of cloning
+COPY . /lib/dataframe
+
 # Clone the C++ source repositories
-RUN git clone https://github.com/xaliphostes/dataframe.git && \
-    echo "=== After cloning, current directory ===" && pwd && \
-    echo "=== Directory contents ===" && ls -la
+# RUN git clone https://github.com/xaliphostes/dataframe.git && \
+#     echo "=== After cloning, current directory ===" && pwd && \
+#     echo "=== Directory contents ===" && ls -la
 
 WORKDIR /lib/dataframe
 
