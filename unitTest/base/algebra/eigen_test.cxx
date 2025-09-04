@@ -15,61 +15,56 @@ TEST(eigen_analysis, matrix2x2)
     MSG("Testing 2x2 symmetric matrix eigen decomposition");
 
     // Identity matrix - eigenvalues should be 1,1 and eigenvectors orthonormal
-    Serie<SMatrix2D> identity { { 1.0, 0.0, 1.0 } }; // [1 0; 0 1]
-
-    auto id_values = eigenValues(identity);
-    EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({ 1.0, 1.0 }), 1e-10);
-
-    std::cout << "Identity matrix eigenvalues ok" << std::endl;
-
-    auto id_vectors = eigenVectors(identity);
-
-    // Check orthogonality of eigenvectors
-    // double dot_product = id_vectors[0][0] * id_vectors[0][1] +
-    //                      id_vectors[0][1] * id_vectors[0][2];
-    // EXPECT_NEAR(dot_product, 0.0, 1e-10);
+    {
+        Serie<SMatrix2D> identity { { 1.0, 0.0, 1.0 } }; // [1 0; 0 1]
+        auto id_values = eigenValues(identity);
+        EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({ 1.0, 1.0 }), 1e-10);
+    }
 
     // Diagonal matrix with distinct eigenvalues
-    Serie<SMatrix2D> diagonal{{2.0, 0.0, 3.0}}; // [2 0; 0 3]
-
-    auto diag_values = eigenValues(diagonal);
-    EXPECT_ARRAY_NEAR(diag_values[0], std::vector<double>({3.0, 2.0}), 1e-10);
-    std::cout << "Diag matrix eigenvalues ok" << std::endl;
-    
+    {
+        Serie<SMatrix2D> diagonal { { 2.0, 0.0, 3.0 } }; // [2 0; 0 3]
+        auto diag_values = eigenValues(diagonal);
+        EXPECT_ARRAY_NEAR(diag_values[0], std::vector<double>({ 3.0, 2.0 }), 1e-10);
+    }
 
     // General symmetric matrix
-    Serie<SMatrix2D> general { { 4.0, 1.0, 3.0 } }; // [4 1; 1 3]
+    {
+        Serie<SMatrix2D> general { { 4.0, 1.0, 3.0 } }; // [4 1; 1 3]
+        {
+            auto values = eigenValues(general);
+            EXPECT_ARRAY_NEAR(values[0], std::vector<double>({ 4.61803, 2.38197 }), 1e-5);
 
-    auto [vectors, values] = eigenSystem(general);
+            auto vectors = eigenVectors(general);
+            EXPECT_ARRAY_NEAR(vectors[0][0], std::vector<double>({ 0.850651, -0.525731 }), 1e-5);
+            EXPECT_ARRAY_NEAR(vectors[0][1], std::vector<double>({ 0.525731, 0.850651 }), 1e-5);
+        }
+        {
+            auto systems = eigenSystem(general);
 
-    // Verify eigendecomposition
+            auto values = systems[0].first;
+            EXPECT_ARRAY_NEAR(values, std::vector<double>({ 4.61803, 2.38197 }), 1e-5);
 
-    std::cout << vectors << std::endl;
-    std::cout << values << std::endl;
-
-    // Verification here...
-    throw std::runtime_error("TODO: add verification of eigendecomposition");
+            auto vectors = systems[0].second;
+            EXPECT_ARRAY_NEAR(vectors[0], std::vector<double>({ 0.850651, -0.525731 }), 1e-5);
+            EXPECT_ARRAY_NEAR(vectors[1], std::vector<double>({ 0.525731, 0.850651 }), 1e-5);
+        }
+    }
 }
 
 TEST(eigen_analysis, matrix3x3)
 {
     MSG("Testing 3x3 symmetric matrix eigen decomposition");
-
-    MSG("  Identity matrix");
     Serie<SMatrix3D> identity { { 1.0, 0.0, 0.0, 1.0, 0.0, 1.0 } }; // [1 0 0; 0 1 0; 0 0 1]
 
     auto id_values = eigenValues(identity);
-    df::print(id_values);
-    // EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({1.0, 1.0, 1.0}),
-    //                   1e-10);
+    EXPECT_ARRAY_NEAR(id_values[0], std::vector<double>({ 1.0, 1.0, 1.0 }), 1e-10);
 
     MSG("  Diagonal matrix");
     Serie<SMatrix3D> diagonal { { 2.0, 0.0, 0.0, 3.0, 0.0, 4.0 } }; // [2 0 0; 0 3 0; 0 0 4]
 
     auto diag_values = eigenValues(diagonal);
-    df::print(diag_values);
-    // EXPECT_ARRAY_NEAR(diag_values[0], std::vector<double>({4.0, 3.0, 2.0}),
-    //                   1e-10);
+    EXPECT_ARRAY_NEAR(diag_values[0], std::vector<double>({ 4.0, 3.0, 2.0 }), 1e-10);
 
     MSG("  General symmetric matrix");
     df::Serie<SMatrix3D> serie(
@@ -78,34 +73,33 @@ TEST(eigen_analysis, matrix3x3)
     std::vector<Vector3> vals { { 16.3328, -0.658031, -1.67482 }, { 11.3448, 0.170914, -0.515728 },
         { 20.1911, -0.043142, -1.14795 } };
 
-    // std::vector<Array> vecs{{0.449309, 0.47523, 0.75649, 0.194453, 0.774452,
-    //                          -0.602007, 0.871957, -0.417589, -0.255559},
-    //                         {0.327985, 0.591009, 0.736977, -0.592113,
-    //                         0.736484,
-    //                          -0.327099, 0.73609, 0.32909, -0.5915},
-    //                         {0.688783, 0.553441, 0.468275, 0.15941,
-    //                         -0.745736,
-    //                          0.64689, -0.707225, 0.370919, 0.601874}};
+    auto values = df::eigenValues(serie);
+    values.forEach(
+        [vals](const auto& v, size_t index) { EXPECT_ARRAY_NEAR(v, vals[index], 1e-4); });
+
+    // -------------------------------------------------
+
+    std::vector<std::vector<std::vector<double>>> vecs
+        = { { { 0.449308, 0.197038, 0.871377 }, { 0.475231, 0.77321, -0.419883 },
+                { 0.756491, -0.602762, -0.253771 } },
+              { { 0.327985, -0.591009, 0.736976 }, { 0.591009, 0.736976, 0.327985 },
+                  { 0.736976, -0.327985, -0.591009 } },
+              { { 0.688655, 0.159217, -0.707393 }, { 0.553323, -0.745891, 0.370783 },
+                  { 0.468603, 0.646758, 0.60176 } } };
+
+    auto vectors = df::eigenVectors(serie);
+    vectors.forEach([vecs](const auto& m, size_t index) {
+        for (size_t i = 0; i < 3; ++i) {
+            EXPECT_ARRAY_NEAR(m[i], vecs[index][i], 1e-4);
+        }
+    });
 
     {
-        auto values = df::eigenValues(serie);
-        auto vectors = df::eigenVectors(serie);
-
-        df::print(values);
-
-        df::forEach(
-            [](const std::array<Vector3,3>& v, size_t) {
-                std::cout << "1st eigen vector: " << v[0] << std::endl;
-                std::cout << "2nd eigen vector: " << v[1] << std::endl;
-                std::cout << "3rd eigen vector: " << v[2] << std::endl;
-            },
-            vectors);
-    }
-
-    {
-        auto [values, vectors] = df::eigenSystem(serie);
-        df::print(values);
-        df::print(vectors);
+        auto systems = df::eigenSystem(serie);
+        systems.forEach([](const auto& sv, size_t) {
+            std::cout << sv.first << std::endl;
+            std::cout << sv.second << std::endl;
+        });
     }
 }
 

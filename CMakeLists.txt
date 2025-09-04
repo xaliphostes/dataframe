@@ -94,11 +94,15 @@ function (auto_discover_tests)
     
 endfunction()
 
-# function (run_specific_test TEST_NAME TEST_FILE)
-#     add_executable(${TEST_NAME} "unitTest/${TEST_FILE}.cxx")
-#     target_link_libraries(${TEST_NAME} PRIVATE dataframe)
-#     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-# endfunction()
+function(add_simple_test file)
+    # infer test name from filename
+    get_filename_component(_name "${file}" NAME_WE)
+
+    add_executable(${_name} "${file}")
+    target_link_libraries(${_name} PRIVATE dataframe)
+
+    add_test(NAME ${_name} COMMAND ${_name})
+endfunction()
 
 # ---------------------------------------------------------------------
 # Example of configuration:
@@ -111,12 +115,10 @@ include_directories(${eigen_SOURCE_DIR})
 message("Eigen3 include directory: ${eigen_SOURCE_DIR}")
 
 enable_testing()
-# auto_discover_tests()
 
+auto_discover_tests()
+# add_simple_test(unitTest/base/algebra/eigen_test.cxx)
 
-add_executable(eigen_test unitTest/base/algebra/eigen_test.cxx)
-target_link_libraries(eigen_test PRIVATE dataframe)
-add_test(eigen_test eigen_test COMMAND eigen_test)
 
 # add_subdirectory(examples/complex)
 # add_subdirectory(examples/excel)
