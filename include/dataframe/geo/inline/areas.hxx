@@ -23,73 +23,85 @@
 
 namespace df {
 
-namespace detail {
+    namespace detail {
 
-// Compute area of a triangle using cross product method
-inline double triangle_area_3d(const Vector3 &v1, const Vector3 &v2,
-                               const Vector3 &v3) {
-    // Get two edge vectors
-    double e1x = v2[0] - v1[0];
-    double e1y = v2[1] - v1[1];
-    double e1z = v2[2] - v1[2];
+        // Compute area of a triangle using cross product method
+        inline double triangle_area_3d(const Vector3& v1, const Vector3& v2, const Vector3& v3)
+        {
+            // Get two edge vectors
+            double e1x = v2[0] - v1[0];
+            double e1y = v2[1] - v1[1];
+            double e1z = v2[2] - v1[2];
 
-    double e2x = v3[0] - v1[0];
-    double e2y = v3[1] - v1[1];
-    double e2z = v3[2] - v1[2];
+            double e2x = v3[0] - v1[0];
+            double e2y = v3[1] - v1[1];
+            double e2z = v3[2] - v1[2];
 
-    // Cross product
-    double nx = e1y * e2z - e1z * e2y;
-    double ny = e1z * e2x - e1x * e2z;
-    double nz = e1x * e2y - e1y * e2x;
+            // Cross product
+            double nx = e1y * e2z - e1z * e2y;
+            double ny = e1z * e2x - e1x * e2z;
+            double nz = e1x * e2y - e1y * e2x;
 
-    // Area is half the length of the cross product
-    return 0.5 * std::sqrt(nx * nx + ny * ny + nz * nz);
-}
+            // Area is half the length of the cross product
+            return 0.5 * std::sqrt(nx * nx + ny * ny + nz * nz);
+        }
 
-// Compute area of a triangle in 2D using cross product z-component
-inline double triangle_area_2d(const Vector2 &v1, const Vector2 &v2,
-                               const Vector2 &v3) {
-    // Compute cross product z-component of two edge vectors
-    double e1x = v2[0] - v1[0];
-    double e1y = v2[1] - v1[1];
-    double e2x = v3[0] - v1[0];
-    double e2y = v3[1] - v1[1];
+        // Compute area of a triangle in 2D using cross product z-component
+        inline double triangle_area_2d(const Vector2& v1, const Vector2& v2, const Vector2& v3)
+        {
+            // Compute cross product z-component of two edge vectors
+            double e1x = v2[0] - v1[0];
+            double e1y = v2[1] - v1[1];
+            double e2x = v3[0] - v1[0];
+            double e2y = v3[1] - v1[1];
 
-    return 0.5 * std::abs(e1x * e2y - e1y * e2x);
-}
-} // namespace detail
+            return 0.5 * std::abs(e1x * e2y - e1y * e2x);
+        }
+    } // namespace detail
 
-template <size_t N>
-inline Serie<double> area(const Serie<Vector<N>> &vertices,
-                          const Triangles &triangles) {
-    static_assert(N == 2 || N == 3, "area function only works in 2D or 3D");
+    // Overload for Vector2
+    template <>
+    inline Serie<double> area<Vector2>(const Serie<Vector2>& vertices, const Triangles& triangles)
+    {
+        if (vertices.empty() || triangles.empty()) {
+            return Serie<double>();
+        }
 
-    if (vertices.empty() || triangles.empty()) {
-        return Serie<double>();
-    }
-
-    if constexpr (N == 2) {
-        return triangles.map([&vertices](const auto &triangle, size_t) {
-            const auto &v1 = vertices[triangle[0]];
-            const auto &v2 = vertices[triangle[1]];
-            const auto &v3 = vertices[triangle[2]];
+        return triangles.map([&vertices](const auto& triangle, size_t) {
+            const auto& v1 = vertices[triangle[0]];
+            const auto& v2 = vertices[triangle[1]];
+            const auto& v3 = vertices[triangle[2]];
             return detail::triangle_area_2d(v1, v2, v3);
         });
-    } else /* N == 3 */ {
-        return triangles.map([&vertices](const auto &triangle, size_t) {
-            const auto &v1 = vertices[triangle[0]];
-            const auto &v2 = vertices[triangle[1]];
-            const auto &v3 = vertices[triangle[2]];
+    }
+
+    // Overload for Vector3
+    template <>
+    inline Serie<double> area<Vector3>(const Serie<Vector3>& vertices, const Triangles& triangles)
+    {
+        if (vertices.empty() || triangles.empty()) {
+            return Serie<double>();
+        }
+
+        return triangles.map([&vertices](const auto& triangle, size_t) {
+            const auto& v1 = vertices[triangle[0]];
+            const auto& v2 = vertices[triangle[1]];
+            const auto& v3 = vertices[triangle[2]];
             return detail::triangle_area_3d(v1, v2, v3);
         });
     }
-}
 
-// Binding functions for pipeline operations
-template <size_t N> inline auto bind_area(const Triangles &triangles) {
-    return [&triangles](const Serie<std::array<double, N>> &vertices) {
-        return area<N>(vertices, triangles);
-    };
-}
+    // Binding functions for pipeline operations
+    template <> inline auto bind_area<Vector2>(const Triangles& triangles)
+    {
+        return [&triangles](
+                   const Serie<Vector2>& vertices) { return area<Vector2>(vertices, triangles); };
+    }
+
+    template <> inline auto bind_area<Vector3>(const Triangles& triangles)
+    {
+        return [&triangles](
+                   const Serie<Vector3>& vertices) { return area<Vector3>(vertices, triangles); };
+    }
 
 } // namespace df

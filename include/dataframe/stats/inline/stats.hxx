@@ -57,7 +57,7 @@ inline T compute_avg_impl(
     for (size_t i = 0; i < serie.size(); ++i) {
         sum += serie[i];
     }
-    return sum / static_cast<T>(serie.size());
+    return sum / serie.size();
 }
 
 // Mean implementation for array types (vectors, matrices)
@@ -80,7 +80,7 @@ inline T compute_avg_impl(
 
     // Component-wise division
     for (size_t j = 0; j < details::array_dimension<T>::value; ++j) {
-        sum[j] /= static_cast<typename T::value_type>(serie.size());
+        sum[j] /= serie.size();
     }
 
     return sum;

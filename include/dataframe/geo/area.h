@@ -37,12 +37,12 @@ namespace df {
  * @param triangles Serie of index triplets defining triangles
  * @return Serie of triangle areas
  */
-template <size_t N>
-Serie<double> area(const Serie<Vector<N>> &vertices,
+template <VectorType T>
+Serie<double> area(const Serie<T> &vertices,
                    const Triangles &triangles);
 
 // Binding functions for pipeline operations
-template <size_t N> auto bind_area(const Triangles &triangles);
+template <VectorType T> auto bind_area(const Triangles &triangles);
 
 } // namespace df
 

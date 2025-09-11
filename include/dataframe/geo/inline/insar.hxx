@@ -30,7 +30,7 @@ inline Serie<double> insar(const Serie<Vector3> &u, const Vector3 &los) {
     }
 
     Serie<double> result;
-    u.forEach([&](const Vector3 &disp, size_t) { result.add(dot(disp, los)); });
+    u.forEach([&](const Vector3 &disp, size_t) { result.add(disp.dot(los)); });
 
     return result;
 }

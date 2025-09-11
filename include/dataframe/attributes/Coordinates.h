@@ -25,82 +25,79 @@
 #include <dataframe/attributes/Manager.h>
 
 namespace df {
-namespace attributes {
+    namespace attributes {
 
-/**
- * @brief Coordinates decomposer - handles spatial coordinate decomposition
- */
-class Coordinates : public GenDecomposer<Coordinates> {
-  public:
-    explicit Coordinates(const std::vector<std::string> &coordNames = {"x", "y",
-                                                                       "z"})
-        : coordNames_(coordNames) {}
-
-    std::vector<std::string> names(const Dataframe &dataframe,
-                                   DecompDimension targetDim,
-                                   const SerieBase &serie,
-                                   const String &name) const override {
-        std::vector<std::string> result;
-
-        // Only decompose if we're targeting scalars or vectors
-        if (targetDim == DecompDimension::Scalar) {
-            // For vectors of any dimension, create coordinate components
-            for (size_t i = 0; i < coordNames_.size(); ++i) {
-                result.push_back(name + "_" + coordNames_[i]);
+        /**
+         * @brief Coordinates decomposer - handles spatial coordinate decomposition
+         */
+        class Coordinates : public GenDecomposer<Coordinates> {
+        public:
+            explicit Coordinates(const std::vector<std::string>& coordNames = { "x", "y", "z" })
+                : coordNames_(coordNames)
+            {
             }
-        }
-        // Vector decomposition might create subvectors (e.g., xy-plane vector
-        // from 3D vector)
-        else if (targetDim == DecompDimension::Vector) {
-            // Add appropriate vector decompositions based on dimensionality
-            // This could be customized based on needs
-        }
 
-        return result;
-    }
+            std::vector<std::string> names(const Dataframe& dataframe, DecompDimension targetDim,
+                const SerieBase& serie, const String& name) const override
+            {
+                std::vector<std::string> result;
 
-    Serie<double> serie(const Dataframe &dataframe, DecompDimension targetDim,
-                        const std::string &name) const override {
-        // Parse the original serie name and coordinate component
-        size_t pos = name.rfind('_');
-        if (pos == std::string::npos) {
-            throw std::runtime_error("Invalid coordinate attribute name: " +
-                                     name);
-        }
+                // Only decompose if we're targeting scalars or vectors
+                if (targetDim == DecompDimension::Scalar) {
+                    // For vectors of any dimension, create coordinate components
+                    for (size_t i = 0; i < coordNames_.size(); ++i) {
+                        result.push_back(name + "_" + coordNames_[i]);
+                    }
+                }
+                // Vector decomposition might create subvectors (e.g., xy-plane vector
+                // from 3D vector)
+                else if (targetDim == DecompDimension::Vector) {
+                    // Add appropriate vector decompositions based on dimensionality
+                    // This could be customized based on needs
+                }
 
-        std::string baseName = name.substr(0, pos);
-        std::string coord = name.substr(pos + 1);
-
-        // Find the coordinate index
-        auto it = std::find(coordNames_.begin(), coordNames_.end(), coord);
-        if (it == coordNames_.end()) {
-            throw std::runtime_error("Invalid coordinate component: " + coord);
-        }
-        size_t index = std::distance(coordNames_.begin(), it);
-
-        // Handle different vector types
-        try {
-            if (dataframe.has<Vector2>(baseName)) {
-                return extractComponent(dataframe.get<Vector2>(baseName),
-                                        index);
-            } else if (dataframe.has<Vector3>(baseName)) {
-                return extractComponent(dataframe.get<Vector3>(baseName),
-                                        index);
-            } else if (dataframe.has<Vector4>(baseName)) {
-                return extractComponent(dataframe.get<Vector4>(baseName),
-                                        index);
+                return result;
             }
-        } catch (const std::exception &e) {
-            throw std::runtime_error("Error extracting coordinate component: " +
-                                     std::string(e.what()));
-        }
 
-        throw std::runtime_error("Unsupported vector type for coordinates");
-    }
+            Serie<double> serie(const Dataframe& dataframe, DecompDimension targetDim,
+                const std::string& name) const override
+            {
+                // Parse the original serie name and coordinate component
+                size_t pos = name.rfind('_');
+                if (pos == std::string::npos) {
+                    throw std::runtime_error("Invalid coordinate attribute name: " + name);
+                }
 
-  private:
-    std::vector<std::string> coordNames_;
-};
+                std::string baseName = name.substr(0, pos);
+                std::string coord = name.substr(pos + 1);
 
-} // namespace attributes
+                // Find the coordinate index
+                auto it = std::find(coordNames_.begin(), coordNames_.end(), coord);
+                if (it == coordNames_.end()) {
+                    throw std::runtime_error("Invalid coordinate component: " + coord);
+                }
+                size_t index = std::distance(coordNames_.begin(), it);
+
+                // Handle different vector types
+                try {
+                    if (dataframe.has<Vector2>(baseName)) {
+                        return extractComponent(dataframe.get<Vector2>(baseName), index);
+                    } else if (dataframe.has<Vector3>(baseName)) {
+                        return extractComponent(dataframe.get<Vector3>(baseName), index);
+                    } else if (dataframe.has<Vector4>(baseName)) {
+                        return extractComponent(dataframe.get<Vector4>(baseName), index);
+                    }
+                } catch (const std::exception& e) {
+                    throw std::runtime_error(
+                        "Error extracting coordinate component: " + std::string(e.what()));
+                }
+
+                throw std::runtime_error("Unsupported vector type for coordinates");
+            }
+
+        private:
+            std::vector<std::string> coordNames_;
+        };
+
+    } // namespace attributes
 } // namespace df

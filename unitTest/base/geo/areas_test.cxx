@@ -42,7 +42,7 @@ TEST(metrics, triangle_area_2d) {
         {1, 3, 2}  // right triangle (area 0.5)
     };
 
-    auto result = area(vertices, triangles);
+    auto result = area<2>(vertices, triangles);
     EXPECT_EQ(result.size(), 2);
 
     // Check areas
@@ -50,7 +50,7 @@ TEST(metrics, triangle_area_2d) {
     EXPECT_NEAR(result[1], 0.5, 1e-10);
 
     // Test pipeline
-    auto pipe_result = vertices | bind_area<2>(triangles);
+    auto pipe_result = vertices | bind_area<Vector2>(triangles);
     EXPECT_ARRAY_NEAR(pipe_result.asArray(), result.asArray(), 1e-10);
 }
 
