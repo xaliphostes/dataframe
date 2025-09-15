@@ -27,11 +27,11 @@ If the repository is public, you can build without GitHub credentials:
 2. **Open PowerShell** in that directory
 3. **Build the image**:
    ```bash
-   docker build -t dataframe-builder .
+   docker build -t dataframe:latest .
    ```
 4. **Run the container**:
    ```bash
-   docker run --rm -it dataframe-builder
+   docker run --rm -it dataframe:latest
    ```
 
 ### Option 2: Private Repository (Credentials Required)

@@ -28,43 +28,47 @@
 
 namespace df {
 
-/**
- * @brief Base case: end of pipe chain
- */
-template <typename T> auto pipe(T &&value) { return std::forward<T>(value); }
+    /**
+     * @brief Base case: end of pipe chain
+     */
+    template <typename T> auto pipe(T&& value) { return std::forward<T>(value); }
 
-/**
- * @brief General case: pipe with operation
- */
-template <typename T, typename F, typename... Rest>
-auto pipe(T &&value, F &&operation, Rest &&...rest) {
-    return pipe(operation(std::forward<T>(value)), std::forward<Rest>(rest)...);
-}
+    /**
+     * @brief General case: pipe with operation
+     */
+    template <typename T, typename F, typename... Rest>
+    auto pipe(T&& value, F&& operation, Rest&&... rest)
+    {
+        return pipe(operation(std::forward<T>(value)), std::forward<Rest>(rest)...);
+    }
 
-/**
- * @brief Operator | overload for pipe operations
- */
-template <typename T, typename F> auto operator|(T &&value, F &&operation) {
-    return operation(std::forward<T>(value));
-}
+    /**
+     * @brief Operator | overload for pipe operations
+     */
+    // template <typename T, typename F> auto operator|(T &&value, F &&operation) {
+    //     return operation(std::forward<T>(value));
+    // }
+    template <class T, class F, class = std::enable_if_t<std::is_invocable_v<F&, T&&>>>
+    auto operator|(T&& value, F&& operation) -> std::invoke_result_t<F&, T&&>
+    {
+        return std::invoke(std::forward<F>(operation), std::forward<T>(value));
+    }
 
-/**
- * @brief Base case: single operation
- */
-template <typename F> auto make_pipe(F &&operation) {
-    return [op = std::forward<F>(operation)](const auto &value) {
-        return op(value);
-    };
-}
+    /**
+     * @brief Base case: single operation
+     */
+    template <typename F> auto make_pipe(F&& operation)
+    {
+        return [op = std::forward<F>(operation)](const auto& value) { return op(value); };
+    }
 
-/**
- * @brief General case: multiple operations
- */
-template <typename F, typename... Rest>
-auto make_pipe(F &&first, Rest &&...rest) {
-    return [first = std::forward<F>(first),
-            rest_pipe = make_pipe(std::forward<Rest>(rest)...)](
-               const auto &value) { return rest_pipe(first(value)); };
-}
+    /**
+     * @brief General case: multiple operations
+     */
+    template <typename F, typename... Rest> auto make_pipe(F&& first, Rest&&... rest)
+    {
+        return [first = std::forward<F>(first), rest_pipe = make_pipe(std::forward<Rest>(rest)...)](
+                   const auto& value) { return rest_pipe(first(value)); };
+    }
 
 } // namespace df
