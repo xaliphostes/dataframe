@@ -14,6 +14,7 @@
 
 #include "../../TEST.h"
 #include <array>
+#include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 #include <dataframe/math/add.h>
 #include <dataframe/math/div.h>
@@ -23,7 +24,7 @@
 
 using namespace df;
 
-TEST(Serie, WeightedSumScalar)
+TEST(weightedSum, scalar)
 {
     MSG("Testing weighted sum with scalar weights");
 
@@ -60,7 +61,7 @@ TEST(Serie, WeightedSumScalar)
     // EXPECT_ARRAY_EQ(result_pipe.asArray(), std::vector<int>({42, 51, 60}));
 }
 
-TEST(Serie, WeightedSumSeries)
+TEST(weightedSum, serie)
 {
     MSG("Testing weighted sum with series weights");
 
@@ -88,6 +89,35 @@ TEST(Serie, WeightedSumSeries)
     // Test pipeline operation
     auto result_pipe = s1 | df::bind_weightedSum<double>({ s2 }, { w1, w2 });
     EXPECT_ARRAY_NEAR(result_pipe.asArray(), std::vector<double>({ 6.5, 7.0, 7.5 }), 1e-6);
+}
+
+TEST(weightedSum, geol)
+{
+    // Create 4 stress tensor measurements from different locations/times
+    // Each tensor has format [xx, xy, xz, yy, yz, zz]
+
+    // Stress measurement 0: Normal faulting regime
+    df::Serie<SMatrix3D> S1({ { -80.0, 2.0, 1.0, -60.0, 3.0, -20.0 },
+        { -75.0, 1.5, 0.8, -55.0, 2.8, -18.0 }, { -70.0, 1.0, 0.5, -50.0, 2.5, -15.0 } });
+
+    // Stress measurement 1: Strike-slip regime
+    df::Serie<SMatrix3D> S2({ { -60.0, 15.0, 8.0, -40.0, 12.0, -30.0 },
+        { -58.0, 14.0, 7.5, -38.0, 11.5, -28.0 }, { -55.0, 13.0, 7.0, -35.0, 11.0, -25.0 } });
+
+    // Stress measurement 2: Thrust faulting regime
+    df::Serie<SMatrix3D> S3({ { -30.0, 5.0, 3.0, -50.0, 8.0, -80.0 },
+        { -28.0, 4.8, 2.8, -48.0, 7.8, -78.0 }, { -25.0, 4.5, 2.5, -45.0, 7.5, -75.0 } });
+
+    // Stress measurement 3: Mixed regime with measurement uncertainty
+    df::Serie<SMatrix3D> S4({ { -65.0, 8.0, 4.0, -45.0, 6.0, -35.0 },
+        { -62.0, 7.5, 3.8, -43.0, 5.8, -33.0 }, { -60.0, 7.0, 3.5, -40.0, 5.5, -30.0 } });
+
+    df::Serie<SMatrix3D> expectedStress({ { -60.250, 6.900, 3.700, -50.250, 6.950, -39.750 },
+        { -57.050, 6.350, 3.425, -47.200, 6.675, -37.750 },
+        { -53.500, 5.775, 3.075, -43.500, 6.325, -34.750 } });
+
+    // Compute weighted average stress tensor from the dataframe
+    auto avgStress1 = df::weightedSum({ S1, S2, S3, S4 }, { 0.35, 0.25, 0.25, 0.15 });
 }
 
 // ----------------------------------------------------------

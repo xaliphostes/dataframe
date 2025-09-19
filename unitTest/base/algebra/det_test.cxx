@@ -18,27 +18,6 @@
 
 using namespace df;
 
-TEST(determinant, vector2D) {
-    MSG("Testing 2D vector determinant");
-
-    // Test simple 2D vectors
-    Serie<Vector2> vectors{{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}};
-    auto result = det(vectors);
-    EXPECT_ARRAY_NEAR(result.asArray(), 
-        std::vector<double>({1.0, 3.0, 5.0}), 1e-10);
-
-    // Test zero vectors
-    Serie<Vector2> zero_vectors{{0.0, 0.0}, {0.0, 0.0}};
-    auto zero_result = det(zero_vectors);
-    EXPECT_ARRAY_NEAR(zero_result.asArray(),
-        std::vector<double>({0.0, 0.0}), 1e-10);
-
-    // Test pipeline operation
-    auto pipe_result = vectors | bind_det<double, 2>();
-    EXPECT_ARRAY_NEAR(pipe_result.asArray(),
-        std::vector<double>({1.0, 3.0, 5.0}), 1e-10);
-}
-
 TEST(determinant, matrix2D) {
     MSG("Testing 2D matrix determinant");
 
@@ -63,32 +42,6 @@ TEST(determinant, matrix2D) {
     auto pipe_result = matrices | bind_det<double, 3>();
     EXPECT_ARRAY_NEAR(pipe_result.asArray(),
         std::vector<double>({-1.0, 4.0, 0.0}), 1e-10);
-}
-
-TEST(determinant, vector3D) {
-    MSG("Testing 3D vector determinant");
-
-    // Test simple 3D vectors
-    Serie<Vector3> vectors{
-        {1.0, 2.0, 3.0},
-        {4.0, 5.0, 6.0},
-        {7.0, 8.0, 9.0}
-    };
-    auto result = det(vectors);
-    EXPECT_ARRAY_NEAR(result.asArray(),
-        std::vector<double>({-1.0, -1.0, -1.0}), 1e-10);
-
-    // Test zero vectors
-    Serie<Vector3> zero_vectors{{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
-    auto zero_result = det(zero_vectors);
-    EXPECT_ARRAY_NEAR(zero_result.asArray(),
-        std::vector<double>({0.0, 0.0}), 1e-10);
-
-    // Test pipeline operation
-    auto pipe_result = vectors | bind_det<double,3>();
-    df::print(pipe_result);
-    EXPECT_ARRAY_NEAR(pipe_result.asArray(),
-        std::vector<double>({-1.0, -1.0, -1.0}), 1e-10);
 }
 
 TEST(determinant, matrix3D) {

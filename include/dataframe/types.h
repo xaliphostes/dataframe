@@ -38,31 +38,24 @@ using Strings = std::vector<String>;
 using uint = unsigned int;
 using ushort = unsigned short;
 
-using iVector2 = std::array<uint, 2>;
-using iVector3 = std::array<uint, 3>;
-using iVector4 = std::array<uint, 4>;
-using iVector6 = std::array<uint, 6>;
+// using iVector2 = std::array<uint, 2>;
+// using iVector3 = std::array<uint, 3>;
+// using iVector4 = std::array<uint, 4>;
+// using iVector6 = std::array<uint, 6>;
 template <size_t N> using iVector = std::array<uint, N>;
 template <size_t N> using Vector = std::array<double, N>;
 
 /**
  * CRTP (Curiously Recurring Template Pattern) to avoid code duplication
  */
-template <typename Derived, size_t N> struct VectorBase {
-    std::array<double, N> data;
+template <typename Derived, typename TYPE, size_t N> struct VectorBase {
+    std::array<TYPE, N> data;
 
     VectorBase() = default;
-    VectorBase(const std::array<double, N>& arr)
+    VectorBase(const std::array<TYPE, N>& arr)
         : data(arr)
     {
     }
-
-    // template <typename... Args>
-    // VectorBase(Args... args)
-    //     requires(sizeof...(args) == N)
-    //     : data { static_cast<double>(args)... }
-    // {
-    // }
 
     constexpr size_t size() const { return N; }
 
@@ -71,8 +64,8 @@ template <typename Derived, size_t N> struct VectorBase {
     auto begin() const { return data.begin(); }
     auto end() const { return data.end(); }
 
-    double& operator[](size_t i) { return data[i]; }
-    const double& operator[](size_t i) const { return data[i]; }
+    TYPE& operator[](size_t i) { return data[i]; }
+    const TYPE& operator[](size_t i) const { return data[i]; }
 
     Derived& operator+=(const Derived& other)
     {
@@ -82,7 +75,7 @@ template <typename Derived, size_t N> struct VectorBase {
         return static_cast<Derived&>(*this);
     }
 
-    Derived& operator/=(double scalar)
+    Derived& operator/=(TYPE scalar)
     {
         for (size_t i = 0; i < N; ++i) {
             data[i] /= scalar;
@@ -98,7 +91,7 @@ template <typename Derived, size_t N> struct VectorBase {
         return static_cast<Derived&>(*this);
     }
 
-    Derived& operator*=(double scalar)
+    Derived& operator*=(TYPE scalar)
     {
         for (size_t i = 0; i < N; ++i) {
             data[i] *= scalar;
@@ -124,7 +117,7 @@ template <typename Derived, size_t N> struct VectorBase {
         return result;
     }
 
-    Derived operator*(double scalar) const
+    Derived operator*(TYPE scalar) const
     {
         Derived result;
         for (size_t i = 0; i < N; ++i) {
@@ -133,7 +126,7 @@ template <typename Derived, size_t N> struct VectorBase {
         return result;
     }
 
-    Derived operator/(double scalar) const
+    Derived operator/(TYPE scalar) const
     {
         Derived result;
         for (size_t i = 0; i < N; ++i) {
@@ -142,9 +135,9 @@ template <typename Derived, size_t N> struct VectorBase {
         return result;
     }
 
-    double dot(const Derived& other) const
+    TYPE dot(const Derived& other) const
     {
-        double result = 0.0;
+        TYPE result = 0.0;
         for (size_t i = 0; i < N; ++i) {
             result += data[i] * other.data[i];
         }
@@ -191,7 +184,7 @@ template <typename Derived, size_t N> struct VectorBase {
     double length() const { return std::sqrt(this->dot(static_cast<const Derived&>(*this))); }
 };
 
-struct Vector2 : VectorBase<Vector2, 2> {
+struct Vector2 : VectorBase<Vector2, double, 2> {
     Vector2() = default;
     Vector2(const std::initializer_list<double>& init)
     {
@@ -199,7 +192,7 @@ struct Vector2 : VectorBase<Vector2, 2> {
     }
 };
 
-struct Vector3 : VectorBase<Vector3, 3> {
+struct Vector3 : VectorBase<Vector3, double, 3> {
     Vector3() = default;
     Vector3(const std::initializer_list<double>& init)
     {
@@ -207,7 +200,7 @@ struct Vector3 : VectorBase<Vector3, 3> {
     }
 };
 
-struct Vector4 : VectorBase<Vector4, 4> {
+struct Vector4 : VectorBase<Vector4, double, 4> {
     Vector4() = default;
     Vector4(const std::initializer_list<double>& init)
     {
@@ -215,7 +208,7 @@ struct Vector4 : VectorBase<Vector4, 4> {
     }
 };
 
-struct Vector6 : VectorBase<Vector6, 6> {
+struct Vector6 : VectorBase<Vector6, double, 6> {
     Vector6() = default;
     Vector6(const std::initializer_list<double>& init)
     {

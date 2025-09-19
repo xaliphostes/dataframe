@@ -18,159 +18,167 @@
 
 namespace df {
 
-template <typename T, size_t N> class Vector;
+    template <typename T, size_t N> class Vector;
 
-// =================================================================
+    // =================================================================
 
-template <typename T, size_t N> class FullMatrix {
-  public:
-    using type = std::array<T, N * N>;
-    using value_type = T;
-    using size_type = size_t;
-    static constexpr size_type size = N;
+    template <typename T, size_t N> class FullMatrix {
+    public:
+        using type = std::array<T, N * N>;
+        using value_type = T;
+        using size_type = size_t;
+        static constexpr size_type size = N;
 
-    FullMatrix();
-    explicit FullMatrix(const type &t);
-    FullMatrix(const FullMatrix &other) = default;
-    FullMatrix(FullMatrix &&other) noexcept = default;
+        FullMatrix();
+        explicit FullMatrix(const type& t);
+        FullMatrix(const FullMatrix& other) = default;
+        FullMatrix(FullMatrix&& other) noexcept = default;
 
-    FullMatrix(std::initializer_list<std::initializer_list<T>> init);
+        FullMatrix(std::initializer_list<std::initializer_list<T>> init);
 
-    FullMatrix &operator=(const FullMatrix &other) = default;
-    FullMatrix &operator=(FullMatrix &&other) noexcept = default;
+        FullMatrix& operator=(const FullMatrix& other) = default;
+        FullMatrix& operator=(FullMatrix&& other) noexcept = default;
 
-    T &operator()(size_t i, size_t j);
-    const T &operator()(size_t i, size_t j) const;
+        T& operator()(size_t i, size_t j);
+        const T& operator()(size_t i, size_t j) const;
 
-    T *data();
-    const T *data() const;
+        T* data();
+        const T* data() const;
 
-    FullMatrix operator+(const FullMatrix &other) const;
-    FullMatrix operator-(const FullMatrix &other) const;
-    FullMatrix operator*(const FullMatrix &other) const;
-    FullMatrix operator*(T scalar) const;
-    Vector<T, N> operator*(const Vector<T, N> &vec) const;
+        FullMatrix operator+(const FullMatrix& other) const;
+        FullMatrix operator-(const FullMatrix& other) const;
+        FullMatrix operator*(const FullMatrix& other) const;
+        FullMatrix operator*(T scalar) const;
+        Vector<T, N> operator*(const Vector<T, N>& vec) const;
 
-    FullMatrix transpose() const;
-    T determinant() const;
-    FullMatrix inverse() const;
+        FullMatrix transpose() const;
+        T determinant() const;
+        FullMatrix inverse() const;
 
-    bool operator==(const FullMatrix &other) const;
-    bool operator!=(const FullMatrix &other) const;
+        bool operator==(const FullMatrix& other) const;
+        bool operator!=(const FullMatrix& other) const;
 
-  private:
-    type mat_;
-    T computeCofactor(size_t row, size_t col) const;
-};
+    private:
+        type mat_;
+        T computeCofactor(size_t row, size_t col) const;
+    };
 
-// =================================================================
+    // =================================================================
 
-// For an NxN symmetric matrix, we only need N*(N+1)/2 elements
-template <typename T, size_t N> class SymmetricMatrix {
-  public:
-    static constexpr size_t storage_size = (N * (N + 1)) / 2;
-    using type = std::array<T, storage_size>;
-    using value_type = T;
-    using size_type = size_t;
-    static constexpr size_type size = N;
+    // For an NxN symmetric matrix, we only need N*(N+1)/2 elements
+    template <typename T, size_t N> class SymmetricMatrix {
+    public:
+        static constexpr size_t storage_size = (N * (N + 1)) / 2;
+        using type = std::array<T, storage_size>;
+        using value_type = T;
+        using size_type = size_t;
+        static constexpr size_type size = N;
 
-    // Constructors
-    SymmetricMatrix();
-    explicit SymmetricMatrix(const type &t);
-    SymmetricMatrix(const SymmetricMatrix &other) = default;
-    SymmetricMatrix(SymmetricMatrix &&other) noexcept = default;
+        // Constructors
+        SymmetricMatrix();
+        explicit SymmetricMatrix(const type& t);
+        SymmetricMatrix(const SymmetricMatrix& other) = default;
+        SymmetricMatrix(SymmetricMatrix&& other) noexcept = default;
 
-    SymmetricMatrix(std::initializer_list<std::initializer_list<T>> init);
+        SymmetricMatrix(std::initializer_list<std::initializer_list<T>> init);
 
-    SymmetricMatrix &operator=(const SymmetricMatrix &other) = default;
-    SymmetricMatrix &operator=(SymmetricMatrix &&other) noexcept = default;
+        SymmetricMatrix& operator=(const SymmetricMatrix& other) = default;
+        SymmetricMatrix& operator=(SymmetricMatrix&& other) noexcept = default;
 
-    static size_t index(size_t i, size_t j);
+        static size_t index(size_t i, size_t j);
 
-    T &operator()(size_t i, size_t j);
-    const T &operator()(size_t i, size_t j) const;
+        T& operator()(size_t i, size_t j);
+        const T& operator()(size_t i, size_t j) const;
 
-    T *data();
-    const T *data() const;
+        T* data();
+        const T* data() const;
 
-    SymmetricMatrix operator+(const SymmetricMatrix &other) const;
-    SymmetricMatrix operator-(const SymmetricMatrix &other) const;
-    SymmetricMatrix operator*(T scalar) const;
-    FullMatrix<T, N> operator*(const SymmetricMatrix &other) const;
-    Vector<T, N> operator*(const Vector<T, N> &vec) const;
+        SymmetricMatrix operator+(const SymmetricMatrix& other) const;
+        SymmetricMatrix operator-(const SymmetricMatrix& other) const;
+        SymmetricMatrix operator*(T scalar) const;
+        FullMatrix<T, N> operator*(const SymmetricMatrix& other) const;
+        Vector<T, N> operator*(const Vector<T, N>& vec) const;
 
-    T determinant() const;
-    SymmetricMatrix inverse() const;
+        T determinant() const;
+        SymmetricMatrix inverse() const;
 
-    bool operator==(const SymmetricMatrix &other) const;
-    bool operator!=(const SymmetricMatrix &other) const;
+        bool operator==(const SymmetricMatrix& other) const;
+        bool operator!=(const SymmetricMatrix& other) const;
 
-  private:
-    type mat_; // Stores upper triangle in row-major order
-};
+    private:
+        type mat_; // Stores upper triangle in row-major order
+    };
 
-// =================================================================
+    // =================================================================
 
-template <typename T, size_t N> class Vector {
-  public:
-    using type = std::array<T, N>;
-    using value_type = T;
-    using size_type = size_t;
-    static constexpr size_type size = N;
+    template <typename T, size_t N> class Vector {
+    public:
+        using type = std::array<T, N>;
+        using value_type = T;
+        using size_type = size_t;
+        static constexpr size_type size = N;
 
-    Vector();
-    explicit Vector(const type &t);
-    Vector(const Vector &other) = default;
-    Vector(Vector &&other) noexcept = default;
+        Vector();
+        explicit Vector(const type& t);
+        Vector(const Vector& other) = default;
+        Vector(Vector&& other) noexcept = default;
 
-    Vector(std::initializer_list<T> init);
+        Vector(std::initializer_list<T> init);
 
-    Vector &operator=(const Vector &other) = default;
-    Vector &operator=(Vector &&other) noexcept = default;
+        Vector& operator=(const Vector& other) = default;
+        Vector& operator=(Vector&& other) noexcept = default;
 
-    T &operator[](size_t i);
+        T& operator[](size_t i);
 
-    const T &operator[](size_t i) const;
+        const T& operator[](size_t i) const;
 
-    T *data();
-    const T *data() const;
+        T* data();
+        const T* data() const;
 
-    Vector operator+(const Vector &other) const;
-    Vector operator-(const Vector &other) const;
-    Vector operator*(T scalar) const;
+        Vector operator+(const Vector& other) const;
+        Vector operator-(const Vector& other) const;
+        Vector operator*(T scalar) const;
 
-    T dot(const Vector &other) const;
-    Vector cross(const Vector &other) const;
-    T normSquared() const;
-    T norm() const;
+        T dot(const Vector& other) const;
+        Vector cross(const Vector& other) const;
+        T normSquared() const;
+        T norm() const;
 
-    Vector normalized() const;
+        Vector normalized() const;
 
-    Vector operator*(const FullMatrix<T, N> &mat) const;
-    Vector operator*(const SymmetricMatrix<T, N> &mat) const;
+        Vector operator*(const FullMatrix<T, N>& mat) const;
+        Vector operator*(const SymmetricMatrix<T, N>& mat) const;
 
-    FullMatrix<T, N> tensor(const Vector &other) const;
+        FullMatrix<T, N> tensor(const Vector& other) const;
 
-    bool operator==(const Vector &other) const;
-    bool operator!=(const Vector &other) const;
+        bool operator==(const Vector& other) const;
+        bool operator!=(const Vector& other) const;
 
-    static Vector zero();
-    static Vector ones();
-    static Vector unit(size_t dir);
+        static Vector zero();
+        static Vector ones();
+        static Vector unit(size_t dir);
 
-  private:
-    type data_;
-};
+    private:
+        type data_;
+    };
+
+    using SMatrix2D = SymmetricMatrix<double, 2>;
+    using SMatrix3D = SymmetricMatrix<double, 3>;
+    
+    using Strain2D = SMatrix2D;
+    using Stress2D = SMatrix2D;
+    using Strain3D = SMatrix3D;
+    using Stress3D = SMatrix3D;
 
 } // namespace df
 
 template <typename T, size_t N>
-std::ostream &operator<<(std::ostream &, const df::FullMatrix<T, N> &);
+std::ostream& operator<<(std::ostream&, const df::FullMatrix<T, N>&);
 
 template <typename T, size_t N>
-std::ostream &operator<<(std::ostream &, const df::SymmetricMatrix<T, N> &);
+std::ostream& operator<<(std::ostream&, const df::SymmetricMatrix<T, N>&);
 
 template <typename T, size_t N>
-std::ostream &operator<<(std::ostream &os, const df::Vector<T, N> &vec);
+std::ostream& operator<<(std::ostream& os, const df::Vector<T, N>& vec);
 
 #include "inline/types.hxx"
