@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/logo2.png" alt="Logo dataframe" width="100">
+  <img src="media/icon_512x512.png" alt="Logo dataframe" width="200">
 </p>
 
 <p align="center">

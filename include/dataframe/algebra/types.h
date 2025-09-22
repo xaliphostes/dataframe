@@ -29,8 +29,14 @@ namespace df {
         using size_type = size_t;
         static constexpr size_type size = N;
 
+        static FullMatrix<T, N> Identity();
+
         FullMatrix();
         explicit FullMatrix(const type& t);
+        FullMatrix(std::initializer_list<double> init)
+        {
+            std::copy(init.begin(), init.end(), mat_.begin());
+        }
         FullMatrix(const FullMatrix& other) = default;
         FullMatrix(FullMatrix&& other) noexcept = default;
 
@@ -42,8 +48,8 @@ namespace df {
         T& operator()(size_t i, size_t j);
         const T& operator()(size_t i, size_t j) const;
 
-        T* data();
-        const T* data() const;
+        FullMatrix<T, N>::type& data();
+        const FullMatrix<T, N>::type& data() const;
 
         FullMatrix operator+(const FullMatrix& other) const;
         FullMatrix operator-(const FullMatrix& other) const;
@@ -57,6 +63,9 @@ namespace df {
 
         bool operator==(const FullMatrix& other) const;
         bool operator!=(const FullMatrix& other) const;
+
+        Vector<T, N> row(size_t i) const;
+        Vector<T, N> col(size_t j) const;
 
     private:
         type mat_;
@@ -77,6 +86,10 @@ namespace df {
         // Constructors
         SymmetricMatrix();
         explicit SymmetricMatrix(const type& t);
+        SymmetricMatrix(std::initializer_list<double> init)
+        {
+            std::copy(init.begin(), init.end(), mat_.begin());
+        }
         SymmetricMatrix(const SymmetricMatrix& other) = default;
         SymmetricMatrix(SymmetricMatrix&& other) noexcept = default;
 
@@ -90,8 +103,8 @@ namespace df {
         T& operator()(size_t i, size_t j);
         const T& operator()(size_t i, size_t j) const;
 
-        T* data();
-        const T* data() const;
+        SymmetricMatrix<T, N>::type& data();
+        const SymmetricMatrix<T, N>::type& data() const;
 
         SymmetricMatrix operator+(const SymmetricMatrix& other) const;
         SymmetricMatrix operator-(const SymmetricMatrix& other) const;
@@ -105,6 +118,9 @@ namespace df {
         bool operator==(const SymmetricMatrix& other) const;
         bool operator!=(const SymmetricMatrix& other) const;
 
+        Vector<T, N> row(size_t i) const;
+        Vector<T, N> col(size_t j) const;
+
     private:
         type mat_; // Stores upper triangle in row-major order
     };
@@ -116,7 +132,7 @@ namespace df {
         using type = std::array<T, N>;
         using value_type = T;
         using size_type = size_t;
-        static constexpr size_type size = N;
+        // static constexpr size_type size = N;
 
         Vector();
         explicit Vector(const type& t);
@@ -134,6 +150,8 @@ namespace df {
 
         T* data();
         const T* data() const;
+
+        size_t size() const {return N;}
 
         Vector operator+(const Vector& other) const;
         Vector operator-(const Vector& other) const;
@@ -162,13 +180,22 @@ namespace df {
         type data_;
     };
 
+    using Matrix2D = FullMatrix<double, 2>;
+    using Matrix3D = FullMatrix<double, 3>;
+    using Matrix4D = FullMatrix<double, 4>;
+
     using SMatrix2D = SymmetricMatrix<double, 2>;
     using SMatrix3D = SymmetricMatrix<double, 3>;
-    
+    using SMatrix4D = SymmetricMatrix<double, 4>;
+
     using Strain2D = SMatrix2D;
     using Stress2D = SMatrix2D;
     using Strain3D = SMatrix3D;
     using Stress3D = SMatrix3D;
+
+    using Vector2D = Vector<double, 2>;
+    using Vector3D = Vector<double, 3>;
+    using Vector4D = Vector<double, 4>;
 
 } // namespace df
 

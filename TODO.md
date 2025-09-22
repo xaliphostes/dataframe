@@ -1,6 +1,8 @@
 # TODO list
 
+# Remove matrices and vectors from dataframe/types and put everything in dataframe/algebra/types
 
+<br><br><br><br><br><br><br><br><br><br><br>
 ## Classical
 
 - **interleave** - Combines multiple series by alternating elements

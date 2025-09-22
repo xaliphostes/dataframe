@@ -245,6 +245,24 @@ namespace test {
         }                                                                                          \
     }
 
+template <typename Container1, typename Container2>
+void expect_near(const Container1& c1, const Container2& c2, double tol)
+{
+    if (c1.size() != c2.size()) {
+        std::stringstream ss;
+        ss << "Container sizes differ: " << c1.size() << " != " << c2.size();
+        throw std::runtime_error(ss.str());
+    }
+    for (size_t i = 0; i < c1.size(); ++i) {
+        if (std::abs(c1[i] - c2[i]) > tol) {
+            std::stringstream ss;
+            ss << "Containers differ at index " << i << ": " << c1[i] << " != " << c2[i]
+               << " (diff = " << std::abs(c1[i] - c2[i]) << ", tolerance = " << tol << ")";
+            throw std::runtime_error(ss.str());
+        }
+    }
+}
+
 #define EXPECT_ARRAY_NEAR(arr1, arr2, tol)                                                         \
     {                                                                                              \
         auto a1 = (arr1);                                                                          \

@@ -21,19 +21,18 @@
 
 namespace df {
 
-/**
- * Compute the inverse of a matrix stored as an array
- * Supports 1x1, 2x2, 3x3 matrices (both symmetric and non-symmetric storage)
- *
- * @param serie Input Serie containing matrices
- * @return Serie containing inverted matrices
- * @throws std::runtime_error if matrix is singular or dimension not supported
- */
-template <typename T, size_t N>
-Serie<std::array<T, N>> inv(const Serie<std::array<T, N>> &serie);
+    /**
+     * Compute the inverse of a matrix stored as an array
+     * Supports 1x1, 2x2, 3x3 matrices (both symmetric and non-symmetric storage)
+     *
+     * @param serie Input Serie containing matrices
+     * @return Serie containing inverted matrices
+     * @throws std::runtime_error if matrix is singular or dimension not supported
+     */
+    template <typename MAT> Serie<MAT> inv(const Serie<MAT>& serie);
 
-template <typename T, size_t N> auto bind_inv();
-template <typename T, size_t N> auto bind_inv(const Serie<std::array<T, N>> &);
+    template <typename MAT> auto bind_inv();
+    template <typename MAT> auto bind_inv(const Serie<MAT>&);
 
 } // namespace df
 

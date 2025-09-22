@@ -4,6 +4,7 @@
 
 #include "../../TEST.h"
 #include <dataframe/algebra/eigen.h>
+#include <dataframe/algebra/types.h>
 #include <dataframe/core/forEach.h>
 #include <dataframe/core/pipe.h>
 #include <dataframe/types.h>
@@ -36,8 +37,8 @@ TEST(eigen_analysis, matrix2x2)
             EXPECT_ARRAY_NEAR(values[0], std::vector<double>({ 4.61803, 2.38197 }), 1e-5);
 
             auto vectors = eigenVectors(general);
-            EXPECT_ARRAY_NEAR(vectors[0][0], std::vector<double>({ 0.850651, -0.525731 }), 1e-5);
-            EXPECT_ARRAY_NEAR(vectors[0][1], std::vector<double>({ 0.525731, 0.850651 }), 1e-5);
+            expect_near(vectors[0].col(0), std::array { 0.850651, -0.525731 }, 1e-5);
+            expect_near(vectors[0].col(1), std::array { 0.525731, 0.850651 }, 1e-5);
         }
         {
             auto systems = eigenSystem(general);
@@ -46,8 +47,8 @@ TEST(eigen_analysis, matrix2x2)
             EXPECT_ARRAY_NEAR(values, std::vector<double>({ 4.61803, 2.38197 }), 1e-5);
 
             auto vectors = systems[0].second;
-            EXPECT_ARRAY_NEAR(vectors[0], std::vector<double>({ 0.850651, -0.525731 }), 1e-5);
-            EXPECT_ARRAY_NEAR(vectors[1], std::vector<double>({ 0.525731, 0.850651 }), 1e-5);
+            expect_near(vectors.col(0), std::array { 0.850651, -0.525731 }, 1e-5);
+            expect_near(vectors.col(1), std::array { 0.525731, 0.850651 }, 1e-5);
         }
     }
 }
@@ -70,12 +71,12 @@ TEST(eigen_analysis, matrix3x3)
     df::Serie<SMatrix3D> serie(
         { { 2, 4, 6, 3, 6, 9 }, { 1, 2, 3, 4, 5, 6 }, { 9, 8, 7, 6, 5, 4 } });
 
-    std::vector<Vector3> vals { { 16.3328, -0.658031, -1.67482 }, { 11.3448, 0.170914, -0.515728 },
+    std::vector<Vector3D> vals { { 16.3328, -0.658031, -1.67482 }, { 11.3448, 0.170914, -0.515728 },
         { 20.1911, -0.043142, -1.14795 } };
 
     auto values = df::eigenValues(serie);
     values.forEach(
-        [vals](const auto& v, size_t index) { EXPECT_ARRAY_NEAR(v, vals[index], 1e-4); });
+        [vals](const auto& v, size_t index) { expect_near(v, vals[index], 1e-4); });
 
     // -------------------------------------------------
 
@@ -90,17 +91,17 @@ TEST(eigen_analysis, matrix3x3)
     auto vectors = df::eigenVectors(serie);
     vectors.forEach([vecs](const auto& m, size_t index) {
         for (size_t i = 0; i < 3; ++i) {
-            EXPECT_ARRAY_NEAR(m[i], vecs[index][i], 1e-4);
+            expect_near(m.col(i), vecs[index][i], 1e-4);
         }
     });
 
-    {
-        auto systems = df::eigenSystem(serie);
-        systems.forEach([](const auto& sv, size_t) {
-            std::cout << sv.first << std::endl;
-            std::cout << sv.second << std::endl;
-        });
-    }
+    // {
+    //     auto systems = df::eigenSystem(serie);
+    //     systems.forEach([](const auto& sv, size_t) {
+    //         std::cout << sv.first << std::endl;
+    //         std::cout << sv.second << std::endl;
+    //     });
+    // }
 }
 
 // TEST(eigen_analysis, matrix4x4) {

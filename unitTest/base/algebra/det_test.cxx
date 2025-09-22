@@ -39,7 +39,7 @@ TEST(determinant, matrix2D) {
         std::vector<double>({1.0}), 1e-10);
 
     // Test pipeline operation
-    auto pipe_result = matrices | bind_det<double, 3>();
+    auto pipe_result = matrices | bind_det<Stress2D>();
     EXPECT_ARRAY_NEAR(pipe_result.asArray(),
         std::vector<double>({-1.0, 4.0, 0.0}), 1e-10);
 }
@@ -70,7 +70,7 @@ TEST(determinant, matrix3D) {
         std::vector<double>({0.0}), 1e-10);
 
     // Test pipeline operation
-    auto pipe_result = matrices | bind_det<double, 6>();
+    auto pipe_result = matrices | bind_det<Stress3D>();
     EXPECT_ARRAY_NEAR(pipe_result.asArray(),
         std::vector<double>({1.0, 4.0, -1.0}), 1e-10);
 }
@@ -79,12 +79,12 @@ TEST(determinant, error_cases) {
     MSG("Testing error cases for determinant");
 
     // Test empty series
-    Serie<Vector2> empty_serie{};
+    Serie<Stress2D> empty_serie{};
     auto empty_result = det(empty_serie);
     EXPECT_EQ(empty_result.size(), 0);
 
     // Test single element series
-    Serie<Vector2> single_serie{{1.0, 2.0}};
+    Serie<Stress2D> single_serie{{1.0, 2.0}};
     auto single_result = det(single_serie);
     EXPECT_EQ(single_result.size(), 1);
     EXPECT_ARRAY_NEAR(single_result.asArray(),

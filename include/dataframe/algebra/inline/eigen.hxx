@@ -1,52 +1,24 @@
 namespace df {
     namespace detail {
 
-        template <typename T, std::size_t N>
-        inline constexpr std::size_t Matrix<T, N>::rows() noexcept
-        {
-            return N;
-        }
-        template <typename T, std::size_t N>
-        inline constexpr std::size_t Matrix<T, N>::cols() noexcept
-        {
-            return N;
-        }
+        inline constexpr std::size_t triangular(std::size_t m) { return m * (m + 1) / 2; }
 
-        template <typename T, std::size_t N>
-        inline constexpr T& Matrix<T, N>::operator()(std::size_t i, std::size_t j) noexcept
+        inline constexpr std::size_t dim_from_packed_len(std::size_t P)
         {
-            return d[i * N + j]; // row-major
+            std::size_t m = 0;
+            while (triangular(m) < P)
+                ++m; // smallest m with T_m >= P
+            return m;
         }
 
-        template <typename T, std::size_t N>
-        inline constexpr const T& Matrix<T, N>::operator()(
-            std::size_t i, std::size_t j) const noexcept
-        {
-            return d[i * N + j]; // row-major
-        }
-
-        template <typename T, std::size_t N> inline Matrix<T, N> Matrix<T, N>::Identity()
-        {
-            Matrix I;
-            for (std::size_t i = 0; i < N; ++i)
-                I(i, i) = T(1);
-            return I;
-        }
-
-        // Swap columns j and k (useful when reordering eigenpairs).
-        template <typename T, std::size_t N>
-        inline void Matrix<T, N>::swap_columns(std::size_t j, std::size_t k)
-        {
-            if (j == k)
-                return;
-            for (std::size_t i = 0; i < N; ++i)
-                std::swap((*this)(i, j), (*this)(i, k));
-        }
-
-        // -----------------------------------------------------------------------------
+        template <std::size_t P> struct DimFromPacked {
+            static constexpr std::size_t value = dim_from_packed_len(P);
+            // static_assert(
+            //     triangular(value) == P, "Packed length P must be triangular (1,3,6,10,...)");
+        };
 
         template <typename T, std::size_t N>
-        inline T max_offdiag(const Matrix<T, N>& A, std::size_t& p, std::size_t& q)
+        inline T max_offdiag(const SymmetricMatrix<T, N>& A, std::size_t& p, std::size_t& q)
         {
             T maxval = T(0);
             p = q = 0;
@@ -78,68 +50,9 @@ namespace df {
             s = t * c;
         }
 
-        // Row-wise packed upper-triangular index for i<=j
-        template <std::size_t N> constexpr std::size_t ut_index(std::size_t i, std::size_t j)
-        {
-            // Start of row i in the packed upper part:
-            // S(i) = i*N - i*(i-1)/2; then add (j - i)
-            return i * N - (i * (i - 1)) / 2 + (j - i);
-        }
-
-        inline constexpr std::size_t triangular(std::size_t m) { return m * (m + 1) / 2; }
-
-        inline constexpr std::size_t dim_from_packed_len(std::size_t P)
-        {
-            std::size_t m = 0;
-            while (triangular(m) < P)
-                ++m; // smallest m with T_m >= P
-            return m;
-        }
-
-        template <std::size_t P> struct DimFromPacked {
-            static constexpr std::size_t value = dim_from_packed_len(P);
-            static_assert(
-                triangular(value) == P, "Packed length P must be triangular (1,3,6,10,...)");
-        };
-
-        // -----------------------------------------------------------------------------
-        // Expand packed upper-triangular array (UTP) to full symmetric Matrix<T,N>.
-        // Input order matches your examples: (0,0),(0,1),...(0,N-1),(1,1),(1,2),...,(N-1,N-1).
-        // -----------------------------------------------------------------------------
-        // template <typename T, std::size_t N>
-        // inline Matrix<T, N> from_packed_upper(const std::array<T, N*(N + 1) / 2>& packed)
-        // {
-        //     Matrix<T, N> A {};
-        //     for (std::size_t i = 0, k = 0; i < N; ++i) {
-        //         for (std::size_t j = i; j < N; ++j, ++k) {
-        //             const T v = packed[k];
-        //             A(i, j) = v;
-        //             A(j, i) = v; // enforce symmetry
-        //         }
-        //     }
-        //     return A;
-        // }
-
-        // Input order: (0,0),(0,1),...(0,M-1),(1,1),(1,2),...,(M-1,M-1).
-        template <typename T, std::size_t P>
-        [[nodiscard]] inline auto from_packed_upper(const std::array<T, P>& packed)
-            -> Matrix<T, detail::DimFromPacked<P>::value>
-        {
-            constexpr std::size_t M = detail::DimFromPacked<P>::value;
-            Matrix<T, M> A {};
-            for (std::size_t i = 0, k = 0; i < M; ++i) {
-                for (std::size_t j = i; j < M; ++j, ++k) {
-                    const T v = packed[k];
-                    A(i, j) = v;
-                    A(j, i) = v; // symmetry
-                }
-            }
-            return A;
-        }
-
         // Optional helper: sort eigenpairs in descending order by value.
         template <typename T, std::size_t N>
-        void sort_eigenpairs_desc(std::array<T, N>& w, Matrix<T, N>& V)
+        void sort_eigenpairs_desc(std::array<T, N>& w, FullMatrix<T, N>& V)
         {
             std::array<std::size_t, N> idx {};
             for (std::size_t i = 0; i < N; ++i)
@@ -155,7 +68,7 @@ namespace df {
             w = w_sorted;
 
             // Apply permutation to columns of V
-            Matrix<T, N> V_old = V;
+            FullMatrix<T, N> V_old = V;
             for (std::size_t j = 0; j < N; ++j) {
                 std::size_t from = idx[j];
                 for (std::size_t i = 0; i < N; ++i)
@@ -166,18 +79,16 @@ namespace df {
     } // namespace detail
 
     //------------------------------------------------------------------------------
-
-    //------------------------------------------------------------------------------
     // Jacobi eigenvalue decomposition for real symmetric matrices
     // Produces: A = V * diag(w) * V^T, with V orthonormal (columns are eigenvectors)
     //------------------------------------------------------------------------------
     template <typename T, std::size_t N>
-    EigenResult<T, N> jacobi_symmetric_eigen(const detail::Matrix<T, N>& A_in, T tol = T(-1),
+    EigenSystem<T, N> jacobi_symmetric_eigen(const SymmetricMatrix<T, N>& A_in, T tol = T(-1),
         bool sort_descending = true, std::size_t max_sweeps = 64)
     {
-        EigenResult<T, N> out;
-        detail::Matrix<T, N> A = A_in; // working copy
-        detail::Matrix<T, N> V = detail::Matrix<T, N>::Identity();
+        // EigenSystem<T, N> out;
+        SymmetricMatrix<T, N> A = A_in; // working copy
+        FullMatrix<T, N> V = FullMatrix<T, N>::Identity();
 
         // Set default tolerance if not provided
         if (!(tol > T(0))) {
@@ -231,76 +142,47 @@ namespace df {
         }
 
         // Fill outputs
-        for (std::size_t i = 0; i < N; ++i)
-            out.values[i] = A(i, i);
-        out.vectors = V;
-
-        if (sort_descending) {
-            detail::sort_eigenpairs_desc(out.values, out.vectors);
+        std::array<T, N> values;
+        for (std::size_t i = 0; i < N; ++i) {
+            values[i] = A(i, i);
         }
 
-        out.converged = converged;
-        out.sweeps = sweeps;
+        if (sort_descending) {
+            detail::sort_eigenpairs_desc(values, V);
+        }
 
-        return out;
+        return std::make_pair(values, V);
     }
 
     template <typename T, size_t N>
-    Serie<typename detail::eigen_values_info<T, N>::type> eigenValues(
-        const Serie<std::array<T, N>>& serie)
+    Serie<std::array<T, N>> eigenValues(const Serie<SymmetricMatrix<T, N>>& serie)
     {
         static_assert(std::is_arithmetic<T>::value, "eigenValues requires arithmetic type");
 
         return serie.map([](const auto& mat, size_t index) {
-            auto result = jacobi_symmetric_eigen(detail::from_packed_upper(mat));
-            return result.values;
+            auto result = jacobi_symmetric_eigen(mat);
+            return result.first;
         });
     }
 
     template <typename T, size_t N>
-    Serie<typename detail::eigen_vectors_info<T, N>::type> eigenVectors(
-        const Serie<std::array<T, N>>& serie)
+    Serie<FullMatrix<T, N>> eigenVectors(const Serie<SymmetricMatrix<T, N>>& serie)
     {
         static_assert(std::is_arithmetic<T>::value, "eigenValues requires arithmetic type");
 
         return serie.map([](const auto& mat, size_t index) {
-            auto result = jacobi_symmetric_eigen(detail::from_packed_upper(mat));
-
-            // Convert Matrix<T, M> to std::array<std::array<T, M>, M>
-            constexpr std::size_t M = detail::DimFromPacked<N>::value;
-            std::array<std::array<T, M>, M> vectors_array;
-
-            for (std::size_t i = 0; i < M; ++i) {
-                for (std::size_t j = 0; j < M; ++j) {
-                    vectors_array[i][j] = result.vectors(i, j);
-                }
-            }
-
-            return vectors_array;
+            auto result = jacobi_symmetric_eigen(mat);
+            return result.second;
         });
     }
 
     template <typename T, size_t N>
-    inline Serie<std::pair<typename detail::eigen_values_info<T, N>::type,
-        typename detail::eigen_vectors_info<T, N>::type>>
-    eigenSystem(const Serie<std::array<T, N>>& serie)
+    inline Serie<EigenSystem<T, N>> eigenSystem(const Serie<SymmetricMatrix<T, N>>& serie)
     {
         static_assert(std::is_arithmetic<T>::value, "eigenSystem requires arithmetic type");
 
         return serie.map([&](const auto& mat, size_t index) {
-            auto result = jacobi_symmetric_eigen(detail::from_packed_upper(mat));
-
-            // Convert Matrix<T, M> to std::array<std::array<T, M>, M>
-            constexpr std::size_t M = detail::DimFromPacked<N>::value;
-            std::array<std::array<T, M>, M> vectors;
-
-            for (std::size_t i = 0; i < M; ++i) {
-                for (std::size_t j = 0; j < M; ++j) {
-                    vectors[i][j] = result.vectors(i, j);
-                }
-            }
-
-            return std::make_pair(result.values, vectors);
+            return jacobi_symmetric_eigen(mat);
         });
     }
 }
