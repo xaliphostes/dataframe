@@ -1,9 +1,12 @@
 
 #include <cmath>
 #include <dataframe/Serie.h>
+#include <dataframe/algebra/types.h>
 #include <dataframe/attributes/Components.h>
 #include <dataframe/attributes/Coordinates.h>
 #include <dataframe/attributes/Manager.h>
+
+using namespace df;
 
 int main() {
 

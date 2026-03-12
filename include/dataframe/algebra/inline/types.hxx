@@ -69,12 +69,12 @@ namespace df {
     // Raw data access
     template <typename T, size_t N> inline FullMatrix<T, N>::type& FullMatrix<T, N>::data()
     {
-        return mat_.data();
+        return mat_;
     }
 
     template <typename T, size_t N> inline const FullMatrix<T, N>::type& FullMatrix<T, N>::data() const
     {
-        return mat_.data();
+        return mat_;
     }
 
     // Matrix operations
@@ -150,7 +150,7 @@ namespace df {
         return result;
     }
 
-    // Determinant (for 2x2 and 3x3 matrices)
+    // Determinant (for 2x2, 3x3 and 4x4 matrices)
     template <typename T, size_t N> inline T FullMatrix<T, N>::determinant() const
     {
         if constexpr (N == 2) {
@@ -159,6 +159,17 @@ namespace df {
             return (*this)(0, 0) * ((*this)(1, 1) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 1))
                 - (*this)(0, 1) * ((*this)(1, 0) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 0))
                 + (*this)(0, 2) * ((*this)(1, 0) * (*this)(2, 1) - (*this)(1, 1) * (*this)(2, 0));
+        } else if constexpr (N == 4) {
+            // Cofactor expansion along first row
+            auto det3 = [](T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22) {
+                return m00 * (m11 * m22 - m12 * m21) - m01 * (m10 * m22 - m12 * m20)
+                    + m02 * (m10 * m21 - m11 * m20);
+            };
+            const auto& m = *this;
+            return m(0,0) * det3(m(1,1), m(1,2), m(1,3), m(2,1), m(2,2), m(2,3), m(3,1), m(3,2), m(3,3))
+                 - m(0,1) * det3(m(1,0), m(1,2), m(1,3), m(2,0), m(2,2), m(2,3), m(3,0), m(3,2), m(3,3))
+                 + m(0,2) * det3(m(1,0), m(1,1), m(1,3), m(2,0), m(2,1), m(2,3), m(3,0), m(3,1), m(3,3))
+                 - m(0,3) * det3(m(1,0), m(1,1), m(1,2), m(2,0), m(2,1), m(2,2), m(3,0), m(3,1), m(3,2));
         } else {
             throw std::runtime_error("Determinant not implemented for this matrix size");
         }
@@ -178,7 +189,7 @@ namespace df {
             result(0, 1) = -(*this)(0, 1) / det;
             result(1, 0) = -(*this)(1, 0) / det;
             result(1, 1) = (*this)(0, 0) / det;
-        } else if constexpr (N == 3) {
+        } else if constexpr (N == 3 || N == 4) {
             // Compute cofactor matrix
             for (size_t i = 0; i < N; ++i) {
                 for (size_t j = 0; j < N; ++j) {
@@ -205,38 +216,31 @@ namespace df {
         return !(*this == other);
     }
 
-    // Helper for 3x3 inverse
+    // Helper for matrix inverse (cofactor computation)
     template <typename T, size_t N>
     inline T FullMatrix<T, N>::computeCofactor(size_t row, size_t col) const
     {
-        if constexpr (N == 3) {
-            T minor = 0;
-            size_t r[2], c[2];
-            size_t idx = 0;
+        static_assert(N >= 2 && N <= 4, "Cofactor only implemented for 2x2, 3x3, and 4x4");
+        constexpr size_t M = N - 1;
+        size_t r[M], c[M];
+        size_t ri = 0, ci = 0;
+        for (size_t i = 0; i < N; ++i)
+            if (i != row) r[ri++] = i;
+        for (size_t j = 0; j < N; ++j)
+            if (j != col) c[ci++] = j;
 
-            // Get indices for the 2x2 minor
-            for (size_t i = 0; i < N; ++i) {
-                if (i != row) {
-                    r[idx] = i;
-                    idx++;
-                }
-            }
-            idx = 0;
-            for (size_t j = 0; j < N; ++j) {
-                if (j != col) {
-                    c[idx] = j;
-                    idx++;
-                }
-            }
-
-            // Calculate minor
+        T minor;
+        if constexpr (M == 1) {
+            minor = (*this)(r[0], c[0]);
+        } else if constexpr (M == 2) {
             minor = (*this)(r[0], c[0]) * (*this)(r[1], c[1])
-                - (*this)(r[0], c[1]) * (*this)(r[1], c[0]);
-
-            // Apply sign
-            return ((row + col) % 2 == 0 ? 1 : -1) * minor;
+                  - (*this)(r[0], c[1]) * (*this)(r[1], c[0]);
+        } else if constexpr (M == 3) {
+            minor = (*this)(r[0], c[0]) * ((*this)(r[1], c[1]) * (*this)(r[2], c[2]) - (*this)(r[1], c[2]) * (*this)(r[2], c[1]))
+                  - (*this)(r[0], c[1]) * ((*this)(r[1], c[0]) * (*this)(r[2], c[2]) - (*this)(r[1], c[2]) * (*this)(r[2], c[0]))
+                  + (*this)(r[0], c[2]) * ((*this)(r[1], c[0]) * (*this)(r[2], c[1]) - (*this)(r[1], c[1]) * (*this)(r[2], c[0]));
         }
-        throw std::runtime_error("Cofactor computation not implemented for this matrix size");
+        return ((row + col) % 2 == 0 ? T(1) : T(-1)) * minor;
     }
 
     template <typename T, size_t N> inline Vector<T, N> FullMatrix<T, N>::row(size_t i) const
@@ -299,7 +303,7 @@ namespace df {
     {
         if (i > j)
             std::swap(i, j); // Ensure we're in upper triangle
-        return (j * (j + 1)) / 2 + i;
+        return i * N - i * (i + 1) / 2 + j;
     }
 
     // Element access (const and non-const)
@@ -319,11 +323,11 @@ namespace df {
     }
 
     // Raw data access
-    template <typename T, size_t N> inline SymmetricMatrix<T, N>::type& SymmetricMatrix<T, N>::data() { return mat_.data(); }
+    template <typename T, size_t N> inline SymmetricMatrix<T, N>::type& SymmetricMatrix<T, N>::data() { return mat_; }
 
     template <typename T, size_t N> const inline SymmetricMatrix<T, N>::type& SymmetricMatrix<T, N>::data() const
     {
-        return mat_.data();
+        return mat_;
     }
 
     // Matrix operations
@@ -406,12 +410,19 @@ namespace df {
 
             return a11 * (a22 * a33 - a23 * a23) - a12 * (a12 * a33 - a23 * a13)
                 + a13 * (a12 * a23 - a22 * a13);
+        } else if constexpr (N == 4) {
+            // Convert to full matrix and compute determinant
+            FullMatrix<T, 4> full;
+            for (size_t i = 0; i < 4; ++i)
+                for (size_t j = 0; j < 4; ++j)
+                    full(i, j) = (*this)(i, j);
+            return full.determinant();
         } else {
             throw std::runtime_error("Determinant not implemented for this matrix size");
         }
     }
 
-    // Inverse (for 2x2 and 3x3 matrices)
+    // Inverse (for 2x2, 3x3 and 4x4 matrices)
     template <typename T, size_t N>
     inline SymmetricMatrix<T, N> SymmetricMatrix<T, N>::inverse() const
     {
@@ -440,6 +451,16 @@ namespace df {
             result(1, 1) = (a11 * a33 - a13 * a13) / det;
             result(1, 2) = (a13 * a12 - a11 * a23) / det;
             result(2, 2) = (a11 * a22 - a12 * a12) / det;
+        } else if constexpr (N == 4) {
+            // Convert to full matrix, invert, then extract symmetric part
+            FullMatrix<T, 4> full;
+            for (size_t i = 0; i < 4; ++i)
+                for (size_t j = 0; j < 4; ++j)
+                    full(i, j) = (*this)(i, j);
+            auto inv_full = full.inverse();
+            for (size_t i = 0; i < 4; ++i)
+                for (size_t j = i; j < 4; ++j)
+                    result(i, j) = inv_full(i, j);
         } else {
             throw std::runtime_error("Inverse not implemented for this matrix size");
         }
@@ -663,67 +684,67 @@ namespace df {
         return result;
     }
 
+    // Stream output
+    template <typename T, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const FullMatrix<T, N>& mat)
+    {
+        static const double default_epsilon = 1e-12;
+        for (size_t i = 0; i < N; ++i) {
+            os << "[";
+            for (size_t j = 0; j < N; ++j) {
+                T val = mat(i, j);
+                if (std::abs(val) < default_epsilon) {
+                    os << "0";
+                } else {
+                    os << val;
+                }
+                if (j < N - 1)
+                    os << ", ";
+            }
+            os << "]\n";
+        }
+        return os;
+    }
+
+    // Stream output
+    template <typename T, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const SymmetricMatrix<T, N>& mat)
+    {
+        static const double default_epsilon = 1e-12;
+        for (size_t i = 0; i < N; ++i) {
+            os << "[";
+            for (size_t j = 0; j < N; ++j) {
+                T val = mat(i, j);
+                if (std::abs(val) < default_epsilon) {
+                    os << "0";
+                } else {
+                    os << val;
+                }
+                if (j < N - 1)
+                    os << ", ";
+            }
+            os << "]\n";
+        }
+        return os;
+    }
+
+    template <typename T, size_t N>
+    inline std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
+    {
+        static const double default_epsilon = 1e-12;
+        os << "[";
+        for (size_t i = 0; i < N; ++i) {
+            T val = vec[i];
+            if (std::abs(val) < default_epsilon) {
+                os << "0";
+            } else {
+                os << val;
+            }
+            if (i < N - 1)
+                os << ", ";
+        }
+        os << "]";
+        return os;
+    }
+
 } // namespace df
-
-// Stream output
-template <typename T, size_t N>
-inline std::ostream& operator<<(std::ostream& os, const df::FullMatrix<T, N>& mat)
-{
-    static const double default_epsilon = 1e-12;
-    for (size_t i = 0; i < N; ++i) {
-        os << "[";
-        for (size_t j = 0; j < N; ++j) {
-            T val = mat(i, j);
-            if (std::abs(val) < default_epsilon) {
-                os << "0";
-            } else {
-                os << val;
-            }
-            if (j < N - 1)
-                os << ", ";
-        }
-        os << "]\n";
-    }
-    return os;
-}
-
-// Stream output
-template <typename T, size_t N>
-inline std::ostream& operator<<(std::ostream& os, const df::SymmetricMatrix<T, N>& mat)
-{
-    static const double default_epsilon = 1e-12;
-    for (size_t i = 0; i < N; ++i) {
-        os << "[";
-        for (size_t j = 0; j < N; ++j) {
-            T val = mat(i, j);
-            if (std::abs(val) < default_epsilon) {
-                os << "0";
-            } else {
-                os << val;
-            }
-            if (j < N - 1)
-                os << ", ";
-        }
-        os << "]\n";
-    }
-    return os;
-}
-
-template <typename T, size_t N>
-inline std::ostream& operator<<(std::ostream& os, const df::Vector<T, N>& vec)
-{
-    static const double default_epsilon = 1e-12;
-    os << "[";
-    for (size_t i = 0; i < N; ++i) {
-        T val = vec[i];
-        if (std::abs(val) < default_epsilon) {
-            os << "0";
-        } else {
-            os << val;
-        }
-        if (i < N - 1)
-            os << ", ";
-    }
-    os << "]";
-    return os;
-}

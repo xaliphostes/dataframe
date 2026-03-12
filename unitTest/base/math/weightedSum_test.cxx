@@ -14,6 +14,7 @@
 
 #include "../../TEST.h"
 #include <array>
+#include <dataframe/algebra/types.h>
 #include <dataframe/Dataframe.h>
 #include <dataframe/Serie.h>
 #include <dataframe/math/add.h>
@@ -117,15 +118,16 @@ TEST(weightedSum, geol)
         { -53.500, 5.775, 3.075, -43.500, 6.325, -34.750 } });
 
     // Compute weighted average stress tensor from the dataframe
-    auto avgStress1 = df::weightedSum({ S1, S2, S3, S4 }, { 0.35, 0.25, 0.25, 0.15 });
+    auto avgStress1 = df::weightedSum<SMatrix3D>(
+        { S1, S2, S3, S4 }, { 0.35, 0.25, 0.25, 0.15 });
 }
 
 // ----------------------------------------------------------
 
-using Vector3D = std::array<double, 3>;
+using Vec3 = std::array<double, 3>;
 
 // Helper function for vector comparisons
-void EXPECT_VECTOR3D_NEAR(const Vector3D& v1, const Vector3D& v2, double tol)
+void EXPECT_VECTOR3D_NEAR(const Vec3& v1, const Vec3& v2, double tol)
 {
     for (size_t i = 0; i < 3; ++i) {
         if (std::abs(v1[i] - v2[i]) > tol) {
@@ -138,7 +140,7 @@ void EXPECT_VECTOR3D_NEAR(const Vector3D& v1, const Vector3D& v2, double tol)
 }
 
 void EXPECT_SERIE_VECTOR3D_NEAR(
-    const df::Serie<Vector3D>& s1, const df::Serie<Vector3D>& s2, double tol)
+    const df::Serie<Vec3>& s1, const df::Serie<Vec3>& s2, double tol)
 {
     if (s1.size() != s2.size()) {
         throw std::runtime_error("Series have different sizes");
@@ -149,18 +151,18 @@ void EXPECT_SERIE_VECTOR3D_NEAR(
 }
 
 /*
-TEST(Serie, Vector3DWeightedSum)
+TEST(Serie, Vec3WeightedSum)
 {
-    MSG("Testing Vector3D weighted sum");
+    MSG("Testing Vec3 weighted sum");
 
-    df::Serie<Vector3D> s1{Vector3D{1.0, 0.0, 0.0}, Vector3D{0.0, 1.0, 0.0}};
+    df::Serie<Vec3> s1{Vec3{1.0, 0.0, 0.0}, Vec3{0.0, 1.0, 0.0}};
 
-    df::Serie<Vector3D> s2{Vector3D{0.0, 1.0, 0.0}, Vector3D{1.0, 0.0, 1.0}};
+    df::Serie<Vec3> s2{Vec3{0.0, 1.0, 0.0}, Vec3{1.0, 0.0, 1.0}};
 
     // Test with scalar weights
-    auto weighted = df::weightedSum<Vector3D>({s1, s2}, {2.0, 0.5});
+    auto weighted = df::weightedSum<Vec3>({s1, s2}, {2.0, 0.5});
 
-    Serie<Vector3D> expected{Vector3D{2.0, 0.5, 0.0}, Vector3D{0.0, 2.0, 0.5}};
+    Serie<Vec3> expected{Vec3{2.0, 0.5, 0.0}, Vec3{0.0, 2.0, 0.5}};
 
     EXPECT_SERIE_VECTOR3D_NEAR(weighted, expected, 1e-10);
 
@@ -168,15 +170,15 @@ TEST(Serie, Vector3DWeightedSum)
     // df::Serie<double> w1{1.0, 0.5};
     // df::Serie<double> w2{0.5, 1.0};
 
-    // auto weighted_series = df::weightedSum<Vector3D>({s1, s2}, {w1, w2});
+    // auto weighted_series = df::weightedSum<Vec3>({s1, s2}, {w1, w2});
 
-    // df::Serie<Vector3D> expected_series{Vector3D{1.0, 0.5, 0.0},
-    //                                     Vector3D{0.5, 0.5, 1.0}};
+    // df::Serie<Vec3> expected_series{Vec3{1.0, 0.5, 0.0},
+    //                                     Vec3{0.5, 0.5, 1.0}};
 
     // EXPECT_SERIE_VECTOR3D_NEAR(weighted_series, expected_series, 1e-10);
 
     // Test pipeline operation
-    // auto result_pipe = s1 | bind_weightedSum<Vector3D>({s2}, {2.0, 0.5});
+    // auto result_pipe = s1 | bind_weightedSum<Vec3>({s2}, {2.0, 0.5});
     // EXPECT_SERIE_VECTOR3D_NEAR(result_pipe, expected, 1e-10);
 }
 */

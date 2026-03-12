@@ -21,6 +21,7 @@
  *
  */
 
+#include <dataframe/algebra/types.h>
 #include <dataframe/utils/meta.h>
 
 namespace df {
@@ -45,8 +46,8 @@ namespace df {
                     return static_cast<double>(value[index]);
                 }
                 // Handle struct-based vector types
-                else if constexpr (std::is_same_v<T, Vector2> || std::is_same_v<T, Vector3>
-                    || std::is_same_v<T, Vector4> || std::is_same_v<T, Vector6>) {
+                else if constexpr (std::is_same_v<T, Vector2D> || std::is_same_v<T, Vector3D>
+                    || std::is_same_v<T, Vector4D>) {
                     return static_cast<double>(value[index]);
                 }
                 // Handle struct-based matrix types

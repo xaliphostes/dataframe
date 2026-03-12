@@ -148,7 +148,7 @@ TEST(inverse, matrix4x4)
         for (size_t j = 0; j < 4; ++j) {
             double sum = 0.0;
             for (size_t k = 0; k < 4; ++k) {
-                sum += general[0][i * 4 + k] * gen_result[0][k * 4 + j];
+                sum += general[0](i, k) * gen_result[0](k, j);
             }
             if (i == j) {
                 EXPECT_NEAR(sum, 1.0, 1e-10);
@@ -260,14 +260,14 @@ TEST(inverse, pipeline)
     MSG("Testing pipeline operations");
 
     // Test pipeline with 2x2 symmetric
-    Serie<std::array<double, 3>> sym_2x2 { { 4.0, 1.0, 4.0 } };
-    auto pipe_result = sym_2x2 | bind_inv<double, 3>();
+    Serie<SMatrix2D> sym_2x2 { { 4.0, 1.0, 4.0 } };
+    auto pipe_result = sym_2x2 | bind_inv<SMatrix2D>();
     EXPECT_ARRAY_NEAR(
         pipe_result[0], std::vector<double>({ 0.266667, -0.0666667, 0.266667 }), 1e-6);
 
     // Test pipeline with 3x3 full
-    Serie<std::array<double, 9>> full_3x3 { { 1, 0, 0, 0, 2, 0, 0, 0, 4 } };
-    auto pipe_result_3x3 = full_3x3 | bind_inv<double, 9>();
+    Serie<Matrix3D> full_3x3 { { 1, 0, 0, 0, 2, 0, 0, 0, 4 } };
+    auto pipe_result_3x3 = full_3x3 | bind_inv<Matrix3D>();
     EXPECT_ARRAY_NEAR(
         pipe_result_3x3[0], std::vector<double>({ 1, 0, 0, 0, 0.5, 0, 0, 0, 0.25 }), 1e-10);
 }

@@ -23,6 +23,9 @@
 
 #include "../TEST.h"
 #include <dataframe/Serie.h>
+#include <dataframe/algebra/types.h>
+
+using namespace df;
 #include <dataframe/core/forEach.h>
 #include <dataframe/core/map.h>
 #include <dataframe/core/reduce.h>

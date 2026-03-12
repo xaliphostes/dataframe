@@ -30,6 +30,7 @@ namespace df {
      * @throws std::runtime_error if matrix is singular or dimension not supported
      */
     template <typename MAT> Serie<MAT> inv(const Serie<MAT>& serie);
+    template <typename T, size_t N> Serie<std::array<T, N>> inv(const Serie<std::array<T, N>>& serie);
 
     template <typename MAT> auto bind_inv();
     template <typename MAT> auto bind_inv(const Serie<MAT>&);

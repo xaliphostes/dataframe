@@ -290,46 +290,52 @@ namespace df {
         return serie.map([](const MAT& m, size_t) { return m.inverse(); });
     }
 
-    // template <typename T, size_t N>
-    // inline Serie<std::array<T, N>> inv(const Serie<std::array<T, N>>& serie)
-    // {
-    //     static_assert(
-    //         std::is_floating_point<T>::value, "Matrix inversion requires floating point type");
+    template <typename T, size_t N>
+    inline Serie<std::array<T, N>> inv(const Serie<std::array<T, N>>& serie)
+    {
+        static_assert(
+            std::is_floating_point<T>::value, "Matrix inversion requires floating point type");
 
-    //     return serie.map([](const std::array<T, N>& m, size_t) {
-    //         if constexpr (N == 1) {
-    //             return detail::inv_1x1(m);
-    //         } else if constexpr (N == 3) {
-    //             return detail::inv_sym_2x2<T>(m);
-    //         } else if constexpr (N == 4) {
-    //             return detail::inv_2x2<T>(m);
-    //         } else if constexpr (N == 6) {
-    //             return detail::inv_sym_3x3<T>(m);
-    //         } else if constexpr (N == 9) {
-    //             return detail::inv_3x3<T>(m);
-    //         } else if constexpr (N == 10) {
-    //             return detail::inv_sym_4x4<T>(m);
-    //         } else if constexpr (N == 16) {
-    //             return detail::inv_4x4<T>(m);
-    //         } else {
-    //             static_assert(N <= 16, "Matrix dimension not supported");
-    //             return detail::inv_NxN(m);
-    //         }
-    //     });
-    // }
+        return serie.map([](const std::array<T, N>& m, size_t) -> std::array<T, N> {
+            if constexpr (N == 1) {
+                return detail::inv_1x1(m);
+            } else if constexpr (N == 3) {
+                SMatrix2D sm(m);
+                auto r = detail::inv_sym_2x2<T>(sm);
+                return r.data();
+            } else if constexpr (N == 4) {
+                Matrix2D fm(m);
+                auto r = detail::inv_2x2<T>(fm);
+                return r.data();
+            } else if constexpr (N == 6) {
+                SMatrix3D sm(m);
+                auto r = detail::inv_sym_3x3<T>(sm);
+                return r.data();
+            } else if constexpr (N == 9) {
+                Matrix3D fm(m);
+                auto r = detail::inv_3x3<T>(fm);
+                return r.data();
+            } else if constexpr (N == 10) {
+                return detail::inv_sym_4x4<T>(m);
+            } else if constexpr (N == 16) {
+                Matrix4D fm(m);
+                auto r = detail::inv_4x4<T>(fm);
+                return r.data();
+            } else {
+                static_assert(N <= 16, "Matrix dimension not supported");
+                return detail::inv_NxN(m);
+            }
+        });
+    }
 
-    // // MAKE_OP(inv)
+    template <typename MAT> inline auto bind_inv()
+    {
+        return [](const Serie<MAT>& serie) { return inv(serie); };
+    }
 
-    // // Shorter alias using bind_inv
-    // template <typename T, size_t N> inline auto bind_inv()
-    // {
-    //     return [](const Serie<std::array<T, N>>& serie) { return inv(serie); };
-    // }
-
-    // // Alternative version that deduces types from input
-    // template <typename T, size_t N> inline auto bind_inv(const Serie<std::array<T, N>>& serie)
-    // {
-    //     return inverse(serie);
-    // }
+    template <typename MAT> inline auto bind_inv(const Serie<MAT>& serie)
+    {
+        return inv(serie);
+    }
 
 } // namespace df

@@ -14,6 +14,9 @@
 
 #include "../TEST.h"
 #include <dataframe/Dataframe.h>
+#include <dataframe/algebra/types.h>
+
+using namespace df;
 
 TEST(Dataframe, basic) {
     df::Dataframe df;

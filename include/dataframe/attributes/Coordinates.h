@@ -80,12 +80,12 @@ namespace df {
 
                 // Handle different vector types
                 try {
-                    if (dataframe.has<Vector2>(baseName)) {
-                        return extractComponent(dataframe.get<Vector2>(baseName), index);
-                    } else if (dataframe.has<Vector3>(baseName)) {
-                        return extractComponent(dataframe.get<Vector3>(baseName), index);
-                    } else if (dataframe.has<Vector4>(baseName)) {
-                        return extractComponent(dataframe.get<Vector4>(baseName), index);
+                    if (dataframe.has<Vector2D>(baseName)) {
+                        return extractComponent(dataframe.get<Vector2D>(baseName), index);
+                    } else if (dataframe.has<Vector3D>(baseName)) {
+                        return extractComponent(dataframe.get<Vector3D>(baseName), index);
+                    } else if (dataframe.has<Vector4D>(baseName)) {
+                        return extractComponent(dataframe.get<Vector4D>(baseName), index);
                     }
                 } catch (const std::exception& e) {
                     throw std::runtime_error(

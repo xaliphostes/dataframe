@@ -83,8 +83,8 @@ TEST(determinant, error_cases) {
     auto empty_result = det(empty_serie);
     EXPECT_EQ(empty_result.size(), 0);
 
-    // Test single element series
-    Serie<Stress2D> single_serie{{1.0, 2.0}};
+    // Test single element series (identity matrix: a00=1, a01=0, a11=1, det=1)
+    Serie<Stress2D> single_serie{{1.0, 0.0, 1.0}};
     auto single_result = det(single_serie);
     EXPECT_EQ(single_result.size(), 1);
     EXPECT_ARRAY_NEAR(single_result.asArray(),

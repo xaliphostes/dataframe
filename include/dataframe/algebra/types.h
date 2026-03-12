@@ -27,7 +27,8 @@ namespace df {
         using type = std::array<T, N * N>;
         using value_type = T;
         using size_type = size_t;
-        static constexpr size_type size = N;
+        static constexpr size_type dim() { return N; }
+        static constexpr size_type size() { return N * N; }
 
         static FullMatrix<T, N> Identity();
 
@@ -47,6 +48,9 @@ namespace df {
 
         T& operator()(size_t i, size_t j);
         const T& operator()(size_t i, size_t j) const;
+
+        T& operator[](size_t i) { return mat_[i]; }
+        const T& operator[](size_t i) const { return mat_[i]; }
 
         FullMatrix<T, N>::type& data();
         const FullMatrix<T, N>::type& data() const;
@@ -81,7 +85,8 @@ namespace df {
         using type = std::array<T, storage_size>;
         using value_type = T;
         using size_type = size_t;
-        static constexpr size_type size = N;
+        static constexpr size_type dim() { return N; }
+        static constexpr size_type size() { return storage_size; }
 
         // Constructors
         SymmetricMatrix();
@@ -102,6 +107,9 @@ namespace df {
 
         T& operator()(size_t i, size_t j);
         const T& operator()(size_t i, size_t j) const;
+
+        T& operator[](size_t i) { return mat_[i]; }
+        const T& operator[](size_t i) const { return mat_[i]; }
 
         SymmetricMatrix<T, N>::type& data();
         const SymmetricMatrix<T, N>::type& data() const;
@@ -197,15 +205,15 @@ namespace df {
     using Vector3D = Vector<double, 3>;
     using Vector4D = Vector<double, 4>;
 
+    template <typename T, size_t N>
+    std::ostream& operator<<(std::ostream&, const FullMatrix<T, N>&);
+
+    template <typename T, size_t N>
+    std::ostream& operator<<(std::ostream&, const SymmetricMatrix<T, N>&);
+
+    template <typename T, size_t N>
+    std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec);
+
 } // namespace df
-
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream&, const df::FullMatrix<T, N>&);
-
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream&, const df::SymmetricMatrix<T, N>&);
-
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& os, const df::Vector<T, N>& vec);
 
 #include "inline/types.hxx"

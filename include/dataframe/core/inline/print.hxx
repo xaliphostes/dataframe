@@ -29,6 +29,8 @@
 
 namespace df {
 
+using ::operator<<; // bring global operator<< (for std::array) into df namespace
+
 namespace detail {
 
 // Helper to get maximum width needed for a value in a series

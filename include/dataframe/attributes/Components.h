@@ -68,7 +68,7 @@ namespace df {
                     auto [baseName, index] = parseComponentName(dataframe, name);
 
                     if (index) {
-                        return extractAnyComponent<Vector2, Vector3, Vector4, Vector6, Matrix2D,
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
                             Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
                             SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
                     }
@@ -76,7 +76,7 @@ namespace df {
                     // Parse vector component name: name_1, name_2, etc.
                     auto [baseName, index] = parseVectorIndexName(name);
                     if (index) {
-                        return extractAnyComponent<Vector2, Vector3, Vector4, Vector6, Matrix2D,
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
                             Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
                             SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
                     }
@@ -84,7 +84,7 @@ namespace df {
                     // Parse matrix component name: name_11, name_12, etc.
                     auto [baseName, index] = parseMatrixIndexName(dataframe, name);
                     if (index) {
-                        return extractAnyComponent<Vector2, Vector3, Vector4, Vector6, Matrix2D,
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
                             Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
                             SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
                     }
@@ -99,13 +99,13 @@ namespace df {
             std::optional<Strings> getVectorComponentNames(
                 const Dataframe& dataframe, const std::string& name) const
             {
-                if (dataframe.has<Vector2>(name)) {
+                if (dataframe.has<Vector2D>(name)) {
                     return Strings { name + "x", name + "y" };
                 }
-                if (dataframe.has<Vector3>(name)) {
+                if (dataframe.has<Vector3D>(name)) {
                     return Strings { name + "x", name + "y", name + "z" };
                 }
-                if (dataframe.has<Vector4>(name)) {
+                if (dataframe.has<Vector4D>(name)) {
                     return Strings { name + "x", name + "y", name + "z", name + "w" };
                 }
                 return std::nullopt;
@@ -147,8 +147,8 @@ namespace df {
 
             Strings getVectorIndexNames(const Dataframe& dataframe, const std::string& name) const
             {
-                if (dataframe.has<Vector2>(name) || dataframe.has<Vector3>(name)
-                    || dataframe.has<Vector4>(name) || dataframe.has<Vector6>(name)) {
+                if (dataframe.has<Vector2D>(name) || dataframe.has<Vector3D>(name)
+                    || dataframe.has<Vector4D>(name)) {
                     return { name };
                 }
                 return {};

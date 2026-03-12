@@ -42,7 +42,7 @@ TEST(metrics, triangle_area_2d) {
         {1, 3, 2}  // right triangle (area 0.5)
     };
 
-    auto result = area<2>(vertices, triangles);
+    auto result = area<Vector2>(vertices, triangles);
     EXPECT_EQ(result.size(), 2);
 
     // Check areas

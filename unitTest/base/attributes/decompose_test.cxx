@@ -9,8 +9,8 @@
 TEST(Decompose, scalars)
 {
     df::Serie<Vector3> positions = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-    df::Serie<Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
-    df::Serie<Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+    df::Serie<df::Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
+    df::Serie<df::Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
         { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } };
 
     df::Dataframe dataframe;
@@ -40,8 +40,8 @@ TEST(Decompose, scalars)
 TEST(Decompose, vectors)
 {
     df::Serie<Vector3> positions = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-    df::Serie<Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
-    df::Serie<Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+    df::Serie<df::Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
+    df::Serie<df::Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
         { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } };
 
     df::Dataframe dataframe;
@@ -61,8 +61,8 @@ TEST(Decompose, vectors)
 TEST(Decompose, matrices)
 {
     df::Serie<Vector3> positions = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
-    df::Serie<Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
-    df::Serie<Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+    df::Serie<df::Stress3D> stresses = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 } };
+    df::Serie<df::Matrix4D> truc = { { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
         { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } };
 
     df::Dataframe dataframe;

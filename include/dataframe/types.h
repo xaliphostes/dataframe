@@ -38,12 +38,15 @@ using Strings = std::vector<String>;
 using uint = unsigned int;
 using ushort = unsigned short;
 
-// using iVector2 = std::array<uint, 2>;
-// using iVector3 = std::array<uint, 3>;
-// using iVector4 = std::array<uint, 4>;
-// using iVector6 = std::array<uint, 6>;
-// template <size_t N> using iVector = std::array<uint, N>;
-// template <size_t N> using Vector = std::array<double, N>;
+using iVector2 = std::array<uint, 2>;
+using iVector3 = std::array<uint, 3>;
+using iVector4 = std::array<uint, 4>;
+using iVector6 = std::array<uint, 6>;
+template <size_t N> using iVector = std::array<uint, N>;
+using Vector2 = std::array<double, 2>;
+using Vector3 = std::array<double, 3>;
+using Vector4 = std::array<double, 4>;
+using Vector6 = std::array<double, 6>;
 
 // Helper function to print std::array (internal use)
 template <class T, std::size_t N> void print_array(std::ostream& o, const std::array<T, N>& m)
@@ -53,6 +56,13 @@ template <class T, std::size_t N> void print_array(std::ostream& o, const std::a
         o << m[i] << ",";
     }
     o << m[N - 1] << "]";
+}
+
+template <class T, std::size_t N>
+std::ostream& operator<<(std::ostream& o, const std::array<T, N>& m)
+{
+    print_array(o, m);
+    return o;
 }
 
 // /**

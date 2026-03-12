@@ -5,6 +5,8 @@
 
 namespace df {
 
+    template <size_t N> using Vector = std::array<double, N>;
+
     using Positions2 = Serie<Vector2>;
     using Positions3 = Serie<Vector3>;
     using Segments = Serie<iVector2>;

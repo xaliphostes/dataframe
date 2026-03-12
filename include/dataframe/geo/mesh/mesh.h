@@ -29,107 +29,105 @@
 
 namespace df {
 
-/**
- * @brief Class representing a triangulated surface mesh in 2D or 3D
- * @tparam N Dimension of the mesh (2 or 3)
- * @code
- * // Create a 2D mesh
- * //             v1    v2      v3      t1
- * Mesh2D mesh({{0,0}, {1,0}, {0,1}}, {{0,1,2}});
- *
- * // Add vertex attribute
- * mesh.addVertexAttribute("temperature", Serie<double>{20.0, 25.0, 22.0});
- *
- * // Add vector attributes
- * mesh.addVertexAttribute("vec", Serie<Vector2>{{0,1}, {1,0}, {-1,-1}});
- * mesh.addVertexAttribute("normals", df::normals(mesh.vertices(),
- * mesh.triangles()));
- *
- * // Access attributes
- * const auto& temp  = mesh.vertexAttribute<double>("temperature");
- * const auto& norms = mesh.vertexAttribute<Vector2>("normals");
- * const auto& vec2  = mesh.vertexAttribute<Vector2>("vec2");
- *
- * @endcode
- */
-template <size_t N> class Mesh {
-  public:
-    static_assert(N == 2 || N == 3, "Mesh dimension must be 2 or 3");
-
-    using VertexType = Vector<N>; // i.e., std::array<double, N>
-
-    Mesh() = default;
-
     /**
-     * @brief Construct a mesh from vertices and triangles
-     * @param vertices Vertex positions
-     * @param triangles Triangle indices
+     * @brief Class representing a triangulated surface mesh in 2D or 3D
+     * @tparam N Dimension of the mesh (2 or 3)
+     * @code
+     * // Create a 2D mesh
+     * //             v1    v2      v3      t1
+     * Mesh2D mesh({{0,0}, {1,0}, {0,1}}, {{0,1,2}});
+     *
+     * // Add vertex attribute
+     * mesh.addVertexAttribute("temperature", Serie<double>{20.0, 25.0, 22.0});
+     *
+     * // Add vector attributes
+     * mesh.addVertexAttribute("vec", Serie<Vector2>{{0,1}, {1,0}, {-1,-1}});
+     * mesh.addVertexAttribute("normals", df::normals(mesh.vertices(),
+     * mesh.triangles()));
+     *
+     * // Access attributes
+     * const auto& temp  = mesh.vertexAttribute<double>("temperature");
+     * const auto& norms = mesh.vertexAttribute<Vector2>("normals");
+     * const auto& vec2  = mesh.vertexAttribute<Vector2>("vec2");
+     *
+     * @endcode
      */
-    Mesh(const Serie<VertexType> &vertices, const Triangles &triangles);
+    template <size_t N> class Mesh {
+    public:
+        static_assert(N == 2 || N == 3, "Mesh dimension must be 2 or 3");
 
-    // Basic accessors
-    size_t vertexCount() const { return vertices_.size(); }
-    size_t triangleCount() const { return triangles_.size(); }
-    bool empty() const { return vertices_.empty() || triangles_.empty(); }
+        using VertexType = Vector<N>; // i.e., std::array<double, N>
 
-    // Geometry access
-    const Serie<VertexType> &vertices() const { return vertices_; }
-    const Triangles &triangles() const { return triangles_; }
-    Serie<VertexType> &vertices() { return vertices_; }
-    Triangles &triangles() { return triangles_; }
+        Mesh() = default;
 
-    // Dataframe access
-    const Dataframe &vertexAttributes() const { return vertex_attributes_; }
-    Dataframe &vertexAttributes() { return vertex_attributes_; }
-    const Dataframe &triangleAttributes() const { return triangle_attributes_; }
-    Dataframe &triangleAttributes() { return triangle_attributes_; }
+        /**
+         * @brief Construct a mesh from vertices and triangles
+         * @param vertices Vertex positions
+         * @param triangles Triangle indices
+         */
+        Mesh(const Serie<VertexType>& vertices, const Triangles& triangles);
 
-    // Attribute convenience methods
-    template <typename T>
-    void addVertexAttribute(const std::string &name, const Serie<T> &values);
-    template <typename T>
-    void addTriangleAttribute(const std::string &name, const Serie<T> &values);
+        // Basic accessors
+        size_t vertexCount() const { return vertices_.size(); }
+        size_t triangleCount() const { return triangles_.size(); }
+        bool empty() const { return vertices_.empty() || triangles_.empty(); }
 
-    bool hasVertexAttribute(const std::string &name) const;
-    bool hasTriangleAttribute(const std::string &name) const;
+        // Geometry access
+        const Serie<VertexType>& vertices() const { return vertices_; }
+        const Triangles& triangles() const { return triangles_; }
+        Serie<VertexType>& vertices() { return vertices_; }
+        Triangles& triangles() { return triangles_; }
 
-    template <typename T>
-    const Serie<T> &vertexAttribute(const std::string &name) const;
-    template <typename T>
-    const Serie<T> &triangleAttribute(const std::string &name) const;
+        // Dataframe access
+        const Dataframe& vertexAttributes() const { return vertex_attributes_; }
+        Dataframe& vertexAttributes() { return vertex_attributes_; }
+        const Dataframe& triangleAttributes() const { return triangle_attributes_; }
+        Dataframe& triangleAttributes() { return triangle_attributes_; }
 
-    void removeVertexAttribute(const std::string &name);
-    void removeTriangleAttribute(const std::string &name);
+        // Attribute convenience methods
+        template <typename T>
+        void addVertexAttribute(const std::string& name, const Serie<T>& values);
+        template <typename T>
+        void addTriangleAttribute(const std::string& name, const Serie<T>& values);
 
-    // Validation
-    bool isValid() const;
+        bool hasVertexAttribute(const std::string& name) const;
+        bool hasTriangleAttribute(const std::string& name) const;
 
-    /**
-     * @brief Get the neighbors of a node with index node_idx
-     */
-    const std::vector<size_t> &neighbors(size_t node_idx) const;
+        template <typename T> const Serie<T>& vertexAttribute(const std::string& name) const;
+        template <typename T> const Serie<T>& triangleAttribute(const std::string& name) const;
 
-    /**
-     * @brief Get the border nodes of the mesh
-     */
-    const std::vector<size_t> &borderNodes() const;
+        void removeVertexAttribute(const std::string& name);
+        void removeTriangleAttribute(const std::string& name);
 
-  private:
-    Serie<VertexType> vertices_;
-    Triangles triangles_;
-    Dataframe vertex_attributes_;
-    Dataframe triangle_attributes_;
-    std::vector<std::vector<size_t>> adjacency_;
-    std::vector<size_t> border_nodes_;
+        // Validation
+        bool isValid() const;
 
-    void validateAttributeSize(const std::string &, size_t, bool) const;
-    void buildTopology();
-    void findBorderNodes();
-};
+        /**
+         * @brief Get the neighbors of a node with index node_idx
+         */
+        const std::vector<size_t>& neighbors(size_t node_idx) const;
 
-// Type aliases for common dimensions
-using Mesh2D = Mesh<2>;
-using Mesh3D = Mesh<3>;
+        /**
+         * @brief Get the border nodes of the mesh
+         */
+        const std::vector<size_t>& borderNodes() const;
+
+    private:
+        Serie<VertexType> vertices_;
+        Triangles triangles_;
+        Dataframe vertex_attributes_;
+        Dataframe triangle_attributes_;
+        std::vector<std::vector<size_t>> adjacency_;
+        std::vector<size_t> border_nodes_;
+
+        void validateAttributeSize(const std::string&, size_t, bool) const;
+        void buildTopology();
+        void findBorderNodes();
+    };
+
+    // Type aliases for common dimensions
+    using Mesh2D = Mesh<2>;
+    using Mesh3D = Mesh<3>;
 
 } // namespace df
 
