@@ -48,54 +48,53 @@
 
 namespace df {
 
-/**
- * @brief Slice a Serie from start index to end index
- *
- * @tparam T The type of elements in the Serie
- * @param serie The input Serie to slice
- * @param start The starting index (inclusive)
- * @param end The ending index (exclusive)
- * @return Serie<T> A new Serie containing the sliced elements
- * @throws std::invalid_argument if start > end
- * @throws std::out_of_range if end > serie.size()
- */
-template <typename T>
-Serie<T> slice(const Serie<T> &serie, size_t start, size_t end);
+    /**
+     * @brief Slice a Serie from start index to end index
+     *
+     * @tparam T The type of elements in the Serie
+     * @param serie The input Serie to slice
+     * @param start The starting index (inclusive)
+     * @param end The ending index (exclusive)
+     * @return Serie<T> A new Serie containing the sliced elements
+     * @throws std::invalid_argument if start > end
+     * @throws std::out_of_range if end > serie.size()
+     */
+    template <typename T> Serie<T> slice(const Serie<T>& serie, size_t start, size_t end);
 
-/**
- * @brief Slice a Serie from index 0 to end index
- *
- * @tparam T The type of elements in the Serie
- * @param serie The input Serie to slice
- * @param end The ending index (exclusive)
- * @return Serie<T> A new Serie containing the sliced elements
- * @throws std::out_of_range if end > serie.size()
- */
-template <typename T> Serie<T> slice(const Serie<T> &serie, size_t end);
+    /**
+     * @brief Slice a Serie from index 0 to end index
+     *
+     * @tparam T The type of elements in the Serie
+     * @param serie The input Serie to slice
+     * @param end The ending index (exclusive)
+     * @return Serie<T> A new Serie containing the sliced elements
+     * @throws std::out_of_range if end > serie.size()
+     */
+    template <typename T> Serie<T> slice(const Serie<T>& serie, size_t end);
 
-/**
- * @brief Slice a Serie from start to end with a step size
- *
- * @tparam T The type of elements in the Serie
- * @param serie The input Serie to slice
- * @param start The starting index (inclusive)
- * @param end The ending index (exclusive)
- * @param step The step size between elements
- * @return Serie<T> A new Serie containing the sliced elements
- * @throws std::invalid_argument if start > end or step == 0
- * @throws std::out_of_range if end > serie.size()
- */
-template <typename T>
-Serie<T> slice(const Serie<T> &serie, size_t start, size_t end, size_t step);
+    /**
+     * @brief Slice a Serie from start to end with a step size
+     *
+     * @tparam T The type of elements in the Serie
+     * @param serie The input Serie to slice
+     * @param start The starting index (inclusive)
+     * @param end The ending index (exclusive)
+     * @param step The step size between elements
+     * @return Serie<T> A new Serie containing the sliced elements
+     * @throws std::invalid_argument if start > end or step == 0
+     * @throws std::out_of_range if end > serie.size()
+     */
+    template <typename T>
+    Serie<T> slice(const Serie<T>& serie, size_t start, size_t end, size_t step);
 
-/**
- * @brief Create a bound slice function for use in pipelines
- *
- * @tparam Args Types of the slice arguments
- * @param args The slice arguments (start, end, and optionally step)
- * @return A function that takes a Serie and returns a sliced Serie
- */
-template <typename... Args> auto bind_slice(Args... args);
+    /**
+     * @brief Create a bound slice function for use in pipelines
+     *
+     * @tparam Args Types of the slice arguments
+     * @param args The slice arguments (start, end, and optionally step)
+     * @return A function that takes a Serie and returns a sliced Serie
+     */
+    template <typename... Args> auto bind_slice(Args... args);
 
 } // namespace df
 

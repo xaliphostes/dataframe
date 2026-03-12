@@ -28,28 +28,33 @@
 
 namespace df {
 
-// Split a serie into two series based on a predicate
-template <typename T, typename F>
-std::pair<Serie<T>, Serie<T>> partition(const Serie<T> &serie, F &&predicate) {
-    std::vector<T> matches;
-    std::vector<T> non_matches;
+    /**
+     * @brief Partition a Serie into two based on a predicate function.
+     * This function takes a Serie and a predicate function, and returns a pair of Series:
+     * - The first Serie contains all elements for which the predicate returns true.
+     * - The second Serie contains all elements for which the predicate returns false.
+     */
+    template <typename T, typename F>
+    std::pair<Serie<T>, Serie<T>> partition(const Serie<T>& serie, F&& predicate)
+    {
+        std::vector<T> matches;
+        std::vector<T> non_matches;
 
-    for (size_t i = 0; i < serie.size(); ++i) {
-        if (predicate(serie[i], i)) {
-            matches.push_back(serie[i]);
-        } else {
-            non_matches.push_back(serie[i]);
+        for (size_t i = 0; i < serie.size(); ++i) {
+            if (predicate(serie[i], i)) {
+                matches.push_back(serie[i]);
+            } else {
+                non_matches.push_back(serie[i]);
+            }
         }
+
+        return { Serie<T>(matches), Serie<T>(non_matches) };
     }
 
-    return {Serie<T>(matches), Serie<T>(non_matches)};
-}
-
-// Helper function to create a bound partition operation
-template <typename F> auto bind_partition(F &&predicate) {
-    return [f = std::forward<F>(predicate)](const auto &serie) {
-        return partition(serie, f);
-    };
-}
+    // Helper function to create a bound partition operation
+    template <typename F> auto bind_partition(F&& predicate)
+    {
+        return [f = std::forward<F>(predicate)](const auto& serie) { return partition(serie, f); };
+    }
 
 } // namespace df

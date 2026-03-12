@@ -25,8 +25,12 @@
 
 namespace df {
 
-template <typename T> Serie<T> ones(size_t size) {
-    return Serie<T>(size, T(1));
-}
+    /**
+     * Create a Serie of the given size filled with ones.
+     * @param size The size of the Serie to create.
+     * @tparam T The type of the elements in the Serie.
+     * @return A Serie of the given size filled with ones.
+     */
+    template <typename T> Serie<T> ones(size_t size) { return Serie<T>(size, T(1)); }
 
 } // namespace df

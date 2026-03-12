@@ -18,68 +18,68 @@
 
 namespace df {
 
-/**
- * @brief Skips the first n elements from a series.
- *
- * This function returns a new series containing all elements after the first n
- * elements from the input series. If n is greater than or equal to the size of
- * the series, an empty series is returned.
- *
- * @param serie The input series
- * @param n Number of elements to skip
- * @return A new series without the first n elements
- *
- * @code
- * // Create a series
- * Serie<int> numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
- *
- * // Skip the first 5 elements
- * auto last_five = skip(numbers, 5);
- * // Result: {6, 7, 8, 9, 10}
- * @endcode
- */
-template <typename T> Serie<T> skip(const Serie<T> &serie, size_t n);
+    /**
+     * @brief Skips the first n elements from a series.
+     *
+     * This function returns a new series containing all elements after the first n
+     * elements from the input series. If n is greater than or equal to the size of
+     * the series, an empty series is returned.
+     *
+     * @param serie The input series
+     * @param n Number of elements to skip
+     * @return A new series without the first n elements
+     *
+     * @code
+     * // Create a series
+     * Serie<int> numbers{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+     *
+     * // Skip the first 5 elements
+     * auto last_five = skip(numbers, 5);
+     * // Result: {6, 7, 8, 9, 10}
+     * @endcode
+     */
+    template <typename T> Serie<T> skip(const Serie<T>& serie, size_t n);
 
-/**
- * @brief Skips the first n elements from multiple series.
- *
- * This function returns a tuple of new series, each containing all elements
- * after the first n elements from the corresponding input series. All input
- * series must have the same size.
- *
- * @param n Number of elements to skip
- * @param first The first input series
- * @param rest Additional input series
- * @return A tuple of new series, each without the first n elements
- *
- * @code
- * // Create series
- * Serie<int> numbers{1, 2, 3, 4, 5};
- * Serie<std::string> names{"Alice", "Bob", "Charlie", "Dave", "Eve"};
- *
- * // Skip the first 3 elements from both series
- * auto [last_two_numbers, last_two_names] = skip(3, numbers, names);
- * // last_two_numbers: {4, 5}
- * // last_two_names: {"Dave", "Eve"}
- * @endcode
- */
-template <typename T, typename... Ts>
-std::tuple<Serie<T>, Serie<Ts>...> skip(size_t n, const Serie<T> &first,
-                                        const Serie<Ts> &...rest);
+    /**
+     * @brief Skips the first n elements from multiple series.
+     *
+     * This function returns a tuple of new series, each containing all elements
+     * after the first n elements from the corresponding input series. All input
+     * series must have the same size.
+     *
+     * @param n Number of elements to skip
+     * @param first The first input series
+     * @param rest Additional input series
+     * @return A tuple of new series, each without the first n elements
+     *
+     * @code
+     * // Create series
+     * Serie<int> numbers{1, 2, 3, 4, 5};
+     * Serie<std::string> names{"Alice", "Bob", "Charlie", "Dave", "Eve"};
+     *
+     * // Skip the first 3 elements from both series
+     * auto [last_two_numbers, last_two_names] = skip(3, numbers, names);
+     * // last_two_numbers: {4, 5}
+     * // last_two_names: {"Dave", "Eve"}
+     * @endcode
+     */
+    template <typename T, typename... Ts>
+    std::tuple<Serie<T>, Serie<Ts>...> skip(
+        size_t n, const Serie<T>& first, const Serie<Ts>&... rest);
 
-/**
- * @brief Helper function to create a bound skip operation for use in pipe
- * operations.
- *
- * @param n Number of elements to skip
- * @return A function that skips the first n elements from a series
- *
- * @code
- * // Using with pipe syntax
- * auto last_five = numbers | bind_skip<int>(5);
- * @endcode
- */
-template <typename T> auto bind_skip(size_t n);
+    /**
+     * @brief Helper function to create a bound skip operation for use in pipe
+     * operations.
+     *
+     * @param n Number of elements to skip
+     * @return A function that skips the first n elements from a series
+     *
+     * @code
+     * // Using with pipe syntax
+     * auto last_five = numbers | bind_skip<int>(5);
+     * @endcode
+     */
+    template <typename T> auto bind_skip(size_t n);
 
 } // namespace df
 

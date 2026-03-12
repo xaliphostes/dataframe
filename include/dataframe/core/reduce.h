@@ -27,58 +27,70 @@
 
 namespace df {
 
-// -------------------------------------------
+    // -------------------------------------------
 
-namespace details {
+    namespace details {
 
-template <typename T> struct reduce_result {
-    using type = typename std::conditional<is_simple_type<T>::value, T,
-                                           Serie<T>>::type;
-};
+        template <typename T> struct reduce_result {
+            using type = typename std::conditional<is_simple_type<T>::value, T, Serie<T>>::type;
+        };
 
-} // namespace details
+    } // namespace details
 
-// -------------------------------------------
+    // -------------------------------------------
 
-template <typename F, typename T, typename AccT>
-auto reduce(F &&callback, const Serie<T> &serie, AccT initial) ->
-    typename details::reduce_result<AccT>::type {
-    AccT result = initial;
+    /**
+     * @brief Reduce a Serie to a single value using a binary function.
+     * The reduce function takes a binary function (callback) and applies it cumulatively to the
+     * elements of the Serie, from left to right, starting with an initial value. The callback
+     * function should take the accumulated result so far, the current element, and its index as
+     * parameters, and return the updated accumulated result.
+     * The multi-Serie version allows you to reduce across multiple Series simultaneously, where the
+     * callback function takes corresponding elements from each Serie as parameters. The return type
+     * of the reduce function is determined by the type of the accumulated result. If the
+     * accumulated result is a simple type (like int, double, etc.), it returns that type directly.
+     * If it's a more complex type (like a struct or class), it returns a Serie containing that
+     * type.
+     */
+    template <typename F, typename T, typename AccT>
+    auto reduce(F&& callback, const Serie<T>& serie, AccT initial) ->
+        typename details::reduce_result<AccT>::type
+    {
+        AccT result = initial;
 
-    for (size_t i = 0; i < serie.size(); ++i) {
-        result = callback(result, serie[i], i);
+        for (size_t i = 0; i < serie.size(); ++i) {
+            result = callback(result, serie[i], i);
+        }
+
+        if constexpr (details::is_simple_type<AccT>::value) {
+            return result;
+        } else {
+            return Serie<AccT>({ result });
+        }
     }
 
-    if constexpr (details::is_simple_type<AccT>::value) {
-        return result;
-    } else {
-        return Serie<AccT>({result});
+    // Multi series version
+    template <typename F, typename T, typename AccT, typename... Args>
+    auto reduce(F&& callback, const Serie<T>& first, const Serie<T>& second, AccT initial,
+        const Args&... args) -> typename details::reduce_result<AccT>::type
+    {
+        AccT result = initial;
+
+        for (size_t i = 0; i < first.size(); ++i) {
+            result = callback(result, first[i], second[i], (args[i])..., i);
+        }
+
+        if constexpr (details::is_simple_type<AccT>::value) {
+            return result;
+        } else {
+            return Serie<AccT>({ result });
+        }
     }
-}
 
-// Multi series version
-template <typename F, typename T, typename AccT, typename... Args>
-auto reduce(F &&callback, const Serie<T> &first, const Serie<T> &second,
-            AccT initial, const Args &...args) ->
-    typename details::reduce_result<AccT>::type {
-    AccT result = initial;
-
-    for (size_t i = 0; i < first.size(); ++i) {
-        result = callback(result, first[i], second[i], (args[i])..., i);
+    template <typename F, typename AccT> auto bind_reduce(F&& callback, AccT initial)
+    {
+        return [callback = std::forward<F>(callback), initial](
+                   const auto& serie) { return reduce(callback, serie, initial); };
     }
-
-    if constexpr (details::is_simple_type<AccT>::value) {
-        return result;
-    } else {
-        return Serie<AccT>({result});
-    }
-}
-
-template <typename F, typename AccT>
-auto bind_reduce(F &&callback, AccT initial) {
-    return [callback = std::forward<F>(callback), initial](const auto &serie) {
-        return reduce(callback, serie, initial);
-    };
-}
 
 } // namespace df

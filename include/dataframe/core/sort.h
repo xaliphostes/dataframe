@@ -66,37 +66,34 @@
  */
 namespace df {
 
-enum class SortOrder { ASCENDING, DESCENDING };
+    enum class SortOrder { ASCENDING, DESCENDING };
 
-template <typename T>
-Serie<T> sort(const Serie<T> &serie, SortOrder order = SortOrder::ASCENDING,
-              ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename T>
+    Serie<T> sort(const Serie<T>& serie, SortOrder order = SortOrder::ASCENDING,
+        ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-template <typename T, typename Compare>
-Serie<T> sort(const Serie<T> &serie, Compare comp,
-              ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename T, typename Compare>
+    Serie<T> sort(const Serie<T>& serie, Compare comp, ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-template <typename T, typename KeyFunc>
-Serie<T> sort_by(const Serie<T> &serie, KeyFunc key_func,
-                 SortOrder order = SortOrder::ASCENDING,
-                 ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename T, typename KeyFunc>
+    Serie<T> sort_by(const Serie<T>& serie, KeyFunc key_func,
+        SortOrder order = SortOrder::ASCENDING, ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-template <typename T>
-Serie<T> sort_nan(const Serie<T> &serie, SortOrder order = SortOrder::ASCENDING,
-                  bool nan_first = false,
-                  ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename T>
+    Serie<T> sort_nan(const Serie<T>& serie, SortOrder order = SortOrder::ASCENDING,
+        bool nan_first = false, ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-// Bind functions for pipeline operations with parallel support
-template <typename T>
-auto bind_sort(SortOrder order = SortOrder::ASCENDING,
-               ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    // Bind functions for pipeline operations with parallel support
+    template <typename T>
+    auto bind_sort(
+        SortOrder order = SortOrder::ASCENDING, ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-template <typename Compare>
-auto bind_sort_with(Compare comp, ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename Compare>
+    auto bind_sort_with(Compare comp, ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
-template <typename KeyFunc>
-auto bind_sort_by(KeyFunc key_func, SortOrder order = SortOrder::ASCENDING,
-                  ExecutionPolicy exec = ExecutionPolicy::SEQ);
+    template <typename KeyFunc>
+    auto bind_sort_by(KeyFunc key_func, SortOrder order = SortOrder::ASCENDING,
+        ExecutionPolicy exec = ExecutionPolicy::SEQ);
 
 } // namespace df
 

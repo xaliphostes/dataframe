@@ -25,8 +25,12 @@
 
 namespace df {
 
-template <typename T> Serie<T> zeros(size_t size) {
-    return Serie<T>(size, T(0));
-}
+    /**
+     * Create a Serie of the given size filled with zeros.
+     * @param size The size of the Serie to create.
+     * @tparam T The type of the elements in the Serie.
+     * @return A Serie of the given size filled with zeros.
+     */
+    template <typename T> Serie<T> zeros(size_t size) { return Serie<T>(size, T(0)); }
 
 } // namespace df

@@ -26,15 +26,14 @@
 
 namespace df {
 
-template <typename T> auto compose(T &&value);
+    template <typename T> auto compose(T&& value);
 
-template <typename T, typename F, typename... Rest>
-auto compose(T &&value, F &&operation, Rest &&...rest);
+    template <typename T, typename F, typename... Rest>
+    auto compose(T&& value, F&& operation, Rest&&... rest);
 
-template <typename F> auto make_compose(F &&operation);
+    template <typename F> auto make_compose(F&& operation);
 
-template <typename F, typename... Rest>
-auto make_compose(F &&first, Rest &&...rest);
+    template <typename F, typename... Rest> auto make_compose(F&& first, Rest&&... rest);
 
 } // namespace df
 

@@ -68,25 +68,25 @@ namespace df {
                     auto [baseName, index] = parseComponentName(dataframe, name);
 
                     if (index) {
-                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
-                            Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
-                            SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D, Matrix3D,
+                            Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D, SMatrix3D,
+                            SMatrix4D>(dataframe, baseName, *index);
                     }
                 } else if (targetDim == DecompDimension::Vector) {
                     // Parse vector component name: name_1, name_2, etc.
                     auto [baseName, index] = parseVectorIndexName(name);
                     if (index) {
-                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
-                            Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
-                            SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D, Matrix3D,
+                            Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D, SMatrix3D,
+                            SMatrix4D>(dataframe, baseName, *index);
                     }
                 } else if (targetDim == DecompDimension::Matrix) {
                     // Parse matrix component name: name_11, name_12, etc.
                     auto [baseName, index] = parseMatrixIndexName(dataframe, name);
                     if (index) {
-                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D,
-                            Matrix3D, Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D,
-                            SMatrix3D, SMatrix4D>(dataframe, baseName, *index);
+                        return extractAnyComponent<Vector2D, Vector3D, Vector4D, Matrix2D, Matrix3D,
+                            Matrix4D, Strain2D, Strain3D, Stress2D, Stress3D, SMatrix2D, SMatrix3D,
+                            SMatrix4D>(dataframe, baseName, *index);
                     }
                 }
 

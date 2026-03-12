@@ -26,31 +26,29 @@
 
 namespace df {
 
-/**
- * @brief Binary zip (two Series)
- */
-template <typename T, typename U>
-auto zip(const Serie<T> &serie1, const Serie<U> &serie2);
+    /**
+     * @brief Binary zip (two Series)
+     */
+    template <typename T, typename U> auto zip(const Serie<T>& serie1, const Serie<U>& serie2);
 
-/**
- * @brief Variadic zip (multiple Series)
- * @code
- * // Combining related data
- * Serie<double> timestamps{0.0, 1.0, 2.0};
- * Serie<double> temperatures{20.5, 21.0, 21.5};
- * auto timestamped_temps = zip(timestamps, temperatures);
- *
- * // Processing multiple series together
- * Serie<double> x{1.0, 2.0, 3.0};
- * Serie<double> y{4.0, 5.0, 6.0};
- * auto points = zip(x, y).map([](const auto& tuple) {
- *     auto [x_val, y_val] = tuple;
- *     return std::sqrt(x_val*x_val + y_val*y_val);
- * });
- * @endcode
- */
-template <typename T, typename... Args>
-auto zip(const Serie<T> &first, const Args &...rest);
+    /**
+     * @brief Variadic zip (multiple Series)
+     * @code
+     * // Combining related data
+     * Serie<double> timestamps{0.0, 1.0, 2.0};
+     * Serie<double> temperatures{20.5, 21.0, 21.5};
+     * auto timestamped_temps = zip(timestamps, temperatures);
+     *
+     * // Processing multiple series together
+     * Serie<double> x{1.0, 2.0, 3.0};
+     * Serie<double> y{4.0, 5.0, 6.0};
+     * auto points = zip(x, y).map([](const auto& tuple) {
+     *     auto [x_val, y_val] = tuple;
+     *     return std::sqrt(x_val*x_val + y_val*y_val);
+     * });
+     * @endcode
+     */
+    template <typename T, typename... Args> auto zip(const Serie<T>& first, const Args&... rest);
 
 } // namespace df
 

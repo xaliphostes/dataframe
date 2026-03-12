@@ -42,29 +42,29 @@
 
 namespace df {
 
-template <typename T> Serie<T> concat(const std::vector<Serie<T>> &series);
+    template <typename T> Serie<T> concat(const std::vector<Serie<T>>& series);
 
-/**
- * Variadic template version for ease of use
- */
-template <typename T, typename... Args>
-Serie<T> concat(const Serie<T> &first, const Args &...args);
+    /**
+     * Variadic template version for ease of use
+     */
+    template <typename T, typename... Args>
+    Serie<T> concat(const Serie<T>& first, const Args&... args);
 
-/**
- * @code
- * // Example usage:
- * df::Serie<double> s1({1.0, 2.0, 3.0});
- * df::Serie<double> s2({4.0, 5.0, 6.0});
- * df::Serie<double> s3({7.0, 8.0, 9.0});
- *
- * // This will concatenate s1, s2, and s3
- * //
- * auto result1 = bind_concat(s1, s2, s3);
- * auto result2 = bind_concat({s1, s2, s3});
- * auto result3 = s1 | bind_concat(s2, s3);
- * @endcode
- */
-template <typename... Args> auto bind_concat(const Args &...series);
+    /**
+     * @code
+     * // Example usage:
+     * df::Serie<double> s1({1.0, 2.0, 3.0});
+     * df::Serie<double> s2({4.0, 5.0, 6.0});
+     * df::Serie<double> s3({7.0, 8.0, 9.0});
+     *
+     * // This will concatenate s1, s2, and s3
+     * //
+     * auto result1 = bind_concat(s1, s2, s3);
+     * auto result2 = bind_concat({s1, s2, s3});
+     * auto result3 = s1 | bind_concat(s2, s3);
+     * @endcode
+     */
+    template <typename... Args> auto bind_concat(const Args&... series);
 
 } // namespace df
 

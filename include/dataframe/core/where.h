@@ -44,19 +44,34 @@
 
 namespace df {
 
-template <typename CondT, typename ThenT, typename ElseT>
-auto where(const Serie<CondT> &condition, const Serie<ThenT> &then_serie,
-           const Serie<ElseT> &else_serie);
+    /**
+     * @brief Element-wise selection based on a condition
+     * The where function takes a condition Serie and two other Series (or scalar values) of the
+     * same length. It returns a new Serie where each element is selected from the "then" Serie if
+     * the corresponding condition is true, or from the "else" Serie if the condition is false. This
+     * allows for conditional transformations of data based on a boolean mask.
+     * @tparam CondT The type of the condition elements (should be convertible to bool
+     * for proper evaluation)
+     * @tparam ThenT The type of the "then" elements
+     * @tparam ElseT The type of the "else" elements
+     * @param condition A Serie of conditions that determine which value to select
+     * @param then_serie A Serie containing values to select when the condition is true
+     * @param else_serie A Serie containing values to select when the condition is false
+     * @return A new Serie where each element is selected from then_serie or else_serie based on the
+     * corresponding condition
+     */
+    template <typename CondT, typename ThenT, typename ElseT>
+    auto where(const Serie<CondT>& condition, const Serie<ThenT>& then_serie,
+        const Serie<ElseT>& else_serie);
 
-template <typename CondT, typename ThenT, typename ElseT>
-auto where(const Serie<CondT> &condition, const ThenT &then_value,
-           const ElseT &else_value);
+    template <typename CondT, typename ThenT, typename ElseT>
+    auto where(const Serie<CondT>& condition, const ThenT& then_value, const ElseT& else_value);
 
-template <typename ThenT, typename ElseT>
-auto bind_where(const Serie<ThenT> &then_serie, const Serie<ElseT> &else_serie);
+    template <typename ThenT, typename ElseT>
+    auto bind_where(const Serie<ThenT>& then_serie, const Serie<ElseT>& else_serie);
 
-template <typename ThenT, typename ElseT>
-auto bind_where(const ThenT &then_value, const ElseT &else_value);
+    template <typename ThenT, typename ElseT>
+    auto bind_where(const ThenT& then_value, const ElseT& else_value);
 
 } // namespace df
 

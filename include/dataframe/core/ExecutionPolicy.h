@@ -25,11 +25,11 @@
 
 namespace df {
 
-// Execution policy enum that works with or without parallel support
-enum class ExecutionPolicy {
-    SEQ,      // Sequential execution
-    PAR,      // Parallel execution
-    PAR_UNSEQ // Parallel and vectorized execution
-};
+    // Execution policy enum that works with or without parallel support
+    enum class ExecutionPolicy {
+        SEQ, // Sequential execution
+        PAR, // Parallel execution
+        PAR_UNSEQ // Parallel and vectorized execution
+    };
 
 } // namespace df

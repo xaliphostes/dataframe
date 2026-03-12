@@ -47,49 +47,48 @@
 
 namespace df {
 
-/**
- * Reject elements from a Serie based on a predicate
- * Returns a new Serie containing only elements for which the predicate returns
- * false
- *
- * @param predicate Function that returns true for elements to be rejected
- * @param serie Input Serie
- * @return New Serie with rejected elements removed
- */
-template <typename F, typename T>
-Serie<T> reject(F &&predicate, const Serie<T> &serie);
+    /**
+     * Reject elements from a Serie based on a predicate
+     * Returns a new Serie containing only elements for which the predicate returns
+     * false
+     *
+     * @param predicate Function that returns true for elements to be rejected
+     * @param serie Input Serie
+     * @return New Serie with rejected elements removed
+     */
+    template <typename F, typename T> Serie<T> reject(F&& predicate, const Serie<T>& serie);
 
-/**
- * Multi-series version that applies predicate to corresponding elements
- */
-template <typename F, typename T, typename... Args>
-Serie<T> reject(F &&predicate, const Serie<T> &first, const Serie<T> &second,
-                const Args &...args);
+    /**
+     * Multi-series version that applies predicate to corresponding elements
+     */
+    template <typename F, typename T, typename... Args>
+    Serie<T> reject(
+        F&& predicate, const Serie<T>& first, const Serie<T>& second, const Args&... args);
 
-/**
- * Create a predicate for rejecting values less than a threshold
- */
-template <typename T> auto less_than(T threshold);
+    /**
+     * Create a predicate for rejecting values less than a threshold
+     */
+    template <typename T> auto less_than(T threshold);
 
-/**
- * Create a predicate for rejecting values greater than a threshold
- */
-template <typename T> auto greater_than(T threshold);
+    /**
+     * Create a predicate for rejecting values greater than a threshold
+     */
+    template <typename T> auto greater_than(T threshold);
 
-/**
- * Create a predicate for rejecting values outside a range [min, max]
- */
-template <typename T> auto outside(T min_val, T max_val);
+    /**
+     * Create a predicate for rejecting values outside a range [min, max]
+     */
+    template <typename T> auto outside(T min_val, T max_val);
 
-/**
- * Create a predicate for rejecting values equal to a specific value
- */
-template <typename T> auto equal_to(T value);
+    /**
+     * Create a predicate for rejecting values equal to a specific value
+     */
+    template <typename T> auto equal_to(T value);
 
-/**
- * Enable pipe operation for reject
- */
-template <typename F> auto bind_reject(F &&predicate);
+    /**
+     * Enable pipe operation for reject
+     */
+    template <typename F> auto bind_reject(F&& predicate);
 
 } // namespace df
 
