@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mathematical Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Mathematical Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The DataFrame library provides a rich set of mathematical functions for element-wise arithmetic, normalization,
+          bounds computation, random number generation, weighted sums, and NaN handling. These functions operate on
+          <code>Serie</code> objects and support both scalar and vector types.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Arithmetic Operations</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Arithmetic Function Signatures</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Element-wise arithmetic between two Series
+template &lt;typename T&gt; Serie&lt;T&gt; add(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; sub(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; mult(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; div(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+
+// Operator overloads
+template &lt;typename T&gt; Serie&lt;T&gt; operator+(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; operator-(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; operator*(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+template &lt;typename T&gt; Serie&lt;T&gt; operator/(const Serie&lt;T&gt; &amp;a, const Serie&lt;T&gt; &amp;b);
+
+// Negate (unary minus)
+template &lt;typename T&gt; Serie&lt;T&gt; negate(const Serie&lt;T&gt; &amp;serie);
+template &lt;typename T&gt; Serie&lt;T&gt; operator-(const Serie&lt;T&gt; &amp;serie);
+
+// Scale by a scalar or by another Serie
+template &lt;typename T&gt; Serie&lt;T&gt; scale(const Serie&lt;T&gt; &amp;serie, double factor);
+template &lt;typename T&gt; Serie&lt;T&gt; scale(const Serie&lt;T&gt; &amp;serie, const Serie&lt;double&gt; &amp;factors);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Arithmetic Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; a{1.0, 2.0, 3.0};
+df::Serie&lt;double&gt; b{4.0, 5.0, 6.0};
+
+auto sum  = a + b;              // {5, 7, 9}
+auto diff = a - b;              // {-3, -3, -3}
+auto prod = a * b;              // {4, 10, 18}
+auto quot = b / a;              // {4, 2.5, 2}
+
+auto neg = -a;                  // {-1, -2, -3}
+auto scaled = df::math::scale(a, 2.0);  // {2, 4, 6}
+
+// Scale each element by a different factor
+df::Serie&lt;double&gt; factors{0.5, 1.0, 2.0};
+auto varied = df::math::scale(a, factors);  // {0.5, 2.0, 6.0}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Bounds, Min, Max</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Bounds Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Returns a pair {min_value, max_value}
+template &lt;typename T&gt;
+std::pair&lt;T, T&gt; bounds(const Serie&lt;T&gt; &amp;serie);
+
+// Individual min and max
+template &lt;typename T&gt; T min(const Serie&lt;T&gt; &amp;serie);
+template &lt;typename T&gt; T max(const Serie&lt;T&gt; &amp;serie);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Bounds Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; values{3.0, 1.5, 7.2, 0.8, 5.1};
+
+auto [lo, hi] = df::math::bounds(values);  // lo=0.8, hi=7.2
+double mn = df::math::min(values);          // 0.8
+double mx = df::math::max(values);          // 7.2
+
+// Works for vector types too (component-wise)
+df::Serie&lt;Vector3D&gt; pts{{1,2,3}, {4,0,1}, {2,5,2}};
+auto [pmin, pmax] = df::math::bounds(pts);
+// pmin = {1, 0, 1}, pmax = {4, 5, 3}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Normalize</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Normalize Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Configuration for normalization
+struct NormalizeConfig {
+    double target_min = 0.0;  // Target range minimum
+    double target_max = 1.0;  // Target range maximum
+};
+
+// Normalize to [0, 1] by default
+template &lt;typename T&gt;
+Serie&lt;double&gt; normalize(const Serie&lt;T&gt; &amp;serie);
+
+// Normalize to a custom range
+template &lt;typename T&gt;
+Serie&lt;double&gt; normalize(const Serie&lt;T&gt; &amp;serie, const NormalizeConfig &amp;config);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Normalize Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; values{10, 20, 30, 40, 50};
+
+// Normalize to [0, 1]
+auto normed = df::math::normalize(values);
+// normed = {0.0, 0.25, 0.5, 0.75, 1.0}
+
+// Normalize to custom range [-1, 1]
+auto custom = df::math::normalize(values, {-1.0, 1.0});
+// custom = {-1.0, -0.5, 0.0, 0.5, 1.0}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Random Number Generation</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Random Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Distribution type enum
+enum class DistType {
+    Uniform, Normal, Bernoulli, Poisson
+};
+
+// Generate random Serie with uniform distribution in [lo, hi]
+Serie&lt;double&gt; random_uniform(size_t count, double lo = 0.0, double hi = 1.0);
+
+// Generate random Serie with normal distribution
+Serie&lt;double&gt; random_normal(size_t count, double mean = 0.0, double stddev = 1.0);
+
+// Generate random boolean Serie with Bernoulli distribution
+Serie&lt;bool&gt; random_bernoulli(size_t count, double probability = 0.5);
+
+// Generate random integer Serie with Poisson distribution
+Serie&lt;int&gt; random_poisson(size_t count, double lambda = 1.0);
+
+// Random sampling: pick n random elements from a Serie
+template &lt;typename T&gt;
+Serie&lt;T&gt; random_sampling(const Serie&lt;T&gt; &amp;serie, size_t n);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Random Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// 100 uniform random values in [0, 10]
+auto uniform = df::math::random_uniform(100, 0.0, 10.0);
+
+// 50 normally distributed values (mean=5, stddev=2)
+auto normal = df::math::random_normal(50, 5.0, 2.0);
+
+// 30 coin flips (60% heads)
+auto flips = df::math::random_bernoulli(30, 0.6);
+
+// Poisson-distributed event counts
+auto events = df::math::random_poisson(100, 3.5);
+
+// Sample 10 random elements from a Serie
+df::Serie&lt;double&gt; data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+auto sample = df::math::random_sampling(data, 5);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Weighted Sum</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Weighted Sum Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Weighted sum with scalar weights
+template &lt;typename T&gt;
+Serie&lt;T&gt; weightedSum(
+    const std::vector&lt;Serie&lt;T&gt;&gt; &amp;series,
+    const std::vector&lt;double&gt; &amp;weights
+);
+
+// Weighted sum with Serie weights (per-element weights)
+template &lt;typename T&gt;
+Serie&lt;T&gt; weightedSum(
+    const std::vector&lt;Serie&lt;T&gt;&gt; &amp;series,
+    const std::vector&lt;Serie&lt;double&gt;&gt; &amp;weights
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Weighted Sum Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; s1{1.0, 2.0, 3.0};
+df::Serie&lt;double&gt; s2{4.0, 5.0, 6.0};
+df::Serie&lt;double&gt; s3{7.0, 8.0, 9.0};
+
+// Scalar weights: result = 0.5*s1 + 0.3*s2 + 0.2*s3
+auto ws = df::math::weightedSum(
+    {s1, s2, s3},
+    {0.5, 0.3, 0.2}
+);
+// ws = {0.5*1+0.3*4+0.2*7, ...} = {3.1, 3.9, 4.7}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">NaN Handling</h2>
+        <p>
+          The <code>df::nan</code> namespace provides utilities for detecting, replacing, and interpolating NaN values
+          in a Serie.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>NaN Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::nan {
+
+// Fill methods for interpolation
+enum class FillMethod {
+    LINEAR,     // Linear interpolation between valid neighbors
+    NEAREST,    // Use nearest valid value
+    PREVIOUS,   // Use previous valid value (forward fill)
+    NEXT,       // Use next valid value (backward fill)
+    MEAN        // Replace with serie mean
+};
+
+// Set value at a specific index to NaN
+Serie&lt;double&gt; set_at(const Serie&lt;double&gt; &amp;serie, size_t index);
+
+// Set values to NaN where predicate is true
+Serie&lt;double&gt; set_where(const Serie&lt;double&gt; &amp;serie,
+                         std::function&lt;bool(double, size_t)&gt; predicate);
+
+// Find indices of NaN values
+std::vector&lt;size_t&gt; find(const Serie&lt;double&gt; &amp;serie);
+
+// Count NaN values
+size_t count(const Serie&lt;double&gt; &amp;serie);
+
+// Check if serie has any NaN values
+bool has(const Serie&lt;double&gt; &amp;serie);
+
+// Interpolate (fill) NaN values using the specified method
+Serie&lt;double&gt; interpolate(const Serie&lt;double&gt; &amp;serie,
+                           FillMethod method = FillMethod::LINEAR);
+
+} // namespace df::nan</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>NaN Handling Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; data{1.0, 2.0, NAN, 4.0, NAN, 6.0};
+
+// Check for NaN
+bool has_nan = df::nan::has(data);        // true
+size_t nan_count = df::nan::count(data);  // 2
+
+// Find NaN indices
+auto indices = df::nan::find(data);  // {2, 4}
+
+// Fill NaN by linear interpolation
+auto filled = df::nan::interpolate(data, df::nan::FillMethod::LINEAR);
+// filled = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0}
+
+// Forward fill
+auto ffill = df::nan::interpolate(data, df::nan::FillMethod::PREVIOUS);
+// ffill = {1.0, 2.0, 2.0, 4.0, 4.0, 6.0}
+
+// Replace with mean
+auto mean_fill = df::nan::interpolate(data, df::nan::FillMethod::MEAN);
+
+// Set specific values to NaN
+auto modified = df::nan::set_at(data, 0);  // NaN at index 0
+
+// Set NaN where value exceeds threshold
+auto clamped = df::nan::set_where(data, [](double v, size_t) {
+    return v &gt; 5.0;
+});</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="algebra.html" class="related-function">Linear Algebra</a>
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="map.html" class="related-function">map</a>
+          <a href="bins.html" class="related-function">Binning</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

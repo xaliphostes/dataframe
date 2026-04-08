@@ -22,23 +22,23 @@
  */
 
 namespace df {
-namespace grid {
+    namespace grid {
 
-Vector2 Grid2D::point_at(uint i, uint j) const {
-    return {origin[0] + i * spacing[0], origin[1] + j * spacing[1]};
-}
+        Vector2 Grid2D::point_at(uint i, uint j) const
+        {
+            return { origin[0] + i * spacing[0], origin[1] + j * spacing[1] };
+        }
 
-size_t Grid2D::linear_index(uint i, uint j) const {
-    return i + j * dimensions[0];
-}
+        size_t Grid2D::linear_index(uint i, uint j) const { return i + j * dimensions[0]; }
 
-std::pair<uint, uint> Grid2D::grid_indices(size_t index) const {
-    uint i = index % dimensions[0];
-    uint j = index / dimensions[0];
-    return {i, j};
-}
+        std::pair<uint, uint> Grid2D::grid_indices(size_t index) const
+        {
+            uint i = index % dimensions[0];
+            uint j = index / dimensions[0];
+            return { i, j };
+        }
 
-size_t Grid2D::total_points() const { return dimensions[0] * dimensions[1]; }
+        size_t Grid2D::total_points() const { return dimensions[0] * dimensions[1]; }
 
-} // namespace grid
+    } // namespace grid
 } // namespace df

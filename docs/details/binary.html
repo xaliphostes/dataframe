@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Serialization - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Binary Serialization</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The binary serialization module provides fast, compact, OS-independent serialization of
+          <code>Serie</code> objects to and from binary files. The format includes type metadata and
+          handles endianness conversion automatically, ensuring files are portable across different
+          architectures. Binary I/O is significantly faster than text-based formats (CSV, JSON)
+          for large datasets.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Saving</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>save Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Save a Serie to a binary file
+// The file stores: type identifier, element count, and raw data
+template &lt;typename T&gt;
+void save(const Serie&lt;T&gt; &amp;serie, const std::string &amp;filename);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Saving Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Save scalar Serie
+df::Serie&lt;double&gt; values{1.0, 2.0, 3.0, 4.0, 5.0};
+df::io::save(values, "values.bin");
+
+// Save vector Serie
+df::Serie&lt;Vector3D&gt; positions{
+    {1.0, 2.0, 3.0},
+    {4.0, 5.0, 6.0},
+    {7.0, 8.0, 9.0}
+};
+df::io::save(positions, "positions.bin");
+
+// Save stress tensor Serie
+df::Serie&lt;SMatrix3D&gt; stresses{
+    {100, 10, 0, 50, 5, 30},
+    {200, 20, 5, 150, 10, 80}
+};
+df::io::save(stresses, "stresses.bin");</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Loading</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>load Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Load a Serie with a known type
+template &lt;typename T&gt;
+Serie&lt;T&gt; load(const std::string &amp;filename);
+
+// Load a Serie with auto-detected type
+// Returns a std::variant or type-erased container
+auto load(const std::string &amp;filename);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Loading Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Load with explicit type
+auto values = df::io::load&lt;double&gt;("values.bin");
+std::cout &lt;&lt; "Loaded " &lt;&lt; values.size() &lt;&lt; " doubles\n";
+
+auto positions = df::io::load&lt;Vector3D&gt;("positions.bin");
+std::cout &lt;&lt; "Loaded " &lt;&lt; positions.size() &lt;&lt; " 3D vectors\n";
+
+// Auto-detect type
+auto data = df::io::load("values.bin");
+// Type is detected from the file header</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">File Inspection and Custom Types</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Utility Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Get the type identifier stored in a binary file
+// Returns a string like "double", "Vector3D", "SMatrix3D", etc.
+std::string get_file_type(const std::string &amp;filename);
+
+// Register a custom type for auto-detection in load()
+template &lt;typename T&gt;
+void registerCustomType(const std::string &amp;type_name);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Inspection and Custom Types Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Inspect a file before loading
+std::string type = df::io::get_file_type("unknown_data.bin");
+std::cout &lt;&lt; "File contains: " &lt;&lt; type &lt;&lt; std::endl;
+
+if (type == "double") {
+    auto data = df::io::load&lt;double&gt;("unknown_data.bin");
+    // process scalar data...
+} else if (type == "Vector3D") {
+    auto data = df::io::load&lt;Vector3D&gt;("unknown_data.bin");
+    // process vector data...
+}
+
+// Register a custom type
+struct MyData {
+    double x, y, z;
+    int category;
+};
+df::io::registerCustomType&lt;MyData&gt;("MyData");
+
+// Now save/load works with MyData
+df::Serie&lt;MyData&gt; custom_data{
+    {1.0, 2.0, 3.0, 1},
+    {4.0, 5.0, 6.0, 2}
+};
+df::io::save(custom_data, "custom.bin");
+auto loaded = df::io::load&lt;MyData&gt;("custom.bin");</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Binary I/O Pipeline</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/io/binary_serialization.h&gt;
+#include &lt;dataframe/math.h&gt;
+#include &lt;dataframe/stats.h&gt;
+#include &lt;iostream&gt;
+#include &lt;chrono&gt;
+
+int main() {
+    // Generate a large dataset
+    size_t n = 1000000;
+    auto data = df::math::random_normal(n, 0.0, 1.0);
+
+    // Save to binary (fast)
+    auto t0 = std::chrono::high_resolution_clock::now();
+    df::io::save(data, "large_dataset.bin");
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    double save_ms = std::chrono::duration&lt;double, std::milli&gt;(t1 - t0).count();
+    std::cout &lt;&lt; "Saved " &lt;&lt; n &lt;&lt; " values in " &lt;&lt; save_ms &lt;&lt; " ms\n";
+
+    // Load back
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto loaded = df::io::load&lt;double&gt;("large_dataset.bin");
+    auto t3 = std::chrono::high_resolution_clock::now();
+
+    double load_ms = std::chrono::duration&lt;double, std::milli&gt;(t3 - t2).count();
+    std::cout &lt;&lt; "Loaded " &lt;&lt; loaded.size() &lt;&lt; " values in " &lt;&lt; load_ms &lt;&lt; " ms\n";
+
+    // Verify data integrity
+    std::cout &lt;&lt; "Type: " &lt;&lt; df::io::get_file_type("large_dataset.bin") &lt;&lt; "\n";
+    std::cout &lt;&lt; "Mean: " &lt;&lt; df::stats::mean(loaded) &lt;&lt; "\n";
+    std::cout &lt;&lt; "Std:  " &lt;&lt; df::stats::std_dev(loaded) &lt;&lt; "\n";
+
+    // Save vector data
+    df::Serie&lt;Vector3D&gt; displacements(n / 3, [](size_t i) -&gt; Vector3D {
+        return {0.001 * i, 0.002 * i, -0.0005 * i};
+    });
+
+    df::io::save(displacements, "displacements.bin");
+    auto loaded_disp = df::io::load&lt;Vector3D&gt;("displacements.bin");
+
+    std::cout &lt;&lt; "Displacement vectors: " &lt;&lt; loaded_disp.size() &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">File Format</h2>
+        <p>
+          The binary file format consists of:
+        </p>
+        <ul>
+          <li><strong>Magic number</strong> (4 bytes): Identifies the file as a DataFrame binary file.</li>
+          <li><strong>Endianness marker</strong> (2 bytes): Indicates byte order for portability.</li>
+          <li><strong>Type identifier</strong> (variable): String identifying the element type.</li>
+          <li><strong>Element count</strong> (8 bytes): Number of elements in the Serie.</li>
+          <li><strong>Raw data</strong>: The actual data bytes, with endianness conversion if needed.</li>
+        </ul>
+        <p>
+          This format ensures that files written on a little-endian machine can be correctly read on
+          a big-endian machine and vice versa.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="csv.html" class="related-function">CSV I/O</a>
+          <a href="json.html" class="related-function">JSON I/O</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

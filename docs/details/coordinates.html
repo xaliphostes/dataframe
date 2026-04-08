@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinates Decomposer - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Coordinates Decomposer</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>Coordinates</code> decomposer specializes in extracting spatial coordinate components
+          from vector types. Unlike <code>Components</code>, it uses an underscore separator and allows
+          customizable coordinate names (defaulting to <code>x</code>, <code>y</code>, <code>z</code>).
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Include</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/attributes/Coordinates.h&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Class Definition</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Coordinates API</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+class Coordinates : public GenDecomposer&lt;Coordinates&gt; {
+public:
+    // Construct with custom coordinate names (default: {"x", "y", "z"})
+    explicit Coordinates(
+        const std::vector&lt;std::string&gt;& coordNames = {"x", "y", "z"});
+
+    Strings names(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const SerieBase& serie,
+        const String& name) const override;
+
+    Serie&lt;double&gt; serie(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const std::string& name) const override;
+
+private:
+    std::vector&lt;std::string&gt; coordNames_;
+};
+
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Naming Convention</h2>
+        <p>
+          Coordinates uses underscore separation: <code>{name}_{coord}</code>
+        </p>
+        <table class="params-table">
+          <thead>
+            <tr><th>Type</th><th>Default Names</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Vector2D</code></td><td><code>{name}_x</code>, <code>{name}_y</code></td></tr>
+            <tr><td><code>Vector3D</code></td><td><code>{name}_x</code>, <code>{name}_y</code>, <code>{name}_z</code></td></tr>
+            <tr><td><code>Vector4D</code></td><td><code>{name}_x</code>, <code>{name}_y</code>, <code>{name}_z</code>, <code>{name}_w</code> (if 4 names provided)</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Only vector types (<code>Vector2D</code>, <code>Vector3D</code>, <code>Vector4D</code>) are supported.
+          Matrix and tensor types are ignored by this decomposer.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Examples</h2>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Default Coordinate Names</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+Serie&lt;Vector3D&gt; positions = {{1,2,3}, {4,5,6}, {7,8,9}};
+
+Dataframe df;
+df.add("P", positions);
+
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Coordinates());
+
+// Scalar decomposition: "P_x", "P_y", "P_z"
+auto names = mgr.getNames(attributes::DecompDimension::Scalar);
+
+auto px = mgr.getSerie&lt;double&gt;("P_x");  // {1, 4, 7}
+auto py = mgr.getSerie&lt;double&gt;("P_y");  // {2, 5, 8}
+auto pz = mgr.getSerie&lt;double&gt;("P_z");  // {3, 6, 9}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Custom Coordinate Names</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+Serie&lt;Vector3D&gt; positions = {{1,2,3}, {4,5,6}};
+
+Dataframe df;
+df.add("P", positions);
+
+// Use custom names (e.g., geographic coordinates)
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Coordinates({"easting", "northing", "elevation"}));
+
+// Scalar decomposition: "P_easting", "P_northing", "P_elevation"
+auto names = mgr.getNames(attributes::DecompDimension::Scalar);
+
+auto easting = mgr.getSerie&lt;double&gt;("P_easting");    // {1, 4}
+auto northing = mgr.getSerie&lt;double&gt;("P_northing");  // {2, 5}
+auto elev = mgr.getSerie&lt;double&gt;("P_elevation");     // {3, 6}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Combining with Components</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+Serie&lt;Vector3D&gt; positions = {{1,2,3}, {4,5,6}};
+Serie&lt;Stress3D&gt; stresses = {{100,20,10,80,15,60}, {110,25,12,85,18,65}};
+
+Dataframe df;
+df.add("P", positions);
+df.add("S", stresses);
+
+// Register both decomposers
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Components());
+mgr.addDecomposer(attributes::Coordinates());
+
+auto names = mgr.getNames(attributes::DecompDimension::Scalar);
+// Components gives: "Px", "Py", "Pz", "Sxx", "Sxy", ...
+// Coordinates gives: "P_x", "P_y", "P_z"
+// (Coordinates ignores stress tensors)
+
+// Both decomposers provide position X, with different name patterns
+auto px1 = mgr.getSerie&lt;double&gt;("Px");    // via Components
+auto px2 = mgr.getSerie&lt;double&gt;("P_x");   // via Coordinates
+// Both return the same data: {1, 4}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Coordinates vs Components</h2>
+        <table class="params-table">
+          <thead>
+            <tr><th>Feature</th><th>Coordinates</th><th>Components</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Supported types</td><td>Vectors only</td><td>Vectors, matrices, tensors</td></tr>
+            <tr><td>Naming pattern</td><td><code>{name}_{coord}</code></td><td><code>{name}{suffix}</code> (no separator)</td></tr>
+            <tr><td>Custom names</td><td>Yes (constructor parameter)</td><td>No (fixed conventions)</td></tr>
+            <tr><td>Use case</td><td>Spatial/geographic coordinates</td><td>General component extraction</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="attributes.html" class="related-function">Attributes Tutorial</a>
+          <a href="manager.html" class="related-function">Manager</a>
+          <a href="decomposer.html" class="related-function">Decomposer</a>
+          <a href="components.html" class="related-function">Components</a>
+          <a href="algebra.html" class="related-function">Algebra Types</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

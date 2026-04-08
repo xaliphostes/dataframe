@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geophysics Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Geophysics Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The geophysics module provides functions for satellite-based geodetic analysis, specifically for
+          processing InSAR (Interferometric Synthetic Aperture Radar) data. These functions allow projecting
+          3D displacement fields onto a line-of-sight (LOS) direction and converting projected displacements
+          into interferometric fringe patterns.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">InSAR Projection</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>insar Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Project a 3D displacement field onto a satellite line-of-sight (LOS) direction.
+// Returns the scalar projection (dot product) of each displacement vector
+// onto the unit LOS vector.
+Serie&lt;double&gt; insar(
+    const Serie&lt;Vector3D&gt; &amp;displacements,  // 3D displacement vectors
+    const Vector3D        &amp;los              // Line-of-sight unit vector
+);</code></pre>
+        </div>
+        <p>
+          The <code>insar</code> function computes the component of each 3D displacement vector along the
+          satellite's line-of-sight direction. This simulates what an InSAR satellite would measure: the
+          range change between the satellite and the ground surface. The LOS vector should be a unit vector
+          pointing from the ground toward the satellite.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>InSAR Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Simulated 3D displacement field from a fault model
+df::Serie&lt;Vector3D&gt; displacements{
+    {0.01, 0.02, -0.005},
+    {0.03, 0.01, -0.010},
+    {0.02, 0.03, -0.008},
+    {0.005, 0.005, -0.002}
+};
+
+// Satellite LOS direction (e.g., descending orbit, ~23 deg incidence)
+// Typically: LOS = {east, north, up} components
+Vector3D los = {-0.38, -0.09, 0.92};  // Approximate descending LOS
+
+// Project displacements onto LOS
+auto los_disp = df::geo::insar(displacements, los);
+// los_disp contains the scalar range change at each point
+
+for (size_t i = 0; i &lt; los_disp.size(); ++i) {
+    std::cout &lt;&lt; "Point " &lt;&lt; i &lt;&lt; ": LOS displacement = "
+              &lt;&lt; los_disp[i] * 1000.0 &lt;&lt; " mm" &lt;&lt; std::endl;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Interferometric Fringes</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>fringes Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Convert scalar displacement values to interferometric fringe pattern.
+// Each fringe cycle represents one full wavelength of displacement.
+Serie&lt;double&gt; fringes(
+    const Serie&lt;double&gt; &amp;los_displacements,  // LOS displacement values
+    double fringeSpacing                       // Fringe spacing (e.g., half-wavelength)
+);</code></pre>
+        </div>
+        <p>
+          The <code>fringes</code> function wraps displacement values into a periodic fringe pattern, simulating
+          the wrapped phase that an InSAR interferogram displays. The <code>fringeSpacing</code> parameter
+          determines the displacement interval per fringe cycle. For C-band SAR (e.g., Sentinel-1), one fringe
+          corresponds to about 2.8 cm of LOS displacement (half the radar wavelength of ~5.6 cm).
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Fringes Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// LOS displacements from the insar() function
+auto los_disp = df::geo::insar(displacements, los);
+
+// Convert to fringes with C-band half-wavelength spacing (2.8 cm)
+double half_wavelength = 0.028;  // 28 mm
+auto fringe_pattern = df::geo::fringes(los_disp, half_wavelength);
+
+// fringe_pattern values are in [0, 1) representing the wrapped phase
+// 0 and 1 correspond to the same fringe color</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>InSAR Processing Pipeline</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/geophysics.h&gt;
+#include &lt;dataframe/geo/grid/from_dims.h&gt;
+#include &lt;dataframe/geo/interpolation/idw.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Model displacement field at scattered points
+    df::Serie&lt;Vector&lt;3&gt;&gt; model_pts = /* fault model observation points */;
+    df::Serie&lt;Vector3D&gt;  model_disp = /* 3D displacements from BEM model */;
+
+    // Create a regular grid for visualization
+    auto grid_pts = df::grid::cartesian::from_dims&lt;3&gt;(
+        {100, 100, 1},
+        {0.0, 0.0, 0.0},
+        {50000.0, 50000.0, 0.0}  // 50 km x 50 km surface grid
+    );
+
+    // Interpolate displacements to the grid
+    auto grid_disp = df::geo::idw&lt;Vector3D, 3&gt;(
+        model_pts, model_disp, grid_pts
+    );
+
+    // Project onto ascending orbit LOS
+    Vector3D los_asc = {0.38, -0.09, 0.92};
+    auto los_asc_disp = df::geo::insar(grid_disp, los_asc);
+
+    // Project onto descending orbit LOS
+    Vector3D los_desc = {-0.38, -0.09, 0.92};
+    auto los_desc_disp = df::geo::insar(grid_disp, los_desc);
+
+    // Generate fringe patterns (C-band)
+    auto fringes_asc  = df::geo::fringes(los_asc_disp, 0.028);
+    auto fringes_desc = df::geo::fringes(los_desc_disp, 0.028);
+
+    std::cout &lt;&lt; "Generated " &lt;&lt; fringes_asc.size()
+              &lt;&lt; " fringe values for ascending and descending orbits\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="algebra.html" class="related-function">Linear Algebra</a>
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="grid.html" class="related-function">Grid Generation</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

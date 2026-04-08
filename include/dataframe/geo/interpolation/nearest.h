@@ -29,68 +29,68 @@
 
 namespace df {
 
-/**
- * Nearest neighbor interpolation for 2D points
- */
-template <typename T>
-Serie<T> nearest_2d(const Serie<Vector2> &points, const Serie<T> &values,
-                    const Serie<Vector2> &targets) {
-    if (points.size() != values.size()) {
-        throw std::runtime_error(
-            "Points and values series must have same size");
-    }
-
-    Serie<T> result(targets.size());
-
-    for (size_t i = 0; i < targets.size(); ++i) {
-        const auto &target = targets[i];
-        double min_dist = std::numeric_limits<double>::max();
-        size_t nearest_idx = 0;
-
-        for (size_t j = 0; j < points.size(); ++j) {
-            double dist = distance_squared_2d(target, points[j]);
-            if (dist < min_dist) {
-                min_dist = dist;
-                nearest_idx = j;
-            }
+    /**
+     * Nearest neighbor interpolation for 2D points
+     */
+    template <typename T>
+    Serie<T> nearest_2d(
+        const Serie<Vector2>& points, const Serie<T>& values, const Serie<Vector2>& targets)
+    {
+        if (points.size() != values.size()) {
+            throw std::runtime_error("Points and values series must have same size");
         }
 
-        result[i] = values[nearest_idx];
-    }
+        Serie<T> result(targets.size());
 
-    return result;
-}
+        for (size_t i = 0; i < targets.size(); ++i) {
+            const auto& target = targets[i];
+            double min_dist = std::numeric_limits<double>::max();
+            size_t nearest_idx = 0;
 
-/**
- * Nearest neighbor interpolation for 3D points
- */
-template <typename T>
-Serie<T> nearest_3d(const Serie<Vector3> &points, const Serie<T> &values,
-                    const Serie<Vector3> &targets) {
-    if (points.size() != values.size()) {
-        throw std::runtime_error(
-            "Points and values series must have same size");
-    }
-
-    Serie<T> result(targets.size());
-
-    for (size_t i = 0; i < targets.size(); ++i) {
-        const auto &target = targets[i];
-        double min_dist = std::numeric_limits<double>::max();
-        size_t nearest_idx = 0;
-
-        for (size_t j = 0; j < points.size(); ++j) {
-            double dist = distance_squared_3d(target, points[j]);
-            if (dist < min_dist) {
-                min_dist = dist;
-                nearest_idx = j;
+            for (size_t j = 0; j < points.size(); ++j) {
+                double dist = distance_squared_2d(target, points[j]);
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    nearest_idx = j;
+                }
             }
+
+            result[i] = values[nearest_idx];
         }
 
-        result[i] = values[nearest_idx];
+        return result;
     }
 
-    return result;
-}
+    /**
+     * Nearest neighbor interpolation for 3D points
+     */
+    template <typename T>
+    Serie<T> nearest_3d(
+        const Serie<Vector3>& points, const Serie<T>& values, const Serie<Vector3>& targets)
+    {
+        if (points.size() != values.size()) {
+            throw std::runtime_error("Points and values series must have same size");
+        }
+
+        Serie<T> result(targets.size());
+
+        for (size_t i = 0; i < targets.size(); ++i) {
+            const auto& target = targets[i];
+            double min_dist = std::numeric_limits<double>::max();
+            size_t nearest_idx = 0;
+
+            for (size_t j = 0; j < points.size(); ++j) {
+                double dist = distance_squared_3d(target, points[j]);
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    nearest_idx = j;
+                }
+            }
+
+            result[i] = values[nearest_idx];
+        }
+
+        return result;
+    }
 
 } // namespace df

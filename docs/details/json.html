@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON I/O - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">JSON I/O</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The JSON module provides functions for reading and writing DataFrames in JSON format.
+          The expected JSON structure is an array of objects, where each object represents a row
+          and each key corresponds to a column name. Writing supports both pretty-printed and
+          compact output formats.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">JSON Format</h2>
+        <p>
+          The JSON format used by the library represents a DataFrame as an array of row objects:
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Expected JSON Structure</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// The JSON file should contain an array of objects:
+// [
+//   {"name": "Alice", "age": 30, "score": 95.5},
+//   {"name": "Bob",   "age": 25, "score": 87.2},
+//   {"name": "Carol", "age": 35, "score": 91.8}
+// ]
+//
+// Each unique key becomes a column in the Dataframe.
+// Values are auto-detected as string, integer, or double.</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Reading JSON</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>read_json Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Read a JSON file into a Dataframe
+// The file must contain an array of objects
+Dataframe read_json(const std::string &amp;filename);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Reading Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Read a JSON file
+auto df = df::io::read_json("data.json");
+
+// Access columns by name
+auto names  = df.get&lt;std::string&gt;("name");
+auto ages   = df.get&lt;int&gt;("age");
+auto scores = df.get&lt;double&gt;("score");
+
+std::cout &lt;&lt; "Records: " &lt;&lt; names.size() &lt;&lt; std::endl;
+std::cout &lt;&lt; "First name: " &lt;&lt; names[0] &lt;&lt; std::endl;
+
+// Read geospatial data
+auto geo = df::io::read_json("stations.json");
+// JSON: [{"lat": 48.85, "lon": 2.35, "name": "Paris"}, ...]
+auto lats  = geo.get&lt;double&gt;("lat");
+auto lons  = geo.get&lt;double&gt;("lon");
+auto names = geo.get&lt;std::string&gt;("name");</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Writing JSON</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>write_json Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Write a Dataframe to a JSON file
+// pretty: if true, output is indented and human-readable
+void write_json(const Dataframe   &amp;df,
+                const std::string &amp;filename,
+                bool pretty = true);
+
+// Write a Dataframe to an output stream
+void write_json(const Dataframe   &amp;df,
+                std::ostream      &amp;os,
+                bool pretty = true);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Writing Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Dataframe
+df::Dataframe dataframe;
+dataframe.add("city", df::Serie&lt;std::string&gt;{"Paris", "London", "Berlin"});
+dataframe.add("population", df::Serie&lt;double&gt;{2.16e6, 8.98e6, 3.64e6});
+dataframe.add("area_km2", df::Serie&lt;double&gt;{105.4, 1572.0, 891.7});
+
+// Write pretty-printed JSON (default)
+df::io::write_json(dataframe, "cities.json");
+// Output:
+// [
+//   {
+//     "city": "Paris",
+//     "population": 2160000.0,
+//     "area_km2": 105.4
+//   },
+//   ...
+// ]
+
+// Write compact JSON
+df::io::write_json(dataframe, "cities_compact.json", false);
+// Output: [{"city":"Paris","population":2160000.0,"area_km2":105.4},...]
+
+// Write to stdout
+df::io::write_json(dataframe, std::cout);
+
+// Write to a string stream
+std::ostringstream oss;
+df::io::write_json(dataframe, oss, true);
+std::string json_str = oss.str();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>JSON Processing Pipeline</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/io/json.h&gt;
+#include &lt;dataframe/stats.h&gt;
+#include &lt;dataframe/map.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Read sensor data from JSON
+    auto sensors = df::io::read_json("sensors.json");
+    // JSON: [{"id": "S1", "temp": 22.5, "humidity": 65.0}, ...]
+
+    auto temps     = sensors.get&lt;double&gt;("temp");
+    auto humidity  = sensors.get&lt;double&gt;("humidity");
+    auto ids       = sensors.get&lt;std::string&gt;("id");
+
+    // Compute statistics
+    double mean_temp = df::stats::mean(temps);
+    double mean_hum  = df::stats::mean(humidity);
+
+    std::cout &lt;&lt; "Sensors: " &lt;&lt; ids.size() &lt;&lt; "\n";
+    std::cout &lt;&lt; "Mean temperature: " &lt;&lt; mean_temp &lt;&lt; "\n";
+    std::cout &lt;&lt; "Mean humidity: " &lt;&lt; mean_hum &lt;&lt; "\n";
+
+    // Compute heat index (simplified)
+    auto heat_index = df::map([](double t, double h, size_t) {
+        return t + 0.5 * h;
+    }, temps, humidity);
+
+    // Build output Dataframe
+    df::Dataframe results;
+    results.add("id", ids);
+    results.add("temperature", temps);
+    results.add("humidity", humidity);
+    results.add("heat_index", heat_index);
+
+    // Write results
+    df::io::write_json(results, "sensor_analysis.json");
+    std::cout &lt;&lt; "Results written to sensor_analysis.json\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="csv.html" class="related-function">CSV I/O</a>
+          <a href="binary.html" class="related-function">Binary Serialization</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

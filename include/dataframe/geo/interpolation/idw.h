@@ -27,37 +27,36 @@
 
 namespace df {
 
-/**
- * @brief Inverse Distance Weighting (idw) interpolation for 2D or 3D points
- * @param points Serie of 2D/3D points (Vector2/Vector3)
- * @param values Serie of values at each point
- * @param targets Serie of points to interpolate to
- * @param power Power parameter for IDW (typically 2)
- * @param smoothing Smoothing factor to prevent division by zero
- * @return Serie of interpolated values
- * 
- * @code
- * // Create sample data
- * df::Serie<df::Vector2> points = {
- *     {0,0}, {1,0}, {0,1}, {1,1}
- * };
- * df::Serie<double> values = {0, 1, 1, 2};
- * 
- * // Points to interpolate to
- * df::Serie<df::Vector2> targets = {
- *     {0.5, 0.5}, {0.25, 0.75}
- * };
- * 
- * // Interpolate using IDW
- * auto interpolated = df:::interpolate_idw<2>(points, values, targets);
- * @endcode
- */
-template <typename T, size_t DIM>
-Serie<T> idw(const Serie<std::array<T, DIM>> &points, const Serie<T> &values,
-             const Serie<std::array<T, DIM>> &targets, double power = 2.0,
-             double smoothing = 1e-10) {
-    return detail::idw_traits<T, DIM>::idw(points, values, targets, power,
-                                           smoothing);
-}
+    /**
+     * @brief Inverse Distance Weighting (idw) interpolation for 2D or 3D points
+     * @param points Serie of 2D/3D points (Vector2/Vector3)
+     * @param values Serie of values at each point
+     * @param targets Serie of points to interpolate to
+     * @param power Power parameter for IDW (typically 2)
+     * @param smoothing Smoothing factor to prevent division by zero
+     * @return Serie of interpolated values
+     *
+     * @code
+     * // Create sample data
+     * df::Serie<df::Vector2> points = {
+     *     {0,0}, {1,0}, {0,1}, {1,1}
+     * };
+     * df::Serie<double> values = {0, 1, 1, 2};
+     *
+     * // Points to interpolate to
+     * df::Serie<df::Vector2> targets = {
+     *     {0.5, 0.5}, {0.25, 0.75}
+     * };
+     *
+     * // Interpolate using IDW
+     * auto interpolated = df:::interpolate_idw<2>(points, values, targets);
+     * @endcode
+     */
+    template <typename T, size_t DIM>
+    Serie<T> idw(const Serie<std::array<T, DIM>>& points, const Serie<T>& values,
+        const Serie<std::array<T, DIM>>& targets, double power = 2.0, double smoothing = 1e-10)
+    {
+        return detail::idw_traits<T, DIM>::idw(points, values, targets, power, smoothing);
+    }
 
 } // namespace df

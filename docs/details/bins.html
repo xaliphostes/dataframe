@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binning / Histograms - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Binning / Histograms</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>bins</code> function computes histograms by distributing values from a Serie into
+          equally-spaced bins. It supports both automatic range detection (from the data's min/max) and
+          user-specified custom ranges. A pipeline-compatible <code>bind_bins</code> version is also provided.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Function Signatures</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Bins Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute histogram with automatic range (min to max of the data)
+Serie&lt;size_t&gt; bins(const Serie&lt;double&gt; &amp;serie, size_t nb);
+
+// Compute histogram with custom range
+Serie&lt;size_t&gt; bins(const Serie&lt;double&gt; &amp;serie, size_t nb,
+                    double min_val, double max_val);
+
+// Pipeline version (auto-range)
+auto bind_bins(size_t nb);
+
+// Pipeline version (custom range)
+auto bind_bins(size_t nb, double min_val, double max_val);</code></pre>
+        </div>
+        <p>
+          The returned <code>Serie&lt;size_t&gt;</code> contains the count of values in each bin.
+          Bin boundaries are computed as evenly spaced intervals between the minimum and maximum values.
+          Values exactly at the maximum are placed in the last bin.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Examples</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Auto-Range Binning</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; values{1.0, 2.3, 2.7, 3.1, 4.5, 5.0, 5.5, 7.2, 8.0, 9.9};
+
+// Create 5 bins (auto range from 1.0 to 9.9)
+auto histogram = df::bins(values, 5);
+// Bin edges: [1.0, 2.78), [2.78, 4.56), [4.56, 6.34), [6.34, 8.12), [8.12, 9.9]
+// histogram = {2, 2, 2, 2, 2}  (approximately)
+
+for (size_t i = 0; i &lt; histogram.size(); ++i) {
+    std::cout &lt;&lt; "Bin " &lt;&lt; i &lt;&lt; ": " &lt;&lt; histogram[i] &lt;&lt; " values\n";
+}</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Custom Range Binning</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; values{1.0, 2.3, 2.7, 3.1, 4.5, 5.0, 5.5, 7.2, 8.0, 9.9};
+
+// Create 10 bins with a fixed range [0, 10]
+auto histogram = df::bins(values, 10, 0.0, 10.0);
+// Each bin spans width 1.0: [0,1), [1,2), ..., [9,10]
+
+for (size_t i = 0; i &lt; histogram.size(); ++i) {
+    double lo = 0.0 + i * 1.0;
+    double hi = lo + 1.0;
+    std::cout &lt;&lt; "[" &lt;&lt; lo &lt;&lt; ", " &lt;&lt; hi &lt;&lt; "): "
+              &lt;&lt; histogram[i] &lt;&lt; " values\n";
+}</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Pipeline Usage</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;double&gt; data{1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5};
+
+// Use in a pipeline
+auto hist = data | df::bind_bins(4);
+
+// Chain with other operations
+auto random_data = df::math::random_normal(1000, 0.0, 1.0);
+auto distribution = random_data | df::bind_bins(20, -4.0, 4.0);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Histogram Analysis</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/bins.h&gt;
+#include &lt;dataframe/math.h&gt;
+#include &lt;dataframe/stats.h&gt;
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+int main() {
+    // Generate normally distributed data
+    auto data = df::math::random_normal(10000, 50.0, 10.0);
+
+    // Compute basic statistics
+    double mean = df::stats::mean(data);
+    double std  = df::stats::std_dev(data);
+
+    std::cout &lt;&lt; "Mean: " &lt;&lt; mean &lt;&lt; ", Std Dev: " &lt;&lt; std &lt;&lt; "\n\n";
+
+    // Create histogram with 20 bins
+    size_t num_bins = 20;
+    auto [lo, hi] = df::math::bounds(data);
+    auto histogram = df::bins(data, num_bins, lo, hi);
+
+    double bin_width = (hi - lo) / num_bins;
+
+    // Print ASCII histogram
+    size_t max_count = df::math::max(
+        df::Serie&lt;double&gt;(histogram.size(), [&](size_t i) {
+            return static_cast&lt;double&gt;(histogram[i]);
+        })
+    );
+
+    for (size_t i = 0; i &lt; histogram.size(); ++i) {
+        double bin_lo = lo + i * bin_width;
+        int bar_len = static_cast&lt;int&gt;(40.0 * histogram[i] / max_count);
+
+        std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(1)
+                  &lt;&lt; std::setw(6) &lt;&lt; bin_lo &lt;&lt; " | ";
+        for (int j = 0; j &lt; bar_len; ++j) std::cout &lt;&lt; "#";
+        std::cout &lt;&lt; " (" &lt;&lt; histogram[i] &lt;&lt; ")\n";
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="math.html" class="related-function">Math Functions</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+          <a href="map.html" class="related-function">map</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

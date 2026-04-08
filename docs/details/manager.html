@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Manager</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>df::attributes::Manager</code> class orchestrates attribute decomposition by managing multiple
+          <code>Decomposer</code> instances and providing unified access to decomposed attributes. It allows you to
+          break down complex data types (vectors, matrices, tensors) into their individual components for analysis
+          and visualization.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Include</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/attributes/Manager.h&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">DecompDimension Enum</h2>
+        <p>
+          Controls the level of decomposition when querying attribute names or extracting components.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>DecompDimension</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+enum class DecompDimension {
+    Scalar = 1,  // Individual components (x, y, z, xx, xy, ...)
+    Vector,      // N-dimensional vectors
+    Matrix       // N-dimensional matrices/tensors
+};
+
+}</code></pre>
+        </div>
+        <table class="params-table">
+          <thead>
+            <tr><th>Value</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Scalar</code></td><td>Decompose into individual scalar components</td></tr>
+            <tr><td><code>Vector</code></td><td>Decompose into vector-level groups</td></tr>
+            <tr><td><code>Matrix</code></td><td>Decompose into matrix-level groups</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Manager Class</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Manager API</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+class Manager {
+public:
+    // Construct with a reference to a Dataframe
+    explicit Manager(const Dataframe& df);
+
+    // Copy constructor (deep-copies all decomposers)
+    Manager(const Manager& other);
+
+    // Add a decomposer to the manager
+    void addDecomposer(const Decomposer& decomposer);
+
+    // Get all decomposed attribute names for a given dimension
+    std::vector&lt;std::string&gt; getNames(DecompDimension targetDim) const;
+
+    // Get a decomposed attribute as Serie&lt;T&gt;
+    template &lt;typename T&gt;
+    Serie&lt;T&gt; getSerie(const std::string& name) const;
+
+    // Check if an attribute exists
+    bool hasAttribute(DecompDimension targetDim, const std::string& name) const;
+
+    // Clear all registered decomposers
+    void clear();
+
+    // Get the number of registered decomposers
+    size_t decomposerCount() const;
+};
+
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Basic Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Creating and Using a Manager</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/algebra/types.h&gt;
+#include &lt;dataframe/attributes/Manager.h&gt;
+#include &lt;dataframe/attributes/Components.h&gt;
+#include &lt;dataframe/attributes/Coordinates.h&gt;
+
+using namespace df;
+
+// Create data
+Serie&lt;Vector3D&gt; positions = {{1,0,0}, {0,1,0}, {0,0,1}};
+Serie&lt;Stress3D&gt; stresses = {
+    {1, 2, 3, 4, 5, 6},
+    {7, 8, 9, 10, 11, 12}
+};
+
+// Build a Dataframe
+Dataframe dataframe;
+dataframe.add("P", positions);
+dataframe.add("S", stresses);
+
+// Create a Manager and register decomposers
+attributes::Manager manager(dataframe);
+manager.addDecomposer(attributes::Components());
+manager.addDecomposer(attributes::Coordinates());
+
+// Query available scalar names
+auto names = manager.getNames(attributes::DecompDimension::Scalar);
+// -> "Px", "Py", "Pz", "Sxx", "Sxy", "Sxz", "Syy", "Syz", "Szz",
+//    "P_x", "P_y", "P_z"
+
+// Extract a specific component
+auto px = manager.getSerie&lt;double&gt;("Px");    // Position X via Components
+auto sxx = manager.getSerie&lt;double&gt;("Sxx");  // Stress XX component</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Querying by Dimension</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Decomposition at Different Levels</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">// Scalar-level: individual components
+auto scalars = manager.getNames(attributes::DecompDimension::Scalar);
+// For Vector3D "P": Px, Py, Pz
+// For Stress3D "S": Sxx, Sxy, Sxz, Syy, Syz, Szz
+
+// Vector-level: grouped as vectors
+auto vectors = manager.getNames(attributes::DecompDimension::Vector);
+// -> "P", "S"
+
+// Matrix-level: grouped as matrices/tensors
+auto matrices = manager.getNames(attributes::DecompDimension::Matrix);
+// -> "S" (only matrix/tensor types)
+
+// Check if a specific attribute exists
+if (manager.hasAttribute(attributes::DecompDimension::Scalar, "Sxy")) {
+    auto sxy = manager.getSerie&lt;double&gt;("Sxy");
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Full Workflow</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/algebra/types.h&gt;
+#include &lt;dataframe/attributes/Components.h&gt;
+#include &lt;dataframe/attributes/Coordinates.h&gt;
+#include &lt;dataframe/attributes/Manager.h&gt;
+#include &lt;iostream&gt;
+
+using namespace df;
+
+int main() {
+    // Create sample data
+    Serie&lt;Vector3D&gt; positions = {{1,0,0}, {0,1,0}, {0,0,1}};
+    Serie&lt;Stress3D&gt; stresses = {
+        {1, 2, 3, 4, 5, 6},
+        {7, 8, 9, 10, 11, 12}
+    };
+    Serie&lt;Matrix4D&gt; tensors = {
+        {1,2,3,4, 5,6,7,8, 9,10,11,12, 13,14,15,16},
+        {1,2,3,4, 5,6,7,8, 9,10,11,12, 13,14,15,16}
+    };
+
+    // Build dataframe
+    Dataframe dataframe;
+    dataframe.add("P", positions);
+    dataframe.add("S", stresses);
+    dataframe.add("T", tensors);
+
+    // Create manager and register decomposers
+    attributes::Manager manager(dataframe);
+    manager.addDecomposer(attributes::Components());
+
+    // List all scalar names
+    std::cout &lt;&lt; "Scalar attributes:\n";
+    for (const auto& name : manager.getNames(
+             attributes::DecompDimension::Scalar)) {
+        std::cout &lt;&lt; "  " &lt;&lt; name &lt;&lt; "\n";
+    }
+    // Output:
+    //   Px, Py, Pz
+    //   Sxx, Sxy, Sxz, Syy, Syz, Szz
+    //   T11, T12, T13, T14, T21, ..., T44
+
+    // Extract and use components
+    auto px = manager.getSerie&lt;double&gt;("Px");
+    auto sxx = manager.getSerie&lt;double&gt;("Sxx");
+    auto t12 = manager.getSerie&lt;double&gt;("T12");
+
+    std::cout &lt;&lt; "\nPosition X: ";
+    for (size_t i = 0; i &lt; px.size(); ++i) {
+        std::cout &lt;&lt; px[i] &lt;&lt; " ";
+    }
+    // Output: 1 0 0
+
+    std::cout &lt;&lt; "\nStress XX: ";
+    for (size_t i = 0; i &lt; sxx.size(); ++i) {
+        std::cout &lt;&lt; sxx[i] &lt;&lt; " ";
+    }
+    // Output: 1 7
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="attributes.html" class="related-function">Attributes Tutorial</a>
+          <a href="decomposer.html" class="related-function">Decomposer</a>
+          <a href="components.html" class="related-function">Components</a>
+          <a href="coordinates.html" class="related-function">Coordinates</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="algebra.html" class="related-function">Algebra</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

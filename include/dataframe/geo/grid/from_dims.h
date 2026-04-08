@@ -27,24 +27,23 @@
 #include <vector>
 
 namespace df {
-namespace grid {
-namespace cartesian {
+    namespace grid {
+        namespace cartesian {
 
-/**
- * Generate a regular grid of points centered at a given position with specified
- * dimensions
- * @param npts Number of points in each dimension
- * @param center Center position of the grid
- * @param dimensions Total dimensions of the grid in each direction
- * @return Serie of grid point positions
- */
-template <size_t N>
-Serie<Vector<N>> from_dims(const iVector<N> &npts, const Vector<N> &center,
-                           const Vector<N> &dimensions);
+            /**
+             * Generate a regular grid of points centered at a given position with specified
+             * dimensions
+             * @param npts Number of points in each dimension
+             * @param center Center position of the grid
+             * @param dimensions Total dimensions of the grid in each direction
+             * @return Serie of grid point positions
+             */
+            template <size_t N>
+            Serie<Vector<N>> from_dims(
+                const iVector<N>& npts, const Vector<N>& center, const Vector<N>& dimensions);
 
-
-} // namespace cartesian
-} // namespace grid
+        } // namespace cartesian
+    } // namespace grid
 } // namespace df
 
 #include "inline/from_dims.hxx"

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genetic Algorithm - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Genetic Algorithm</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>GeneticAlgorithm</code> class in the <code>df::ml</code> namespace implements a classic
+          evolutionary optimization algorithm. It evolves a population of candidate solutions through
+          selection, crossover, and mutation operators to find optimal or near-optimal solutions to
+          continuous and combinatorial optimization problems.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Configuration Enums</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Selection, Crossover, and Mutation Methods</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::ml {
+
+// Selection method for choosing parents
+enum class SelectionMethod {
+    Tournament,     // Tournament selection (default)
+    Roulette,       // Roulette wheel (fitness-proportionate)
+    Rank            // Rank-based selection
+};
+
+// Crossover method for combining parents
+enum class CrossoverMethod {
+    SinglePoint,    // Single crossover point
+    TwoPoint,       // Two crossover points
+    Uniform         // Each gene from random parent
+};
+
+// Mutation method for introducing variation
+enum class MutationMethod {
+    Gaussian,       // Add Gaussian noise (continuous)
+    Uniform,        // Replace with uniform random value
+    Swap            // Swap two positions (combinatorial)
+};
+
+} // namespace df::ml</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">GeneticAlgorithm Class</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Class Definition</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::ml {
+
+class GeneticAlgorithm {
+public:
+    // Constructor with configuration parameters
+    GeneticAlgorithm(
+        size_t population_size  = 100,
+        double crossover_rate   = 0.8,
+        double mutation_rate    = 0.1,
+        size_t max_generations  = 1000,
+        double elite_fraction   = 0.1,
+        SelectionMethod selection   = SelectionMethod::Tournament,
+        CrossoverMethod crossover   = CrossoverMethod::SinglePoint,
+        MutationMethod  mutation    = MutationMethod::Gaussian
+    );
+
+    // Optimize a continuous objective function
+    // fitness: function taking a vector of doubles, returning fitness (higher=better)
+    // bounds: {min, max} for each dimension
+    std::vector&lt;double&gt; optimize(
+        std::function&lt;double(const std::vector&lt;double&gt;&amp;)&gt; fitness,
+        const std::vector&lt;std::pair&lt;double, double&gt;&gt; &amp;bounds
+    );
+
+    // Optimize a combinatorial problem (permutation-based)
+    std::vector&lt;size_t&gt; optimize_combinatorial(
+        std::function&lt;double(const std::vector&lt;size_t&gt;&amp;)&gt; fitness,
+        size_t num_elements
+    );
+
+    // Get the history of best fitness per generation
+    std::vector&lt;double&gt; get_evolution_history() const;
+
+    // Get population statistics (mean, best, worst fitness)
+    struct PopulationMetrics {
+        double best_fitness;
+        double worst_fitness;
+        double mean_fitness;
+        double diversity;
+    };
+    PopulationMetrics get_population_metrics() const;
+};
+
+} // namespace df::ml</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Factory Functions</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Factory Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::ml {
+
+// Create a genetic algorithm with default settings for continuous optimization
+GeneticAlgorithm create_genetic_algorithm(
+    size_t population_size = 100,
+    size_t max_generations = 1000
+);
+
+// Create a genetic algorithm configured for combinatorial optimization
+GeneticAlgorithm create_genetic_algorithm_combinatorial(
+    size_t population_size = 100,
+    size_t max_generations = 1000
+);
+
+} // namespace df::ml</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Examples</h2>
+
+        <h3>Continuous Optimization</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Minimize Rosenbrock Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/ml/genetic_algorithm.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    // Rosenbrock function (minimum at (1,1) with value 0)
+    auto rosenbrock = [](const std::vector&lt;double&gt; &amp;x) -&gt; double {
+        double a = 1.0 - x[0];
+        double b = x[1] - x[0] * x[0];
+        double f = a * a + 100.0 * b * b;
+        return -f;  // Negate because GA maximizes fitness
+    };
+
+    // Create GA
+    df::ml::GeneticAlgorithm ga(
+        200,    // population size
+        0.85,   // crossover rate
+        0.05,   // mutation rate
+        2000,   // max generations
+        0.1,    // elite fraction
+        df::ml::SelectionMethod::Tournament,
+        df::ml::CrossoverMethod::TwoPoint,
+        df::ml::MutationMethod::Gaussian
+    );
+
+    // Search bounds: x in [-5, 5], y in [-5, 5]
+    std::vector&lt;std::pair&lt;double, double&gt;&gt; bounds{
+        {-5.0, 5.0}, {-5.0, 5.0}
+    };
+
+    auto best = ga.optimize(rosenbrock, bounds);
+
+    std::cout &lt;&lt; "Best solution: (" &lt;&lt; best[0] &lt;&lt; ", " &lt;&lt; best[1] &lt;&lt; ")\n";
+    std::cout &lt;&lt; "Expected: (1.0, 1.0)\n";
+
+    // Check convergence history
+    auto history = ga.get_evolution_history();
+    std::cout &lt;&lt; "Final best fitness: " &lt;&lt; history.back() &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>Combinatorial Optimization</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Traveling Salesman Problem</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Simple TSP with city coordinates
+std::vector&lt;std::pair&lt;double,double&gt;&gt; cities = {
+    {0,0}, {1,5}, {5,2}, {7,8}, {3,6}, {8,1}, {2,3}, {6,4}
+};
+
+auto tsp_fitness = [&amp;](const std::vector&lt;size_t&gt; &amp;route) -&gt; double {
+    double total_dist = 0;
+    for (size_t i = 0; i &lt; route.size(); ++i) {
+        size_t j = (i + 1) % route.size();
+        double dx = cities[route[i]].first  - cities[route[j]].first;
+        double dy = cities[route[i]].second - cities[route[j]].second;
+        total_dist += std::sqrt(dx*dx + dy*dy);
+    }
+    return -total_dist;  // Negate to maximize (minimize distance)
+};
+
+auto ga = df::ml::create_genetic_algorithm_combinatorial(300, 5000);
+auto best_route = ga.optimize_combinatorial(tsp_fitness, cities.size());
+
+std::cout &lt;&lt; "Best route: ";
+for (auto idx : best_route) std::cout &lt;&lt; idx &lt;&lt; " ";
+std::cout &lt;&lt; std::endl;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="bee_algorithm.html" class="related-function">Bee Algorithm</a>
+          <a href="random_forest.html" class="related-function">Random Forest</a>
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="math.html" class="related-function">Math Functions</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

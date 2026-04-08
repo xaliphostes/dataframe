@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decomposer - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Decomposer</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>Decomposer</code> is the abstract base class for all attribute decomposition strategies.
+          It defines the interface that concrete decomposers (like <code>Components</code> and <code>Coordinates</code>)
+          must implement. You can also create custom decomposers by inheriting from <code>GenDecomposer&lt;Derived&gt;</code>.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Include</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/attributes/Manager.h&gt;  // Decomposer is defined here</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Decomposer Base Class</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Decomposer Interface</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+class Decomposer {
+public:
+    virtual ~Decomposer() = default;
+
+    // Create a polymorphic clone of this decomposer
+    virtual std::unique_ptr&lt;Decomposer&gt; clone() const = 0;
+
+    // Get decomposed attribute names for a given serie
+    virtual Strings names(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const SerieBase& serie,
+        const String& name) const = 0;
+
+    // Extract a specific decomposed attribute
+    virtual Serie&lt;double&gt; serie(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const std::string& name) const = 0;
+
+protected:
+    // Get component count for a given type
+    template &lt;typename T&gt;
+    static size_t getComponentCount();
+
+    // Extract a single component from a serie at a given index
+    template &lt;typename T&gt;
+    static Serie&lt;double&gt; extractComponent(
+        const Serie&lt;T&gt;& serie, size_t index);
+};
+
+}</code></pre>
+        </div>
+        <table class="params-table">
+          <thead>
+            <tr><th>Method</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>clone()</code></td><td>Creates a deep copy of the decomposer for polymorphic ownership</td></tr>
+            <tr><td><code>names()</code></td><td>Returns all decomposed attribute names for a serie at the given dimension</td></tr>
+            <tr><td><code>serie()</code></td><td>Extracts a specific component as <code>Serie&lt;double&gt;</code></td></tr>
+            <tr><td><code>getComponentCount&lt;T&gt;()</code></td><td>Returns the number of scalar components in type T</td></tr>
+            <tr><td><code>extractComponent&lt;T&gt;()</code></td><td>Extracts the i-th scalar component from a typed serie</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">GenDecomposer (CRTP Helper)</h2>
+        <p>
+          <code>GenDecomposer&lt;C&gt;</code> uses the Curiously Recurring Template Pattern to provide automatic
+          <code>clone()</code> and forwarding implementations. Derive from this instead of <code>Decomposer</code> directly.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>GenDecomposer Template</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+template &lt;typename C&gt;
+class GenDecomposer : public Decomposer {
+public:
+    // Automatic clone via CRTP
+    std::unique_ptr&lt;Decomposer&gt; clone() const override;
+
+    // Forwards to derived class names() implementation
+    Strings names(const Dataframe&, DecompDimension,
+                  const SerieBase&, const String&) const override;
+
+    // Forwards to derived class serie() implementation
+    Serie&lt;double&gt; serie(const Dataframe&, DecompDimension,
+                        const std::string&) const override;
+};
+
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Creating a Custom Decomposer</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Custom Decomposer Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/attributes/Manager.h&gt;
+
+using namespace df;
+using namespace df::attributes;
+
+// Custom decomposer that extracts magnitude from vectors
+class MagnitudeDecomposer : public GenDecomposer&lt;MagnitudeDecomposer&gt; {
+public:
+    Strings names(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const SerieBase& serie,
+        const String& name) const override
+    {
+        if (targetDim == DecompDimension::Scalar) {
+            return {name + "_mag"};
+        }
+        return {};
+    }
+
+    Serie&lt;double&gt; serie(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const std::string& name) const override
+    {
+        // Parse the base name (remove "_mag" suffix)
+        auto baseName = name.substr(0, name.size() - 4);
+        auto& base = dataframe.get&lt;Vector3D&gt;(baseName);
+
+        return base.map([](const Vector3D& v, size_t) {
+            return std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+        });
+    }
+};
+
+// Usage
+Manager manager(dataframe);
+manager.addDecomposer(MagnitudeDecomposer());
+auto mag = manager.getSerie&lt;double&gt;("velocity_mag");</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Built-in Decomposers</h2>
+        <table class="params-table">
+          <thead>
+            <tr><th>Decomposer</th><th>Purpose</th><th>Naming Pattern</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="components.html"><code>Components</code></a></td>
+              <td>Decomposes vectors, matrices, and tensors into individual scalar components</td>
+              <td>Vectors: <code>Px, Py, Pz</code><br>Matrices: <code>M11, M12, ...</code><br>Stress: <code>Sxx, Sxy, ...</code></td>
+            </tr>
+            <tr>
+              <td><a href="coordinates.html"><code>Coordinates</code></a></td>
+              <td>Spatial coordinate decomposition for vector types</td>
+              <td><code>P_x, P_y, P_z</code> (customizable)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="attributes.html" class="related-function">Attributes Tutorial</a>
+          <a href="manager.html" class="related-function">Manager</a>
+          <a href="components.html" class="related-function">Components</a>
+          <a href="coordinates.html" class="related-function">Coordinates</a>
+          <a href="algebra.html" class="related-function">Algebra Types</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

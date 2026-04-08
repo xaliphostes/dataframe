@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algorithmic Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Algorithmic Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The algorithmic module provides advanced numerical algorithms that operate on meshes.
+          The primary algorithm is <code>HarmonicDiffusion</code>, which solves the Laplace equation
+          on triangulated surfaces using iterative relaxation. This is useful for smoothly interpolating
+          sparse constraints across a mesh, such as boundary conditions, temperature fields, or
+          displacement constraints.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">HarmonicDiffusion</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>HarmonicDiffusion Class</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+template &lt;size_t N&gt;
+class HarmonicDiffusion {
+public:
+    // Constructor: takes a mesh and an initial value for all nodes
+    HarmonicDiffusion(const Mesh&lt;N&gt; &amp;mesh, double init_value = 0.0);
+
+    // Solver parameters
+    void setMaxIter(size_t max_iterations);   // Default: 10000
+    void setEps(double epsilon);              // Convergence tolerance (default: 1e-6)
+    void setEpsilon(double epsilon);          // Alias for setEps
+
+    // Add a constraint: fix the value at a specific vertex
+    void addConstraint(uint32_t vertex_index, double value);
+
+    // Constrain all border nodes to a given value
+    void constrainBorders(double value);
+
+    // Solve the Laplace equation and return the solution
+    Serie&lt;double&gt; solve();
+};</code></pre>
+        </div>
+        <p>
+          The harmonic diffusion solver iteratively relaxes the solution toward the Laplace equation
+          (zero second derivative) on the mesh surface. At each iteration, each unconstrained node is
+          updated to the average of its neighbors' values. The process converges when the maximum change
+          between iterations falls below the specified tolerance (epsilon).
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Basic Usage</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Harmonic Diffusion Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/geo/mesh.h&gt;
+#include &lt;dataframe/algo/harmonic_diffusion.h&gt;
+
+// Create or load a mesh
+df::Mesh3D mesh(vertices, triangles);
+
+// Create solver with initial value 0
+df::HarmonicDiffusion&lt;3&gt; solver(mesh, 0.0);
+
+// Set solver parameters
+solver.setMaxIter(5000);
+solver.setEps(1e-8);
+
+// Fix values at specific vertices
+solver.addConstraint(0, 100.0);    // Vertex 0 = 100
+solver.addConstraint(50, 0.0);     // Vertex 50 = 0
+solver.addConstraint(100, 50.0);   // Vertex 100 = 50
+
+// Solve
+auto result = solver.solve();
+// result is a Serie&lt;double&gt; with smoothly interpolated values</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Border Constraints</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Constraining Borders Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Heat diffusion: fix borders to 0, internal source to 100
+df::HarmonicDiffusion&lt;3&gt; heat_solver(mesh, 0.0);
+
+// Fix all border nodes to 0 (cold boundary)
+heat_solver.constrainBorders(0.0);
+
+// Add a hot spot in the interior
+heat_solver.addConstraint(center_vertex_id, 100.0);
+
+heat_solver.setMaxIter(10000);
+heat_solver.setEps(1e-6);
+
+auto temperature = heat_solver.solve();
+
+// Add result as mesh attribute
+mesh.addVertexAttribute("temperature", temperature);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Parameterization on a Surface</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/mesh.h&gt;
+#include &lt;dataframe/geo/geometry.h&gt;
+#include &lt;dataframe/algo/harmonic_diffusion.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Generate a sphere mesh
+    auto [verts, tris] = df::geo::generateSphere(4, 1.0);
+    df::Mesh3D sphere(verts, tris);
+
+    // Create harmonic diffusion solver
+    df::HarmonicDiffusion&lt;3&gt; solver(sphere, 0.5);
+    solver.setMaxIter(20000);
+    solver.setEps(1e-8);
+
+    // Find the north and south pole vertices (max/min z)
+    size_t north_pole = 0, south_pole = 0;
+    double max_z = -1e30, min_z = 1e30;
+    for (size_t i = 0; i &lt; verts.size(); ++i) {
+        if (verts[i][2] &gt; max_z) { max_z = verts[i][2]; north_pole = i; }
+        if (verts[i][2] &lt; min_z) { min_z = verts[i][2]; south_pole = i; }
+    }
+
+    // Constrain poles
+    solver.addConstraint(north_pole, 1.0);
+    solver.addConstraint(south_pole, 0.0);
+
+    // Solve for a smooth scalar field
+    auto field = solver.solve();
+    sphere.addVertexAttribute("latitude_param", field);
+
+    std::cout &lt;&lt; "Solved harmonic diffusion on sphere with "
+              &lt;&lt; sphere.vertexCount() &lt;&lt; " vertices\n";
+    std::cout &lt;&lt; "North pole value: " &lt;&lt; field[north_pole] &lt;&lt; "\n";
+    std::cout &lt;&lt; "South pole value: " &lt;&lt; field[south_pole] &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Implementation Notes</h2>
+        <ul>
+          <li>The solver uses Jacobi iteration on the graph Laplacian of the mesh.</li>
+          <li>Convergence speed depends on mesh connectivity and the distribution of constraints.</li>
+          <li>For large meshes, consider increasing <code>maxIter</code> and monitoring convergence.</li>
+          <li>Constrained vertices are never modified during iteration.</li>
+          <li>Works with both 2D and 3D meshes (<code>Mesh&lt;2&gt;</code> and <code>Mesh&lt;3&gt;</code>).</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="mesh.html" class="related-function">Mesh</a>
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="kriging.html" class="related-function">Kriging</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

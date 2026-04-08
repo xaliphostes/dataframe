@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meshing - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Meshing</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>Mesh&lt;N&gt;</code> class represents a triangulated surface mesh in N dimensions (2D or 3D).
+          It stores vertex positions and triangle connectivity, and supports per-vertex and per-triangle attributes
+          via embedded <code>Dataframe</code> objects. The module also provides contour extraction functions for
+          isoline/isosurface computation.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Mesh Class</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mesh Class Definition</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+template &lt;size_t N&gt;
+class Mesh {
+public:
+    // Constructors
+    Mesh() = default;
+    Mesh(const Serie&lt;Vector&lt;N&gt;&gt; &amp;vertices,
+         const Serie&lt;std::array&lt;uint32_t, 3&gt;&gt; &amp;triangles);
+
+    // Accessors
+    size_t vertexCount() const;
+    size_t triangleCount() const;
+    const Serie&lt;Vector&lt;N&gt;&gt; &amp;vertices() const;
+    const Serie&lt;std::array&lt;uint32_t, 3&gt;&gt; &amp;triangles() const;
+
+    // Attributes (stored as Dataframe)
+    Dataframe &amp;vertexAttributes();
+    const Dataframe &amp;vertexAttributes() const;
+    Dataframe &amp;triangleAttributes();
+    const Dataframe &amp;triangleAttributes() const;
+
+    // Add attributes
+    template &lt;typename T&gt;
+    void addVertexAttribute(const std::string &amp;name, const Serie&lt;T&gt; &amp;data);
+
+    template &lt;typename T&gt;
+    void addTriangleAttribute(const std::string &amp;name, const Serie&lt;T&gt; &amp;data);
+
+    // Topology queries
+    std::vector&lt;std::vector&lt;uint32_t&gt;&gt; neighbors() const;
+    std::vector&lt;uint32_t&gt; borderNodes() const;
+
+    // Validation
+    bool isValid() const;
+};
+
+// Type aliases
+using Mesh2D = Mesh&lt;2&gt;;
+using Mesh3D = Mesh&lt;3&gt;;</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mesh Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a simple 3D mesh
+df::Serie&lt;Vector&lt;3&gt;&gt; vertices{
+    {0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}
+};
+df::Serie&lt;std::array&lt;uint32_t, 3&gt;&gt; triangles{
+    {0, 1, 2}, {1, 3, 2}
+};
+
+df::Mesh3D mesh(vertices, triangles);
+
+std::cout &lt;&lt; "Vertices: " &lt;&lt; mesh.vertexCount() &lt;&lt; std::endl;    // 4
+std::cout &lt;&lt; "Triangles: " &lt;&lt; mesh.triangleCount() &lt;&lt; std::endl; // 2
+std::cout &lt;&lt; "Valid: " &lt;&lt; mesh.isValid() &lt;&lt; std::endl;           // true
+
+// Add per-vertex scalar attribute
+df::Serie&lt;double&gt; elevation{0.0, 0.5, 0.3, 0.8};
+mesh.addVertexAttribute("elevation", elevation);
+
+// Add per-triangle attribute
+df::Serie&lt;double&gt; quality{0.95, 0.87};
+mesh.addTriangleAttribute("quality", quality);
+
+// Access attributes
+auto elev = mesh.vertexAttributes().get&lt;double&gt;("elevation");
+
+// Get border nodes
+auto border = mesh.borderNodes();
+
+// Get neighbor connectivity
+auto nbrs = mesh.neighbors();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Contour Extraction</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Contour Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Iso-segment structure: a line segment on the mesh surface at a given iso-value
+template &lt;size_t N&gt;
+struct IsoSegment {
+    Vector&lt;N&gt; p1;     // First endpoint
+    Vector&lt;N&gt; p2;     // Second endpoint
+    double    value;   // Iso-value
+};
+
+// Extract contour lines at a given iso-value
+template &lt;size_t N&gt;
+std::vector&lt;IsoSegment&lt;N&gt;&gt; contours(
+    const Mesh&lt;N&gt;      &amp;mesh,
+    const std::string  &amp;attrName,   // Vertex attribute name
+    double              isoValue
+);
+
+// Generate iso-values evenly spaced by a given spacing
+std::vector&lt;double&gt; generateIsosBySpacing(
+    double minVal, double maxVal, double spacing
+);
+
+// Generate a given number of evenly spaced iso-values
+std::vector&lt;double&gt; generateIsosByNumber(
+    double minVal, double maxVal, size_t count
+);
+
+// Generate all contours for a set of iso-values
+template &lt;size_t N&gt;
+std::vector&lt;IsoSegment&lt;N&gt;&gt; generateIsos(
+    const Mesh&lt;N&gt;              &amp;mesh,
+    const std::string          &amp;attrName,
+    const std::vector&lt;double&gt;  &amp;isoValues
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Contour Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a mesh with an elevation attribute
+df::Mesh3D mesh(vertices, triangles);
+mesh.addVertexAttribute("elevation", elevation);
+
+// Extract a single contour at elevation = 0.5
+auto iso_segments = df::contours(mesh, "elevation", 0.5);
+
+for (const auto &amp;seg : iso_segments) {
+    std::cout &lt;&lt; "Segment from ("
+              &lt;&lt; seg.p1[0] &lt;&lt; "," &lt;&lt; seg.p1[1] &lt;&lt; "," &lt;&lt; seg.p1[2]
+              &lt;&lt; ") to ("
+              &lt;&lt; seg.p2[0] &lt;&lt; "," &lt;&lt; seg.p2[1] &lt;&lt; "," &lt;&lt; seg.p2[2]
+              &lt;&lt; ") at value " &lt;&lt; seg.value &lt;&lt; std::endl;
+}
+
+// Generate multiple contours by spacing
+auto iso_vals = df::generateIsosBySpacing(0.0, 1.0, 0.1);
+auto all_isos = df::generateIsos(mesh, "elevation", iso_vals);
+
+// Or by count
+auto iso_vals2 = df::generateIsosByNumber(0.0, 1.0, 10);
+auto all_isos2 = df::generateIsos(mesh, "elevation", iso_vals2);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Mesh Processing Pipeline</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/mesh.h&gt;
+#include &lt;dataframe/geo/geometry.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Generate a sphere mesh
+    auto [verts, tris] = df::geo::generateSphere(3, 1.0);
+    df::Mesh3D sphere(verts, tris);
+
+    // Compute normals and add as attribute
+    auto norms = df::geo::normals(verts, tris);
+    sphere.addTriangleAttribute("normals", norms);
+
+    // Add a scalar field (e.g., height = z-coordinate)
+    auto heights = verts | df::map([](const Vector&lt;3&gt; &amp;v, size_t) {
+        return v[2];
+    });
+    sphere.addVertexAttribute("height", heights);
+
+    // Extract contour lines at the equator
+    auto equator = df::contours(sphere, "height", 0.0);
+
+    std::cout &lt;&lt; "Sphere: " &lt;&lt; sphere.vertexCount() &lt;&lt; " vertices, "
+              &lt;&lt; sphere.triangleCount() &lt;&lt; " triangles" &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Equator segments: " &lt;&lt; equator.size() &lt;&lt; std::endl;
+
+    // Check border (sphere has no border)
+    auto border = sphere.borderNodes();
+    std::cout &lt;&lt; "Border nodes: " &lt;&lt; border.size() &lt;&lt; std::endl;  // 0
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="grid.html" class="related-function">Grid Generation</a>
+          <a href="algorithmic.html" class="related-function">Harmonic Diffusion</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

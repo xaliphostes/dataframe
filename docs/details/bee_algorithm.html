@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee Algorithm - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Bee Algorithm</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>BeeAlgorithm</code> class in the <code>df::ml</code> namespace implements the
+          Artificial Bee Colony (ABC) optimization algorithm. Inspired by the foraging behavior of
+          honey bees, the ABC algorithm uses three types of bees (employed, onlooker, and scout) to
+          explore the search space. It is effective for both continuous and combinatorial optimization
+          problems and is known for its simplicity and good exploration capabilities.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">BeeAlgorithm Class</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Class Definition</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::ml {
+
+class BeeAlgorithm {
+public:
+    // Constructor with configuration parameters
+    BeeAlgorithm(
+        size_t colony_size      = 100,   // Total colony size
+        size_t employed_bees    = 50,    // Number of employed bees
+        size_t onlooker_bees    = 50,    // Number of onlooker bees
+        size_t max_iterations   = 1000,  // Maximum number of cycles
+        size_t abandonment_limit = 20    // Trials before abandoning a source
+    );
+
+    // Optimize a continuous objective function
+    // fitness: function returning fitness value (higher = better)
+    // bounds: {min, max} for each dimension
+    std::vector&lt;double&gt; optimize(
+        std::function&lt;double(const std::vector&lt;double&gt;&amp;)&gt; fitness,
+        const std::vector&lt;std::pair&lt;double, double&gt;&gt; &amp;bounds
+    );
+
+    // Optimize a combinatorial problem (permutation-based)
+    std::vector&lt;size_t&gt; optimize_combinatorial(
+        std::function&lt;double(const std::vector&lt;size_t&gt;&amp;)&gt; fitness,
+        size_t num_elements
+    );
+
+    // Get the history of best fitness per iteration
+    std::vector&lt;double&gt; get_evolution_history() const;
+
+    // Get current population statistics
+    struct PopulationMetrics {
+        double best_fitness;
+        double worst_fitness;
+        double mean_fitness;
+        double diversity;
+    };
+    PopulationMetrics get_population_metrics() const;
+};
+
+} // namespace df::ml</code></pre>
+        </div>
+        <p>
+          The ABC algorithm operates in three phases per iteration:
+        </p>
+        <ul>
+          <li><strong>Employed bees</strong>: Each employed bee exploits a food source (candidate solution) by
+            searching in its neighborhood.</li>
+          <li><strong>Onlooker bees</strong>: Select food sources based on their quality (fitness-proportionate
+            selection) and further exploit promising solutions.</li>
+          <li><strong>Scout bees</strong>: When a food source is not improved after
+            <code>abandonment_limit</code> trials, it is abandoned and replaced with a random new source.</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Factory Functions</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Factory Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::ml {
+
+// Create a bee algorithm with default settings for continuous optimization
+BeeAlgorithm create_bee_algorithm(
+    size_t colony_size    = 100,
+    size_t max_iterations = 1000
+);
+
+// Create a bee algorithm configured for combinatorial optimization
+BeeAlgorithm create_bee_algorithm_combinatorial(
+    size_t colony_size    = 100,
+    size_t max_iterations = 1000
+);
+
+} // namespace df::ml</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Examples</h2>
+
+        <h3>Continuous Optimization</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Minimize Sphere Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/ml/bee_algorithm.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    // Sphere function: f(x) = sum(x_i^2), minimum at origin
+    auto sphere = [](const std::vector&lt;double&gt; &amp;x) -&gt; double {
+        double sum = 0;
+        for (double xi : x) sum += xi * xi;
+        return -sum;  // Negate because ABC maximizes
+    };
+
+    // Create ABC optimizer
+    df::ml::BeeAlgorithm abc(
+        80,     // colony size
+        40,     // employed bees
+        40,     // onlooker bees
+        2000,   // max iterations
+        30      // abandonment limit
+    );
+
+    // 5-dimensional search in [-10, 10]
+    std::vector&lt;std::pair&lt;double, double&gt;&gt; bounds(5, {-10.0, 10.0});
+
+    auto best = abc.optimize(sphere, bounds);
+
+    std::cout &lt;&lt; "Best solution: (";
+    for (size_t i = 0; i &lt; best.size(); ++i) {
+        if (i &gt; 0) std::cout &lt;&lt; ", ";
+        std::cout &lt;&lt; best[i];
+    }
+    std::cout &lt;&lt; ")\n";
+
+    // Check convergence
+    auto history = abc.get_evolution_history();
+    std::cout &lt;&lt; "Iterations: " &lt;&lt; history.size() &lt;&lt; "\n";
+    std::cout &lt;&lt; "Final best fitness: " &lt;&lt; history.back() &lt;&lt; "\n";
+
+    auto metrics = abc.get_population_metrics();
+    std::cout &lt;&lt; "Population diversity: " &lt;&lt; metrics.diversity &lt;&lt; "\n";
+
+    return 0;
+}</code></pre>
+        </div>
+
+        <h3>Combinatorial Optimization</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Assignment Problem</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Cost matrix: cost[i][j] = cost of assigning task i to worker j
+std::vector&lt;std::vector&lt;double&gt;&gt; cost = {
+    {9, 2, 7, 8},
+    {6, 4, 3, 7},
+    {5, 8, 1, 8},
+    {7, 6, 9, 4}
+};
+
+auto assignment_fitness = [&amp;](const std::vector&lt;size_t&gt; &amp;perm) -&gt; double {
+    double total = 0;
+    for (size_t i = 0; i &lt; perm.size(); ++i) {
+        total += cost[i][perm[i]];
+    }
+    return -total;  // Minimize total cost
+};
+
+auto abc = df::ml::create_bee_algorithm_combinatorial(60, 3000);
+auto best_assignment = abc.optimize_combinatorial(assignment_fitness, 4);
+
+std::cout &lt;&lt; "Best assignment:\n";
+for (size_t i = 0; i &lt; best_assignment.size(); ++i) {
+    std::cout &lt;&lt; "  Task " &lt;&lt; i &lt;&lt; " -&gt; Worker " &lt;&lt; best_assignment[i]
+              &lt;&lt; " (cost: " &lt;&lt; cost[i][best_assignment[i]] &lt;&lt; ")\n";
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Comparison with Genetic Algorithm</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Side-by-Side Comparison</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compare GA and ABC on the same problem
+auto fitness = [](const std::vector&lt;double&gt; &amp;x) -&gt; double {
+    return -(x[0]*x[0] + x[1]*x[1]);  // Sphere function
+};
+
+std::vector&lt;std::pair&lt;double,double&gt;&gt; bounds{{-10,10}, {-10,10}};
+
+// Genetic Algorithm
+auto ga = df::ml::create_genetic_algorithm(100, 500);
+auto ga_result = ga.optimize(fitness, bounds);
+
+// Bee Algorithm
+auto abc = df::ml::create_bee_algorithm(100, 500);
+auto abc_result = abc.optimize(fitness, bounds);
+
+std::cout &lt;&lt; "GA best:  (" &lt;&lt; ga_result[0] &lt;&lt; ", " &lt;&lt; ga_result[1] &lt;&lt; ")\n";
+std::cout &lt;&lt; "ABC best: (" &lt;&lt; abc_result[0] &lt;&lt; ", " &lt;&lt; abc_result[1] &lt;&lt; ")\n";</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="genetic_algorithm.html" class="related-function">Genetic Algorithm</a>
+          <a href="random_forest.html" class="related-function">Random Forest</a>
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="math.html" class="related-function">Math Functions</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

@@ -27,23 +27,22 @@
 #include <vector>
 
 namespace df {
-namespace grid {
-namespace cartesian {
+    namespace grid {
+        namespace cartesian {
 
-/**
- * Generate a regular grid of points between two corner points
- * @param npts Number of points in each dimension
- * @param p1 First corner point
- * @param p2 Second corner point
- * @return Serie of grid point positions
- */
-template <size_t N>
-Serie<Vector<N>> from_points(const iVector<N> &npts,
-                             const std::vector<double> &p1,
-                             const std::vector<double> &p2);
+            /**
+             * Generate a regular grid of points between two corner points
+             * @param npts Number of points in each dimension
+             * @param p1 First corner point
+             * @param p2 Second corner point
+             * @return Serie of grid point positions
+             */
+            template <size_t N>
+            Serie<Vector<N>> from_points(const iVector<N>& npts, const std::vector<double>& p1,
+                const std::vector<double>& p2);
 
-} // namespace cartesian
-} // namespace grid
+        } // namespace cartesian
+    } // namespace grid
 } // namespace df
 
 #include "inline/from_points.hxx"

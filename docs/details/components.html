@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components Decomposer - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Components Decomposer</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The <code>Components</code> decomposer breaks down vectors, matrices, and tensors into their individual
+          scalar components. It uses physics-aware naming conventions for stress/strain tensors and numeric
+          indexing for generic matrices.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Include</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">#include &lt;dataframe/attributes/Components.h&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Class Definition</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Components API</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">namespace df::attributes {
+
+class Components : public GenDecomposer&lt;Components&gt; {
+public:
+    Strings names(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const SerieBase& serie,
+        const String& name) const override;
+
+    Serie&lt;double&gt; serie(
+        const Dataframe& dataframe,
+        DecompDimension targetDim,
+        const std::string& name) const override;
+};
+
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Naming Conventions</h2>
+        <p>
+          The naming pattern depends on the data type and the decomposition dimension.
+        </p>
+
+        <h3>Scalar Decomposition</h3>
+        <table class="params-table">
+          <thead>
+            <tr><th>Type</th><th>Generated Names</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Vector2D</code></td><td><code>{name}x</code>, <code>{name}y</code></td></tr>
+            <tr><td><code>Vector3D</code></td><td><code>{name}x</code>, <code>{name}y</code>, <code>{name}z</code></td></tr>
+            <tr><td><code>Vector4D</code></td><td><code>{name}x</code>, <code>{name}y</code>, <code>{name}z</code>, <code>{name}w</code></td></tr>
+            <tr><td><code>Stress2D</code> / <code>Strain2D</code></td><td><code>{name}xx</code>, <code>{name}xy</code>, <code>{name}yy</code></td></tr>
+            <tr><td><code>Stress3D</code> / <code>Strain3D</code></td><td><code>{name}xx</code>, <code>{name}xy</code>, <code>{name}xz</code>, <code>{name}yy</code>, <code>{name}yz</code>, <code>{name}zz</code></td></tr>
+            <tr><td><code>Matrix2D</code></td><td><code>{name}11</code>, <code>{name}12</code>, <code>{name}21</code>, <code>{name}22</code></td></tr>
+            <tr><td><code>Matrix3D</code></td><td><code>{name}11</code>, <code>{name}12</code>, ..., <code>{name}33</code></td></tr>
+            <tr><td><code>Matrix4D</code></td><td><code>{name}11</code>, <code>{name}12</code>, ..., <code>{name}44</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Vector Decomposition</h3>
+        <p>Groups components into vectors: <code>{name}_1</code>, <code>{name}_2</code>, etc.</p>
+
+        <h3>Matrix Decomposition</h3>
+        <p>Groups components into matrix rows: <code>{name}_11</code>, <code>{name}_12</code>, etc.</p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Supported Types</h2>
+        <table class="params-table">
+          <thead>
+            <tr><th>Category</th><th>Types</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Vectors</td><td><code>Vector2D</code>, <code>Vector3D</code>, <code>Vector4D</code></td></tr>
+            <tr><td>Full Matrices</td><td><code>Matrix2D</code>, <code>Matrix3D</code>, <code>Matrix4D</code></td></tr>
+            <tr><td>Symmetric Matrices</td><td><code>SMatrix2D</code>, <code>SMatrix3D</code>, <code>SMatrix4D</code></td></tr>
+            <tr><td>Physics Tensors</td><td><code>Stress2D</code>, <code>Stress3D</code>, <code>Strain2D</code>, <code>Strain3D</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Examples</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Decomposing Vectors</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+Serie&lt;Vector3D&gt; displacements = {{1,2,3}, {4,5,6}, {7,8,9}};
+
+Dataframe df;
+df.add("U", displacements);
+
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Components());
+
+// Get scalar names: "Ux", "Uy", "Uz"
+auto names = mgr.getNames(attributes::DecompDimension::Scalar);
+
+// Extract individual components
+auto ux = mgr.getSerie&lt;double&gt;("Ux");  // {1, 4, 7}
+auto uy = mgr.getSerie&lt;double&gt;("Uy");  // {2, 5, 8}
+auto uz = mgr.getSerie&lt;double&gt;("Uz");  // {3, 6, 9}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Decomposing Stress Tensors</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+// Symmetric 3D stress tensor (6 unique components: xx, xy, xz, yy, yz, zz)
+Serie&lt;Stress3D&gt; stresses = {
+    {100, 20, 10, 80, 15, 60},   // node 0
+    {110, 25, 12, 85, 18, 65}    // node 1
+};
+
+Dataframe df;
+df.add("S", stresses);
+
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Components());
+
+// Get all scalar names
+auto names = mgr.getNames(attributes::DecompDimension::Scalar);
+// -> "Sxx", "Sxy", "Sxz", "Syy", "Syz", "Szz"
+
+// Extract shear stress component
+auto sxy = mgr.getSerie&lt;double&gt;("Sxy");  // {20, 25}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Decomposing Generic Matrices</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="language-cpp">using namespace df;
+
+Serie&lt;Matrix3D&gt; transforms = {
+    {1,0,0, 0,1,0, 0,0,1},   // identity
+    {2,0,0, 0,2,0, 0,0,2}    // scale by 2
+};
+
+Dataframe df;
+df.add("M", transforms);
+
+attributes::Manager mgr(df);
+mgr.addDecomposer(attributes::Components());
+
+// Scalar names: "M11", "M12", "M13", "M21", ..., "M33"
+auto m11 = mgr.getSerie&lt;double&gt;("M11");  // {1, 2}
+auto m12 = mgr.getSerie&lt;double&gt;("M12");  // {0, 0}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="attributes.html" class="related-function">Attributes Tutorial</a>
+          <a href="manager.html" class="related-function">Manager</a>
+          <a href="decomposer.html" class="related-function">Decomposer</a>
+          <a href="coordinates.html" class="related-function">Coordinates</a>
+          <a href="algebra.html" class="related-function">Algebra Types</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

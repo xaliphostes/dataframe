@@ -22,27 +22,31 @@
  */
 
 namespace df {
-namespace grid {
+    namespace grid {
 
-inline Vector3 Grid3D::point_at(uint i, uint j, uint k) const {
-    return {origin[0] + i * spacing[0], origin[1] + j * spacing[1],
-            origin[2] + k * spacing[2]};
-}
+        inline Vector3 Grid3D::point_at(uint i, uint j, uint k) const
+        {
+            return { origin[0] + i * spacing[0], origin[1] + j * spacing[1],
+                origin[2] + k * spacing[2] };
+        }
 
-inline size_t Grid3D::linear_index(uint i, uint j, uint k) const {
-    return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
-}
+        inline size_t Grid3D::linear_index(uint i, uint j, uint k) const
+        {
+            return i + j * dimensions[0] + k * dimensions[0] * dimensions[1];
+        }
 
-inline std::tuple<uint, uint, uint> Grid3D::grid_indices(size_t index) const {
-    uint i = index % dimensions[0];
-    uint j = (index / dimensions[0]) % dimensions[1];
-    uint k = index / (dimensions[0] * dimensions[1]);
-    return {i, j, k};
-}
+        inline std::tuple<uint, uint, uint> Grid3D::grid_indices(size_t index) const
+        {
+            uint i = index % dimensions[0];
+            uint j = (index / dimensions[0]) % dimensions[1];
+            uint k = index / (dimensions[0] * dimensions[1]);
+            return { i, j, k };
+        }
 
-inline size_t Grid3D::total_points() const {
-    return dimensions[0] * dimensions[1] * dimensions[2];
-}
+        inline size_t Grid3D::total_points() const
+        {
+            return dimensions[0] * dimensions[1] * dimensions[2];
+        }
 
-} // namespace grid
+    } // namespace grid
 } // namespace df

@@ -28,59 +28,63 @@
 
 namespace df {
 
-/**
- * @brief Available RBF kernel functions
- */
-enum class RBFKernel {
-    Gaussian,            // exp(-r²/ε²)
-    Multiquadric,        // sqrt(1 + (εr)²)
-    InverseMultiquadric, // 1/sqrt(1 + (εr)²)
-    ThinPlate,           // r²log(r)
-    Linear               // r
-};
+    /**
+     * @brief Available RBF kernel functions
+     */
+    enum class RBFKernel {
+        Gaussian, // exp(-r²/ε²)
+        Multiquadric, // sqrt(1 + (εr)²)
+        InverseMultiquadric, // 1/sqrt(1 + (εr)²)
+        ThinPlate, // r²log(r)
+        Linear // r
+    };
 
-/**
- * @brief RBF kernel function implementations
- */
-namespace kernels {
-inline double gaussian(double r, double epsilon) {
-    return std::exp(-std::pow(epsilon * r, 2));
-}
+    /**
+     * @brief RBF kernel function implementations
+     */
+    namespace kernels {
+        inline double gaussian(double r, double epsilon)
+        {
+            return std::exp(-std::pow(epsilon * r, 2));
+        }
 
-inline double multiquadric(double r, double epsilon) {
-    return std::sqrt(1.0 + std::pow(epsilon * r, 2));
-}
+        inline double multiquadric(double r, double epsilon)
+        {
+            return std::sqrt(1.0 + std::pow(epsilon * r, 2));
+        }
 
-inline double inverse_multiquadric(double r, double epsilon) {
-    return 1.0 / std::sqrt(1.0 + std::pow(epsilon * r, 2));
-}
+        inline double inverse_multiquadric(double r, double epsilon)
+        {
+            return 1.0 / std::sqrt(1.0 + std::pow(epsilon * r, 2));
+        }
 
-inline double thin_plate(double r, double /*epsilon*/) {
-    return r == 0 ? 0 : r * r * std::log(r);
-}
+        inline double thin_plate(double r, double /*epsilon*/)
+        {
+            return r == 0 ? 0 : r * r * std::log(r);
+        }
 
-inline double linear(double r, double /*epsilon*/) { return r; }
-} // namespace kernels
+        inline double linear(double r, double /*epsilon*/) { return r; }
+    } // namespace kernels
 
-/**
- * @brief Get kernel function based on kernel type
- */
-inline std::function<double(double, double)>
-get_kernel_function(RBFKernel kernel) {
-    switch (kernel) {
-    case RBFKernel::Gaussian:
-        return kernels::gaussian;
-    case RBFKernel::Multiquadric:
-        return kernels::multiquadric;
-    case RBFKernel::InverseMultiquadric:
-        return kernels::inverse_multiquadric;
-    case RBFKernel::ThinPlate:
-        return kernels::thin_plate;
-    case RBFKernel::Linear:
-        return kernels::linear;
-    default:
-        throw std::runtime_error("Unknown RBF kernel type");
+    /**
+     * @brief Get kernel function based on kernel type
+     */
+    inline std::function<double(double, double)> get_kernel_function(RBFKernel kernel)
+    {
+        switch (kernel) {
+        case RBFKernel::Gaussian:
+            return kernels::gaussian;
+        case RBFKernel::Multiquadric:
+            return kernels::multiquadric;
+        case RBFKernel::InverseMultiquadric:
+            return kernels::inverse_multiquadric;
+        case RBFKernel::ThinPlate:
+            return kernels::thin_plate;
+        case RBFKernel::Linear:
+            return kernels::linear;
+        default:
+            throw std::runtime_error("Unknown RBF kernel type");
+        }
     }
-}
 
 } // namespace df

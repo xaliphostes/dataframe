@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geometry Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Geometry Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The geometry module provides functions for computing geometric properties of meshes and point sets,
+          including areas, normals, lengths, curvatures, distance fields, and sphere generation. These functions
+          work with the library's vector and mesh types.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Types</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Geometry Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Fixed-size vector (alias for std::array)
+template &lt;size_t N&gt;
+using Vector = std::array&lt;double, N&gt;;
+
+// Common position types
+using Positions2 = Serie&lt;Vector&lt;2&gt;&gt;;  // 2D point cloud
+using Positions3 = Serie&lt;Vector&lt;3&gt;&gt;;  // 3D point cloud
+
+// Connectivity types
+using Segments  = Serie&lt;std::array&lt;uint32_t, 2&gt;&gt;;  // Line segments
+using Triangles = Serie&lt;std::array&lt;uint32_t, 3&gt;&gt;;  // Triangle faces
+
+// Concept for vector types
+template &lt;typename T&gt;
+concept VectorType = requires { T::size(); };</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Area</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Triangle Area</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute the area of each triangle
+Serie&lt;double&gt; area(const Positions3 &amp;vertices, const Triangles &amp;triangles);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Area Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+Positions3 vertices{
+    {0.0, 0.0, 0.0},
+    {1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {1.0, 1.0, 0.0}
+};
+Triangles tris{
+    {0, 1, 2},
+    {1, 3, 2}
+};
+
+auto areas = df::geo::area(vertices, tris);
+// areas = {0.5, 0.5}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Normals</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Normal Computation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute normals of 2D line segments (returns outward-pointing 2D normals)
+Serie&lt;Vector&lt;2&gt;&gt; normals(const Positions2 &amp;vertices, const Segments &amp;segments);
+
+// Compute normals of 3D triangles
+Serie&lt;Vector&lt;3&gt;&gt; normals(const Positions3 &amp;vertices, const Triangles &amp;triangles);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Normals Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// 3D triangle normals
+Positions3 vertices{
+    {0, 0, 0}, {1, 0, 0}, {0, 1, 0}
+};
+Triangles tris{{0, 1, 2}};
+
+auto norms = df::geo::normals(vertices, tris);
+// norms[0] = {0, 0, 1}  (unit normal pointing in +z)
+
+// 2D segment normals
+Positions2 pts2d{{0, 0}, {1, 0}, {1, 1}};
+Segments segs{{0, 1}, {1, 2}};
+
+auto norms2d = df::geo::normals(pts2d, segs);
+// norms2d[0] = {0, -1} or {0, 1} depending on orientation</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Length</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Segment Length</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute the length of each segment
+template &lt;size_t N&gt;
+Serie&lt;double&gt; length(const Serie&lt;Vector&lt;N&gt;&gt; &amp;vertices, const Segments &amp;segments);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Length Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+Positions3 pts{{0,0,0}, {3,0,0}, {3,4,0}};
+Segments segs{{0, 1}, {1, 2}};
+
+auto lens = df::geo::length(pts, segs);
+// lens = {3.0, 4.0}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Surface Curvature</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Surface Curvature</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute surface curvature at each vertex
+// Returns a DataFrame with columns:
+//   "mean"      - Serie&lt;double&gt;  mean curvature
+//   "gaussian"  - Serie&lt;double&gt;  Gaussian curvature
+//   "k1"        - Serie&lt;double&gt;  first principal curvature
+//   "k2"        - Serie&lt;double&gt;  second principal curvature
+Dataframe surface_curvature(const Positions3 &amp;vertices, const Triangles &amp;triangles);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Surface Curvature Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute curvatures on a triangulated surface
+auto curvatures = df::geo::surface_curvature(vertices, triangles);
+
+auto mean_curv     = curvatures.get&lt;double&gt;("mean");
+auto gaussian_curv = curvatures.get&lt;double&gt;("gaussian");
+auto k1            = curvatures.get&lt;double&gt;("k1");
+auto k2            = curvatures.get&lt;double&gt;("k2");</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Distance Field</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Distance Field (KDTree-based)</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute the distance from each target point to the nearest source point
+// Uses a KDTree for efficient nearest-neighbor lookups
+template &lt;size_t N&gt;
+Serie&lt;double&gt; distance_field(
+    const Serie&lt;Vector&lt;N&gt;&gt; &amp;source_points,
+    const Serie&lt;Vector&lt;N&gt;&gt; &amp;target_points
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Distance Field Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Fault trace points
+Positions3 fault_points{
+    {0, 0, 0}, {1, 0, 0}, {2, 0, 0}
+};
+
+// Grid points where we want the distance
+Positions3 grid_points{
+    {0, 1, 0}, {1, 1, 0}, {2, 1, 0},
+    {0, 2, 0}, {1, 2, 0}, {2, 2, 0}
+};
+
+auto dists = df::geo::distance_field(fault_points, grid_points);
+// dists[0] = 1.0, dists[3] = 2.0, etc.</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="700">
+        <h2 class="doc-section-title">Sphere Generation</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Generate Sphere</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Generate an icosphere with the given number of subdivisions
+// Returns a pair of {positions, triangles}
+std::pair&lt;Positions3, Triangles&gt; generateSphere(
+    size_t subdivisions = 3,
+    double radius = 1.0
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Sphere Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Generate a unit sphere with 3 levels of subdivision
+auto [positions, triangles] = df::geo::generateSphere(3, 1.0);
+
+std::cout &lt;&lt; "Vertices: " &lt;&lt; positions.size() &lt;&lt; std::endl;
+std::cout &lt;&lt; "Triangles: " &lt;&lt; triangles.size() &lt;&lt; std::endl;
+
+// Compute normals on the sphere
+auto sphere_normals = df::geo::normals(positions, triangles);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="800">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="algebra.html" class="related-function">Linear Algebra</a>
+          <a href="mesh.html" class="related-function">Mesh</a>
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="grid.html" class="related-function">Grid Generation</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

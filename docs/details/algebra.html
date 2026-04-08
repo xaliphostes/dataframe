@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear Algebra Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Linear Algebra Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The DataFrame library provides a comprehensive set of linear algebra types and functions for working with
+          vectors and matrices. These types are fixed-size, stack-allocated, and designed for performance in scientific
+          computing. All algebra functions operate on <code>Serie</code> containers and have <code>bind_*</code>
+          versions for pipeline usage.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Types</h2>
+
+        <h3>Vectors</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Vector Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Generic fixed-size vector
+template &lt;typename T, size_t N&gt;
+using Vector = std::array&lt;T, N&gt;;
+
+// Common aliases
+using Vector2D = Vector&lt;double, 2&gt;;
+using Vector3D = Vector&lt;double, 3&gt;;
+using Vector4D = Vector&lt;double, 4&gt;;</code></pre>
+        </div>
+
+        <h3>Full Matrices</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Full Matrix Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Generic NxN full matrix (stored as flat array of N*N elements)
+template &lt;typename T, size_t N&gt;
+using FullMatrix = std::array&lt;T, N * N&gt;;
+
+// Common aliases
+using Matrix2D = FullMatrix&lt;double, 2&gt;;   // 4 components
+using Matrix3D = FullMatrix&lt;double, 3&gt;;   // 9 components
+using Matrix4D = FullMatrix&lt;double, 4&gt;;   // 16 components</code></pre>
+        </div>
+
+        <h3>Symmetric Matrices</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Symmetric Matrix Types</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Symmetric NxN matrix (stores only upper triangle)
+// 2x2: 3 components, 3x3: 6 components, 4x4: 10 components
+template &lt;typename T, size_t N&gt;
+using SymmetricMatrix = std::array&lt;T, N * (N + 1) / 2&gt;;
+
+// Common aliases
+using SMatrix2D = SymmetricMatrix&lt;double, 2&gt;;  // 3 components
+using SMatrix3D = SymmetricMatrix&lt;double, 3&gt;;  // 6 components (Stress3D, Strain3D)
+using SMatrix4D = SymmetricMatrix&lt;double, 4&gt;;  // 10 components
+
+// Stress and strain tensors
+using Stress2D = SymmetricMatrix&lt;double, 2&gt;;
+using Strain2D = SymmetricMatrix&lt;double, 2&gt;;
+using Stress3D = SymmetricMatrix&lt;double, 3&gt;;
+using Strain3D = SymmetricMatrix&lt;double, 3&gt;;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Vector Operations</h2>
+
+        <h3>Cross Product</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Cross Product</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Cross product of two 3D vector Series
+Serie&lt;Vector3D&gt; cross(const Serie&lt;Vector3D&gt; &amp;a, const Serie&lt;Vector3D&gt; &amp;b);
+
+// Pipeline version
+auto bind_cross(const Serie&lt;Vector3D&gt; &amp;b);</code></pre>
+        </div>
+
+        <h3>Dot Product</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Dot Product</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Dot product of two vector Series
+template &lt;typename T, size_t N&gt;
+Serie&lt;T&gt; dot(const Serie&lt;Vector&lt;T,N&gt;&gt; &amp;a, const Serie&lt;Vector&lt;T,N&gt;&gt; &amp;b);
+
+// Pipeline version
+template &lt;typename T, size_t N&gt;
+auto bind_dot(const Serie&lt;Vector&lt;T,N&gt;&gt; &amp;b);</code></pre>
+        </div>
+
+        <h3>Norm</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Vector Norm (Magnitude)</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute the magnitude (Euclidean norm) of each vector
+template &lt;typename T, size_t N&gt;
+Serie&lt;T&gt; norm(const Serie&lt;Vector&lt;T,N&gt;&gt; &amp;serie);
+
+// Pipeline version
+template &lt;typename T, size_t N&gt;
+auto bind_norm();</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Vector Operations Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;Vector3D&gt; a{{1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
+df::Serie&lt;Vector3D&gt; b{{0, 1, 0}, {0, 0, 1}, {0, 1, 0}};
+
+// Cross product
+auto c = df::algebra::cross(a, b);
+// c[0] = {0, 0, 1}, c[1] = {1, 0, 0}, c[2] = {0, 0, 1}
+
+// Dot product
+auto d = df::algebra::dot(a, b);
+// d = {0, 0, 1}
+
+// Norm
+auto magnitudes = df::algebra::norm(a);
+// magnitudes = {1.0, 1.0, 1.414...}
+
+// Pipeline usage
+auto result = a | df::algebra::bind_cross(b);
+auto norms  = a | df::algebra::bind_norm&lt;double, 3&gt;();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Matrix Operations</h2>
+
+        <h3>Determinant</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Determinant</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Determinant of full matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;T&gt; det(const Serie&lt;FullMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Determinant of symmetric matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;T&gt; det(const Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Pipeline versions
+auto bind_det();</code></pre>
+        </div>
+
+        <h3>Inverse</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Matrix Inverse</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Inverse for 1x1, 2x2, and 3x3 full matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;FullMatrix&lt;T,N&gt;&gt; inv(const Serie&lt;FullMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Inverse for symmetric matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; inv(const Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Pipeline version
+auto bind_inv();</code></pre>
+        </div>
+
+        <h3>Transpose</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Matrix Transpose</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Transpose for 2x2, 3x3, and 4x4 full matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;FullMatrix&lt;T,N&gt;&gt; transpose(const Serie&lt;FullMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Pipeline version
+auto bind_transpose();</code></pre>
+        </div>
+
+        <h3>Solve Linear System</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Solve Ax = b</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Solve the linear system Ax = b for each element
+template &lt;typename T, size_t N&gt;
+Serie&lt;Vector&lt;T,N&gt;&gt; solve(
+    const Serie&lt;FullMatrix&lt;T,N&gt;&gt; &amp;A,
+    const Serie&lt;Vector&lt;T,N&gt;&gt; &amp;b
+);</code></pre>
+        </div>
+
+        <div class="code-container">
+          <div class="code-header">
+            <span>Matrix Operations Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// 2x2 matrix operations
+df::Serie&lt;Matrix2D&gt; mats{
+    {1, 2, 3, 4},    // [[1, 2], [3, 4]]
+    {5, 6, 7, 8}     // [[5, 6], [7, 8]]
+};
+
+auto determinants = df::algebra::det(mats);
+// determinants = {-2, -2}
+
+auto inverses = df::algebra::inv(mats);
+auto transposed = df::algebra::transpose(mats);
+
+// Symmetric matrix (stress tensor) eigen decomposition
+df::Serie&lt;SMatrix3D&gt; stresses{
+    {1, 0, 0, 1, 0, 1},   // identity-like
+    {2, 1, 0, 3, 0, 1}
+};
+auto dets = df::algebra::det(stresses);
+
+// Solve linear system: Ax = b
+df::Serie&lt;Matrix3D&gt; A{
+    {2, 1, 0, 1, 3, 1, 0, 1, 2}
+};
+df::Serie&lt;Vector3D&gt; b{{1, 2, 3}};
+auto x = df::algebra::solve(A, b);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Eigen Decomposition</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Eigen Functions (Symmetric Matrices Only)</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Eigenvalues of symmetric matrices (returned sorted)
+template &lt;typename T, size_t N&gt;
+Serie&lt;Vector&lt;T,N&gt;&gt; eigenValues(const Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Eigenvectors of symmetric matrices
+template &lt;typename T, size_t N&gt;
+Serie&lt;FullMatrix&lt;T,N&gt;&gt; eigenVectors(const Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Both eigenvalues and eigenvectors at once
+template &lt;typename T, size_t N&gt;
+std::pair&lt;Serie&lt;Vector&lt;T,N&gt;&gt;, Serie&lt;FullMatrix&lt;T,N&gt;&gt;&gt;
+eigenSystem(const Serie&lt;SymmetricMatrix&lt;T,N&gt;&gt; &amp;matrices);
+
+// Pipeline versions
+auto bind_eigenValues();
+auto bind_eigenVectors();
+auto bind_eigenSystem();</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Eigen Decomposition Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Stress tensor eigen decomposition
+df::Serie&lt;SMatrix3D&gt; stresses{
+    {10.0, 0.0, 0.0, 5.0, 0.0, 3.0},
+    {20.0, 1.0, 0.5, 15.0, 0.0, 8.0}
+};
+
+// Get eigenvalues (principal stresses)
+auto principals = df::algebra::eigenValues(stresses);
+// principals[i] = {sigma1, sigma2, sigma3} sorted
+
+// Get eigenvectors (principal directions)
+auto directions = df::algebra::eigenVectors(stresses);
+
+// Get both at once (more efficient)
+auto [values, vectors] = df::algebra::eigenSystem(stresses);
+
+// Pipeline usage
+auto evals = stresses | df::algebra::bind_eigenValues&lt;double, 3&gt;();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Stress Analysis Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/algebra.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Define stress tensors at mesh nodes (symmetric 3x3)
+    // Components: {xx, xy, xz, yy, yz, zz}
+    df::Serie&lt;Stress3D&gt; stresses{
+        {100.0, 10.0, 0.0, 50.0, 5.0, 30.0},
+        {200.0, 20.0, 5.0, 150.0, 10.0, 80.0},
+        {80.0,  5.0,  0.0, 40.0, 2.0, 25.0}
+    };
+
+    // Compute principal stresses (eigenvalues)
+    auto [principals, directions] = df::algebra::eigenSystem(stresses);
+
+    for (size_t i = 0; i &lt; stresses.size(); ++i) {
+        std::cout &lt;&lt; "Node " &lt;&lt; i &lt;&lt; ": "
+                  &lt;&lt; "sigma1=" &lt;&lt; principals[i][0]
+                  &lt;&lt; " sigma2=" &lt;&lt; principals[i][1]
+                  &lt;&lt; " sigma3=" &lt;&lt; principals[i][2] &lt;&lt; "\n";
+    }
+
+    // Compute determinant of each stress tensor
+    auto dets = df::algebra::det(stresses);
+
+    // Compute inverse
+    auto inv_stresses = df::algebra::inv(stresses);
+
+    // Vector operations: displacement field
+    df::Serie&lt;Vector3D&gt; displacements{
+        {0.1, 0.2, 0.0},
+        {0.3, 0.1, 0.05},
+        {0.05, 0.15, 0.0}
+    };
+
+    auto magnitudes = df::algebra::norm(displacements);
+
+    std::cout &lt;&lt; "Displacement magnitudes: ";
+    for (size_t i = 0; i &lt; magnitudes.size(); ++i) {
+        std::cout &lt;&lt; magnitudes[i] &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="math.html" class="related-function">Math Functions</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="pipe.html" class="related-function">pipe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

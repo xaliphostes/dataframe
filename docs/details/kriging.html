@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kriging Interpolation - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Kriging Interpolation</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          Kriging is a geostatistical interpolation method that provides the Best Linear Unbiased Estimate (BLUE)
+          of a spatially distributed variable. Unlike simpler methods like IDW, Kriging takes into account the
+          spatial correlation structure of the data through a variogram model, and provides both an estimate and
+          an associated variance (uncertainty) at each prediction point.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Variogram Model</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Variogram Types and Parameters</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Available variogram models
+enum class VariogramModel {
+    Spherical,     // Reaches sill at the range distance
+    Exponential,   // Approaches sill asymptotically
+    Gaussian        // Smooth, parabolic behavior near origin
+};
+
+// Variogram parameters
+struct VariogramParams {
+    double nugget = 0.0;               // Nugget effect (discontinuity at origin)
+    double sill   = 1.0;               // Sill (total variance)
+    double range  = 1.0;               // Range (correlation distance)
+    VariogramModel model = VariogramModel::Spherical;
+};</code></pre>
+        </div>
+        <p>
+          The variogram describes how spatial correlation decreases with distance:
+        </p>
+        <ul>
+          <li><strong>Nugget</strong>: Represents measurement error or micro-scale variation. A non-zero nugget means
+            the variogram does not pass through the origin.</li>
+          <li><strong>Sill</strong>: The variance plateau. The variogram levels off at this value.</li>
+          <li><strong>Range</strong>: The distance at which the variogram reaches (or approaches) the sill. Beyond this
+            distance, data points are considered uncorrelated.</li>
+        </ul>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Variogram Functions</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Variogram Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Evaluate a variogram model at a given distance
+double variogram_model(double distance, const VariogramParams &amp;params);
+
+// Calculate the experimental variogram from data
+// Returns pairs of (distance, semivariance)
+std::vector&lt;std::pair&lt;double, double&gt;&gt; calculate_experimental_variogram(
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;points,
+    const Serie&lt;double&gt;     &amp;values,
+    size_t num_bins = 20
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Experimental Variogram Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Compute the experimental variogram from observed data
+df::Serie&lt;Vector&lt;2&gt;&gt; obs_pts = /* observation locations */;
+df::Serie&lt;double&gt; obs_vals    = /* measured values */;
+
+auto exp_variogram = df::geo::calculate_experimental_variogram(
+    obs_pts, obs_vals, 15
+);
+
+// Plot or inspect the experimental variogram
+for (const auto &amp;[dist, semivar] : exp_variogram) {
+    std::cout &lt;&lt; "Distance: " &lt;&lt; dist
+              &lt;&lt; "  Semivariance: " &lt;&lt; semivar &lt;&lt; std::endl;
+}
+
+// Fit variogram parameters (manual in this example)
+df::VariogramParams params;
+params.nugget = 0.1;
+params.sill   = 1.5;
+params.range  = 50.0;
+params.model  = df::VariogramModel::Spherical;</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Ordinary Kriging</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Ordinary Kriging Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Perform ordinary kriging interpolation
+// Returns a pair: {estimated_values, kriging_variances}
+std::pair&lt;Serie&lt;double&gt;, Serie&lt;double&gt;&gt; ordinary_kriging(
+    const Serie&lt;Vector&lt;2&gt;&gt;  &amp;points,    // Known data locations
+    const Serie&lt;double&gt;      &amp;values,    // Known data values
+    const Serie&lt;Vector&lt;2&gt;&gt;  &amp;targets,   // Prediction locations
+    const VariogramParams    &amp;params     // Fitted variogram parameters
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Ordinary Kriging Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Known measurement points
+df::Serie&lt;Vector&lt;2&gt;&gt; stations{
+    {10, 20}, {30, 10}, {50, 40}, {20, 50}, {40, 30}
+};
+df::Serie&lt;double&gt; measurements{5.2, 3.8, 7.1, 6.5, 4.9};
+
+// Variogram parameters (from experimental variogram fitting)
+df::VariogramParams vparams;
+vparams.nugget = 0.2;
+vparams.sill   = 4.0;
+vparams.range  = 30.0;
+vparams.model  = df::VariogramModel::Exponential;
+
+// Target grid points
+auto grid = df::grid::cartesian::from_dims&lt;2&gt;(
+    {50, 50}, {30.0, 30.0}, {60.0, 60.0}
+);
+
+// Perform kriging
+auto [estimates, variances] = df::geo::ordinary_kriging(
+    stations, measurements, grid, vparams
+);
+
+// estimates: predicted values at grid points
+// variances: kriging variance (uncertainty) at each point
+
+// Low variance = high confidence, high variance = low confidence
+for (size_t i = 0; i &lt; 5; ++i) {
+    std::cout &lt;&lt; "Point " &lt;&lt; i
+              &lt;&lt; ": estimate=" &lt;&lt; estimates[i]
+              &lt;&lt; " +/- " &lt;&lt; std::sqrt(variances[i]) &lt;&lt; std::endl;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Kriging Workflow</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/kriging.h&gt;
+#include &lt;dataframe/geo/grid/from_dims.h&gt;
+#include &lt;dataframe/math.h&gt;
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    // Weather station data
+    df::Serie&lt;Vector&lt;2&gt;&gt; stations{
+        {0, 0}, {100, 0}, {0, 100}, {100, 100}, {50, 50},
+        {25, 75}, {75, 25}, {30, 30}, {70, 70}
+    };
+    df::Serie&lt;double&gt; rainfall{12.0, 8.5, 15.2, 10.1, 11.8,
+                                14.0, 9.2, 12.5, 11.0};
+
+    // Step 1: Compute experimental variogram
+    auto exp_vario = df::geo::calculate_experimental_variogram(
+        stations, rainfall, 10
+    );
+
+    // Step 2: Fit a variogram model
+    df::VariogramParams params;
+    params.nugget = 0.5;
+    params.sill   = 6.0;
+    params.range  = 60.0;
+    params.model  = df::VariogramModel::Gaussian;
+
+    // Step 3: Create prediction grid
+    auto grid = df::grid::cartesian::from_dims&lt;2&gt;(
+        {100, 100}, {50.0, 50.0}, {100.0, 100.0}
+    );
+
+    // Step 4: Kriging interpolation
+    auto [pred, var] = df::geo::ordinary_kriging(
+        stations, rainfall, grid, params
+    );
+
+    // Step 5: Analyze results
+    auto [min_pred, max_pred] = df::math::bounds(pred);
+    std::cout &lt;&lt; "Rainfall predictions: [" &lt;&lt; min_pred
+              &lt;&lt; ", " &lt;&lt; max_pred &lt;&lt; "] mm\n";
+
+    auto [min_var, max_var] = df::math::bounds(var);
+    std::cout &lt;&lt; "Kriging std dev: [" &lt;&lt; std::sqrt(min_var)
+              &lt;&lt; ", " &lt;&lt; std::sqrt(max_var) &lt;&lt; "] mm\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="grid.html" class="related-function">Grid Generation</a>
+          <a href="stats.html" class="related-function">Statistics</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

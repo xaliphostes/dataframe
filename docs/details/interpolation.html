@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interpolation Functions - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Interpolation Functions</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The interpolation module provides several methods for spatial interpolation of scalar and vector fields
+          from scattered data points to target locations. Methods include Inverse Distance Weighting (IDW),
+          Radial Basis Functions (RBF), Nearest Neighbor, Natural Neighbor (Sibson), and a general-purpose
+          field interpolation function.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Inverse Distance Weighting (IDW)</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>IDW Interpolation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Interpolate values from source points to target points using IDW
+template &lt;typename T, size_t DIM&gt;
+Serie&lt;T&gt; idw(
+    const Serie&lt;Vector&lt;DIM&gt;&gt; &amp;points,      // Source point positions
+    const Serie&lt;T&gt;           &amp;values,      // Values at source points
+    const Serie&lt;Vector&lt;DIM&gt;&gt; &amp;targets,     // Target point positions
+    double power     = 2.0,                // Distance weighting power
+    double smoothing = 1e-10               // Smoothing parameter
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>IDW Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Known data points with temperature values
+df::Serie&lt;Vector&lt;2&gt;&gt; stations{
+    {0.0, 0.0}, {10.0, 0.0}, {5.0, 8.0}
+};
+df::Serie&lt;double&gt; temperatures{20.0, 25.0, 22.0};
+
+// Points where we want to estimate temperature
+df::Serie&lt;Vector&lt;2&gt;&gt; grid_points{
+    {3.0, 3.0}, {7.0, 3.0}, {5.0, 5.0}
+};
+
+// Interpolate using IDW with power=2
+auto estimated = df::geo::idw&lt;double, 2&gt;(
+    stations, temperatures, grid_points, 2.0
+);
+
+// Also works with vector-valued data
+df::Serie&lt;Vector&lt;3&gt;&gt; displacements{
+    {0.1, 0.0, 0.0}, {0.0, 0.2, 0.0}, {0.05, 0.05, 0.1}
+};
+auto interp_disp = df::geo::idw&lt;Vector&lt;3&gt;, 2&gt;(
+    stations, displacements, grid_points
+);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Radial Basis Functions (RBF)</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>RBF Interpolation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Available RBF kernels
+enum class RBFKernel {
+    Gaussian,             // exp(-r^2 / epsilon^2)
+    Multiquadric,         // sqrt(1 + (r/epsilon)^2)
+    InverseMultiquadric,  // 1 / sqrt(1 + (r/epsilon)^2)
+    ThinPlate,            // r^2 * log(r)
+    Linear                // r
+};
+
+// 2D RBF interpolation
+Serie&lt;double&gt; rbf_2d(
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;points,
+    const Serie&lt;double&gt;     &amp;values,
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;targets,
+    RBFKernel kernel = RBFKernel::ThinPlate,
+    double epsilon   = 1.0
+);
+
+// 3D RBF interpolation
+Serie&lt;double&gt; rbf_3d(
+    const Serie&lt;Vector&lt;3&gt;&gt; &amp;points,
+    const Serie&lt;double&gt;     &amp;values,
+    const Serie&lt;Vector&lt;3&gt;&gt; &amp;targets,
+    RBFKernel kernel = RBFKernel::ThinPlate,
+    double epsilon   = 1.0
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>RBF Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;Vector&lt;2&gt;&gt; pts{{0,0}, {1,0}, {0,1}, {1,1}};
+df::Serie&lt;double&gt; vals{1.0, 2.0, 3.0, 4.0};
+
+df::Serie&lt;Vector&lt;2&gt;&gt; targets{{0.5, 0.5}, {0.25, 0.75}};
+
+// Thin-plate spline interpolation
+auto result_tp = df::geo::rbf_2d(pts, vals, targets,
+    df::geo::RBFKernel::ThinPlate);
+
+// Gaussian kernel with custom epsilon
+auto result_g = df::geo::rbf_2d(pts, vals, targets,
+    df::geo::RBFKernel::Gaussian, 0.5);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Nearest Neighbor</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Nearest Neighbor Interpolation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// 2D nearest neighbor interpolation
+template &lt;typename T&gt;
+Serie&lt;T&gt; nearest_2d(
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;points,
+    const Serie&lt;T&gt;          &amp;values,
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;targets
+);
+
+// 3D nearest neighbor interpolation
+template &lt;typename T&gt;
+Serie&lt;T&gt; nearest_3d(
+    const Serie&lt;Vector&lt;3&gt;&gt; &amp;points,
+    const Serie&lt;T&gt;          &amp;values,
+    const Serie&lt;Vector&lt;3&gt;&gt; &amp;targets
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Nearest Neighbor Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;Vector&lt;3&gt;&gt; pts{{0,0,0}, {10,0,0}, {0,10,0}};
+df::Serie&lt;double&gt; vals{1.0, 2.0, 3.0};
+
+df::Serie&lt;Vector&lt;3&gt;&gt; targets{{1,1,0}, {9,1,0}};
+
+auto result = df::geo::nearest_3d(pts, vals, targets);
+// result = {1.0, 2.0}  (value of nearest source point)</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Natural Neighbor (Sibson)</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Natural Neighbor Interpolation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// 2D Natural Neighbor interpolation using Sibson's method
+// NOTE: Requires CGAL library
+Serie&lt;double&gt; natural_neighbor_2d(
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;points,
+    const Serie&lt;double&gt;     &amp;values,
+    const Serie&lt;Vector&lt;2&gt;&gt; &amp;targets
+);</code></pre>
+        </div>
+        <p>
+          Natural Neighbor interpolation uses the concept of Voronoi diagrams and Delaunay triangulations to compute
+          smooth, C1-continuous interpolants. It produces very natural-looking results for scattered data
+          and respects the convex hull of the input points. Requires the CGAL library to be linked.
+        </p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Natural Neighbor Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+df::Serie&lt;Vector&lt;2&gt;&gt; pts{{0,0}, {1,0}, {0,1}, {1,1}, {0.5, 0.5}};
+df::Serie&lt;double&gt; vals{0.0, 1.0, 1.0, 2.0, 1.5};
+
+df::Serie&lt;Vector&lt;2&gt;&gt; targets{{0.25, 0.25}, {0.75, 0.75}};
+
+auto result = df::geo::natural_neighbor_2d(pts, vals, targets);
+// Smooth C1 interpolation based on Voronoi cell overlap</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Field Interpolation</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>General Field Interpolation</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Interpolation parameters
+struct InterpolationParams {
+    size_t num_neighbors = 8;      // Number of neighbors to use
+    double power         = 2.0;    // IDW power parameter
+    double smoothing     = 1e-10;  // Smoothing factor
+    std::string method   = "idw";  // "idw", "rbf", "nearest"
+    double radius        = 0.0;    // Search radius (0 = unlimited)
+    size_t iterations    = 1;      // Number of smoothing iterations
+};
+
+// Interpolate a field from source to target positions
+template &lt;typename T, size_t DIM&gt;
+Serie&lt;T&gt; interpolate_field(
+    const Serie&lt;Vector&lt;DIM&gt;&gt; &amp;source_positions,
+    const Serie&lt;T&gt;           &amp;source_values,
+    const Serie&lt;Vector&lt;DIM&gt;&gt; &amp;target_positions,
+    const InterpolationParams &amp;params = {}
+);</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Field Interpolation Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Interpolate a displacement field from a coarse mesh to a fine mesh
+df::Serie&lt;Vector&lt;3&gt;&gt; coarse_pts = /* coarse mesh vertices */;
+df::Serie&lt;Vector&lt;3&gt;&gt; fine_pts   = /* fine mesh vertices */;
+df::Serie&lt;Vector&lt;3&gt;&gt; coarse_disp = /* displacement at coarse nodes */;
+
+df::InterpolationParams params;
+params.method        = "idw";
+params.num_neighbors = 12;
+params.power         = 2.0;
+
+auto fine_disp = df::geo::interpolate_field&lt;Vector&lt;3&gt;, 3&gt;(
+    coarse_pts, coarse_disp, fine_pts, params
+);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="600">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="grid.html" class="related-function">Grid Generation</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="mesh.html" class="related-function">Mesh</a>
+          <a href="kriging.html" class="related-function">Kriging</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

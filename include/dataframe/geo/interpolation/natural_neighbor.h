@@ -39,35 +39,33 @@ namespace df {
 
 #ifdef USE_CGAL
 
-/**
- * @brief Natural Neighbor interpolation for 2D points. This function uses the
- * CGAL library.
- *
- * This implementation uses the Sibson's method which is based on the ratio of
- * stolen areas when inserting a new point into the Voronoi diagram.
- *
- * The steps are:
- * 1. Create Delaunay triangulation of input points
- * 2. For each target point:
- *    - Find the natural neighbors (points whose Voronoi cells will be affected)
- *    - Calculate the areas of overlap between the new and old Voronoi cells
- *    - Use these areas as weights for interpolation
- */
-template <typename T>
-Serie<T> natural_neighbor_2d(const Serie<Vector2> &points,
-                             const Serie<T> &values,
-                             const Serie<Vector2> &targets);
+    /**
+     * @brief Natural Neighbor interpolation for 2D points. This function uses the
+     * CGAL library.
+     *
+     * This implementation uses the Sibson's method which is based on the ratio of
+     * stolen areas when inserting a new point into the Voronoi diagram.
+     *
+     * The steps are:
+     * 1. Create Delaunay triangulation of input points
+     * 2. For each target point:
+     *    - Find the natural neighbors (points whose Voronoi cells will be affected)
+     *    - Calculate the areas of overlap between the new and old Voronoi cells
+     *    - Use these areas as weights for interpolation
+     */
+    template <typename T>
+    Serie<T> natural_neighbor_2d(
+        const Serie<Vector2>& points, const Serie<T>& values, const Serie<Vector2>& targets);
 
 #else
 
-/**
- * @brief Natural neighbor interpolation. This function is empty as CGAL is not
- * used. Enable this feature by using `cmake -DUSE_CGAL=ON ..` in your
- * `build`directory.
- */
-template <typename T>
-Serie<T> natural_neighbor_2d(const Serie<Vector2> &, const Serie<T> &,
-                             const Serie<Vector2> &);
+    /**
+     * @brief Natural neighbor interpolation. This function is empty as CGAL is not
+     * used. Enable this feature by using `cmake -DUSE_CGAL=ON ..` in your
+     * `build`directory.
+     */
+    template <typename T>
+    Serie<T> natural_neighbor_2d(const Serie<Vector2>&, const Serie<T>&, const Serie<Vector2>&);
 
 #endif
 

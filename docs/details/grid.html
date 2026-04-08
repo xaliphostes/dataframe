@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grid Generation - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">Grid Generation</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The grid module provides structured grid classes for 2D and 3D domains. Grids are defined by an origin,
+          spacing, and number of divisions along each axis. They support per-point attributes and provide efficient
+          index conversion between grid coordinates and linear indices. The <code>from_dims</code> utility generates
+          a Serie of point positions from grid dimensions.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">Grid2D</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Grid2D Class</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+class Grid2D {
+public:
+    // Constructor
+    Grid2D(const Vector&lt;2&gt; &amp;origin,
+           const Vector&lt;2&gt; &amp;spacing,
+           const std::array&lt;size_t, 2&gt; &amp;dimensions);
+
+    // Grid properties
+    const Vector&lt;2&gt; &amp;origin() const;
+    const Vector&lt;2&gt; &amp;spacing() const;
+    const std::array&lt;size_t, 2&gt; &amp;dimensions() const;
+    size_t total_points() const;  // nx * ny
+
+    // Point access
+    Vector&lt;2&gt; point_at(size_t i, size_t j) const;
+    Vector&lt;2&gt; point_at(size_t linear_index) const;
+
+    // Index conversion
+    size_t linear_index(size_t i, size_t j) const;
+    std::array&lt;size_t, 2&gt; grid_indices(size_t linear_index) const;
+
+    // Attributes
+    Dataframe &amp;attributes();
+    const Dataframe &amp;attributes() const;
+};</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Grid2D Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a 10x10 grid starting at origin (0,0) with spacing 0.1
+df::Grid2D grid({0.0, 0.0}, {0.1, 0.1}, {10, 10});
+
+std::cout &lt;&lt; "Total points: " &lt;&lt; grid.total_points() &lt;&lt; std::endl;  // 100
+
+// Access a specific grid point
+auto pt = grid.point_at(5, 3);  // {0.5, 0.3}
+
+// Convert between linear and grid indices
+size_t idx = grid.linear_index(5, 3);       // 35
+auto [i, j] = grid.grid_indices(35);        // {5, 3}
+
+// Iterate over all grid points
+for (size_t idx = 0; idx &lt; grid.total_points(); ++idx) {
+    auto p = grid.point_at(idx);
+    // process point p...
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Grid3D</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Grid3D Class</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+class Grid3D {
+public:
+    // Constructor
+    Grid3D(const Vector&lt;3&gt; &amp;origin,
+           const Vector&lt;3&gt; &amp;spacing,
+           const std::array&lt;size_t, 3&gt; &amp;dimensions);
+
+    // Grid properties
+    const Vector&lt;3&gt; &amp;origin() const;
+    const Vector&lt;3&gt; &amp;spacing() const;
+    const std::array&lt;size_t, 3&gt; &amp;dimensions() const;
+    size_t total_points() const;  // nx * ny * nz
+
+    // Point access
+    Vector&lt;3&gt; point_at(size_t i, size_t j, size_t k) const;
+    Vector&lt;3&gt; point_at(size_t linear_index) const;
+
+    // Index conversion
+    size_t linear_index(size_t i, size_t j, size_t k) const;
+    std::array&lt;size_t, 3&gt; grid_indices(size_t linear_index) const;
+
+    // Attributes
+    Dataframe &amp;attributes();
+    const Dataframe &amp;attributes() const;
+};</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Grid3D Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a 20x20x10 grid for a 3D domain
+df::Grid3D grid(
+    {-1.0, -1.0, 0.0},      // origin
+    {0.1, 0.1, 0.1},         // spacing
+    {20, 20, 10}              // dimensions
+);
+
+std::cout &lt;&lt; "Total points: " &lt;&lt; grid.total_points() &lt;&lt; std::endl;  // 4000
+
+auto pt = grid.point_at(10, 10, 5);  // {0.0, 0.0, 0.5}
+auto [i, j, k] = grid.grid_indices(grid.linear_index(10, 10, 5));</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">from_dims</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>from_dims - Generate Grid Points from Dimensions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+namespace df::grid::cartesian {
+
+// Generate a Serie of N-dimensional points on a regular grid
+// centered at `center` with total extent `dimensions`
+template &lt;size_t N&gt;
+Serie&lt;Vector&lt;N&gt;&gt; from_dims(
+    const std::array&lt;size_t, N&gt; &amp;npts,        // Number of points per axis
+    const Vector&lt;N&gt;             &amp;center,      // Center of the grid
+    const Vector&lt;N&gt;             &amp;dimensions   // Total extent per axis
+);
+
+} // namespace df::grid::cartesian</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>from_dims Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Generate a 50x50 grid of 2D points centered at (5, 5) spanning 10x10
+auto points2d = df::grid::cartesian::from_dims&lt;2&gt;(
+    {50, 50},         // 50 points in x and y
+    {5.0, 5.0},       // center
+    {10.0, 10.0}      // total extent: x in [0, 10], y in [0, 10]
+);
+
+std::cout &lt;&lt; "Generated " &lt;&lt; points2d.size() &lt;&lt; " points" &lt;&lt; std::endl;  // 2500
+
+// Generate a 3D grid
+auto points3d = df::grid::cartesian::from_dims&lt;3&gt;(
+    {20, 20, 10},
+    {0.0, 0.0, -5.0},
+    {100.0, 100.0, 50.0}
+);
+
+// Use as interpolation targets
+auto interp_values = df::geo::idw&lt;double, 2&gt;(
+    source_pts, source_vals, points2d
+);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Grid with Interpolation Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Serie.h&gt;
+#include &lt;dataframe/geo/grid/grid2d.h&gt;
+#include &lt;dataframe/geo/grid/from_dims.h&gt;
+#include &lt;dataframe/geo/interpolation/idw.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Scattered observation points
+    df::Serie&lt;Vector&lt;2&gt;&gt; obs_pts{
+        {1.0, 1.0}, {3.0, 2.0}, {7.0, 8.0},
+        {9.0, 1.0}, {5.0, 5.0}
+    };
+    df::Serie&lt;double&gt; obs_vals{10.0, 25.0, 18.0, 30.0, 22.0};
+
+    // Create a regular grid for interpolation
+    auto grid_pts = df::grid::cartesian::from_dims&lt;2&gt;(
+        {50, 50}, {5.0, 5.0}, {10.0, 10.0}
+    );
+
+    // Interpolate to grid
+    auto grid_vals = df::geo::idw&lt;double, 2&gt;(obs_pts, obs_vals, grid_pts);
+
+    // Also usable via the Grid2D class
+    df::Grid2D grid({0.0, 0.0}, {0.2, 0.2}, {50, 50});
+
+    std::cout &lt;&lt; "Grid total: " &lt;&lt; grid.total_points() &lt;&lt; " points\n";
+    std::cout &lt;&lt; "Interpolated " &lt;&lt; grid_vals.size() &lt;&lt; " values\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="interpolation.html" class="related-function">Interpolation</a>
+          <a href="mesh.html" class="related-function">Mesh</a>
+          <a href="geometry.html" class="related-function">Geometry</a>
+          <a href="serie.html" class="related-function">Serie</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV I/O - DataFrame Library Documentation</title>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <span class="logo-icon"><i class="fas fa-table"></i></span>
+        <span class="logo-text">DataFrame</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="../index.html">API Reference</a></li>
+          <li><a href="../examples.html">Examples</a></li>
+          <li><a href="../tutorial.html">Tutorial</a></li>
+          <li><a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="doc-container">
+      <div class="doc-header animate-fade-in">
+        <a href="../index.html" class="back-button">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <h1 class="doc-title">CSV I/O</h1>
+      </div>
+
+      <div class="doc-section animate-slide-up">
+        <h2 class="doc-section-title">Overview</h2>
+        <p>
+          The CSV module provides functions for reading and writing DataFrames in CSV (Comma-Separated Values) format.
+          It supports customizable delimiters, quoting, headers, whitespace trimming, and type handling through the
+          <code>CSVOptions</code> configuration struct.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="100">
+        <h2 class="doc-section-title">CSVOptions</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>CSVOptions Struct</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+struct CSVOptions {
+    char        delimiter       = ',';       // Field separator character
+    char        quote_char      = '"';       // Quote character for fields
+    bool        has_header      = true;      // First row contains column names
+    bool        all_double      = false;     // Force all columns to double type
+    bool        trim_whitespace = true;      // Trim leading/trailing whitespace
+    bool        skip_empty_lines = true;     // Skip blank lines
+    std::string null_value      = "";        // String representing null/missing
+    size_t      skip_rows       = 0;         // Number of rows to skip at start
+};</code></pre>
+        </div>
+        <p>
+          The default options work well for standard CSV files with a header row and comma delimiters.
+          Adjust the options for TSV files (<code>delimiter = '\t'</code>), headerless files, or files
+          with custom null representations.
+        </p>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="200">
+        <h2 class="doc-section-title">Reading CSV</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>read_csv Function</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Read a CSV file into a Dataframe
+Dataframe read_csv(const std::string &amp;filename,
+                   const CSVOptions &amp;options = {});</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Reading Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Read a standard CSV file
+auto df = df::io::read_csv("data.csv");
+
+// Access columns
+auto names  = df.get&lt;std::string&gt;("name");
+auto values = df.get&lt;double&gt;("value");
+
+// Read a TSV (tab-separated) file
+df::CSVOptions tsv_opts;
+tsv_opts.delimiter = '\t';
+auto tsv_data = df::io::read_csv("data.tsv", tsv_opts);
+
+// Read a file with no header
+df::CSVOptions no_header;
+no_header.has_header = false;
+auto raw_data = df::io::read_csv("raw.csv", no_header);
+// Columns are named "col_0", "col_1", etc.
+
+// Force all columns to double (useful for numeric-only files)
+df::CSVOptions numeric_opts;
+numeric_opts.all_double = true;
+auto numeric_data = df::io::read_csv("measurements.csv", numeric_opts);
+
+// Skip metadata rows at the top
+df::CSVOptions skip_opts;
+skip_opts.skip_rows = 3;  // Skip first 3 rows
+auto data = df::io::read_csv("report.csv", skip_opts);
+
+// Handle custom null values
+df::CSVOptions null_opts;
+null_opts.null_value = "NA";
+auto data_with_na = df::io::read_csv("survey.csv", null_opts);</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="300">
+        <h2 class="doc-section-title">Writing CSV</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>write_csv Functions</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Write a Dataframe to a CSV file
+void write_csv(const Dataframe    &amp;df,
+               const std::string  &amp;filename,
+               const CSVOptions   &amp;options = {});
+
+// Write a Dataframe to an output stream
+void write_csv(const Dataframe    &amp;df,
+               std::ostream       &amp;os,
+               const CSVOptions   &amp;options = {});</code></pre>
+        </div>
+        <div class="code-container">
+          <div class="code-header">
+            <span>Writing Examples</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+// Create a Dataframe
+df::Dataframe dataframe;
+dataframe.add("x", df::Serie&lt;double&gt;{1.0, 2.0, 3.0, 4.0, 5.0});
+dataframe.add("y", df::Serie&lt;double&gt;{2.1, 4.0, 5.9, 8.1, 10.0});
+dataframe.add("label", df::Serie&lt;std::string&gt;{"a", "b", "c", "d", "e"});
+
+// Write to file with default options
+df::io::write_csv(dataframe, "output.csv");
+
+// Write as TSV
+df::CSVOptions tsv_opts;
+tsv_opts.delimiter = '\t';
+df::io::write_csv(dataframe, "output.tsv", tsv_opts);
+
+// Write to stdout
+df::io::write_csv(dataframe, std::cout);
+
+// Write to a string stream
+std::ostringstream oss;
+df::io::write_csv(dataframe, oss);
+std::string csv_string = oss.str();</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="400">
+        <h2 class="doc-section-title">Complete Example</h2>
+        <div class="code-container">
+          <div class="code-header">
+            <span>CSV Round-Trip Example</span>
+            <button class="copy-button"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <pre><code class="cpp">
+#include &lt;dataframe/Dataframe.h&gt;
+#include &lt;dataframe/io/csv.h&gt;
+#include &lt;dataframe/stats.h&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    // Read measurement data
+    df::CSVOptions opts;
+    opts.all_double      = true;
+    opts.trim_whitespace = true;
+
+    auto data = df::io::read_csv("measurements.csv", opts);
+
+    // Process the data
+    auto temperatures = data.get&lt;double&gt;("temperature");
+    auto pressures    = data.get&lt;double&gt;("pressure");
+
+    std::cout &lt;&lt; "Records: " &lt;&lt; temperatures.size() &lt;&lt; "\n";
+    std::cout &lt;&lt; "Mean temp: " &lt;&lt; df::stats::mean(temperatures) &lt;&lt; "\n";
+    std::cout &lt;&lt; "Mean pressure: " &lt;&lt; df::stats::mean(pressures) &lt;&lt; "\n";
+
+    // Add computed columns
+    auto z_temps = df::stats::z_score(temperatures);
+
+    df::Dataframe results;
+    results.add("temperature", temperatures);
+    results.add("pressure", pressures);
+    results.add("z_temperature", z_temps);
+
+    // Write results
+    df::io::write_csv(results, "analysis_results.csv");
+
+    std::cout &lt;&lt; "Results written to analysis_results.csv\n";
+
+    return 0;
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section animate-slide-up" data-delay="500">
+        <h2 class="doc-section-title">Related Functions</h2>
+        <div class="related-functions">
+          <a href="json.html" class="related-function">JSON I/O</a>
+          <a href="binary.html" class="related-function">Binary Serialization</a>
+          <a href="dataframe.html" class="related-function">Dataframe</a>
+          <a href="serie.html" class="related-function">Serie</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/xaliphostes/dataframe" target="_blank">GitHub</a>
+      </div>
+      <div class="copyright">
+        &copy; 2025 DataFrame Library. MIT License.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+
+</html>

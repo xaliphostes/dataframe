@@ -30,25 +30,24 @@
 #include <typeindex>
 
 namespace df {
-namespace io {
+    namespace io {
 
-namespace detail {
+        namespace detail {
 
-std::string trim(const std::string &str);
+            std::string trim(const std::string& str);
 
-std::vector<std::string> split_line(const std::string &line, char delimiter,
-                                    char quote);
+            std::vector<std::string> split_line(
+                const std::string& line, char delimiter, char quote);
 
-template <typename T>
-Serie<T> parse_column(const std::vector<std::string> &values);
+            template <typename T> Serie<T> parse_column(const std::vector<std::string>& values);
 
-std::type_index infer_column_type(const std::vector<std::string> &values,
-                                  bool all_double = false);
+            std::type_index infer_column_type(
+                const std::vector<std::string>& values, bool all_double = false);
 
-template <typename T> std::string format_value(const T &value);
+            template <typename T> std::string format_value(const T& value);
 
-} // namespace detail
-} // namespace io
+        } // namespace detail
+    } // namespace io
 } // namespace df
 
 #include "inline/detail.hxx"

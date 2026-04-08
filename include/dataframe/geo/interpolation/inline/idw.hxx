@@ -28,112 +28,108 @@
 
 namespace df {
 
-template <typename T>
-inline Serie<T> idw_2d(const Serie<Vector2> &points, const Serie<T> &values,
-                       const Serie<Vector2> &targets, double power,
-                       double smoothing) {
-    if (points.size() != values.size()) {
-        throw std::runtime_error(
-            "Points and values series must have same size");
-    }
-
-    Serie<T> result(targets.size());
-
-    for (size_t i = 0; i < targets.size(); ++i) {
-        const auto &target = targets[i];
-        double weight_sum = 0.0;
-        T value_sum = 0;
-
-        // Check if target point coincides with any input point
-        bool exact_match = false;
-        for (size_t j = 0; j < points.size(); ++j) {
-            if (distance_squared_2d(target, points[j]) < smoothing) {
-                result[i] = values[j];
-                exact_match = true;
-                break;
-            }
+    template <typename T>
+    inline Serie<T> idw_2d(const Serie<Vector2>& points, const Serie<T>& values,
+        const Serie<Vector2>& targets, double power, double smoothing)
+    {
+        if (points.size() != values.size()) {
+            throw std::runtime_error("Points and values series must have same size");
         }
 
-        if (!exact_match) {
-            // Compute weighted sum
+        Serie<T> result(targets.size());
+
+        for (size_t i = 0; i < targets.size(); ++i) {
+            const auto& target = targets[i];
+            double weight_sum = 0.0;
+            T value_sum = 0;
+
+            // Check if target point coincides with any input point
+            bool exact_match = false;
             for (size_t j = 0; j < points.size(); ++j) {
-                double dist = std::sqrt(distance_squared_2d(target, points[j]) +
-                                        smoothing);
-                double weight = 1.0 / std::pow(dist, power);
-                weight_sum += weight;
-                value_sum += weight * values[j];
+                if (distance_squared_2d(target, points[j]) < smoothing) {
+                    result[i] = values[j];
+                    exact_match = true;
+                    break;
+                }
             }
-            result[i] = value_sum / weight_sum;
-        }
-    }
 
-    return result;
-}
-
-template <typename T>
-inline Serie<T> idw_3d(const Serie<Vector3> &points, const Serie<T> &values,
-                       const Serie<Vector3> &targets, double power,
-                       double smoothing) {
-    if (points.size() != values.size()) {
-        throw std::runtime_error(
-            "Points and values series must have same size");
-    }
-
-    Serie<T> result(targets.size());
-
-    for (size_t i = 0; i < targets.size(); ++i) {
-        const auto &target = targets[i];
-        double weight_sum = 0.0;
-        T value_sum = 0;
-
-        // Check if target point coincides with any input point
-        bool exact_match = false;
-        for (size_t j = 0; j < points.size(); ++j) {
-            if (distance_squared_3d(target, points[j]) < smoothing) {
-                result[i] = values[j];
-                exact_match = true;
-                break;
+            if (!exact_match) {
+                // Compute weighted sum
+                for (size_t j = 0; j < points.size(); ++j) {
+                    double dist = std::sqrt(distance_squared_2d(target, points[j]) + smoothing);
+                    double weight = 1.0 / std::pow(dist, power);
+                    weight_sum += weight;
+                    value_sum += weight * values[j];
+                }
+                result[i] = value_sum / weight_sum;
             }
         }
 
-        if (!exact_match) {
-            // Compute weighted sum
+        return result;
+    }
+
+    template <typename T>
+    inline Serie<T> idw_3d(const Serie<Vector3>& points, const Serie<T>& values,
+        const Serie<Vector3>& targets, double power, double smoothing)
+    {
+        if (points.size() != values.size()) {
+            throw std::runtime_error("Points and values series must have same size");
+        }
+
+        Serie<T> result(targets.size());
+
+        for (size_t i = 0; i < targets.size(); ++i) {
+            const auto& target = targets[i];
+            double weight_sum = 0.0;
+            T value_sum = 0;
+
+            // Check if target point coincides with any input point
+            bool exact_match = false;
             for (size_t j = 0; j < points.size(); ++j) {
-                double dist = std::sqrt(distance_squared_3d(target, points[j]) +
-                                        smoothing);
-                double weight = 1.0 / std::pow(dist, power);
-                weight_sum += weight;
-                value_sum += weight * values[j];
+                if (distance_squared_3d(target, points[j]) < smoothing) {
+                    result[i] = values[j];
+                    exact_match = true;
+                    break;
+                }
             }
-            result[i] = value_sum / weight_sum;
+
+            if (!exact_match) {
+                // Compute weighted sum
+                for (size_t j = 0; j < points.size(); ++j) {
+                    double dist = std::sqrt(distance_squared_3d(target, points[j]) + smoothing);
+                    double weight = 1.0 / std::pow(dist, power);
+                    weight_sum += weight;
+                    value_sum += weight * values[j];
+                }
+                result[i] = value_sum / weight_sum;
+            }
         }
+
+        return result;
     }
 
-    return result;
-}
+    namespace detail {
 
-namespace detail {
+        template <typename T, size_t DIM> struct idw_traits { };
 
-    template <typename T, size_t DIM> struct idw_traits {};
-    
-    template <typename T> struct idw_traits<T, 2> {
-        using type = Vector2;
-        Serie<T> idw(const Serie<type> &points, const Serie<T> &values,
-                     const Serie<type> &targets, double power = 2.0,
-                     double smoothing = 1e-10) {
-            return idw_2d(points, values, targets, power, smoothing);
-        }
-    };
-    
-    template <typename T> struct idw_traits<T, 3> {
-        using type = Vector3;
-        Serie<T> idw(const Serie<type> &points, const Serie<T> &values,
-                     const Serie<type> &targets, double power = 2.0,
-                     double smoothing = 1e-10) {
-            return idw_3d(points, values, targets, power, smoothing);
-        }
-    };
-    
+        template <typename T> struct idw_traits<T, 2> {
+            using type = Vector2;
+            Serie<T> idw(const Serie<type>& points, const Serie<T>& values,
+                const Serie<type>& targets, double power = 2.0, double smoothing = 1e-10)
+            {
+                return idw_2d(points, values, targets, power, smoothing);
+            }
+        };
+
+        template <typename T> struct idw_traits<T, 3> {
+            using type = Vector3;
+            Serie<T> idw(const Serie<type>& points, const Serie<T>& values,
+                const Serie<type>& targets, double power = 2.0, double smoothing = 1e-10)
+            {
+                return idw_3d(points, values, targets, power, smoothing);
+            }
+        };
+
     } // namespace detail
 
 } // namespace df
