@@ -75,7 +75,7 @@ namespace df {
         /**
          * @brief Add constraint at specific position
          */
-        template <typename T> void addConstraint(const Vector<N>& pos, const T&);
+        template <typename T> void addConstraint(const Vector<double, N>& pos, const T&);
 
         /**
          * @brief Constrain all border nodes with given value
@@ -100,7 +100,7 @@ namespace df {
         double epsilon_;
 
         template <typename T> void initializeValues(const T& init_value);
-        size_t findClosestNode(const Vector<N>& pos) const;
+        size_t findClosestNode(const Vector<double, N>& pos) const;
         bool isConstrained(size_t node_idx) const;
         Serie<double> createSerie(const std::vector<std::vector<double>>& data) const;
     };

@@ -578,6 +578,43 @@ namespace df {
         return result;
     }
 
+    template <typename T, size_t N> Vector<T, N> Vector<T, N>::operator/(T scalar) const
+    {
+        Vector<T, N> result;
+        for (size_t i = 0; i < N; ++i) {
+            result[i] = data_[i] / scalar;
+        }
+        return result;
+    }
+
+    template <typename T, size_t N>
+    Vector<T, N>& Vector<T, N>::operator+=(const Vector<T, N>& other)
+    {
+        for (size_t i = 0; i < N; ++i) data_[i] += other[i];
+        return *this;
+    }
+
+    template <typename T, size_t N>
+    Vector<T, N>& Vector<T, N>::operator-=(const Vector<T, N>& other)
+    {
+        for (size_t i = 0; i < N; ++i) data_[i] -= other[i];
+        return *this;
+    }
+
+    template <typename T, size_t N>
+    Vector<T, N>& Vector<T, N>::operator*=(T scalar)
+    {
+        for (size_t i = 0; i < N; ++i) data_[i] *= scalar;
+        return *this;
+    }
+
+    template <typename T, size_t N>
+    Vector<T, N>& Vector<T, N>::operator/=(T scalar)
+    {
+        for (size_t i = 0; i < N; ++i) data_[i] /= scalar;
+        return *this;
+    }
+
     // Dot product
     template <typename T, size_t N> T Vector<T, N>::dot(const Vector<T, N>& other) const
     {
@@ -731,17 +768,11 @@ namespace df {
     template <typename T, size_t N>
     inline std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
     {
-        static const double default_epsilon = 1e-12;
         os << "[";
         for (size_t i = 0; i < N; ++i) {
-            T val = vec[i];
-            if (std::abs(val) < default_epsilon) {
-                os << "0";
-            } else {
-                os << val;
-            }
+            os << vec[i];
             if (i < N - 1)
-                os << ", ";
+                os << ",";
         }
         os << "]";
         return os;

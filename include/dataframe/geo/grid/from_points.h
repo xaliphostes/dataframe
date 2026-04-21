@@ -38,7 +38,7 @@ namespace df {
              * @return Serie of grid point positions
              */
             template <size_t N>
-            Serie<Vector<N>> from_points(const iVector<N>& npts, const std::vector<double>& p1,
+            Serie<Vector<double, N>> from_points(const iVector<N>& npts, const std::vector<double>& p1,
                 const std::vector<double>& p2);
 
         } // namespace cartesian

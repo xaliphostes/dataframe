@@ -26,8 +26,8 @@ namespace df {
         namespace cartesian {
 
             template <size_t N>
-            Serie<Vector<N>> from_dims(
-                const iVector<N>& npts, const Vector<N>& center, const Vector<N>& dimensions)
+            Serie<Vector<double, N>> from_dims(
+                const iVector<N>& npts, const Vector<double, N>& center, const Vector<double, N>& dimensions)
             {
                 // Validate input
                 for (size_t i = 0; i < N; ++i) {
@@ -42,24 +42,24 @@ namespace df {
 
                 // Calculate total number of points and spacing
                 size_t total_points = 1;
-                Vector<N> spacing;
+                Vector<double, N> spacing;
                 for (size_t i = 0; i < N; ++i) {
                     total_points *= npts[i];
                     spacing[i] = dimensions[i] / (npts[i] > 1 ? npts[i] - 1 : 1);
                 }
 
                 // Initialize result array
-                std::vector<Vector<N>> points(total_points);
+                std::vector<Vector<double, N>> points(total_points);
 
                 // Calculate min corner from center and dimensions
-                Vector<N> min_corner;
+                Vector<double, N> min_corner;
                 for (size_t i = 0; i < N; ++i) {
                     min_corner[i] = center[i] - dimensions[i] / 2.0;
                 }
 
                 // Generate points
                 for (size_t idx = 0; idx < total_points; ++idx) {
-                    Vector<N> point;
+                    Vector<double, N> point;
                     size_t remaining = idx;
 
                     // Calculate position in each dimension
@@ -75,7 +75,7 @@ namespace df {
                     points[idx] = point;
                 }
 
-                return Serie<Vector<N>>(points);
+                return Serie<Vector<double, N>>(points);
             }
 
         } // namespace cartesian

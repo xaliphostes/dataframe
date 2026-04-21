@@ -30,7 +30,7 @@ namespace df {
         // Helper to get component count for a type
         template <typename T> inline size_t Decomposer::getComponentCount()
         {
-            if constexpr (std::is_array_v<T> || details::is_std_array_v<T>) {
+            if constexpr (std::is_array_v<T> || details::is_array_like_v<T>) {
                 return std::tuple_size_v<T>;
             } else {
                 return 1;
@@ -42,7 +42,7 @@ namespace df {
         inline Serie<double> Decomposer::extractComponent(const Serie<T>& serie, size_t index)
         {
             return serie.map([index](const T& value, size_t) -> double {
-                if constexpr (std::is_array_v<T> || details::is_std_array_v<T>) {
+                if constexpr (std::is_array_v<T> || details::is_array_like_v<T>) {
                     return static_cast<double>(value[index]);
                 }
                 // Handle struct-based vector types

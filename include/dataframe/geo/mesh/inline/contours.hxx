@@ -30,7 +30,7 @@ const std::array<std::array<int, 2>, 8> lookupTable0 = {
     {{-1, -1}, {1, 2}, {0, 1}, {2, 0}, {2, 0}, {0, 1}, {1, 2}, {-1, -1}}};
 
 template <size_t N>
-inline Vector<N> interpolateVertex(const Vector<N> &v1, const Vector<N> &v2,
+inline Vector<double, N> interpolateVertex(const Vector<double, N> &v1, const Vector<double, N> &v2,
                                    double val1, double val2, double isoValue) {
     double t = (isoValue - val1) / (val2 - val1);
     return v1 + (v2 - v1) * t;
@@ -49,7 +49,7 @@ inline bool ok(double p0, double p1, double p2, double min, double max) {
 
 template <size_t N>
 inline std::ostream &operator<<(std::ostream &os, const IsoSegment<N> &seg) {
-    auto displV = [&os](const Vector<N> &v) {
+    auto displV = [&os](const Vector<double, N> &v) {
         os << "[";
         for (size_t i = 0; i < N - 1; ++i) {
             os << v[i] << ",";
@@ -120,7 +120,7 @@ inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
 
     // Extract connected components
     while (!tri2code.empty()) {
-        std::vector<Vector<N>> isoline;
+        std::vector<Vector<double, N>> isoline;
         std::vector<double> values_t;
 
         size_t first_tri = tri2code.begin()->first;
@@ -139,7 +139,7 @@ inline Serie<IsoSegment<N>> contours(const Mesh<N> &mesh,
             int v0 = tri[cut_edges[e]];
             int v1 = tri[(cut_edges[e] + 1) % 3];
 
-            Vector<N> p = detail::interpolateVertex(
+            Vector<double, N> p = detail::interpolateVertex(
                 vertices[v0], vertices[v1], values[v0], values[v1], isovalue);
 
             isoline.push_back(p);

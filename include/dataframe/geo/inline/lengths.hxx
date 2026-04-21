@@ -26,8 +26,8 @@ namespace df {
 namespace detail {
 
 // Compute length of a segment in 2D or 3D
-template <typename T, size_t N>
-T segment_length(const std::array<T, N> &v1, const std::array<T, N> &v2) {
+template <typename T, size_t N, typename VecT>
+T segment_length(const VecT &v1, const VecT &v2) {
     T sum = T{0};
     for (size_t i = 0; i < N; ++i) {
         T diff = v2[i] - v1[i];
@@ -45,7 +45,7 @@ T segment_length(const std::array<T, N> &v1, const std::array<T, N> &v2) {
  * @return Serie of segment lengths
  */
 template <size_t N>
-Serie<double> length(const Serie<Vector<N>> &vertices,
+Serie<double> length(const Serie<Vector<double, N>> &vertices,
                      const Segments &segments) {
     if (vertices.empty() || segments.empty()) {
         return Serie<double>();
@@ -60,7 +60,7 @@ Serie<double> length(const Serie<Vector<N>> &vertices,
 
 // Binding functions for pipeline operations
 template <size_t N> auto bind_length(const Segments &segments) {
-    return [&segments](const Serie<Vector<N>> &vertices) {
+    return [&segments](const Serie<Vector<double, N>> &vertices) {
         return length<N>(vertices, segments);
     };
 }

@@ -186,7 +186,7 @@ template <typename T, DistType D> class RandomGenerator {
                         result.push_back(dist(engine_));
                     }
                 }
-            } else if constexpr (details::is_std_array_v<T>) {
+            } else if constexpr (details::is_array_like_v<T>) {
                 constexpr size_t N = std::tuple_size_v<T>;
                 std::array<
                     std::uniform_real_distribution<typename T::value_type>, N>
@@ -210,7 +210,7 @@ template <typename T, DistType D> class RandomGenerator {
                 for (size_t i = 0; i < n; ++i) {
                     result.push_back(dist(engine_));
                 }
-            } else if constexpr (details::is_std_array_v<T>) {
+            } else if constexpr (details::is_array_like_v<T>) {
                 constexpr size_t N = std::tuple_size_v<T>;
                 std::array<std::normal_distribution<typename T::value_type>, N>
                     dists;
@@ -250,7 +250,7 @@ template <typename T, DistType D> class RandomGenerator {
                 for (size_t i = 0; i < n; ++i) {
                     result.push_back(static_cast<T>(dist(engine_)));
                 }
-            } else if constexpr (details::is_std_array_v<T>) {
+            } else if constexpr (details::is_array_like_v<T>) {
                 constexpr size_t N = std::tuple_size_v<T>;
                 std::array<std::bernoulli_distribution, N> dists;
                 for (size_t i = 0; i < N; ++i) {
@@ -272,7 +272,7 @@ template <typename T, DistType D> class RandomGenerator {
                 for (size_t i = 0; i < n; ++i) {
                     result.push_back(static_cast<T>(dist(engine_)));
                 }
-            } else if constexpr (details::is_std_array_v<T>) {
+            } else if constexpr (details::is_array_like_v<T>) {
                 constexpr size_t N = std::tuple_size_v<T>;
                 std::array<std::poisson_distribution<int>, N> dists;
                 for (size_t i = 0; i < N; ++i) {
@@ -288,7 +288,7 @@ template <typename T, DistType D> class RandomGenerator {
                 }
             }
         } else if constexpr (D == DistType::Sampling) {
-            if constexpr (details::is_std_array_v<T>) {
+            if constexpr (details::is_array_like_v<T>) {
                 if (params.replacement) {
                     std::uniform_int_distribution<size_t> dist(
                         0, params.population.size() - 1);

@@ -28,7 +28,7 @@ namespace df {
         namespace cartesian {
 
             template <size_t N>
-            Serie<Vector<N>> from_points(const iVector<N>& npts, const std::vector<double>& p1,
+            Serie<Vector<double, N>> from_points(const iVector<N>& npts, const std::vector<double>& p1,
                 const std::vector<double>& p2)
             {
                 // Validate input
@@ -37,15 +37,15 @@ namespace df {
                                                 "as template parameter N");
                 }
 
-                // Convert input points to Vector<N>
-                Vector<N> min_corner, max_corner;
+                // Convert input points to Vector<double, N>
+                Vector<double, N> min_corner, max_corner;
                 for (size_t i = 0; i < N; ++i) {
                     min_corner[i] = std::min(p1[i], p2[i]);
                     max_corner[i] = std::max(p1[i], p2[i]);
                 }
 
                 // Calculate dimensions and center
-                Vector<N> dimensions, center;
+                Vector<double, N> dimensions, center;
                 for (size_t i = 0; i < N; ++i) {
                     dimensions[i] = max_corner[i] - min_corner[i];
                     center[i] = min_corner[i] + dimensions[i] / 2.0;

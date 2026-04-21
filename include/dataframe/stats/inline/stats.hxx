@@ -119,7 +119,7 @@ inline auto variance(const Serie<T> &serie, bool population) {
         // Variance of a single element is defined as 0
         if constexpr (std::is_arithmetic_v<T>) {
             return 0.0;
-        } else if constexpr (details::is_std_array_v<T>) {
+        } else if constexpr (details::is_array_like_v<T>) {
             // For array types, return array of zeros
             using ElementType = typename T::value_type;
             using ResultType = std::array<double, std::tuple_size_v<T>>;
@@ -149,7 +149,7 @@ inline auto variance(const Serie<T> &serie, bool population) {
         // Divide by n for population variance or (n-1) for sample variance
         double divisor = population ? serie.size() : (serie.size() - 1);
         return sum_sq_diff / divisor;
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For array types (Vector2, Vector3, etc.)
         constexpr size_t N = std::tuple_size_v<T>;
         using ElementType = typename T::value_type;
@@ -192,7 +192,7 @@ inline auto std_dev(const Serie<T> &serie, bool population) {
     if constexpr (std::is_arithmetic_v<T>) {
         // For scalar types, return square root of variance
         return std::sqrt(var);
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For array types, return element-wise square root
         constexpr size_t N = std::tuple_size_v<T>;
         using ResultType = std::array<double, N>;
@@ -229,7 +229,7 @@ template <typename T> inline auto median(Serie<T> serie) {
                     static_cast<double>(data[size / 2])) /
                    2.0;
         }
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For array types, calculate component-wise median
         constexpr size_t N = std::tuple_size_v<T>;
         using ElementType = typename T::value_type;
@@ -297,7 +297,7 @@ template <typename T> inline auto quantile(Serie<T> serie, double q) {
         // Linear interpolation between the two nearest values
         return static_cast<double>(data[idx_lower]) * (1.0 - weight) +
                static_cast<double>(data[idx_upper]) * weight;
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For array types, calculate component-wise quantile
         constexpr size_t N = std::tuple_size_v<T>;
         using ElementType = typename T::value_type;

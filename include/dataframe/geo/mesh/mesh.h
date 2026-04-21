@@ -56,7 +56,7 @@ namespace df {
     public:
         static_assert(N == 2 || N == 3, "Mesh dimension must be 2 or 3");
 
-        using VertexType = Vector<N>; // i.e., std::array<double, N>
+        using VertexType = Vector<double, N>;
 
         Mesh() = default;
 

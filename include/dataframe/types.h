@@ -26,6 +26,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <dataframe/algebra/types.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -38,15 +39,18 @@ using Strings = std::vector<String>;
 using uint = unsigned int;
 using ushort = unsigned short;
 
+// Integer index vectors (not math types, kept as std::array)
 using iVector2 = std::array<uint, 2>;
 using iVector3 = std::array<uint, 3>;
 using iVector4 = std::array<uint, 4>;
 using iVector6 = std::array<uint, 6>;
 template <size_t N> using iVector = std::array<uint, N>;
-using Vector2 = std::array<double, 2>;
-using Vector3 = std::array<double, 3>;
-using Vector4 = std::array<double, 4>;
-using Vector6 = std::array<double, 6>;
+
+// Math vectors: unified as df::Vector<double, N> (typed view over std::array)
+using Vector2 = df::Vector<double, 2>;
+using Vector3 = df::Vector<double, 3>;
+using Vector4 = df::Vector<double, 4>;
+using Vector6 = df::Vector<double, 6>;
 
 // Helper function to print std::array (internal use)
 template <class T, std::size_t N> void print_array(std::ostream& o, const std::array<T, N>& m)

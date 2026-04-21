@@ -22,6 +22,7 @@
  */
 
 #pragma once
+#include <array>
 #include <type_traits>
 #include <vector>
 
@@ -29,161 +30,178 @@
  * @brief Meta programming utilities for the dataframe library
  */
 
+// Forward declarations for array-like trait
 namespace df {
-namespace details {
-
-template <typename T, typename S>
-using isArithmeticSerie =
-    std::enable_if_t<std::is_arithmetic<S>::value, Serie<T>>;
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to check if a type is a simple type (arithmetic, enum, ptr,
- * null...)
- */
-template <typename T>
-struct is_simple_type
-    : std::integral_constant<bool, std::is_arithmetic<T>::value ||
-                                       std::is_enum<T>::value ||
-                                       std::is_pointer<T>::value ||
-                                       std::is_null_pointer<T>::value> {};
-
-/**
- * @brief Type trait to check if a type is a scalar (arithmetic type)
- */
-template <typename T> using is_scalar = std::is_arithmetic<T>;
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to detect if a type is a std::array
- */
-template <typename T> struct is_std_array : std::false_type {};
-template <typename T, std::size_t N>
-struct is_std_array<std::array<T, N>> : std::true_type {};
-
-// Helper variable template for easier usage
-template<typename T>
-inline constexpr bool is_std_array_v = is_std_array<T>::value;
-
-
-// Type trait for getting array element type
-template <typename T> struct array_element {
-    using type = T;
-};
-template <typename T, std::size_t N> struct array_element<std::array<T, N>> {
-    using type = T;
-};
-
-// Helper to get array dimension
-template <typename T> struct array_dimension {
-    static constexpr std::size_t value = 1;
-};
-template <typename T, std::size_t N> struct array_dimension<std::array<T, N>> {
-    static constexpr std::size_t value = N;
-};
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to detect if a type is a std::vector
- */
-template <typename T> struct is_std_vector : std::false_type {};
-template <typename T, typename A>
-struct is_std_vector<std::vector<T, A>> : std::true_type {};
-// Helper variable template for easier usage
-template<typename T>
-inline constexpr bool is_std_vector_v = is_std_vector<T>::value;
-
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to detect if a type is a container-like type (has
- * operator[], size() and value_type)
- */
-template <typename T, typename = void> struct is_container : std::false_type {};
-template <typename T>
-struct is_container<
-    T, std::void_t<decltype(std::declval<T>()[0]),
-                   decltype(std::declval<T>().size()), typename T::value_type>>
-    : std::true_type {};
-
-/**
- * @brief Helper to get element type of a container
- */
-template <typename T, typename = void> struct container_value_type {
-    using type = T; // fallback for non-containers
-};
-template <typename T>
-struct container_value_type<T, std::void_t<typename T::value_type>> {
-    using type = typename T::value_type;
-};
-
-/**
- * @brief Type trait for resizable containers (has push_back)
- */
-template <typename T, typename = void>
-struct is_resizable_container : std::false_type {};
-
-template <typename T>
-struct is_resizable_container<T,
-                              std::void_t<decltype(std::declval<T>().push_back(
-                                  std::declval<typename T::value_type>()))>>
-    : std::true_type {};
-
-/**
- * @brief Helper to get size of std::array or 0 for dynamic containers
- */
-template <typename T>
-struct container_size : std::integral_constant<std::size_t, 0> {};
-template <typename T, std::size_t N>
-struct container_size<std::array<T, N>>
-    : std::integral_constant<std::size_t, N> {};
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to check if a type has reserve method
- */
-template <typename T, typename = void> struct has_reserve : std::false_type {};
-
-template <typename T>
-struct has_reserve<
-    T, std::void_t<decltype(std::declval<T>().reserve(std::size_t{}))>>
-    : std::true_type {};
-
-// -------------------------------------------------
-
-/**
- * @brief Type trait to detect if T has a default constructor
- */
-template <typename T>
-using is_default_constructible = std::is_default_constructible<T>;
-
-/**
- * @brief Check default constructibility at compile time
- */
-template <typename T> void check_default_constructible() {
-    static_assert(is_default_constructible<T>::value,
-                  "Type must be default constructible. Please add a default "
-                  "constructor.");
+    template <typename T, size_t N> class Vector;
+    template <typename T, size_t N> class FullMatrix;
+    template <typename T, size_t N> class SymmetricMatrix;
 }
 
-// -------------------------------------------------
+namespace df {
+    namespace details {
 
-/**
- * @brief Helper to get tuple element types
- */
-template <typename Tuple> struct tuple_element_types;
+        template <typename T, typename S>
+        using isArithmeticSerie = std::enable_if_t<std::is_arithmetic<S>::value, Serie<T>>;
 
-template <typename... Types> struct tuple_element_types<std::tuple<Types...>> {
-    template <std::size_t I>
-    using type = typename std::tuple_element<I, std::tuple<Types...>>::type;
-};
+        // -------------------------------------------------
 
-// -------------------------------------------------
+        /**
+         * @brief Type trait to check if a type is a simple type (arithmetic, enum, ptr,
+         * null...)
+         */
+        template <typename T>
+        struct is_simple_type
+            : std::integral_constant<bool,
+                  std::is_arithmetic<T>::value || std::is_enum<T>::value
+                      || std::is_pointer<T>::value || std::is_null_pointer<T>::value> { };
 
-} // namespace details
+        /**
+         * @brief Type trait to check if a type is a scalar (arithmetic type)
+         */
+        template <typename T> using is_scalar = std::is_arithmetic<T>;
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Type trait to detect if a type is a std::array
+         */
+        template <typename T> struct is_std_array : std::false_type { };
+        template <typename T, std::size_t N>
+        struct is_std_array<std::array<T, N>> : std::true_type { };
+
+        // Helper variable template for easier usage
+        template <typename T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
+
+        /**
+         * @brief Type trait to detect df::Vector (math view over std::array)
+         */
+        template <typename T> struct is_df_vector : std::false_type { };
+        template <typename T, std::size_t N>
+        struct is_df_vector<df::Vector<T, N>> : std::true_type { };
+        template <typename T> inline constexpr bool is_df_vector_v = is_df_vector<T>::value;
+
+        /**
+         * @brief Unified trait: matches both std::array<T,N> and df::Vector<T,N>
+         * Use this instead of is_std_array_v when dispatching on "array-like" types.
+         */
+        template <typename T>
+        inline constexpr bool is_array_like_v = is_std_array_v<T> || is_df_vector_v<T>;
+
+        // Type trait for getting array element type
+        template <typename T> struct array_element {
+            using type = T;
+        };
+        template <typename T, std::size_t N> struct array_element<std::array<T, N>> {
+            using type = T;
+        };
+        template <typename T, std::size_t N> struct array_element<df::Vector<T, N>> {
+            using type = T;
+        };
+
+        // Helper to get array dimension
+        template <typename T> struct array_dimension {
+            static constexpr std::size_t value = 1;
+        };
+        template <typename T, std::size_t N> struct array_dimension<std::array<T, N>> {
+            static constexpr std::size_t value = N;
+        };
+        template <typename T, std::size_t N> struct array_dimension<df::Vector<T, N>> {
+            static constexpr std::size_t value = N;
+        };
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Type trait to detect if a type is a std::vector
+         */
+        template <typename T> struct is_std_vector : std::false_type { };
+        template <typename T, typename A>
+        struct is_std_vector<std::vector<T, A>> : std::true_type { };
+        // Helper variable template for easier usage
+        template <typename T> inline constexpr bool is_std_vector_v = is_std_vector<T>::value;
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Type trait to detect if a type is a container-like type (has
+         * operator[], size() and value_type)
+         */
+        template <typename T, typename = void> struct is_container : std::false_type { };
+        template <typename T>
+        struct is_container<T,
+            std::void_t<decltype(std::declval<T>()[0]), decltype(std::declval<T>().size()),
+                typename T::value_type>> : std::true_type { };
+
+        /**
+         * @brief Helper to get element type of a container
+         */
+        template <typename T, typename = void> struct container_value_type {
+            using type = T; // fallback for non-containers
+        };
+        template <typename T> struct container_value_type<T, std::void_t<typename T::value_type>> {
+            using type = typename T::value_type;
+        };
+
+        /**
+         * @brief Type trait for resizable containers (has push_back)
+         */
+        template <typename T, typename = void> struct is_resizable_container : std::false_type { };
+
+        template <typename T>
+        struct is_resizable_container<T,
+            std::void_t<decltype(std::declval<T>().push_back(
+                std::declval<typename T::value_type>()))>> : std::true_type { };
+
+        /**
+         * @brief Helper to get size of std::array or 0 for dynamic containers
+         */
+        template <typename T> struct container_size : std::integral_constant<std::size_t, 0> { };
+        template <typename T, std::size_t N>
+        struct container_size<std::array<T, N>> : std::integral_constant<std::size_t, N> { };
+        template <typename T, std::size_t N>
+        struct container_size<df::Vector<T, N>> : std::integral_constant<std::size_t, N> { };
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Type trait to check if a type has reserve method
+         */
+        template <typename T, typename = void> struct has_reserve : std::false_type { };
+
+        template <typename T>
+        struct has_reserve<T, std::void_t<decltype(std::declval<T>().reserve(std::size_t { }))>>
+            : std::true_type { };
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Type trait to detect if T has a default constructor
+         */
+        template <typename T> using is_default_constructible = std::is_default_constructible<T>;
+
+        /**
+         * @brief Check default constructibility at compile time
+         */
+        template <typename T> void check_default_constructible()
+        {
+            static_assert(is_default_constructible<T>::value,
+                "Type must be default constructible. Please add a default "
+                "constructor.");
+        }
+
+        // -------------------------------------------------
+
+        /**
+         * @brief Helper to get tuple element types
+         */
+        template <typename Tuple> struct tuple_element_types;
+
+        template <typename... Types> struct tuple_element_types<std::tuple<Types...>> {
+            template <std::size_t I>
+            using type = typename std::tuple_element<I, std::tuple<Types...>>::type;
+        };
+
+        // -------------------------------------------------
+
+    } // namespace details
 } // namespace df

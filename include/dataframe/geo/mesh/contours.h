@@ -33,7 +33,7 @@
 namespace df {
 
     template <size_t N> struct IsoSegment {
-        Vector<N> p1, p2;
+        Vector<double, N> p1, p2;
         double value;
     };
 

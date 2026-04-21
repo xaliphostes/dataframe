@@ -37,7 +37,7 @@ inline T compute_window_avg(const std::vector<T> &values, size_t start,
 
 // Helper for array/vector types using std::array
 template <typename T,
-          typename std::enable_if_t<details::is_std_array_v<T>, int> = 0>
+          typename std::enable_if_t<details::is_array_like_v<T>, int> = 0>
 inline T compute_window_avg(const std::vector<T> &values, size_t start,
                             size_t count) {
     using ElementType = typename T::value_type;

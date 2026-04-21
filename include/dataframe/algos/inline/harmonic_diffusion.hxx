@@ -53,7 +53,7 @@ template <size_t N> void HarmonicDiffusion<N>::setEpsilon(double e) {
 
 template <size_t N>
 template <typename T>
-void HarmonicDiffusion<N>::addConstraint(const Vector<N> &pos, const T &value) {
+void HarmonicDiffusion<N>::addConstraint(const Vector<double, N> &pos, const T &value) {
     const auto &vertices = mesh_.vertices();
     size_t node_idx = findClosestNode(pos);
 
@@ -170,7 +170,7 @@ void HarmonicDiffusion<N>::initializeValues(const T &init_value) {
 }
 
 template <size_t N>
-size_t HarmonicDiffusion<N>::findClosestNode(const Vector<N> &pos) const {
+size_t HarmonicDiffusion<N>::findClosestNode(const Vector<double, N> &pos) const {
     const auto &vertices = mesh_.vertices();
     size_t closest = -1;
     double min_dist = std::numeric_limits<double>::max();

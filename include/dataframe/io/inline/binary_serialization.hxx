@@ -272,7 +272,7 @@ void serializer<T>::write(std::ostream &ofs, const T &value, bool swap_needed) {
     if constexpr (std::is_standard_layout_v<T> && std::is_trivial_v<T>) {
         // For trivial types, direct binary write
         ofs.write(reinterpret_cast<const char *>(&value), sizeof(T));
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For std::array
         constexpr size_t N = std::tuple_size_v<T>;
         using ElementType = typename T::value_type;
@@ -299,7 +299,7 @@ T serializer<T>::read(std::istream &is, bool swap_needed) {
         T value;
         is.read(reinterpret_cast<char *>(&value), sizeof(T));
         return value;
-    } else if constexpr (details::is_std_array_v<T>) {
+    } else if constexpr (details::is_array_like_v<T>) {
         // For std::array
         constexpr size_t N = std::tuple_size_v<T>;
         using ElementType = typename T::value_type;

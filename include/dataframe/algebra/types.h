@@ -140,7 +140,9 @@ namespace df {
         using type = std::array<T, N>;
         using value_type = T;
         using size_type = size_t;
-        // static constexpr size_type size = N;
+        using iterator = T*;
+        using const_iterator = const T*;
+        static constexpr size_type static_size = N;
 
         Vector();
         explicit Vector(const type& t);
@@ -153,17 +155,33 @@ namespace df {
         Vector& operator=(Vector&& other) noexcept = default;
 
         T& operator[](size_t i);
-
         const T& operator[](size_t i) const;
 
         T* data();
         const T* data() const;
 
-        size_t size() const {return N;}
+        constexpr size_t size() const { return N; }
 
+        // Iterator support (std::array compatibility)
+        iterator begin() { return data_.data(); }
+        iterator end() { return data_.data() + N; }
+        const_iterator begin() const { return data_.data(); }
+        const_iterator end() const { return data_.data() + N; }
+        const_iterator cbegin() const { return data_.data(); }
+        const_iterator cend() const { return data_.data() + N; }
+
+        void fill(const T& value) { data_.fill(value); }
+
+        // Arithmetic operators
         Vector operator+(const Vector& other) const;
         Vector operator-(const Vector& other) const;
         Vector operator*(T scalar) const;
+        Vector operator/(T scalar) const;
+
+        Vector& operator+=(const Vector& other);
+        Vector& operator-=(const Vector& other);
+        Vector& operator*=(T scalar);
+        Vector& operator/=(T scalar);
 
         T dot(const Vector& other) const;
         Vector cross(const Vector& other) const;
@@ -214,6 +232,30 @@ namespace df {
     template <typename T, size_t N>
     std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec);
 
+    // Free operator: scalar * vector
+    template <typename T, size_t N>
+    Vector<T, N> operator*(T scalar, const Vector<T, N>& v) { return v * scalar; }
+
+    // Free operator: vector / scalar (already member), but also scalar * matrix
+    template <typename T, size_t N>
+    FullMatrix<T, N> operator*(T scalar, const FullMatrix<T, N>& m) { return m * scalar; }
+
+    template <typename T, size_t N>
+    SymmetricMatrix<T, N> operator*(T scalar, const SymmetricMatrix<T, N>& m) { return m * scalar; }
+
 } // namespace df
+
+// std::tuple_size / std::tuple_element specializations for df::Vector
+// This enables std::tuple_size_v<df::Vector<T,N>> and structured bindings
+namespace std {
+    template <typename T, size_t N>
+    struct tuple_size<df::Vector<T, N>> : integral_constant<size_t, N> {};
+
+    template <size_t I, typename T, size_t N>
+    struct tuple_element<I, df::Vector<T, N>> {
+        static_assert(I < N, "Index out of bounds");
+        using type = T;
+    };
+}
 
 #include "inline/types.hxx"

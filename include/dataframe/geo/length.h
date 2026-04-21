@@ -38,7 +38,7 @@ namespace df {
  * @return Serie of segment lengths
  */
 template <size_t N>
-Serie<double> length(const Serie<Vector<N>> &vertices,
+Serie<double> length(const Serie<Vector<double, N>> &vertices,
                      const Segments &segments);
 
 // Binding functions for pipeline operations
